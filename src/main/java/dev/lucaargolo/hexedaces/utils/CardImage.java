@@ -2,6 +2,8 @@ package dev.lucaargolo.hexedaces.utils;
 
 import com.mojang.blaze3d.platform.NativeImage;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Arrays;
 
@@ -138,6 +140,42 @@ public class CardImage {
             }
         }
         return image;
+    }
+
+    public static void generateAtlas(File inputFile, File outputFile) throws IOException {
+        BufferedImage image = ImageIO.read(inputFile);
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        int rows = width / CardImage.WIDTH;
+        int cols = height / CardImage.HEIGHT;
+
+
+        for (int col = 0; col < cols; col++) {
+            for (int row = 0; row < rows; row++) {
+                CardImage cardImage = new CardImage();
+
+                for (int x = 0; x < CardImage.WIDTH; x++) {
+                    for (int y = 0; y < CardImage.HEIGHT; y++) {
+                        int argb;
+                        try {
+                            argb = image.getRGB(x + (row*CardImage.WIDTH), y + (col*CardImage.HEIGHT));
+                        }catch (ArrayIndexOutOfBoundsException e) {
+                            argb = 0xFFFFFFFF;
+                        }
+                        cardImage.setARGBPixel(x, y, argb);
+                    }
+                }
+
+                File fileToSave = new File(outputFile.getAbsolutePath() + "_" + (col+1) + "_" + (row+1) + ".mccard");
+                try {
+                    cardImage.saveToFile(fileToSave.getAbsolutePath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override

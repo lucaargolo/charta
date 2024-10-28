@@ -4,6 +4,7 @@ import dev.lucaargolo.hexedaces.utils.CardImage;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -11,10 +12,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+import java.util.List;
 import javax.imageio.ImageIO;
 
 public class CardEditor extends JFrame {
@@ -36,12 +35,36 @@ public class CardEditor extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+        setTransferHandler(new TransferHandler() {
+            @Override
+            public boolean canImport(TransferSupport support) {
+                return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public boolean importData(TransferSupport support) {
+                if (!canImport(support)) {
+                    return false;
+                }
+                try {
+                    List<File> files = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    if(!files.isEmpty()) {
+                        loadImageFile(files.getFirst());
+                    }
+                    return true;
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+        });
 
         imageLabel = new JLabel();
         imageLabel.setHorizontalAlignment(JLabel.CENTER);
         add(imageLabel, BorderLayout.CENTER);
 
         JMenuBar menuBar = new JMenuBar();
+
         JMenu fileMenu = new JMenu("File");
         JMenuItem newItem = new JMenuItem("New Image");
         JMenuItem loadItem = new JMenuItem("Load Image");
@@ -50,11 +73,18 @@ public class CardEditor extends JFrame {
         fileMenu.add(loadItem);
         fileMenu.add(saveItem);
         menuBar.add(fileMenu);
+
+        JMenu utilsMenu = new JMenu("Utils");
+        JMenuItem convertAtlas = new JMenuItem("Convert Atlas");
+        utilsMenu.add(convertAtlas);
+        menuBar.add(utilsMenu);
+
         setJMenuBar(menuBar);
 
         newItem.addActionListener(e -> createNewImage());
         loadItem.addActionListener(e -> loadCardImage());
         saveItem.addActionListener(e -> saveCardImage());
+        convertAtlas.addActionListener(e -> convertCardAtlas());
 
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
@@ -231,30 +261,49 @@ public class CardEditor extends JFrame {
         int returnValue = fileChooser.showOpenDialog(this);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            try {
-                if(selectedFile.getName().endsWith(".mccard")) {
-                    currentImage = CardImage.loadFromFile(selectedFile);
-                    undoHistory.clear();
-                    redoHistory.clear();
-                }else{
-                    BufferedImage image = ImageIO.read(selectedFile);
-                    currentImage = new CardImage();
-                    undoHistory.clear();
-                    redoHistory.clear();
-                    int width = Math.min(image.getWidth(), CardImage.WIDTH);
-                    int height = Math.min(image.getHeight(), CardImage.HEIGHT);
+            loadImageFile(selectedFile);
+        }
+    }
 
-                    for (int x = 0; x < width; x++) {
-                        for (int y = 0; y < height; y++) {
-                            int argb = image.getRGB(x, y);
-                            currentImage.setARGBPixel(x, y, argb);
-                        }
+    private void loadImageFile(File selectedFile) {
+        try {
+            if(selectedFile.getName().endsWith(".mccard")) {
+                currentImage = CardImage.loadFromFile(selectedFile);
+                undoHistory.clear();
+                redoHistory.clear();
+            }else{
+                BufferedImage image = ImageIO.read(selectedFile);
+                currentImage = new CardImage();
+                undoHistory.clear();
+                redoHistory.clear();
+                int width = Math.min(image.getWidth(), CardImage.WIDTH);
+                int height = Math.min(image.getHeight(), CardImage.HEIGHT);
+
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) {
+                        int argb = image.getRGB(x, y);
+                        currentImage.setARGBPixel(x, y, argb);
                     }
                 }
-                updateImage();
+            }
+            updateImage();
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading image.");
+        }
+    }
+
+    private void convertCardAtlas() {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showOpenDialog(this);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                CardImage.generateAtlas(selectedFile, selectedFile);
+                JOptionPane.showMessageDialog(this, "Finalized atlas conversion.");
             } catch (IOException e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error loading image.");
+                JOptionPane.showMessageDialog(this, "Error loading image: "+selectedFile.getName());
             }
         }
     }
