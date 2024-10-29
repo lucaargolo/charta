@@ -1,9 +1,9 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "dev.lucaargolo.hexedaces.mixin",
+  "package": "dev.lucaargolo.charta.mixin",
   "compatibilityLevel": "JAVA_21",
-  "refmap": "hexedaces.refmap.json",
+  "refmap": "charta.refmap.json",
   "mixins": [
   ],
   "client": [

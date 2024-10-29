@@ -1,6 +1,6 @@
-package dev.lucaargolo.hexedaces.utils;
+package dev.lucaargolo.charta.utils;
 
-import dev.lucaargolo.hexedaces.HexedAces;
+import dev.lucaargolo.charta.Charta;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -42,7 +42,7 @@ public class CardImage {
             }
             return new CardImage(pixels);
         } catch (IOException exception) {
-            HexedAces.LOGGER.error("Error decompressing card image: ", exception);
+            Charta.LOGGER.error("Error decompressing card image: ", exception);
             return new CardImage();
         }
     }
@@ -51,7 +51,7 @@ public class CardImage {
         try {
             return ZIPCompression.compress(pixels);
         } catch (IOException exception) {
-            HexedAces.LOGGER.error("Error compressing card image: ", exception);
+            Charta.LOGGER.error("Error compressing card image: ", exception);
             return new byte[0];
         }
     }
@@ -167,10 +167,10 @@ public class CardImage {
                 CardImage cardImage = cards[col * rows + row];
                 File fileToSave = new File(outputFile.getAbsolutePath() + "_" + (col + 1) + "_" + (row + 1) + ".mccard");
                 try {
-                    HexedAces.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
+                    Charta.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
                     cardImage.saveToFile(fileToSave.getAbsolutePath());
                 } catch (IOException e) {
-                    HexedAces.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
+                    Charta.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
                 }
             }
         }

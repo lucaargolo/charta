@@ -1,9 +1,8 @@
-package dev.lucaargolo.hexedaces.resources;
+package dev.lucaargolo.charta.resources;
 
 
-import dev.lucaargolo.hexedaces.HexedAces;
-import dev.lucaargolo.hexedaces.utils.CardImage;
-import dev.lucaargolo.hexedaces.utils.CardImageUtils;
+import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -30,10 +29,10 @@ public class CardImageResource implements ResourceManagerReloadListener {
                 ResourceLocation location = id.withPath(s -> s.replace(path + "/", "").replace(".mccard", ""));
                 images.put(location, CardImage.decompress(stream.readAllBytes()));
             }catch (IOException e) {
-                HexedAces.LOGGER.error("Error while reading {} image {} :", path, id, e);
+                Charta.LOGGER.error("Error while reading {} image {} :", path, id, e);
             }
         });
-        HexedAces.LOGGER.info("Loaded {} {} images", images.size(), path);
+        Charta.LOGGER.info("Loaded {} {} images", images.size(), path);
     }
 
     public HashMap<ResourceLocation, CardImage> getImages() {

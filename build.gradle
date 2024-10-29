@@ -135,7 +135,7 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.withType(Jar).configureEach {
     manifest {
-        attributes["Main-Class"] = "dev.lucaargolo.hexedaces.editor.CardEditor"
+        attributes["Main-Class"] = "dev.lucaargolo.charta.editor.CardEditor"
     }
 }
 

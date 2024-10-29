@@ -1,9 +1,9 @@
-package dev.lucaargolo.hexedaces.utils;
+package dev.lucaargolo.charta.utils;
 
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
 import com.mojang.blaze3d.platform.NativeImage;
-import dev.lucaargolo.hexedaces.HexedAces;
+import dev.lucaargolo.charta.Charta;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.data.CachedOutput;
@@ -66,13 +66,13 @@ public class CardImageUtils {
     @SuppressWarnings({"UnstableApiUsage", "deprecation"})
     private static void saveCard(CardImage cardImage, File fileToSave, CachedOutput cachedOutput) {
         try {
-            HexedAces.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
+            Charta.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
             HashingOutputStream hashedOutStream = new HashingOutputStream(Hashing.sha1(), outStream);
             cardImage.saveToStream(hashedOutStream);
             cachedOutput.writeIfNeeded(fileToSave.toPath(), outStream.toByteArray(), hashedOutStream.hash());
         } catch (IOException e) {
-            HexedAces.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
+            Charta.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
         }
     }
 

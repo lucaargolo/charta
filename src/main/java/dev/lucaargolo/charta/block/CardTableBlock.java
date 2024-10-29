@@ -1,6 +1,6 @@
-package dev.lucaargolo.hexedaces.block;
+package dev.lucaargolo.charta.block;
 
-import dev.lucaargolo.hexedaces.client.screen.CardGameScreen;
+import dev.lucaargolo.charta.client.screen.CardGameScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;

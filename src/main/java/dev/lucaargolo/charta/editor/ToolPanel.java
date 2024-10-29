@@ -1,6 +1,6 @@
-package dev.lucaargolo.hexedaces.editor;
+package dev.lucaargolo.charta.editor;
 
-import dev.lucaargolo.hexedaces.utils.CardImage;
+import dev.lucaargolo.charta.utils.CardImage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

@@ -1,4 +1,4 @@
-package dev.lucaargolo.hexedaces.utils;
+package dev.lucaargolo.charta.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

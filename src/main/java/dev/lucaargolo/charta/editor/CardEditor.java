@@ -1,7 +1,7 @@
-package dev.lucaargolo.hexedaces.editor;
+package dev.lucaargolo.charta.editor;
 
-import dev.lucaargolo.hexedaces.HexedAces;
-import dev.lucaargolo.hexedaces.utils.CardImage;
+import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.utils.CardImage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -309,7 +309,7 @@ public class CardEditor extends JFrame {
             }
             updateImage();
         } catch (IOException e) {
-            HexedAces.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
+            Charta.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
             JOptionPane.showMessageDialog(this, "Error loading image.");
         }
     }
@@ -327,7 +327,7 @@ public class CardEditor extends JFrame {
                 CardImage.saveCards(ImageIO.read(selectedFile), outputFile);
                 JOptionPane.showMessageDialog(this, "Finalized atlas conversion.");
             } catch (IOException e) {
-                HexedAces.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
+                Charta.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error loading image: "+selectedFile.getName());
             }
         }
@@ -353,11 +353,11 @@ public class CardEditor extends JFrame {
                     ImageIO.write(convertedImage, "png", selectedFile);
                     JOptionPane.showMessageDialog(this, "Finished fixing card color.");
                 }catch (IOException e) {
-                    HexedAces.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
+                    Charta.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
                     JOptionPane.showMessageDialog(this, "Error saving image.");
                 }
             } catch (IOException e) {
-                HexedAces.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
+                Charta.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error loading image.");
             }
         }
@@ -384,7 +384,7 @@ public class CardEditor extends JFrame {
                 ImageIO.write(paletteImage, "png", selectedFile);
                 JOptionPane.showMessageDialog(this, "Exported palette image.");
             }catch (IOException e) {
-                HexedAces.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
+                Charta.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error saving image.");
             }
         }
@@ -420,7 +420,7 @@ public class CardEditor extends JFrame {
                 currentImage.saveToFile(selectedFile.getAbsolutePath());
                 JOptionPane.showMessageDialog(this, "Image saved successfully.");
             } catch (IOException e) {
-                HexedAces.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
+                Charta.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error saving image.");
             }
         }
@@ -431,7 +431,7 @@ public class CardEditor extends JFrame {
             try {
                 UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             } catch (Exception e) {
-                HexedAces.LOGGER.error("Error setting cross platform look and feel: ", e);
+                Charta.LOGGER.error("Error setting cross platform look and feel: ", e);
             }
             CardEditor editor = new CardEditor();
             editor.setUndecorated(true);

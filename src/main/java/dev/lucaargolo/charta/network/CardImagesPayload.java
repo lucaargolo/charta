@@ -1,9 +1,9 @@
-package dev.lucaargolo.hexedaces.network;
+package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.hexedaces.HexedAces;
-import dev.lucaargolo.hexedaces.client.HexedAcesClient;
-import dev.lucaargolo.hexedaces.utils.CardImage;
-import dev.lucaargolo.hexedaces.utils.CardImageUtils;
+import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.client.HexedAcesClient;
+import dev.lucaargolo.charta.utils.CardImage;
+import dev.lucaargolo.charta.utils.CardImageUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,7 +18,7 @@ import java.util.HashMap;
 
 public record CardImagesPayload(HashMap<ResourceLocation, CardImage> cardImages, HashMap<ResourceLocation, CardImage> deckImages) implements CustomPacketPayload {
 
-    public static final CustomPacketPayload.Type<CardImagesPayload> TYPE = new CustomPacketPayload.Type<>(HexedAces.id("card_images"));
+    public static final CustomPacketPayload.Type<CardImagesPayload> TYPE = new CustomPacketPayload.Type<>(Charta.id("card_images"));
 
     public static final StreamCodec<ByteBuf, CardImagesPayload> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, CardImageUtils.STREAM_CODEC),

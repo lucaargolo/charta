@@ -1,8 +1,8 @@
-package dev.lucaargolo.hexedaces.client;
+package dev.lucaargolo.charta.client;
 
-import dev.lucaargolo.hexedaces.HexedAces;
-import dev.lucaargolo.hexedaces.utils.CardImage;
-import dev.lucaargolo.hexedaces.utils.CardImageUtils;
+import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.utils.CardImage;
+import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 @OnlyIn(Dist.CLIENT)
 public class HexedAcesClient {
 
-    private static final ResourceLocation MISSING_CARD = HexedAces.id("missing_card");
+    private static final ResourceLocation MISSING_CARD = Charta.id("missing_card");
 
     public static final HashMap<ResourceLocation, CardImage> cardImages = new HashMap<>();
     public static final HashMap<ResourceLocation, CardImage> deckImages = new HashMap<>();

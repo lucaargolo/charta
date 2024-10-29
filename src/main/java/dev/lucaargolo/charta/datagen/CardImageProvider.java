@@ -1,7 +1,7 @@
-package dev.lucaargolo.hexedaces.datagen;
+package dev.lucaargolo.charta.datagen;
 
-import dev.lucaargolo.hexedaces.HexedAces;
-import dev.lucaargolo.hexedaces.utils.CardImageUtils;
+import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -33,9 +33,9 @@ public class CardImageProvider implements DataProvider {
     public @NotNull CompletableFuture<?> run(@NotNull CachedOutput cachedOutput) {
         return CompletableFuture.runAsync(() -> {
             Path outputPath = this.output.getOutputFolder();
-            String cardsOutputPath = outputPath + File.separator + "data" + File.separator + HexedAces.MOD_ID + File.separator + "card";
+            String cardsOutputPath = outputPath + File.separator + "data" + File.separator + Charta.MOD_ID + File.separator + "card";
             try {
-                URL resource = HexedAces.class.getClassLoader().getResource("cards");
+                URL resource = Charta.class.getClassLoader().getResource("cards");
                 URI uri = Objects.requireNonNull(resource).toURI();
 
                 try (Stream<Path> paths = Files.walk(Paths.get(uri), 1)) {
@@ -47,12 +47,12 @@ public class CardImageProvider implements DataProvider {
                         try (InputStream stream = Files.newInputStream(path)) {
                             CardImageUtils.saveCards(ImageIO.read(stream), cardOutputFolder, cachedOutput);
                         }catch (Exception e) {
-                            HexedAces.LOGGER.error("Error loading image: {}", path, e);
+                            Charta.LOGGER.error("Error loading image: {}", path, e);
                         }
                     });
                 }
             } catch (URISyntaxException | IOException e) {
-                HexedAces.LOGGER.error("Error loading cards", e);
+                Charta.LOGGER.error("Error loading cards", e);
             }
         });
     }
