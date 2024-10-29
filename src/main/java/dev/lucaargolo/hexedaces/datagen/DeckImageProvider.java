@@ -33,16 +33,16 @@ public class DeckImageProvider implements DataProvider {
     public @NotNull CompletableFuture<?> run(@NotNull CachedOutput cachedOutput) {
         return CompletableFuture.runAsync(() -> {
             Path outputPath = this.output.getOutputFolder();
-            String cardsOutputPath = outputPath + File.separator + "data" + File.separator + HexedAces.MOD_ID + File.separator + "cards";
+            String decksOutputPath = outputPath + File.separator + "data" + File.separator + HexedAces.MOD_ID + File.separator + "decks";
             try {
-                URL resource = HexedAces.class.getClassLoader().getResource("cards");
+                URL resource = HexedAces.class.getClassLoader().getResource("decks");
                 URI uri = Objects.requireNonNull(resource).toURI();
 
                 try (Stream<Path> paths = Files.walk(Paths.get(uri), 1)) {
                     paths.filter(Files::isRegularFile).forEach(path -> {
                         String fileName = path.getFileName().toString();
                         String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
-                        File cardOutputFolder = new File(cardsOutputPath + File.separator + cardName);
+                        File cardOutputFolder = new File(decksOutputPath);
                         cardOutputFolder.mkdirs();
                         File cardOutputFile = new File(cardOutputFolder + File.separator + cardName);
                         try (InputStream stream = Files.newInputStream(path)) {
@@ -60,7 +60,7 @@ public class DeckImageProvider implements DataProvider {
 
     @Override
     public @NotNull String getName() {
-        return "Cards";
+        return "Decks";
     }
 
 }

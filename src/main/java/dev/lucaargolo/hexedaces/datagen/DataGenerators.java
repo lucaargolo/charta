@@ -17,6 +17,7 @@ public class DataGenerators {
         PackOutput output = generator.getPackOutput();
         ExistingFileHelper exFileHelper = event.getExistingFileHelper();
         generator.addProvider(event.includeServer(), new CardImageProvider(output));
+        generator.addProvider(event.includeServer(), new DeckImageProvider(output));
     }
 
 

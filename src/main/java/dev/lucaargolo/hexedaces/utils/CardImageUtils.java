@@ -22,20 +22,30 @@ public class CardImageUtils {
         CardImage[] cards = CardImage.generateCards(image);
         int rows = image.getWidth() / CardImage.WIDTH;
         int cols = image.getHeight() / CardImage.HEIGHT;
-        for (int col = 0; col < cols; col++) {
-            for (int row = 0; row < rows; row++) {
-                CardImage cardImage = cards[col * rows + row];
-                File fileToSave = new File(outputFile.getAbsolutePath() + "_" + (col + 1) + "_" + (row + 1) + ".mccard");
-                try {
-                    HexedAces.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
-                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-                    HashingOutputStream hashedOutStream = new HashingOutputStream(Hashing.sha1(), outStream);
-                    cardImage.saveToStream(hashedOutStream);
-                    cachedOutput.writeIfNeeded(fileToSave.toPath(), outStream.toByteArray(), hashedOutStream.hash());
-                } catch (IOException e) {
-                    HexedAces.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
+        if(rows == cols && cols == 1) {
+            CardImage cardImage = cards[0];
+            File fileToSave = new File(outputFile.getAbsolutePath() + ".mccard");
+            saveCard(cardImage, fileToSave, cachedOutput);
+        }else{
+            for (int col = 0; col < cols; col++) {
+                for (int row = 0; row < rows; row++) {
+                    CardImage cardImage = cards[col * rows + row];
+                    File fileToSave = new File(outputFile.getAbsolutePath() + "_" + (col + 1) + "_" + (row + 1) + ".mccard");
+                    saveCard(cardImage, fileToSave, cachedOutput);
                 }
             }
+        }
+    }
+
+    private static void saveCard(CardImage cardImage, File fileToSave, CachedOutput cachedOutput) {
+        try {
+            HexedAces.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            HashingOutputStream hashedOutStream = new HashingOutputStream(Hashing.sha1(), outStream);
+            cardImage.saveToStream(hashedOutStream);
+            cachedOutput.writeIfNeeded(fileToSave.toPath(), outStream.toByteArray(), hashedOutStream.hash());
+        } catch (IOException e) {
+            HexedAces.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
         }
     }
 
