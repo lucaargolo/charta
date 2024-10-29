@@ -34,8 +34,26 @@ public class CardImage {
         this(new byte[TOTAL_PIXELS]);
     }
 
-    public byte[] getPixels() {
-        return pixels;
+    public static CardImage decompress(byte[] data) {
+        try {
+            byte[] pixels = ZIPCompression.decompress(data);
+            if (pixels.length != TOTAL_PIXELS) {
+                throw new IOException("Invalid file size, expected "+TOTAL_PIXELS+" bytes.");
+            }
+            return new CardImage(pixels);
+        } catch (IOException exception) {
+            HexedAces.LOGGER.error("Error decompressing card image: ", exception);
+            return new CardImage();
+        }
+    }
+
+    public byte[] compress()  {
+        try {
+            return ZIPCompression.compress(pixels);
+        } catch (IOException exception) {
+            HexedAces.LOGGER.error("Error compressing card image: ", exception);
+            return new byte[0];
+        }
     }
 
     public CardImage copy() {
@@ -129,15 +147,13 @@ public class CardImage {
     }
 
     public void saveToStream(OutputStream stream) throws IOException {
-        stream.write(pixels);
+        stream.write(compress());
     }
 
     public static CardImage loadFromFile(File file) throws IOException {
-        CardImage image = new CardImage();
+        CardImage image;
         try (FileInputStream fis = new FileInputStream(file)) {
-            if (fis.read(image.pixels) != TOTAL_PIXELS) {
-                throw new IOException("Invalid file size, expected "+TOTAL_PIXELS+" bytes.");
-            }
+            image = decompress(fis.readAllBytes());
         }
         return image;
     }

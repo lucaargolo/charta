@@ -15,7 +15,7 @@ import java.io.IOException;
 
 public class CardImageUtils {
 
-    public static StreamCodec<ByteBuf, CardImage> CARD_IMAGE_CODEC = StreamCodec.composite(ByteBufCodecs.BYTE_ARRAY, CardImage::getPixels, CardImage::new);
+    public static StreamCodec<ByteBuf, CardImage> CARD_IMAGE_CODEC = StreamCodec.composite(ByteBufCodecs.BYTE_ARRAY, CardImage::compress, CardImage::decompress);
 
     @SuppressWarnings({"UnstableApiUsage", "deprecation"})
     public static void saveCards(BufferedImage image, File outputFile, CachedOutput cachedOutput) {
