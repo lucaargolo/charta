@@ -16,9 +16,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.prefs.Preferences;
 import javax.imageio.ImageIO;
 
 public class CardEditor extends JFrame {
+
+    private static final Preferences PREFERENCES = Preferences.userNodeForPackage(CardEditor.class);
+    private static final String LAST_DIRECTORY = "lastDirectory";
 
     private static final int CARD_SCALE = 10;
     private static final int SCALED_WIDTH = CardImage.WIDTH*CARD_SCALE;
@@ -261,11 +265,21 @@ public class CardEditor extends JFrame {
         updateImage();
     }
 
-    private void loadCardImage() {
+    private JFileChooser getFileChooser() {
         JFileChooser fileChooser = new JFileChooser();
+        String lastDir = PREFERENCES.get(LAST_DIRECTORY, null);
+        if (lastDir != null) {
+            fileChooser.setCurrentDirectory(new File(lastDir));
+        }
+        return fileChooser;
+    }
+
+    private void loadCardImage() {
+        JFileChooser fileChooser = getFileChooser();
         int returnValue = fileChooser.showOpenDialog(this);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
+            PREFERENCES.put(LAST_DIRECTORY, selectedFile.getParent());
             loadImageFile(selectedFile);
         }
     }
@@ -299,10 +313,11 @@ public class CardEditor extends JFrame {
     }
 
     private void convertCardAtlas() {
-        JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = getFileChooser();
         int returnValue = fileChooser.showOpenDialog(this);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
+            PREFERENCES.put(LAST_DIRECTORY, selectedFile.getParent());
             try {
                 String fileName = selectedFile.getName();
                 String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
@@ -317,10 +332,11 @@ public class CardEditor extends JFrame {
     }
 
     private void fixCardColors() {
-        JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = getFileChooser();
         int returnValue = fileChooser.showOpenDialog(this);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
+            PREFERENCES.put(LAST_DIRECTORY, selectedFile.getParent());
             try {
                 BufferedImage bufferedImage = ImageIO.read(selectedFile);
                 try(NativeImage nativeImage = new NativeImage(bufferedImage.getWidth(), bufferedImage.getHeight(), false)) {
@@ -328,9 +344,15 @@ public class CardEditor extends JFrame {
                         for (int y = 0; y < bufferedImage.getHeight(); y++) {
                             int oldArgb = bufferedImage.getRGB(x, y);
                             int newArgb = fixColor(oldArgb);
-                            nativeImage.setPixelRGBA(x, y, newArgb);
+                            int alpha = (newArgb >> 24) & 0xFF;
+                            int red   = (newArgb >> 16) & 0xFF;
+                            int green = (newArgb >> 8)  & 0xFF;
+                            int blue  = newArgb & 0xFF;
+                            int newAbgr = (alpha << 24) | (blue << 16) | (green << 8) | red;
+                            nativeImage.setPixelRGBA(x, y, newAbgr);
                         }
                     }
+                    nativeImage.writeToFile(selectedFile);
                 }
                 JOptionPane.showMessageDialog(this, "Finished fixing card color.");
             } catch (IOException e) {
@@ -350,27 +372,27 @@ public class CardEditor extends JFrame {
         return (newAlpha << 24) | (newRgb & 0x00FFFFFF);
     }
 
-    // Save image to .mccard file
     private void saveCardImage() {
         if (currentImage == null) {
             JOptionPane.showMessageDialog(this, "No image to save.");
             return;
         }
 
-        JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = getFileChooser();
         fileChooser.setDialogTitle("Specify a file to save");
         int userSelection = fileChooser.showSaveDialog(this);
 
         if (userSelection == JFileChooser.APPROVE_OPTION) {
-            File fileToSave = fileChooser.getSelectedFile();
-            if (!fileToSave.getName().endsWith(".mccard")) {
-                fileToSave = new File(fileToSave.getAbsolutePath() + ".mccard");
+            File selectedFile = fileChooser.getSelectedFile();
+            PREFERENCES.put(LAST_DIRECTORY, selectedFile.getParent());
+            if (!selectedFile.getName().endsWith(".mccard")) {
+                selectedFile = new File(selectedFile.getAbsolutePath() + ".mccard");
             }
             try {
-                currentImage.saveToFile(fileToSave.getAbsolutePath());
+                currentImage.saveToFile(selectedFile.getAbsolutePath());
                 JOptionPane.showMessageDialog(this, "Image saved successfully.");
             } catch (IOException e) {
-                HexedAces.LOGGER.error("Error saving image: {}", fileToSave.getAbsoluteFile(), e);
+                HexedAces.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error saving image.");
             }
         }
