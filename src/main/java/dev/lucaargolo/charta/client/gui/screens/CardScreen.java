@@ -80,9 +80,4 @@ public class CardScreen extends Screen implements HoverableRenderable {
         return this.hoverable;
     }
 
-    @Override
-    public void setHoverable(@Nullable HoverableRenderable hoverable) {
-        this.hoverable = hoverable;
-    }
-
 }
