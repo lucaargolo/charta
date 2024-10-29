@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.client.HexedAcesClient;
+import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import io.netty.buffer.ByteBuf;
@@ -31,10 +31,10 @@ public record CardImagesPayload(HashMap<ResourceLocation, CardImage> cardImages,
     @OnlyIn(Dist.CLIENT)
     public static void handleClient(CardImagesPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            HexedAcesClient.clearImages();
-            HexedAcesClient.putCardImages(payload.cardImages);
-            HexedAcesClient.putDeckImages(payload.deckImages);
-            HexedAcesClient.generateImages();
+            ChartaClient.clearImages();
+            ChartaClient.putCardImages(payload.cardImages);
+            ChartaClient.putDeckImages(payload.deckImages);
+            ChartaClient.generateImages();
         });
     }
 

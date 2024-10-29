@@ -12,7 +12,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import java.util.HashMap;
 
 @OnlyIn(Dist.CLIENT)
-public class HexedAcesClient {
+public class ChartaClient {
 
     private static final ResourceLocation MISSING_CARD = Charta.id("missing_card");
 
@@ -24,17 +24,17 @@ public class HexedAcesClient {
         TextureManager manager = client.getTextureManager();
         manager.register(MISSING_CARD, CardImageUtils.convertCardImage(CardImageUtils.EMPTY));
         cardImages.forEach((id, image) -> {
-            ResourceLocation cardId = HexedAcesClient.getCardTexture(id);
+            ResourceLocation cardId = ChartaClient.getCardTexture(id);
             manager.register(cardId, CardImageUtils.convertCardImage(image));
         });
         deckImages.forEach((id, image) -> {
-            ResourceLocation deckId = HexedAcesClient.getDeckTexture(id);
+            ResourceLocation deckId = ChartaClient.getDeckTexture(id);
             manager.register(deckId, CardImageUtils.convertCardImage(image));
         });
     }
 
     public static void putCardImages(HashMap<ResourceLocation, CardImage> cardImages) {
-        HexedAcesClient.cardImages.putAll(cardImages);
+        ChartaClient.cardImages.putAll(cardImages);
     }
 
     public static ResourceLocation getCardTexture(ResourceLocation location) {
@@ -46,7 +46,7 @@ public class HexedAcesClient {
     }
 
     public static void putDeckImages(HashMap<ResourceLocation, CardImage> deckImages) {
-        HexedAcesClient.deckImages.putAll(deckImages);
+        ChartaClient.deckImages.putAll(deckImages);
     }
 
     public static ResourceLocation getDeckTexture(ResourceLocation location) {
@@ -61,8 +61,8 @@ public class HexedAcesClient {
         Minecraft client = Minecraft.getInstance();
         TextureManager manager = client.getTextureManager();
         manager.release(MISSING_CARD);
-        cardImages.keySet().stream().map(HexedAcesClient::getCardTexture).forEach(manager::release);
-        deckImages.keySet().stream().map(HexedAcesClient::getDeckTexture).forEach(manager::release);
+        cardImages.keySet().stream().map(ChartaClient::getCardTexture).forEach(manager::release);
+        deckImages.keySet().stream().map(ChartaClient::getDeckTexture).forEach(manager::release);
         cardImages.clear();
         deckImages.clear();
     }

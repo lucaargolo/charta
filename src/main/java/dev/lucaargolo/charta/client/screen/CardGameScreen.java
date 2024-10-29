@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.client.screen;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.client.HexedAcesClient;
+import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -17,7 +17,7 @@ public class CardGameScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation textureId = HexedAcesClient.getCardTexture(Charta.id("standard/2_2"));
+        ResourceLocation textureId = ChartaClient.getCardTexture(Charta.id("standard/2_2"));
         guiGraphics.blit(textureId, 0, 0, 0, 0, CardImage.WIDTH, CardImage.HEIGHT, CardImage.WIDTH, CardImage.HEIGHT);
     }
 
