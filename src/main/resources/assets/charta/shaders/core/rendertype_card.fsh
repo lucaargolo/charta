@@ -1,3 +1,6 @@
+// This shader "fakes" a 3D-camera perspective on 2D quads.
+// Adapted from: https://godotshaders.com/shader/2d-perspective/
+
 #version 150
 
 uniform sampler2D Sampler0;
