@@ -33,7 +33,7 @@ public class CardImageProvider implements DataProvider {
     public @NotNull CompletableFuture<?> run(@NotNull CachedOutput cachedOutput) {
         return CompletableFuture.runAsync(() -> {
             Path outputPath = this.output.getOutputFolder();
-            String cardsOutputPath = outputPath + File.separator + "data" + File.separator + HexedAces.MOD_ID + File.separator + "cards";
+            String cardsOutputPath = outputPath + File.separator + "data" + File.separator + HexedAces.MOD_ID + File.separator + "card";
             try {
                 URL resource = HexedAces.class.getClassLoader().getResource("cards");
                 URI uri = Objects.requireNonNull(resource).toURI();
@@ -44,9 +44,8 @@ public class CardImageProvider implements DataProvider {
                         String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
                         File cardOutputFolder = new File(cardsOutputPath + File.separator + cardName);
                         cardOutputFolder.mkdirs();
-                        File cardOutputFile = new File(cardOutputFolder + File.separator + cardName);
                         try (InputStream stream = Files.newInputStream(path)) {
-                            CardImageUtils.saveCards(ImageIO.read(stream), cardOutputFile, cachedOutput);
+                            CardImageUtils.saveCards(ImageIO.read(stream), cardOutputFolder, cachedOutput);
                         }catch (Exception e) {
                             HexedAces.LOGGER.error("Error loading image: {}", path, e);
                         }
