@@ -82,8 +82,10 @@ public class CardEditor extends JFrame {
         JMenu utilsMenu = new JMenu("Utils");
         JMenuItem convertAtlas = new JMenuItem("Convert Atlas");
         JMenuItem fixColors = new JMenuItem("Fix Colors");
+        JMenuItem generatePalette = new JMenuItem("Generate Palette");
         utilsMenu.add(convertAtlas);
         utilsMenu.add(fixColors);
+        utilsMenu.add(generatePalette);
         menuBar.add(utilsMenu);
 
         setJMenuBar(menuBar);
@@ -93,6 +95,7 @@ public class CardEditor extends JFrame {
         saveItem.addActionListener(e -> saveCardImage());
         convertAtlas.addActionListener(e -> convertCardAtlas());
         fixColors.addActionListener(e -> fixCardColors());
+        generatePalette.addActionListener(e -> generateCardPalette());
 
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
@@ -356,6 +359,33 @@ public class CardEditor extends JFrame {
             } catch (IOException e) {
                 HexedAces.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error loading image.");
+            }
+        }
+    }
+
+    private void generateCardPalette() {
+        JFileChooser fileChooser = getFileChooser();
+        fileChooser.setDialogTitle("Specify a file to save");
+        int userSelection = fileChooser.showSaveDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            PREFERENCES.put(LAST_DIRECTORY, selectedFile.getParent());
+            if (!selectedFile.getName().endsWith(".png")) {
+                selectedFile = new File(selectedFile.getAbsolutePath() + ".png");
+            }
+            BufferedImage paletteImage = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);
+            try {
+                for (int y = 0; y < paletteImage.getWidth(); y++) {
+                    for (int x = 0; x < paletteImage.getHeight(); x++) {
+                        paletteImage.setRGB(x, y, 0xFF000000 + CardImage.COLOR_PALETTE[x + y * 8]);
+                    }
+                }
+                ImageIO.write(paletteImage, "png", selectedFile);
+                JOptionPane.showMessageDialog(this, "Exported palette image.");
+            }catch (IOException e) {
+                HexedAces.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
+                JOptionPane.showMessageDialog(this, "Error saving image.");
             }
         }
     }
