@@ -251,8 +251,8 @@ public class CardEditor extends JFrame {
 
         imageLabel.setIcon(new ImageIcon(displayImage.getScaledInstance(SCALED_WIDTH, SCALED_HEIGHT, Image.SCALE_AREA_AVERAGING)));
 
-        revalidate();
-        repaint();
+        imageLabel.revalidate();
+        imageLabel.repaint();
     }
 
     private void createNewImage() {
@@ -428,6 +428,11 @@ public class CardEditor extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            } catch (Exception e) {
+                HexedAces.LOGGER.error("Error setting cross platform look and feel: ", e);
+            }
             CardEditor editor = new CardEditor();
             editor.setUndecorated(true);
             editor.setBackground(new Color(0, 0, 0, 1));
