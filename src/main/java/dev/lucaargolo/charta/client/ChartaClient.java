@@ -1,18 +1,31 @@
 package dev.lucaargolo.charta.client;
 
+import com.mojang.blaze3d.shaders.Uniform;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 @OnlyIn(Dist.CLIENT)
 public class ChartaClient {
+
+    public static ShaderInstance CARD_SHADER;
+    public static Uniform CARD_FOV;
+    public static Uniform CARD_X_ROT;
+    public static Uniform CARD_Y_ROT;
+    public static Uniform CARD_INSET;
 
     private static final ResourceLocation MISSING_CARD = Charta.id("missing_card");
 
@@ -65,6 +78,24 @@ public class ChartaClient {
         deckImages.keySet().stream().map(ChartaClient::getDeckTexture).forEach(manager::release);
         cardImages.clear();
         deckImages.clear();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    public static class ClientModEvents {
+
+        @SubscribeEvent
+        public static void registerShaders(RegisterShadersEvent event) throws IOException {
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("rendertype_card"), DefaultVertexFormat.BLOCK), instance -> {
+                CARD_FOV = instance.getUniform("Fov");
+                CARD_X_ROT  = instance.getUniform("XRot");
+                CARD_Y_ROT  = instance.getUniform("YRot");
+                CARD_INSET  = instance.getUniform("InSet");
+                CARD_SHADER = instance;
+            });
+        }
+
+
     }
 
 }
