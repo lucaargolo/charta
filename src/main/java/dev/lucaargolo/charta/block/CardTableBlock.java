@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.block;
 
-import dev.lucaargolo.charta.client.screen.CardGameScreen;
+import dev.lucaargolo.charta.client.gui.screens.CardScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
@@ -20,7 +20,7 @@ public class CardTableBlock extends Block {
     @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
         if(level.isClientSide()) {
-            Minecraft.getInstance().setScreen(new CardGameScreen());
+            Minecraft.getInstance().setScreen(new CardScreen());
         }
         return InteractionResult.SUCCESS;
     }
