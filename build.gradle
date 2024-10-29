@@ -133,6 +133,12 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
+tasks.withType(Jar).configureEach {
+    manifest {
+        attributes["Main-Class"] = "dev.lucaargolo.hexedaces.editor.CardEditor"
+    }
+}
+
 idea {
     module {
         downloadSources = true

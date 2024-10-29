@@ -1,7 +1,7 @@
 package dev.lucaargolo.hexedaces.datagen;
 
 import dev.lucaargolo.hexedaces.HexedAces;
-import dev.lucaargolo.hexedaces.utils.CardImage;
+import dev.lucaargolo.hexedaces.utils.CardImageUtils;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -46,7 +46,7 @@ public class CardImageProvider implements DataProvider {
                         cardOutputFolder.mkdirs();
                         File cardOutputFile = new File(cardOutputFolder + File.separator + cardName);
                         try (InputStream stream = Files.newInputStream(path)) {
-                            CardImage.saveCards(ImageIO.read(stream), cardOutputFile, cachedOutput);
+                            CardImageUtils.saveCards(ImageIO.read(stream), cardOutputFile, cachedOutput);
                         }catch (Exception e) {
                             HexedAces.LOGGER.error("Error loading image: {}", path, e);
                         }

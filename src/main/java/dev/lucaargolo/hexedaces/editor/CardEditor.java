@@ -1,6 +1,5 @@
 package dev.lucaargolo.hexedaces.editor;
 
-import com.mojang.blaze3d.platform.NativeImage;
 import dev.lucaargolo.hexedaces.HexedAces;
 import dev.lucaargolo.hexedaces.utils.CardImage;
 
@@ -338,23 +337,22 @@ public class CardEditor extends JFrame {
             File selectedFile = fileChooser.getSelectedFile();
             PREFERENCES.put(LAST_DIRECTORY, selectedFile.getParent());
             try {
-                BufferedImage bufferedImage = ImageIO.read(selectedFile);
-                try(NativeImage nativeImage = new NativeImage(bufferedImage.getWidth(), bufferedImage.getHeight(), false)) {
-                    for (int x = 0; x < bufferedImage.getWidth(); x++) {
-                        for (int y = 0; y < bufferedImage.getHeight(); y++) {
-                            int oldArgb = bufferedImage.getRGB(x, y);
+                BufferedImage loadedImage = ImageIO.read(selectedFile);
+                BufferedImage convertedImage = new BufferedImage(loadedImage.getWidth(), loadedImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                try {
+                    for (int x = 0; x < loadedImage.getWidth(); x++) {
+                        for (int y = 0; y < loadedImage.getHeight(); y++) {
+                            int oldArgb = loadedImage.getRGB(x, y);
                             int newArgb = fixColor(oldArgb);
-                            int alpha = (newArgb >> 24) & 0xFF;
-                            int red   = (newArgb >> 16) & 0xFF;
-                            int green = (newArgb >> 8)  & 0xFF;
-                            int blue  = newArgb & 0xFF;
-                            int newAbgr = (alpha << 24) | (blue << 16) | (green << 8) | red;
-                            nativeImage.setPixelRGBA(x, y, newAbgr);
+                            convertedImage.setRGB(x, y, newArgb);
                         }
                     }
-                    nativeImage.writeToFile(selectedFile);
+                    ImageIO.write(convertedImage, "png", selectedFile);
+                    JOptionPane.showMessageDialog(this, "Finished fixing card color.");
+                }catch (IOException e) {
+                    HexedAces.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
+                    JOptionPane.showMessageDialog(this, "Error saving image.");
                 }
-                JOptionPane.showMessageDialog(this, "Finished fixing card color.");
             } catch (IOException e) {
                 HexedAces.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error loading image.");
