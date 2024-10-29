@@ -4,7 +4,10 @@ import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
 import com.mojang.blaze3d.platform.NativeImage;
 import dev.lucaargolo.hexedaces.HexedAces;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.data.CachedOutput;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -28,10 +31,20 @@ public class CardImage {
     };
     public static final int[] ALPHA_PALETTE = {0, 85, 170, 255};
 
+    public static StreamCodec<ByteBuf, CardImage> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.BYTE_ARRAY, CardImage::getPixels, CardImage::new);
+
     private final byte[] pixels;
 
+    public CardImage(byte[] pixels) {
+        this.pixels = pixels;
+    }
+
     public CardImage() {
-        this.pixels = new byte[TOTAL_PIXELS];
+        this(new byte[TOTAL_PIXELS]);
+    }
+
+    public byte[] getPixels() {
+        return pixels;
     }
 
     public CardImage copy() {
@@ -91,7 +104,7 @@ public class CardImage {
         return image;
     }
 
-    private int findClosestColorIndex(int rgb) {
+    public static int findClosestColorIndex(int rgb) {
         int closestIndex = 0;
         int minDistance = Integer.MAX_VALUE;
 
@@ -115,7 +128,7 @@ public class CardImage {
         return closestIndex;
     }
 
-    private int findClosestAlphaIndex(int alpha) {
+    public static int findClosestAlphaIndex(int alpha) {
         int closestIndex = 0;
         int minDistance = Integer.MAX_VALUE;
 

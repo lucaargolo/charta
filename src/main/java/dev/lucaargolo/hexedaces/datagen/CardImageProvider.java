@@ -21,11 +21,11 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
-public class CardProvider implements DataProvider {
+public class CardImageProvider implements DataProvider {
 
     private final PackOutput output;
 
-    public CardProvider(PackOutput output) {
+    public CardImageProvider(PackOutput output) {
         this.output = output;
     }
 

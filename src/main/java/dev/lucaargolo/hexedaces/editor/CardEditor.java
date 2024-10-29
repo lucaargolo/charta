@@ -1,5 +1,6 @@
 package dev.lucaargolo.hexedaces.editor;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import dev.lucaargolo.hexedaces.HexedAces;
 import dev.lucaargolo.hexedaces.utils.CardImage;
 
@@ -77,7 +78,9 @@ public class CardEditor extends JFrame {
 
         JMenu utilsMenu = new JMenu("Utils");
         JMenuItem convertAtlas = new JMenuItem("Convert Atlas");
+        JMenuItem fixColors = new JMenuItem("Fix Colors");
         utilsMenu.add(convertAtlas);
+        utilsMenu.add(fixColors);
         menuBar.add(utilsMenu);
 
         setJMenuBar(menuBar);
@@ -86,6 +89,7 @@ public class CardEditor extends JFrame {
         loadItem.addActionListener(e -> loadCardImage());
         saveItem.addActionListener(e -> saveCardImage());
         convertAtlas.addActionListener(e -> convertCardAtlas());
+        fixColors.addActionListener(e -> fixCardColors());
 
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
@@ -310,6 +314,40 @@ public class CardEditor extends JFrame {
                 JOptionPane.showMessageDialog(this, "Error loading image: "+selectedFile.getName());
             }
         }
+    }
+
+    private void fixCardColors() {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnValue = fileChooser.showOpenDialog(this);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                BufferedImage bufferedImage = ImageIO.read(selectedFile);
+                try(NativeImage nativeImage = new NativeImage(bufferedImage.getWidth(), bufferedImage.getHeight(), false)) {
+                    for (int x = 0; x < bufferedImage.getWidth(); x++) {
+                        for (int y = 0; y < bufferedImage.getHeight(); y++) {
+                            int oldArgb = bufferedImage.getRGB(x, y);
+                            int newArgb = fixColor(oldArgb);
+                            nativeImage.setPixelRGBA(x, y, newArgb);
+                        }
+                    }
+                }
+                JOptionPane.showMessageDialog(this, "Finished fixing card color.");
+            } catch (IOException e) {
+                HexedAces.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
+                JOptionPane.showMessageDialog(this, "Error loading image.");
+            }
+        }
+    }
+
+    private static int fixColor(int argb) {
+        int oldRgb = argb & 0x00FFFFFF;
+        int oldAlpha = (argb >> 24) & 0xFF;
+        int colorIndex = CardImage.findClosestColorIndex(oldRgb);
+        int alphaIndex = CardImage.findClosestAlphaIndex(oldAlpha);
+        int newRgb = CardImage.COLOR_PALETTE[colorIndex];
+        int newAlpha = CardImage.ALPHA_PALETTE[alphaIndex];
+        return (newAlpha << 24) | (newRgb & 0x00FFFFFF);
     }
 
     // Save image to .mccard file
