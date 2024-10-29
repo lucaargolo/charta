@@ -150,7 +150,7 @@ public class CardImage {
     }
 
 
-    @SuppressWarnings("UnstableApiUsage")
+    @SuppressWarnings({"UnstableApiUsage", "deprecation"})
     public static void saveCards(BufferedImage image, File outputFile, CachedOutput cachedOutput) {
         CardImage[] cards = generateCards(image);
         int rows = image.getWidth() / CardImage.WIDTH;
