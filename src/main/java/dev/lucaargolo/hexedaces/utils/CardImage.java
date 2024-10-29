@@ -1,8 +1,11 @@
 package dev.lucaargolo.hexedaces.utils;
 
+import com.google.common.hash.Hashing;
+import com.google.common.hash.HashingOutputStream;
 import com.mojang.blaze3d.platform.NativeImage;
+import dev.lucaargolo.hexedaces.HexedAces;
+import net.minecraft.data.CachedOutput;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Arrays;
@@ -128,8 +131,12 @@ public class CardImage {
 
     public void saveToFile(String fileName) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(fileName)) {
-            fos.write(pixels);
+            saveToStream(fos);
         }
+    }
+
+    public void saveToStream(OutputStream stream) throws IOException {
+        stream.write(pixels);
     }
 
     public static CardImage loadFromFile(File file) throws IOException {
@@ -142,16 +149,52 @@ public class CardImage {
         return image;
     }
 
-    public static void generateAtlas(File inputFile, File outputFile) throws IOException {
-        BufferedImage image = ImageIO.read(inputFile);
 
-        int width = image.getWidth();
-        int height = image.getHeight();
+    @SuppressWarnings("UnstableApiUsage")
+    public static void saveCards(BufferedImage image, File outputFile, CachedOutput cachedOutput) {
+        CardImage[] cards = generateCards(image);
+        int rows = image.getWidth() / CardImage.WIDTH;
+        int cols = image.getHeight() / CardImage.HEIGHT;
+        for (int col = 0; col < cols; col++) {
+            for (int row = 0; row < rows; row++) {
+                CardImage cardImage = cards[col * rows + row];
+                File fileToSave = new File(outputFile.getAbsolutePath() + "_" + (col + 1) + "_" + (row + 1) + ".mccard");
+                try {
+                    HexedAces.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
+                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                    HashingOutputStream hashedOutStream = new HashingOutputStream(Hashing.sha1(), outStream);
+                    cardImage.saveToStream(hashedOutStream);
+                    cachedOutput.writeIfNeeded(fileToSave.toPath(), outStream.toByteArray(), hashedOutStream.hash());
+                } catch (IOException e) {
+                    HexedAces.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
+                }
+            }
+        }
+    }
 
-        int rows = width / CardImage.WIDTH;
-        int cols = height / CardImage.HEIGHT;
+    public static void saveCards(BufferedImage image, File outputFile) {
+        CardImage[] cards = generateCards(image);
+        int rows = image.getWidth() / CardImage.WIDTH;
+        int cols = image.getHeight() / CardImage.HEIGHT;
+        for (int col = 0; col < cols; col++) {
+            for (int row = 0; row < rows; row++) {
+                CardImage cardImage = cards[col * rows + row];
+                File fileToSave = new File(outputFile.getAbsolutePath() + "_" + (col + 1) + "_" + (row + 1) + ".mccard");
+                try {
+                    HexedAces.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
+                    cardImage.saveToFile(fileToSave.getAbsolutePath());
+                } catch (IOException e) {
+                    HexedAces.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
+                }
+            }
+        }
+    }
 
+    public static CardImage[] generateCards(BufferedImage image) {
+        int rows = image.getWidth() / CardImage.WIDTH;
+        int cols = image.getHeight() / CardImage.HEIGHT;
 
+        CardImage[] cards = new CardImage[rows*cols];
         for (int col = 0; col < cols; col++) {
             for (int row = 0; row < rows; row++) {
                 CardImage cardImage = new CardImage();
@@ -168,14 +211,10 @@ public class CardImage {
                     }
                 }
 
-                File fileToSave = new File(outputFile.getAbsolutePath() + "_" + (col+1) + "_" + (row+1) + ".mccard");
-                try {
-                    cardImage.saveToFile(fileToSave.getAbsolutePath());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                cards[col * rows + row] = cardImage;
             }
         }
+        return cards;
     }
 
     @Override

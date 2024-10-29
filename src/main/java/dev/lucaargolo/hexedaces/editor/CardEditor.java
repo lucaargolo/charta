@@ -1,5 +1,6 @@
 package dev.lucaargolo.hexedaces.editor;
 
+import dev.lucaargolo.hexedaces.HexedAces;
 import dev.lucaargolo.hexedaces.utils.CardImage;
 
 import javax.swing.*;
@@ -288,7 +289,7 @@ public class CardEditor extends JFrame {
             }
             updateImage();
         } catch (IOException e) {
-            e.printStackTrace();
+            HexedAces.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
             JOptionPane.showMessageDialog(this, "Error loading image.");
         }
     }
@@ -299,10 +300,13 @@ public class CardEditor extends JFrame {
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {
-                CardImage.generateAtlas(selectedFile, selectedFile);
+                String fileName = selectedFile.getName();
+                String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
+                File outputFile = new File(selectedFile.toPath().getParent() + File.separator + cardName);
+                CardImage.saveCards(ImageIO.read(selectedFile), outputFile);
                 JOptionPane.showMessageDialog(this, "Finalized atlas conversion.");
             } catch (IOException e) {
-                e.printStackTrace();
+                HexedAces.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error loading image: "+selectedFile.getName());
             }
         }
@@ -328,7 +332,7 @@ public class CardEditor extends JFrame {
                 currentImage.saveToFile(fileToSave.getAbsolutePath());
                 JOptionPane.showMessageDialog(this, "Image saved successfully.");
             } catch (IOException e) {
-                e.printStackTrace();
+                HexedAces.LOGGER.error("Error saving image: {}", fileToSave.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error saving image.");
             }
         }

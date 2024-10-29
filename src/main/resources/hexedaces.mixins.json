@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.lucaargolo.hexedaces.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "hexedaces.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
