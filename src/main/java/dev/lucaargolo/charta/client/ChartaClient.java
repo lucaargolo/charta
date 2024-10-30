@@ -3,12 +3,14 @@ package dev.lucaargolo.charta.client;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -17,6 +19,7 @@ import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class ChartaClient {
@@ -95,7 +98,14 @@ public class ChartaClient {
             });
         }
 
+    }
 
+    public static List<Card> getPlayerHand(Player player) {
+        return player.getEntityData().get(Charta.PLAYER_HAND);
+    }
+
+    public static List<Card> getVillagerHand(Player player) {
+        return player.getEntityData().get(Charta.VILLAGER_HAND);
     }
 
 }

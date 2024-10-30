@@ -6,10 +6,10 @@
   "refmap": "charta.refmap.json",
   "mixins": [
     "PlayerMixin",
-    "ServerPlayerMixin"
+    "ServerPlayerMixin",
+    "VillagerMixin"
   ],
   "client": [
-    "AbstractClientPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

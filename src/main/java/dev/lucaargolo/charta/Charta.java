@@ -28,13 +28,54 @@ import java.util.List;
 @Mod(Charta.MOD_ID)
 public class Charta {
 
+    /*
+    TODO:
+        Modfest Goals:
+            - Make wooden table, you can merge it like furniture tables, but only some formats are valid (3x3, 5x3, 7x3, etc)
+            - Make table cloth, you can only put it on top of a valid table. Putting the table cloth makes it able to play games.
+            - Make wooden stool, you can only place it next to valid tables, in predefined spots (3x3 = 4 players, 5x3 = 6 players, etc)
+            - Implement generic game interface on table screen (maybe like a simple screen menu, but instead of slots we would have card lists, etc)
+            - Implement generic game loop on table block entity
+            - Implement game visualization on table block entity renderer
+            - Populate CardPlayer play methods for players (will wait for player input) and for villagers (will wait an amount of time and select a play)
+            - Make players able to start games by sitting on the stools
+            - Make villagers able to join games by sitting on the stools
+            - Make villagers able to randomly starts game
+            - Make game bar structure that can spawn in villages
+            - Make card seller that sells regular card decks
+            - Make some custom card decks spawn in dungeons
+            - Make card and deck items inventory
+                - Make the deck be like a bundle with individual cards inside it.
+                - Players can make custom decks by mixing cards inside the bundles
+                - A deck  needs to have all cards to be able to start a game
+            - Add deck to table which changes the card designs
+            - Add other card games:
+                - Solitaire
+                - ?
+        Other Goals:
+            - Add card painter so players can make new cards on the go. (They'll be stored in a PersistentData instead of the datapack)
+            - Add other games
+                - Add domino
+                - Add checkers
+                - Add chess
+                - Add tic tac toe
+            - Add fortune seer villager
+            - Add tarot packs that you can buy or find
+            - Add fortune system (kinda like enchantments for players)
+                - You get a fortune by opening a tarot pack
+                - If you want to remove a fortune you have to do a cleansing ritual
+            - Add cleansing ritual
+
+     */
+
     public static final String MOD_ID = "charta";
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
 
-    public static EntityDataAccessor<List<Card>> DATA_CHARTA_HAND;
+    public static EntityDataAccessor<List<Card>> PLAYER_HAND;
+    public static EntityDataAccessor<List<Card>> VILLAGER_HAND;
 
     public Charta(IEventBus modEventBus, ModContainer modContainer) {
         ModBlocks.register(modEventBus);
