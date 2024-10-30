@@ -1,13 +1,20 @@
 package dev.lucaargolo.charta;
 
+import com.mojang.logging.LogUtils;
 import dev.lucaargolo.charta.block.ModBlocks;
+import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.network.CardImagesPayload;
 import dev.lucaargolo.charta.resources.CardImageResource;
+import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -16,11 +23,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
-import com.mojang.logging.LogUtils;
-
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
+import java.util.List;
 
 @Mod(Charta.MOD_ID)
 public class Charta {
@@ -31,8 +34,11 @@ public class Charta {
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
 
+    public static EntityDataAccessor<List<Card>> DATA_CHARTA_HAND;
+
     public Charta(IEventBus modEventBus, ModContainer modContainer) {
         ModBlocks.register(modEventBus);
+        ModEntityDataSerializers.register(modEventBus);
     }
 
     public static ResourceLocation id(String path) {

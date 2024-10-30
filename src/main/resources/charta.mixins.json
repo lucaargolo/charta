@@ -5,8 +5,11 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "charta.refmap.json",
   "mixins": [
+    "PlayerMixin",
+    "ServerPlayerMixin"
   ],
   "client": [
+    "AbstractClientPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
