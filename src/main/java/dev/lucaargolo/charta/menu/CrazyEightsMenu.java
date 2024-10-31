@@ -1,9 +1,6 @@
 package dev.lucaargolo.charta.menu;
 
-import dev.lucaargolo.charta.game.AutoPlayer;
-import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardPlayer;
-import dev.lucaargolo.charta.game.CrazyEightsGame;
+import dev.lucaargolo.charta.game.*;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -24,8 +21,8 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     public CrazyEightsMenu(int containerId, Inventory inventory, ContainerLevelAccess access) {
         super(ModMenus.CRAZY_EIGHTS.get(), containerId, inventory, access);
         CardPlayer cardPlayer;
-        if(player instanceof CardPlayer) {
-            cardPlayer = (CardPlayer) player;
+        if(player instanceof CardPlayerMixed mixed) {
+            cardPlayer = mixed.charta_getCardPlayer();
             this.game = new CrazyEightsGame(List.of(cardPlayer, new AutoPlayer(), new AutoPlayer(), new AutoPlayer()));
             this.game.startGame();
             this.game.runGame();

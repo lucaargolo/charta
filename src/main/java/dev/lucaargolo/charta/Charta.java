@@ -11,10 +11,8 @@ import dev.lucaargolo.charta.network.UpdateCardContainerSlotPayload;
 import dev.lucaargolo.charta.resources.CardImageResource;
 import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,8 +25,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
-import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -82,8 +78,7 @@ public class Charta {
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
 
-    public static EntityDataAccessor<List<Card>> PLAYER_HAND;
-    public static EntityDataAccessor<List<Card>> VILLAGER_HAND;
+    public static EntityDataAccessor<List<Card>> ENTITY_HAND;
 
     public Charta(IEventBus modEventBus, ModContainer modContainer) {
         ModEntityDataSerializers.register(modEventBus);
@@ -97,14 +92,6 @@ public class Charta {
 
     @EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
     public static class ModEvents {
-
-        @SubscribeEvent
-        public static void register(RegisterEvent event) {
-            if(event.getRegistry() == NeoForgeRegistries.ENTITY_DATA_SERIALIZERS) {
-                PLAYER_HAND = SynchedEntityData.defineId(Player.class, ModEntityDataSerializers.CARD_LIST.get());
-                VILLAGER_HAND = SynchedEntityData.defineId(Villager.class, ModEntityDataSerializers.CARD_LIST.get());
-            }
-        }
 
         @SubscribeEvent
         public static void register(final RegisterPayloadHandlersEvent event) {

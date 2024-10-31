@@ -1,7 +1,8 @@
 package dev.lucaargolo.charta.game;
 
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -28,6 +29,11 @@ public class AutoPlayer implements CardPlayer {
     @Override
     public void handUpdated() {
 
+    }
+
+    @Override
+    public ResourceLocation getTexture() {
+        return null;
     }
 
 }

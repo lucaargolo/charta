@@ -4,7 +4,6 @@ import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -41,11 +40,12 @@ public class CardSlot<G extends CardGame> {
     }
 
     public final boolean insertCards(CardPlayer player, List<Card> collection, int index) {
+        List<Card> cards = getter.apply(game);
+        boolean result = index == -1 ? cards.addAll(collection) : cards.addAll(index, collection);
         for(Card card : collection) {
             onInsert(player, card);
         }
-        List<Card> cards = getter.apply(game);
-        return index == -1 ? cards.addAll(collection) : cards.addAll(index, collection);
+        return result;
     }
 
     public final Card removeCard(CardPlayer player, int index) {
