@@ -11,6 +11,8 @@ public interface CardGame {
 
     List<CardPlayer> getPlayers();
 
+    List<Card> getCensoredHand(CardPlayer player);
+
     CardPlayer getCurrentPlayer();
 
     CardPlayer getNextPlayer();
@@ -29,11 +31,12 @@ public interface CardGame {
 
     CompoundTag toNbt(CompoundTag tag);
 
-    static void dealCards(LinkedList<Card> drawPile, CardPlayer player, int count) {
+    static void dealCards(LinkedList<Card> drawPile, CardPlayer player, List<Card> censoredHand, int count) {
         for (int i = 0; i < count; i++) {
             Card card = drawPile.pollLast();
             card.flip();
             player.getHand().add(card);
+            censoredHand.add(Card.BLANK);
         }
     }
 

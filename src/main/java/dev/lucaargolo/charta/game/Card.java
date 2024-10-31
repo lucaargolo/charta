@@ -21,6 +21,8 @@ public class Card implements Comparable<Card> {
 
     public static final StreamCodec<ByteBuf, List<Card>> LIST_STREAM_CODEC = ByteBufCodecs.collection(ArrayList::new, Card.STREAM_CODEC);
 
+    public static final Card BLANK = new Card(Suit.BLANK, Rank.BLANK, true);
+
     private final Suit suit;
     private final Rank rank;
     private boolean flipped;
@@ -77,7 +79,7 @@ public class Card implements Comparable<Card> {
     }
 
     public enum Suit {
-        SPADES, HEARTS, CLUBS, DIAMONDS;
+        BLANK, SPADES, HEARTS, CLUBS, DIAMONDS;
 
         public static final StreamCodec<ByteBuf, Suit> STREAM_CODEC = ByteBufCodecs.idMapper(i -> Suit.values()[i], Suit::ordinal);
     }

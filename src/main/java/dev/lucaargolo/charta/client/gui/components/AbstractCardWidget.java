@@ -19,7 +19,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class AbstractCardWidget extends AbstractWidget implements TickableWidget, HoverableRenderable {
+public abstract class AbstractCardWidget extends AbstractPreciseWidget implements TickableWidget, HoverableRenderable {
 
     @Nullable
     private final HoverableRenderable parent;
@@ -34,8 +34,8 @@ public abstract class AbstractCardWidget extends AbstractWidget implements Ticka
     private float lastYRot = 0f;
     private float yRot = 0f;
 
-    public AbstractCardWidget(@Nullable HoverableRenderable parent, ResourceLocation cardId, int x, int y, float scale) {
-        super(x, y, (int) (CardImage.WIDTH * 1.5f * scale), (int) (CardImage.HEIGHT * 1.5f * scale), Component.empty());
+    public AbstractCardWidget(@Nullable HoverableRenderable parent, ResourceLocation cardId, float x, float y, float scale) {
+        super(x, y, CardImage.WIDTH * 1.5f * scale, CardImage.HEIGHT * 1.5f * scale, Component.empty());
         this.parent = parent;
         this.cardId = cardId;
     }
@@ -58,9 +58,9 @@ public abstract class AbstractCardWidget extends AbstractWidget implements Ticka
         ChartaClient.CARD_X_ROT.set(xRot);
         ChartaClient.CARD_Y_ROT.set(yRot);
 
-        int xOffset = (int) ((this.getWidth()*1.333333f - this.getWidth())/2f);
-        int yOffset = (int) ((this.getHeight()*1.333333f - this.getHeight())/2f);
-        drawCard(pose, consumer, this.getX()-xOffset, this.getY()-yOffset, this.getX()+this.getWidth()+xOffset, this.getY()+this.getHeight()+yOffset);
+        float xOffset = (this.getPreciseWidth()*1.333333f - this.getPreciseWidth())/2f;
+        float yOffset = (this.getPreciseHeight()*1.333333f - this.getPreciseHeight())/2f;
+        drawCard(pose, consumer, this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseX()+this.getPreciseWidth()+xOffset, this.getPreciseY()+this.getPreciseHeight()+yOffset);
 
         guiGraphics.bufferSource().endBatch(renderType);
 
@@ -70,7 +70,7 @@ public abstract class AbstractCardWidget extends AbstractWidget implements Ticka
         lastYRot = yRot;
     }
 
-    private void drawCard(PoseStack.Pose pose, VertexConsumer consumer, int x1, int y1, int x2, int y2) {
+    private void drawCard(PoseStack.Pose pose, VertexConsumer consumer, float x1, float y1, float x2, float y2) {
         consumer.addVertex(pose, x1, y1, 0).setColor(1f, 1f, 1f, 1f).setUv(0, 0).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0f, 1f, 0f);
         consumer.addVertex(pose, x1, y2, 0).setColor(1f, 1f, 1f, 1f).setUv(0, 1).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0f, 1f, 0f);
         consumer.addVertex(pose, x2, y2, 0).setColor(1f, 1f, 1f, 1f).setUv(1, 1).setLight(LightTexture.FULL_BRIGHT).setNormal(pose, 0f, 1f, 0f);
@@ -78,8 +78,8 @@ public abstract class AbstractCardWidget extends AbstractWidget implements Ticka
     }
 
     public void tick(int mouseX, int mouseY) {
-        float xDif = ((this.getX() + this.getWidth() - mouseX)-(this.getWidth()/2f))/(this.getWidth()/2f);
-        float yDif = ((this.getY() + this.getHeight() - mouseY)-(this.getHeight()/2f))/(this.getHeight()/2f);
+        float xDif = ((this.getPreciseX() + this.getPreciseWidth() - mouseX)-(this.getPreciseWidth()/2f))/(this.getPreciseWidth()/2f);
+        float yDif = ((this.getPreciseY() + this.getPreciseHeight() - mouseY)-(this.getPreciseHeight()/2f))/(this.getPreciseHeight()/2f);
 
         if(isHovered()) {
             inset = -30f;

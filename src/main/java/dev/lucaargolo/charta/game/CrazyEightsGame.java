@@ -2,17 +2,20 @@ package dev.lucaargolo.charta.game;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.nbt.CompoundTag;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class CrazyEightsGame implements CardGame {
 
+    private final Map<CardPlayer, List<Card>> censoredHands = new HashMap<>();
+
     private final List<Card> deck;
     private final List<CardPlayer> players;
+
     private final LinkedList<Card> playPile;
     private final LinkedList<Card> drawPile;
 
@@ -27,9 +30,11 @@ public class CrazyEightsGame implements CardGame {
 
         ImmutableList.Builder<Card> deckBuilder = new ImmutableList.Builder<>();
         for (Card.Suit suit : Card.Suit.values()) {
-            for (Card.Rank rank : Card.Rank.values()) {
-                if (rank != Card.Rank.BLANK && rank != Card.Rank.JOKER) {
-                    deckBuilder.add(new Card(suit, rank, true));
+            if(suit != Card.Suit.BLANK) {
+                for (Card.Rank rank : Card.Rank.values()) {
+                    if (rank != Card.Rank.BLANK && rank != Card.Rank.JOKER) {
+                        deckBuilder.add(new Card(suit, rank, true));
+                    }
                 }
             }
         }
@@ -50,6 +55,11 @@ public class CrazyEightsGame implements CardGame {
     @Override
     public List<CardPlayer> getPlayers() {
         return players;
+    }
+
+    @Override
+    public List<Card> getCensoredHand(CardPlayer player) {
+        return censoredHands.computeIfAbsent(player, p -> p.getHand().stream().map(c -> Card.BLANK).collect(Collectors.toList()));
     }
 
     @Override
@@ -76,8 +86,10 @@ public class CrazyEightsGame implements CardGame {
         Collections.shuffle(drawPile);
 
         for (CardPlayer player : players) {
+            player.setPlay(new CompletableFuture<>());
             player.getHand().clear();
-            CardGame.dealCards(drawPile, player, 5);
+            getCensoredHand(player).clear();
+            CardGame.dealCards(drawPile, player, getCensoredHand(player), 5);
             player.handUpdated();
         }
 
@@ -104,6 +116,7 @@ public class CrazyEightsGame implements CardGame {
                 Collections.shuffle(drawPile);
                 playPile.clear();
                 playPile.add(lastCard);
+                System.out.println("Shuffling");
             }else{
                 endGame();
             }
@@ -116,27 +129,31 @@ public class CrazyEightsGame implements CardGame {
                     System.out.println("Player "+getPlayers().indexOf(current)+" drawed ("+drawsLeft+" draws left)");
                     //TODO: This is a hack, all players should be able to draw by themselves.
                     if(current instanceof AutoPlayer) {
-                        CardGame.dealCards(drawPile, current, 1);
+                        CardGame.dealCards(drawPile, current, getCensoredHand(current), 1);
                         current.handUpdated();
                     }
+                    runGame();
                 }else{
                     current = getNextPlayer();
                     System.out.println("Its Player "+getPlayers().indexOf(current)+"'s turn");
                     drawsLeft = 3;
+                    runGame();
                 }
-            }else if(canPlayCard(current, card)){
+            }else if(canPlayCard(current, card)) {
                 System.out.println("Player "+getPlayers().indexOf(current)+" played a "+card.getRank()+" of "+card.getSuit());
-                current.getHand().remove(card);
+                if(current.getHand().remove(card)) {
+                    getCensoredHand(current).removeLast();
+                    playPile.addLast(card);
+                }
                 current.handUpdated();
-                playPile.addLast(card);
-                current = getNextPlayer();
-                System.out.println("Its Player "+getPlayers().indexOf(current)+"'s turn");
-                drawsLeft = 3;
-            }
-            if(current.getHand().isEmpty()) {
-                endGame();
-            }else {
-                runGame();
+                if(current.getHand().isEmpty()) {
+                    endGame();
+                }else {
+                    current = getNextPlayer();
+                    System.out.println("Its Player " + getPlayers().indexOf(current) + "'s turn");
+                    drawsLeft = 3;
+                    runGame();
+                }
             }
         });
     }

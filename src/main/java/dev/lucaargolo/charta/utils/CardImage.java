@@ -165,7 +165,7 @@ public class CardImage {
         for (int col = 0; col < cols; col++) {
             for (int row = 0; row < rows; row++) {
                 CardImage cardImage = cards[col * rows + row];
-                File fileToSave = new File(outputFile.getAbsolutePath() + "_" + col + "_" + row + ".mccard");
+                File fileToSave = new File(outputFile.getAbsolutePath() + "_" + (col+1) + "_" + row + ".mccard");
                 try {
                     Charta.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
                     cardImage.saveToFile(fileToSave.getAbsolutePath());

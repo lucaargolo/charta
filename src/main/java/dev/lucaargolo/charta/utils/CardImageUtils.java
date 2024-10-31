@@ -56,7 +56,7 @@ public class CardImageUtils {
             for (int col = 0; col < cols; col++) {
                 for (int row = 0; row < rows; row++) {
                     CardImage cardImage = cards[col * rows + row];
-                    File fileToSave = new File(outputFile.getAbsolutePath() + File.separator + col + "_" + row + ".mccard");
+                    File fileToSave = new File(outputFile.getAbsolutePath() + File.separator + (col+1) + "_" + row + ".mccard");
                     saveCard(cardImage, fileToSave, cachedOutput);
                 }
             }

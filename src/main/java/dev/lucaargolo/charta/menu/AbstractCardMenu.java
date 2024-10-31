@@ -13,6 +13,7 @@ import net.minecraft.world.inventory.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -80,7 +81,7 @@ public abstract class AbstractCardMenu<G extends CardGame> extends AbstractConta
     private void synchronizeCardSlotToRemote(int slotIndex, List<Card> cards, Supplier<ImmutableList<Card>> supplier) {
         if (!this.suppressRemoteUpdates) {
             ImmutableList<Card> remoteCards = this.remoteCardSlots.get(slotIndex);
-            if (remoteCards.size() != cards.size() || !remoteCards.containsAll(cards) || !cards.containsAll(remoteCards)) {
+            if (!remoteCards.equals(cards)) {
                 ImmutableList<Card> suppliedCards = supplier.get();
                 this.remoteCardSlots.set(slotIndex, suppliedCards);
                 if (this.synchronizer instanceof CardContainerSynchronizer cardContainerSynchronizer) {
@@ -92,7 +93,7 @@ public abstract class AbstractCardMenu<G extends CardGame> extends AbstractConta
 
     private void synchronizeCarriedCardsToRemote() {
         if (!this.suppressRemoteUpdates) {
-            if (remoteCarriedCards.size() != carriedCards.size() || !remoteCarriedCards.containsAll(carriedCards) || !carriedCards.containsAll(remoteCarriedCards)) {
+            if (!remoteCarriedCards.equals(carriedCards)) {
                 this.remoteCarriedCards = ImmutableList.copyOf(carriedCards);
                 if (this.synchronizer instanceof CardContainerSynchronizer cardContainerSynchronizer) {
                     cardContainerSynchronizer.sendCarriedCardsChange(this, this.remoteCarriedCards);
@@ -125,7 +126,7 @@ public abstract class AbstractCardMenu<G extends CardGame> extends AbstractConta
 
     private void triggerCardSlotListeners(int slotIndex, List<Card> cards, Supplier<ImmutableList<Card>> supplier) {
         List<Card> lastCards = this.lastCardSlots.get(slotIndex);
-        if (lastCards.size() != cards.size() || !lastCards.containsAll(cards) || !cards.containsAll(lastCards)) {
+        if (!lastCards.equals(cards)) {
             ImmutableList<Card> suppliedCards = supplier.get();
             this.lastCardSlots.set(slotIndex, suppliedCards);
 

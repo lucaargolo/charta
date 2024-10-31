@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.menu;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.utils.CardImage;
 
 import java.util.List;
 import java.util.function.Function;
@@ -12,21 +13,21 @@ public class CardSlot<G extends CardGame> {
     public final G game;
 
     public int index = -1;
-    public final int x;
-    public final int y;
+    public final float x;
+    public final float y;
     private final Function<G, List<Card>> getter;
-    private final boolean extended;
+    private final Type type;
 
-    public CardSlot(G game, Function<G, List<Card>> getter, int x, int y) {
-        this(game, getter, x, y, false);
+    public CardSlot(G game, Function<G, List<Card>> getter, float x, float y) {
+        this(game, getter, x, y, Type.DEFAULT);
     }
 
-    public CardSlot(G game, Function<G, List<Card>> getter, int x, int y, boolean extended) {
+    public CardSlot(G game, Function<G, List<Card>> getter, float x, float y, Type type) {
         this.game = game;
         this.x = x;
         this.y = y;
         this.getter = getter;
-        this.extended = extended;
+        this.type = type;
     }
 
     public final List<Card> getCards() {
@@ -76,8 +77,47 @@ public class CardSlot<G extends CardGame> {
         return getCards().isEmpty();
     }
 
+    public Type getType() {
+        return type;
+    }
+
     public boolean isExtended() {
-        return extended;
+        return type == Type.EXTENDED || type == Type.EXTENDED_SMALL;
+    }
+
+    public boolean isSmall() {
+        return type == Type.DEFAULT_SMALL || type == Type.EXTENDED_SMALL;
+    }
+
+    public enum Type {
+        DEFAULT,
+        DEFAULT_SMALL,
+        EXTENDED,
+        EXTENDED_SMALL
+    }
+
+    public static float getWidth(CardSlot.Type type) {
+        return switch (type) {
+            case DEFAULT -> CardImage.WIDTH * 1.5f;
+            case EXTENDED -> 150;
+            case DEFAULT_SMALL -> CardImage.WIDTH / 2f;
+            case EXTENDED_SMALL -> 41;
+        };
+    }
+
+    public static float getWidth(CardSlot<?> slot) {
+        return getWidth(slot.getType());
+    }
+
+    public static float getHeight(CardSlot.Type type) {
+        return switch (type) {
+            case DEFAULT, EXTENDED -> CardImage.HEIGHT * 1.5f;
+            case DEFAULT_SMALL, EXTENDED_SMALL -> CardImage.HEIGHT / 2f;
+        };
+    }
+
+    public static float getHeight(CardSlot<?> slot) {
+        return getHeight(slot.getType());
     }
 
 }

@@ -73,14 +73,14 @@ public abstract class CardMenuScreen<G extends CardGame, T extends AbstractCardM
         for (int k = 0; k < this.menu.cardSlots.size(); k++) {
             CardSlot<G> slot = this.menu.cardSlots.get(k);
 
-            if (this.isHovering(slot, mouseX, mouseY)) {
+            if (this.isHoveringPrecise(slot, mouseX, mouseY)) {
                 this.hoveredCardSlot = slot;
             }
 
             if(!slot.isEmpty()) {
                 CardSlotWidget<G> slotWidget = this.slotWidgets.get(k);
-                slotWidget.setX(slot.x + this.leftPos);
-                slotWidget.setY(slot.y + this.topPos);
+                slotWidget.setPreciseX(slot.x + this.leftPos);
+                slotWidget.setPreciseY(slot.y + this.topPos);
                 this.renderables.add(slotWidget);
             }
         }
@@ -142,12 +142,16 @@ public abstract class CardMenuScreen<G extends CardGame, T extends AbstractCardM
         this.hoveredCardSlot = hoveredCardSlot;
     }
 
-    private boolean isHovering(CardSlot<G> slot, double mouseX, double mouseY) {
-        if(slot.isExtended()) {
-            return this.isHovering(slot.x, slot.y, (int) (CardImage.WIDTH*1.5) + (25*(slot.getCards().size()-1)), (int) (CardImage.HEIGHT*1.5), mouseX, mouseY);
-        }else{
-            return this.isHovering(slot.x, slot.y, (int) (CardImage.WIDTH*1.5), (int) (CardImage.HEIGHT*1.5), mouseX, mouseY);
-        }
+    private boolean isHoveringPrecise(CardSlot<G> slot, float mouseX, float mouseY) {
+        return this.isHoveringPrecise(slot.x, slot.y, CardSlot.getWidth(slot), CardSlot.getHeight(slot), mouseX, mouseY);
+    }
+
+    protected boolean isHoveringPrecise(float x, float y, float width, float height, double mouseX, double mouseY) {
+        int i = this.leftPos;
+        int j = this.topPos;
+        mouseX -= i;
+        mouseY -= j;
+        return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
 
     @Override
