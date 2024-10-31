@@ -24,33 +24,25 @@ import java.util.List;
 public abstract class PlayerMixin extends LivingEntity implements CardHolderMixed {
 
     @Unique
-    private static final EntityDataAccessor<List<Card>> DATA_CHARTA_HAND = SynchedEntityData.defineId(Player.class, ModEntityDataSerializers.CARD_LIST.get());
-
-    @Unique
     private final List<Card> charta_hand = new ArrayList<>();
 
     protected PlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
     }
 
-    @Inject(at = @At("TAIL"), method = "<clinit>")
-    private static void setDataChartaHand(CallbackInfo ci) {
-        Charta.PLAYER_HAND = DATA_CHARTA_HAND;
-    }
-
     @Inject(at = @At("TAIL"), method = "defineSynchedData")
     public void defineSynchedData(SynchedEntityData.Builder builder, CallbackInfo ci) {
-        builder.define(DATA_CHARTA_HAND, charta_hand);
+        builder.define(Charta.PLAYER_HAND, new ArrayList<>());
     }
 
     @Override
-    public Collection<Card> charta_getHand() {
+    public List<Card> charta_getHand() {
         return charta_hand;
     }
 
     @Override
     public void charta_handUpdated() {
-        this.entityData.set(DATA_CHARTA_HAND, charta_hand);
+        this.entityData.set(Charta.PLAYER_HAND, charta_hand);
     }
 
 }

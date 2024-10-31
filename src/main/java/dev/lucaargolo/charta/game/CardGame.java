@@ -17,7 +17,7 @@ public interface CardGame {
 
     void startGame();
 
-    CompletableFuture<Void> runGame();
+    void runGame();
 
     boolean canPlayCard(CardPlayer player, Card card);
 
@@ -32,6 +32,7 @@ public interface CardGame {
     static void dealCards(LinkedList<Card> drawPile, CardPlayer player, int count) {
         for (int i = 0; i < count; i++) {
             Card card = drawPile.pollLast();
+            card.flip();
             player.getHand().add(card);
         }
     }

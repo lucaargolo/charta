@@ -26,9 +26,6 @@ import java.util.concurrent.CompletableFuture;
 public abstract class VillagerMixin extends LivingEntity implements CardPlayerMixed {
 
     @Unique
-    private static final EntityDataAccessor<List<Card>> DATA_CHARTA_HAND = SynchedEntityData.defineId(Villager.class, ModEntityDataSerializers.CARD_LIST.get());
-
-    @Unique
     private final List<Card> charta_hand = new ArrayList<>();
     @Unique
     private CompletableFuture<Card> charta_play = new CompletableFuture<>();
@@ -37,24 +34,19 @@ public abstract class VillagerMixin extends LivingEntity implements CardPlayerMi
         super(entityType, level);
     }
 
-    @Inject(at = @At("TAIL"), method = "<clinit>")
-    private static void setDataChartaHand(CallbackInfo ci) {
-        Charta.VILLAGER_HAND = DATA_CHARTA_HAND;
-    }
-
     @Inject(at = @At("TAIL"), method = "defineSynchedData")
     public void defineSynchedData(SynchedEntityData.Builder builder, CallbackInfo ci) {
-        builder.define(DATA_CHARTA_HAND, charta_hand);
+        builder.define(Charta.VILLAGER_HAND, new ArrayList<>());
     }
 
     @Override
-    public Collection<Card> charta_getHand() {
+    public List<Card> charta_getHand() {
         return charta_hand;
     }
 
     @Override
     public void charta_handUpdated() {
-        this.entityData.set(DATA_CHARTA_HAND, charta_hand);
+        this.entityData.set(Charta.VILLAGER_HAND, charta_hand);
     }
 
     @Override

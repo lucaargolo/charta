@@ -17,9 +17,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractCardWidget extends AbstractWidget implements TickableWidget, HoverableRenderable {
 
+    @Nullable
     private final HoverableRenderable parent;
     private final ResourceLocation cardId;
 
@@ -32,7 +34,7 @@ public abstract class AbstractCardWidget extends AbstractWidget implements Ticka
     private float lastYRot = 0f;
     private float yRot = 0f;
 
-    public AbstractCardWidget(HoverableRenderable parent, ResourceLocation cardId, int x, int y, float scale) {
+    public AbstractCardWidget(@Nullable HoverableRenderable parent, ResourceLocation cardId, int x, int y, float scale) {
         super(x, y, (int) (CardImage.WIDTH * 1.5f * scale), (int) (CardImage.HEIGHT * 1.5f * scale), Component.empty());
         this.parent = parent;
         this.cardId = cardId;
@@ -94,7 +96,7 @@ public abstract class AbstractCardWidget extends AbstractWidget implements Ticka
 
     @Override
     public boolean isHovered() {
-        return parent.getHoverable() == this;
+        return parent != null && parent.getHoverable() == this;
     }
 
     public abstract ResourceLocation getCardTexture(ResourceLocation cardId);

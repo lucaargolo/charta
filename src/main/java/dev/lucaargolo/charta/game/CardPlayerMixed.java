@@ -11,4 +11,8 @@ public interface CardPlayerMixed extends CardPlayer, CardHolderMixed {
         return charta_getPlay(game);
     }
 
+    default void setPlay(CompletableFuture<Card> play) {
+        charta_setPlay(play);
+    }
+
 }

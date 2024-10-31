@@ -10,7 +10,7 @@ public class AutoPlayer implements CardPlayer {
     private final List<Card> hand = new ArrayList<>();
 
     @Override
-    public Collection<Card> getHand() {
+    public List<Card> getHand() {
         return hand;
     }
 
@@ -18,6 +18,11 @@ public class AutoPlayer implements CardPlayer {
     public CompletableFuture<Card> getPlay(CardGame game) {
         Card card = game.getBestCard(this);
         return CompletableFuture.completedFuture(card);
+    }
+
+    @Override
+    public void setPlay(CompletableFuture<Card> play) {
+
     }
 
     @Override

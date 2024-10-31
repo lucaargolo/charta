@@ -1,13 +1,13 @@
 package dev.lucaargolo.charta.game;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface CardHolderMixed extends CardHolder {
 
-    Collection<Card> charta_getHand();
+    List<Card> charta_getHand();
     void charta_handUpdated();
 
-    default Collection<Card> getHand() {
+    default List<Card> getHand() {
         return charta_getHand();
     }
 

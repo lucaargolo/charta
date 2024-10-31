@@ -17,9 +17,10 @@ public class CrazyEightsGame implements CardGame {
     private final LinkedList<Card> drawPile;
 
     private CardPlayer current;
-    private int drawsLeft = 3;
     private CardPlayer winner;
     private boolean isGameOver;
+
+    public int drawsLeft = 3;
 
     public CrazyEightsGame(List<CardPlayer> players) {
         this.players = players;
@@ -28,7 +29,7 @@ public class CrazyEightsGame implements CardGame {
         for (Card.Suit suit : Card.Suit.values()) {
             for (Card.Rank rank : Card.Rank.values()) {
                 if (rank != Card.Rank.BLANK && rank != Card.Rank.JOKER) {
-                    deckBuilder.add(new Card(suit, rank));
+                    deckBuilder.add(new Card(suit, rank, true));
                 }
             }
         }
@@ -36,6 +37,14 @@ public class CrazyEightsGame implements CardGame {
 
         this.drawPile = new LinkedList<>();
         this.playPile = new LinkedList<>();
+    }
+
+    public LinkedList<Card> getPlayPile() {
+        return playPile;
+    }
+
+    public LinkedList<Card> getDrawPile() {
+        return drawPile;
     }
 
     @Override
@@ -67,22 +76,30 @@ public class CrazyEightsGame implements CardGame {
         Collections.shuffle(drawPile);
 
         for (CardPlayer player : players) {
+            player.getHand().clear();
             CardGame.dealCards(drawPile, player, 5);
             player.handUpdated();
         }
 
-        playPile.addLast(drawPile.pollLast());
+        Card last = drawPile.pollLast();
+        last.flip();
+        playPile.addLast(last);
 
         current = players.getFirst();
+
         winner = null;
         isGameOver = false;
+
+        System.out.println("Game started");
+        System.out.println("Its Player "+getPlayers().indexOf(current)+"'s turn");
     }
 
     @Override
-    public CompletableFuture<Void> runGame() {
+    public void runGame() {
         if(drawPile.isEmpty()) {
             if(playPile.size() > 1) {
                 Card lastCard = playPile.pollLast();
+                playPile.forEach(Card::flip);
                 drawPile.addAll(playPile);
                 Collections.shuffle(drawPile);
                 playPile.clear();
@@ -92,25 +109,34 @@ public class CrazyEightsGame implements CardGame {
             }
         }
 
-        return current.getPlay(this).thenAccept(card -> {
+        current.getPlay(this).thenAccept(card -> {
             if(card == null) {
                 if(drawsLeft > 0) {
                     drawsLeft--;
-                    CardGame.dealCards(drawPile, current, 1);
-                    current.handUpdated();
+                    System.out.println("Player "+getPlayers().indexOf(current)+" drawed ("+drawsLeft+" draws left)");
+                    //TODO: This is a hack, all players should be able to draw by themselves.
+                    if(current instanceof AutoPlayer) {
+                        CardGame.dealCards(drawPile, current, 1);
+                        current.handUpdated();
+                    }
                 }else{
                     current = getNextPlayer();
+                    System.out.println("Its Player "+getPlayers().indexOf(current)+"'s turn");
                     drawsLeft = 3;
                 }
             }else if(canPlayCard(current, card)){
+                System.out.println("Player "+getPlayers().indexOf(current)+" played a "+card.getRank()+" of "+card.getSuit());
                 current.getHand().remove(card);
                 current.handUpdated();
                 playPile.addLast(card);
                 current = getNextPlayer();
+                System.out.println("Its Player "+getPlayers().indexOf(current)+"'s turn");
                 drawsLeft = 3;
             }
             if(current.getHand().isEmpty()) {
                 endGame();
+            }else {
+                runGame();
             }
         });
     }
@@ -119,9 +145,7 @@ public class CrazyEightsGame implements CardGame {
     public boolean canPlayCard(CardPlayer player, Card card) {
         Card lastCard = playPile.peekLast();
         assert lastCard != null;
-        return getPlayers().contains(player) &&
-                player.getHand().contains(card) &&
-                (card.rank() == lastCard.rank() || card.suit() == lastCard.suit());
+        return card.getRank() == lastCard.getRank() || card.getSuit() == lastCard.getSuit();
     }
 
     @Nullable
@@ -132,6 +156,7 @@ public class CrazyEightsGame implements CardGame {
 
     public void endGame() {
         if(current.getHand().isEmpty()) {
+            System.out.println(current +" won the game");
             winner = current;
         }
         isGameOver = true;

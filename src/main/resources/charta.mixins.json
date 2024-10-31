@@ -5,6 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "charta.refmap.json",
   "mixins": [
+    "ContainerListenerMixin",
+    "ContainerSynchronizerMixin",
     "PlayerMixin",
     "ServerPlayerMixin",
     "VillagerMixin"

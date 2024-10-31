@@ -3,12 +3,18 @@ package dev.lucaargolo.charta;
 import com.mojang.logging.LogUtils;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.game.Card;
+import dev.lucaargolo.charta.menu.ModMenus;
+import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
 import dev.lucaargolo.charta.network.CardImagesPayload;
+import dev.lucaargolo.charta.network.UpdateCardContainerCarriedPayload;
+import dev.lucaargolo.charta.network.UpdateCardContainerSlotPayload;
 import dev.lucaargolo.charta.resources.CardImageResource;
 import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -21,6 +27,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -78,8 +86,9 @@ public class Charta {
     public static EntityDataAccessor<List<Card>> VILLAGER_HAND;
 
     public Charta(IEventBus modEventBus, ModContainer modContainer) {
-        ModBlocks.register(modEventBus);
         ModEntityDataSerializers.register(modEventBus);
+        ModBlocks.register(modEventBus);
+        ModMenus.register(modEventBus);
     }
 
     public static ResourceLocation id(String path) {
@@ -90,9 +99,22 @@ public class Charta {
     public static class ModEvents {
 
         @SubscribeEvent
+        public static void register(RegisterEvent event) {
+            if(event.getRegistry() == NeoForgeRegistries.ENTITY_DATA_SERIALIZERS) {
+                PLAYER_HAND = SynchedEntityData.defineId(Player.class, ModEntityDataSerializers.CARD_LIST.get());
+                VILLAGER_HAND = SynchedEntityData.defineId(Villager.class, ModEntityDataSerializers.CARD_LIST.get());
+            }
+        }
+
+        @SubscribeEvent
         public static void register(final RegisterPayloadHandlersEvent event) {
             final PayloadRegistrar registrar = event.registrar("1");
+
             registrar.playToClient(CardImagesPayload.TYPE, CardImagesPayload.STREAM_CODEC, CardImagesPayload::handleClient);
+            registrar.playToClient(UpdateCardContainerSlotPayload.TYPE, UpdateCardContainerSlotPayload.STREAM_CODEC, UpdateCardContainerSlotPayload::handleClient);
+            registrar.playToClient(UpdateCardContainerCarriedPayload.TYPE, UpdateCardContainerCarriedPayload.STREAM_CODEC, UpdateCardContainerCarriedPayload::handleClient);
+
+            registrar.playToServer(CardContainerSlotClickPayload.TYPE, CardContainerSlotClickPayload.STREAM_CODEC, CardContainerSlotClickPayload::handleServer);
         }
 
     }

@@ -3,7 +3,9 @@ package dev.lucaargolo.charta.client;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.client.gui.screens.CrazyEightsScreen;
 import dev.lucaargolo.charta.game.Card;
+import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.client.Minecraft;
@@ -15,6 +17,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 
 import java.io.IOException;
@@ -86,6 +89,11 @@ public class ChartaClient {
     @OnlyIn(Dist.CLIENT)
     @EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
+
+        @SubscribeEvent
+        public static void registerMenuScreens(RegisterMenuScreensEvent event) {
+            event.register(ModMenus.CRAZY_EIGHTS.get(), CrazyEightsScreen::new);
+        }
 
         @SubscribeEvent
         public static void registerShaders(RegisterShadersEvent event) throws IOException {

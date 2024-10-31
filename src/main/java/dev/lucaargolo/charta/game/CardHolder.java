@@ -1,10 +1,11 @@
 package dev.lucaargolo.charta.game;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface CardHolder {
 
-    Collection<Card> getHand();
+    List<Card> getHand();
     void handUpdated();
 
 }
