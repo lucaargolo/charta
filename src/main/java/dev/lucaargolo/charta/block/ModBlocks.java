@@ -12,7 +12,7 @@ public class ModBlocks {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Registries.BLOCK, Charta.MOD_ID);
 
-    public static final DeferredHolder<Block, CardTableBlock> CARD_TABLE = BLOCKS.register("card_table", () -> new CardTableBlock(Block.Properties.ofFullCopy(Blocks.OAK_PLANKS)));
+    public static final DeferredHolder<Block, CardTableBlock> CARD_TABLE = BLOCKS.register("card_table", () -> new CardTableBlock(Block.Properties.ofFullCopy(Blocks.OAK_PLANKS).noOcclusion()));
 
 
     public static void register(IEventBus bus) {
