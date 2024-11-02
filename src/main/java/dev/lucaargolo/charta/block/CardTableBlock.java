@@ -1,22 +1,33 @@
 package dev.lucaargolo.charta.block;
 
+import com.mojang.serialization.MapCodec;
+import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
+import dev.lucaargolo.charta.utils.DyeColorHelper;
 import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.WoolCarpetBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
@@ -25,7 +36,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class CardTableBlock extends Block {
+public class CardTableBlock extends BaseEntityBlock {
+
+    public static final MapCodec<CardTableBlock> CODEC = simpleCodec(CardTableBlock::new);
 
     private static final List<Vector2i> VALID_DIMENSIONS = List.of(new Vector2i(3, 3), new Vector2i(4, 3), new Vector2i(5, 3));
     private static final int MAX_SIZE;
@@ -57,6 +70,11 @@ public class CardTableBlock extends Block {
     }
 
     @Override
+    public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+        return new CardTableBlockEntity(pos, state);
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(VALID, NORTH, EAST, SOUTH, WEST, CLOTH, COLOR);
     }
@@ -64,21 +82,41 @@ public class CardTableBlock extends Block {
     @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
         if(player instanceof ServerPlayer serverPlayer) {
-            System.out.println(getCenterPos(level, pos));
+            ItemStack stack = player.getMainHandItem();
+            if(state.getValue(VALID) && !state.getValue(CLOTH)) {
+                if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof WoolCarpetBlock carpetBlock) {
+                    DyeColor color = carpetBlock.getColor();
+                    getMultiblock(level, pos).forEach(p -> {
+                        BlockState s = level.getBlockState(p);
+                        level.setBlockAndUpdate(p, s.setValue(CLOTH, true).setValue(COLOR, color));
+                    });
+                }
+            }
         }
         return InteractionResult.SUCCESS;
     }
 
     @Override
+    protected void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+        if(!state.is(newState.getBlock()) && state.getValue(CLOTH)) {
+            Vec3 center = pos.getCenter();
+            ItemStack carpetStack = DyeColorHelper.getCarpet(state.getValue(COLOR)).asItem().getDefaultInstance();
+            Containers.dropItemStack(level, center.x, center.y, center.z, carpetStack);
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
     protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
         boolean valid = isValidMultiblock(level, pos);
-        return switch (direction) {
+        state = switch (direction) {
             case Direction.NORTH -> state.setValue(VALID, valid).setValue(NORTH, neighborState.is(this));
             case Direction.EAST -> state.setValue(VALID, valid).setValue(EAST, neighborState.is(this));
             case Direction.SOUTH -> state.setValue(VALID, valid).setValue(SOUTH, neighborState.is(this));
             case Direction.WEST -> state.setValue(VALID, valid).setValue(WEST, neighborState.is(this));
             default -> super.updateShape(state, direction, neighborState, level, pos, neighborPos).setValue(VALID, valid);
         };
+        return neighborState.is(this) ? state.setValue(CLOTH, neighborState.getValue(CLOTH)) : valid ? state : state.setValue(CLOTH, false);
     }
 
     @Override
@@ -91,27 +129,34 @@ public class CardTableBlock extends Block {
                 .setValue(WEST, context.getLevel().getBlockState(context.getClickedPos().west()).is(this));
     }
 
-    public BlockPos getCenterPos(LevelAccessor level, BlockPos pos) {
-        Set<BlockPos> visited = new HashSet<>();
-        Set<BlockPos> multiblock = new HashSet<>();
+    @Override
+    protected @NotNull MapCodec<CardTableBlock> codec() {
+        return CODEC;
+    }
 
-        floodFill(level, pos, visited, multiblock);
+    @Override
+    protected @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+        return RenderShape.MODEL;
+    }
+
+    public Set<BlockPos> getMultiblock(LevelAccessor level, BlockPos pos) {
+        Set<BlockPos> multiblock = new HashSet<>();
+        floodFill(level, pos, new HashSet<>(), multiblock);
+        return multiblock;
+    }
+
+    public BlockPos getCenterPos(LevelAccessor level, BlockPos pos) {
+        Set<BlockPos> multiblock = getMultiblock(level, pos);
         BlockBox box = getBoundingBox(multiblock);
         BlockPos min = box.min();
         BlockPos max = box.max();
-
         return new BlockPos(min.getX() + Mth.floor((max.getX() - min.getX())/2.0), min.getY() + Mth.floor((max.getY() - min.getY())/2.0), min.getZ() + Mth.floor((max.getZ() - min.getZ())/2.0));
     }
 
     public boolean isValidMultiblock(LevelAccessor level, BlockPos pos) {
-        Set<BlockPos> visited = new HashSet<>();
-        Set<BlockPos> multiblock = new HashSet<>();
-
-        floodFill(level, pos, visited, multiblock);
-
+        Set<BlockPos> multiblock = getMultiblock(level, pos);
         int width = getWidth(multiblock);
         int height = getHeight(multiblock);
-
         return isValidDimensions(width, height) && isBoundingBoxFilled(level, getBoundingBox(multiblock));
     }
 

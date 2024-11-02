@@ -101,7 +101,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 String cornerClothPath = "block/"+color+"_card_table_corner_cloth";
                 String sideClothPath = "block/"+color+"_card_table_side_cloth";
 
-                addClothCardTablePart(cardTableBuilder.part(), this.modLoc(centerClothPath), 0, null, null, null, null, null, color);
+                addClothCardTablePart(cardTableBuilder.part(), this.modLoc(centerClothPath), 0, true, true, true, true, true, color);
 
                 addClothCardTablePart(cardTableBuilder.part(), this.modLoc(cornerClothPath), 0, true, false, true, true, false, color);
                 addClothCardTablePart(cardTableBuilder.part(), this.modLoc(cornerClothPath), 90, true, false, false, true, true, color);

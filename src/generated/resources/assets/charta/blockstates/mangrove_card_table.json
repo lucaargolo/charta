@@ -152,7 +152,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "white"
+        "color": "white",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -279,7 +284,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "orange"
+        "color": "orange",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -406,7 +416,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "magenta"
+        "color": "magenta",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -533,7 +548,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "light_blue"
+        "color": "light_blue",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -660,7 +680,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "yellow"
+        "color": "yellow",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -787,7 +812,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "lime"
+        "color": "lime",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -914,7 +944,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "pink"
+        "color": "pink",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -1041,7 +1076,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "gray"
+        "color": "gray",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -1168,7 +1208,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "light_gray"
+        "color": "light_gray",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -1295,7 +1340,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "cyan"
+        "color": "cyan",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -1422,7 +1472,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "purple"
+        "color": "purple",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -1549,7 +1604,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "blue"
+        "color": "blue",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -1676,7 +1736,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "brown"
+        "color": "brown",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -1803,7 +1868,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "green"
+        "color": "green",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -1930,7 +2000,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "red"
+        "color": "red",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
@@ -2057,7 +2132,12 @@
       },
       "when": {
         "cloth": "true",
-        "color": "black"
+        "color": "black",
+        "east": "true",
+        "north": "true",
+        "south": "true",
+        "valid": "true",
+        "west": "true"
       }
     },
     {
