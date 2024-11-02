@@ -1,0 +1,7 @@
+{
+  "parent": "charta:block/card_table_feet",
+  "textures": {
+    "log": "minecraft:block/crimson_stem",
+    "particle": "minecraft:block/crimson_stem"
+  }
+}

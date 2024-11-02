@@ -1,0 +1,7 @@
+{
+  "parent": "charta:block/card_table_center",
+  "textures": {
+    "particle": "minecraft:block/jungle_planks",
+    "planks": "minecraft:block/jungle_planks"
+  }
+}

@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.Card;
+import dev.lucaargolo.charta.item.ModCreativeTabs;
 import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.ModMenus;
@@ -90,6 +91,7 @@ public class Charta {
         ModItems.register(modEventBus);
         ModBlockEntityTypes.register(modEventBus);
         ModMenus.register(modEventBus);
+        ModCreativeTabs.register(modEventBus);
     }
 
     public static ResourceLocation id(String path) {

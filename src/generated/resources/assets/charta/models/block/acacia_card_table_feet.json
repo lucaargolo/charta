@@ -1,0 +1,7 @@
+{
+  "parent": "charta:block/card_table_feet",
+  "textures": {
+    "log": "minecraft:block/acacia_log",
+    "particle": "minecraft:block/acacia_log"
+  }
+}

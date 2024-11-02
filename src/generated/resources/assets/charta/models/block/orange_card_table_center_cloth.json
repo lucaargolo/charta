@@ -1,0 +1,7 @@
+{
+  "parent": "charta:block/card_table_center_cloth",
+  "textures": {
+    "cloth": "minecraft:block/orange_wool",
+    "particle": "minecraft:block/orange_wool"
+  }
+}
