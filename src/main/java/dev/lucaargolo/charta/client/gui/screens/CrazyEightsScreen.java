@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.game.CardPlayerMixed;
+import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.game.CrazyEightsGame;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.menu.CrazyEightsMenu;
@@ -31,7 +31,7 @@ public class CrazyEightsScreen extends CardMenuScreen<CrazyEightsGame, CrazyEigh
             totalCards += slot.getCards().size();
         }
         totalCards += this.menu.getCarriedCards().size();
-        totalCards -= ((CardPlayerMixed) this.minecraft.player).charta_getCardPlayer().getHand().size();
+        totalCards -= ((LivingEntityMixed) this.minecraft.player).charta_getCardPlayer().getHand().size();
         guiGraphics.drawString(font, "Total Cards: "+totalCards, 0, 0, 0xFFFF0000, false);
 
         int players = this.menu.getGame().getPlayers().size();

@@ -8,9 +8,16 @@ import java.util.concurrent.CompletableFuture;
 public interface CardPlayer {
 
     List<Card> getHand();
+
     void handUpdated();
-    ResourceLocation getTexture();
+
     CompletableFuture<Card> getPlay(CardGame game);
+
     void setPlay(CompletableFuture<Card> play);
+
+    void tick(CardGame game);
+
+    ResourceLocation getTexture();
+
 
 }

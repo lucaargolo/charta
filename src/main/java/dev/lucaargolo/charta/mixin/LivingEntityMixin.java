@@ -4,7 +4,7 @@ import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
-import dev.lucaargolo.charta.game.CardPlayerMixed;
+import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
@@ -23,37 +23,43 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements CardPlayerMixed {
+public abstract class LivingEntityMixin extends Entity implements LivingEntityMixed {
 
     @Unique
     private final List<Card> charta_hand = new ArrayList<>();
     @Unique
     private CompletableFuture<Card> charta_play = new CompletableFuture<>();
     @Unique
-    private CardPlayer charta_cardPlayer = new CardPlayer() {
+    private final CardPlayer charta_cardPlayer = new CardPlayer() {
+
         @Override
         public CompletableFuture<Card> getPlay(CardGame game) {
-            return charta_getPlay(game);
+            return charta_play;
         }
 
         @Override
         public void setPlay(CompletableFuture<Card> play) {
-            charta_setPlay(play);
+            charta_play = play;
         }
 
         @Override
         public List<Card> getHand() {
-            return charta_getHand();
+            return charta_hand;
         }
 
         @Override
         public void handUpdated() {
-            charta_handUpdated();
+            entityData.set(Charta.ENTITY_HAND, charta_hand);
+        }
+
+        @Override
+        public void tick(CardGame game) {
+
         }
 
         @Override
         public ResourceLocation getTexture() {
-            return charta_getTexture();
+            return null;
         }
     };
 
@@ -69,31 +75,6 @@ public abstract class LivingEntityMixin extends Entity implements CardPlayerMixe
     @Inject(at = @At("TAIL"), method = "defineSynchedData")
     public void defineSynchedData(SynchedEntityData.Builder builder, CallbackInfo ci) {
         builder.define(Charta.ENTITY_HAND, new ArrayList<>());
-    }
-
-    @Override
-    public List<Card> charta_getHand() {
-        return charta_hand;
-    }
-
-    @Override
-    public void charta_handUpdated() {
-        this.entityData.set(Charta.ENTITY_HAND, charta_hand);
-    }
-
-    @Override
-    public ResourceLocation charta_getTexture() {
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<Card> charta_getPlay(CardGame game) {
-        return this.charta_play;
-    }
-
-    @Override
-    public void charta_setPlay(CompletableFuture<Card> play) {
-        this.charta_play = play;
     }
 
     @Override

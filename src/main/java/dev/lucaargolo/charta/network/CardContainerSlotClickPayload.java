@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardPlayer;
-import dev.lucaargolo.charta.game.CardPlayerMixed;
+import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import io.netty.buffer.ByteBuf;
@@ -35,7 +35,7 @@ public record CardContainerSlotClickPayload(int containerId, int slotId, int car
     public static void handleServer(CardContainerSlotClickPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
-            if(player instanceof CardPlayerMixed mixed && player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
+            if(player instanceof LivingEntityMixed mixed && player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
                 CardPlayer cardPlayer = mixed.charta_getCardPlayer();
                 CardSlot<?> slot = cardMenu.getCardSlot(payload.slotId);
                 ImmutableList<Card> carriedCards = cardMenu.getCarriedCards();

@@ -102,8 +102,8 @@ public class CrazyEightsGame implements CardGame {
         winner = null;
         isGameOver = false;
 
-        System.out.println("Game started");
-        System.out.println("Its Player "+getPlayers().indexOf(current)+"'s turn");
+        //System.out.println("Game started");
+        //System.out.println("Its Player "+getPlayers().indexOf(current)+"'s turn");
     }
 
     @Override
@@ -116,17 +116,24 @@ public class CrazyEightsGame implements CardGame {
                 Collections.shuffle(drawPile);
                 playPile.clear();
                 playPile.add(lastCard);
-                System.out.println("Shuffling");
+                //System.out.println("Shuffling");
             }else{
                 endGame();
             }
         }
 
+        System.out.println("Waiting for Player "+getPlayers().indexOf(current));
         current.getPlay(this).thenAccept(card -> {
+//            if(card != null)
+//                System.out.println("Player "+getPlayers().indexOf(current) +" tried played a "+card.getRank()+" of "+card.getSuit());
+//            else
+//                System.out.println("Player "+getPlayers().indexOf(current) +" tried played a null");
+
+            current.setPlay(new CompletableFuture<>());
             if(card == null) {
                 if(drawsLeft > 0) {
                     drawsLeft--;
-                    System.out.println("Player "+getPlayers().indexOf(current)+" drawed ("+drawsLeft+" draws left)");
+                    //System.out.println("Player "+getPlayers().indexOf(current)+" drawed ("+drawsLeft+" draws left)");
                     //TODO: This is a hack, all players should be able to draw by themselves.
                     if(current instanceof AutoPlayer) {
                         CardGame.dealCards(drawPile, current, getCensoredHand(current), 1);
@@ -135,12 +142,12 @@ public class CrazyEightsGame implements CardGame {
                     runGame();
                 }else{
                     current = getNextPlayer();
-                    System.out.println("Its Player "+getPlayers().indexOf(current)+"'s turn");
+                    //System.out.println("Its Player "+getPlayers().indexOf(current)+"'s turn");
                     drawsLeft = 3;
                     runGame();
                 }
             }else if(canPlayCard(current, card)) {
-                System.out.println("Player "+getPlayers().indexOf(current)+" played a "+card.getRank()+" of "+card.getSuit());
+                //System.out.println("Player "+getPlayers().indexOf(current)+" played a "+card.getRank()+" of "+card.getSuit());
                 if(current.getHand().remove(card)) {
                     getCensoredHand(current).removeLast();
                     playPile.addLast(card);
@@ -150,7 +157,7 @@ public class CrazyEightsGame implements CardGame {
                     endGame();
                 }else {
                     current = getNextPlayer();
-                    System.out.println("Its Player " + getPlayers().indexOf(current) + "'s turn");
+                    //System.out.println("Its Player " + getPlayers().indexOf(current) + "'s turn");
                     drawsLeft = 3;
                     runGame();
                 }
@@ -168,12 +175,13 @@ public class CrazyEightsGame implements CardGame {
     @Nullable
     @Override
     public Card getBestCard(CardPlayer player) {
+        //System.out.println("Getting best card for Player"+getPlayers().indexOf(player));
         return player.getHand().stream().filter(c -> canPlayCard(player, c)).findFirst().orElse(null);
     }
 
     public void endGame() {
         if(current.getHand().isEmpty()) {
-            System.out.println(current +" won the game");
+            //System.out.println(getPlayers().indexOf(current) +" won the game");
             winner = current;
         }
         isGameOver = true;

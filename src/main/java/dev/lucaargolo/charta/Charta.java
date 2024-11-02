@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.item.ModItems;
+import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
 import dev.lucaargolo.charta.network.CardImagesPayload;
@@ -23,6 +24,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -122,6 +124,14 @@ public class Charta {
             Player player = event.getEntity();
             if(player instanceof ServerPlayer serverPlayer) {
                 PacketDistributor.sendToPlayer(serverPlayer, new CardImagesPayload(Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
+            }
+        }
+
+        //TODO: Remove this
+        @SubscribeEvent
+        public static void onPlayerTick(PlayerTickEvent.Post event) {
+            if(event.getEntity().containerMenu instanceof AbstractCardMenu<?> cardMenu) {
+                cardMenu.getGame().tick();
             }
         }
 

@@ -31,6 +31,10 @@ public interface CardGame {
 
     CompoundTag toNbt(CompoundTag tag);
 
+    default void tick() {
+        getPlayers().forEach(p -> p.tick(this));
+    }
+
     static void dealCards(LinkedList<Card> drawPile, CardPlayer player, List<Card> censoredHand, int count) {
         for (int i = 0; i < count; i++) {
             Card card = drawPile.pollLast();

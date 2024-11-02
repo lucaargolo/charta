@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.menu;
 
 import dev.lucaargolo.charta.game.*;
+import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -22,15 +23,15 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         super(ModMenus.CRAZY_EIGHTS.get(), containerId, inventory, access);
         //TODO: Move game to Block Entity
         CardPlayer cardPlayer;
-        if(player instanceof CardPlayerMixed mixed) {
+        if(player instanceof LivingEntityMixed mixed) {
             cardPlayer = mixed.charta_getCardPlayer();
-            this.game = new CrazyEightsGame(List.of(cardPlayer, new AutoPlayer(), new AutoPlayer(), new AutoPlayer()));
+            this.game = new CrazyEightsGame(List.of(cardPlayer, new AutoPlayer(0.5f), new AutoPlayer(1f), new AutoPlayer(0.25f)));
             if(!player.level().isClientSide) {
                 this.game.startGame();
                 this.game.runGame();
             }
         }else{
-            cardPlayer = new AutoPlayer();
+            cardPlayer = new AutoPlayer(1f);
             this.game = new CrazyEightsGame(List.of());
         }
 
@@ -67,9 +68,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
             @Override
             public void onRemove(CardPlayer player, Card card) {
                 card.flip();
-                CompletableFuture<Card> play = player.getPlay(this.game);
-                player.setPlay(new CompletableFuture<>());
-                play.complete(null);
+                player.getPlay(this.game).complete(null);
             }
         });
         //Play pile
@@ -86,9 +85,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
             @Override
             public void onInsert(CardPlayer player, Card card) {
-                CompletableFuture<Card> play = player.getPlay(this.game);
-                player.setPlay(new CompletableFuture<>());
-                play.complete(card);
+                player.getPlay(this.game).complete(card);
             }
         });
         addCardSlot(new CardSlot<>(this.game, g -> cardPlayer.getHand(), 13, 95, CardSlot.Type.EXTENDED) {
@@ -96,9 +93,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
             public void onInsert(CardPlayer player, Card card) {
                 game.getCensoredHand(player).add(Card.BLANK);
                 if(player == this.game.getCurrentPlayer() && this.game.drawsLeft == 0 && this.game.getBestCard(player) == null) {
-                    CompletableFuture<Card> play = player.getPlay(this.game);
-                    player.setPlay(new CompletableFuture<>());
-                    play.complete(null);
+                    player.getPlay(this.game).complete(null);
                 }
             }
 
