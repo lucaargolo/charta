@@ -2,6 +2,7 @@ package dev.lucaargolo.charta;
 
 import com.mojang.logging.LogUtils;
 import dev.lucaargolo.charta.block.ModBlocks;
+import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
@@ -87,6 +88,7 @@ public class Charta {
         ModEntityDataSerializers.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
+        ModBlockEntityTypes.register(modEventBus);
         ModMenus.register(modEventBus);
     }
 
