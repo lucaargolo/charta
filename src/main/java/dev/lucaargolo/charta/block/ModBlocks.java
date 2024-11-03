@@ -22,6 +22,7 @@ public class ModBlocks {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Registries.BLOCK, Charta.MOD_ID);
     public static final Map<WoodType, DeferredHolder<Block, CardTableBlock>> CARD_TABLE_MAP = new HashMap<>();
+    public static final Map<WoodType, DeferredHolder<Block, StoolBlock>> STOOL_MAP = new HashMap<>();
 
     static {
         BlockFamilies.getAllFamilies().filter(f -> f.getRecipeGroupPrefix().orElse("").equals("wooden")).forEach(f -> {
@@ -29,9 +30,12 @@ public class ModBlocks {
             if(resourceKey != null) {
                 String woodName = resourceKey.location().withPath(s -> s.replace("_planks", "")).getPath();
                 WoodType.values().filter(t -> t.name().equals(woodName)).findFirst().ifPresent(type -> {
-                    Supplier<CardTableBlock> supplier = () -> new CardTableBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
-                    DeferredHolder<Block, CardTableBlock> holder = BLOCKS.register(woodName + "_card_table", supplier);
-                    CARD_TABLE_MAP.put(type, holder);
+                    Supplier<CardTableBlock> tableSupplier = () -> new CardTableBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
+                    DeferredHolder<Block, CardTableBlock> tableHolder = BLOCKS.register(woodName + "_card_table", tableSupplier);
+                    CARD_TABLE_MAP.put(type, tableHolder);
+                    Supplier<StoolBlock> stoolSupplier = () -> new StoolBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
+                    DeferredHolder<Block, StoolBlock> stoolHolder = BLOCKS.register(woodName + "_stool", stoolSupplier);
+                    STOOL_MAP.put(type, stoolHolder);
                 });
             }
         });

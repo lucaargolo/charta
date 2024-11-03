@@ -4,12 +4,14 @@ import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.gui.screens.CrazyEightsScreen;
+import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,6 +19,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 
@@ -89,6 +92,12 @@ public class ChartaClient {
     @OnlyIn(Dist.CLIENT)
     @EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
+
+        @SubscribeEvent
+        public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerEntityRenderer(ModEntityTypes.SEAT.get(), NoopRenderer::new);
+        }
+
 
         @SubscribeEvent
         public static void registerMenuScreens(RegisterMenuScreensEvent event) {

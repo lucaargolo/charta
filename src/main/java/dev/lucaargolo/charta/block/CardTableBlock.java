@@ -81,7 +81,7 @@ public class CardTableBlock extends BaseEntityBlock {
 
     @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
-        if(player instanceof ServerPlayer serverPlayer) {
+        if(!level.isClientSide()) {
             ItemStack stack = player.getMainHandItem();
             if(state.getValue(VALID) && !state.getValue(CLOTH)) {
                 if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof WoolCarpetBlock carpetBlock) {

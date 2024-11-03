@@ -1,0 +1,39 @@
+{
+	"credit": "Made with Blockbench",
+	"elements": [
+		{
+			"from": [4, 13, -5],
+			"to": [12, 13.5, -1],
+			"rotation": {"angle": 0, "axis": "y", "origin": [5, 13, -3]},
+			"faces": {
+				"north": {"uv": [0, 0, 8, 0.5], "texture": "#cloth"},
+				"east": {"uv": [0, 0, 4, 0.5], "texture": "#cloth"},
+				"south": {"uv": [0, 0, 8, 0.5], "texture": "#cloth"},
+				"west": {"uv": [0, 0, 4, 0.5], "texture": "#cloth"},
+				"up": {"uv": [0, 0, 8, 4], "texture": "#cloth"},
+				"down": {"uv": [0, 0, 8, 4], "texture": "#cloth"}
+			}
+		},
+		{
+			"from": [4, 7, 4],
+			"to": [12, 7.5, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [5, 7, 6]},
+			"faces": {
+				"north": {"uv": [0, 0, 8, 0.5], "texture": "#cloth"},
+				"east": {"uv": [0, 0, 8, 0.5], "texture": "#cloth"},
+				"south": {"uv": [0, 0, 8, 0.5], "texture": "#cloth"},
+				"west": {"uv": [0, 0, 8, 0.5], "texture": "#cloth"},
+				"up": {"uv": [0, 0, 8, 8], "texture": "#cloth"},
+				"down": {"uv": [0, 0, 8, 8], "texture": "#cloth"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "card_table_center",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0, 1]
+		}
+	]
+}
