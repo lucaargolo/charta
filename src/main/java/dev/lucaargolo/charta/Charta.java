@@ -44,13 +44,8 @@ public class Charta {
     /*
     TODO:
         Modfest Goals:
-            - Make wooden table, you can merge it like furniture tables, but only some formats are valid (3x3, 5x3, 7x3, etc)
-            - Make table cloth, you can only put it on top of a valid table. Putting the table cloth makes it able to play games.
-            - Make wooden stool, you can only place it next to valid tables, in predefined spots (3x3 = 4 players, 5x3 = 6 players, etc)
-            - Implement generic game interface on table screen (maybe like a simple screen menu, but instead of slots we would have card lists, etc)
             - Implement generic game loop on table block entity
             - Implement game visualization on table block entity renderer
-            - Populate CardPlayer play methods for players (will wait for player input) and for villagers (will wait an amount of time and select a play)
             - Make players able to start games by sitting on the stools
             - Make villagers able to join games by sitting on the stools
             - Make villagers able to randomly starts game
@@ -58,9 +53,8 @@ public class Charta {
             - Make card seller that sells regular card decks
             - Make some custom card decks spawn in dungeons
             - Make card and deck items inventory
-                - Make the deck be like a bundle with individual cards inside it.
                 - Players can make custom decks by mixing cards inside the bundles
-                - A deck  needs to have all cards to be able to start a game
+                - A deck needs to have all cards to be able to start a game
             - Add deck to table which changes the card designs
             - Add other card games:
                 - Solitaire
