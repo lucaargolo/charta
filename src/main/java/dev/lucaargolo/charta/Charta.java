@@ -3,9 +3,11 @@ package dev.lucaargolo.charta;
 import com.mojang.logging.LogUtils;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.datagen.CardDeckProvider;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.item.ModCreativeTabs;
+import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.ModMenus;
@@ -13,6 +15,7 @@ import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
 import dev.lucaargolo.charta.network.CardImagesPayload;
 import dev.lucaargolo.charta.network.UpdateCardContainerCarriedPayload;
 import dev.lucaargolo.charta.network.UpdateCardContainerSlotPayload;
+import dev.lucaargolo.charta.resources.CardDeckResource;
 import dev.lucaargolo.charta.resources.CardImageResource;
 import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -83,6 +86,7 @@ public class Charta {
 
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
+    public static final CardDeckResource CARD_DECKS = new CardDeckResource("decks");
 
     public static EntityDataAccessor<List<Card>> ENTITY_HAND;
 
@@ -94,6 +98,7 @@ public class Charta {
         ModBlockEntityTypes.register(modEventBus);
         ModMenus.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
+        ModDataComponentTypes.register(modEventBus);
     }
 
     public static ResourceLocation id(String path) {
@@ -123,6 +128,7 @@ public class Charta {
         public static void addReloadListeners(AddReloadListenerEvent event) {
             event.addListener(CARD_IMAGES);
             event.addListener(DECK_IMAGES);
+            event.addListener(CARD_DECKS);
         }
 
         @SubscribeEvent

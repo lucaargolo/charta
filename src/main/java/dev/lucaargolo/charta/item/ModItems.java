@@ -24,7 +24,7 @@ public class ModItems {
         });
     }
 
-    public static final DeferredHolder<Item, DeckItem> DECK = ITEMS.register("deck", () -> new DeckItem(new Item.Properties()));
+    public static final DeferredHolder<Item, CardDeckItem> DECK = ITEMS.register("deck", () -> new CardDeckItem(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus bus) {
         ITEMS.register(bus);

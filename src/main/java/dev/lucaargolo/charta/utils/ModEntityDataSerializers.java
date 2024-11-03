@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.utils;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.Card;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.neoforged.bus.api.IEventBus;
@@ -10,6 +11,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ModEntityDataSerializers {
@@ -19,7 +21,7 @@ public class ModEntityDataSerializers {
     public static final EntityDataSerializer<List<Card>> CARD_LIST = new EntityDataSerializer<>() {
         @Override
         public @NotNull StreamCodec<? super RegistryFriendlyByteBuf, List<Card>> codec() {
-            return Card.LIST_STREAM_CODEC;
+            return ByteBufCodecs.collection(ArrayList::new, Card.STREAM_CODEC);
         }
 
         @Override

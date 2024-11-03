@@ -126,10 +126,11 @@ public abstract class CardMenuScreen<G extends CardGame, T extends AbstractCardM
         List<Card> cards = this.menu.getCarriedCards();
         if (!cards.isEmpty()) {
             Card card = cards.getLast();
+            //TODO:
             if(card.isFlipped()) {
-                DeckWidget.renderDeck(card.getId(), guiGraphics, mouseX-CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
+                //DeckWidget.renderDeck(card.getId(), guiGraphics, mouseX-CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
             }else{
-                CardWidget.renderCard(card.getId(), guiGraphics, mouseX-CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
+                //CardWidget.renderCard(card.getId(), guiGraphics, mouseX-CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
             }
         }
     }

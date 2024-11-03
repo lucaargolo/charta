@@ -41,7 +41,7 @@ public class ChartaClient {
     public static Uniform CARD_Y_ROT;
     public static Uniform CARD_INSET;
 
-    private static final ResourceLocation MISSING_CARD = Charta.id("missing_card");
+    public static final ResourceLocation MISSING_CARD = Charta.id("missing_card");
 
     public static final HashMap<ResourceLocation, CardImage> cardImages = new HashMap<>();
     public static final HashMap<ResourceLocation, CardImage> deckImages = new HashMap<>();
@@ -66,7 +66,7 @@ public class ChartaClient {
 
     public static ResourceLocation getCardTexture(ResourceLocation location) {
         if (cardImages.containsKey(location)) {
-            return location.withPath(s -> "card/"+s);
+            return location.withSuffix("card/");
         }else{
             return MISSING_CARD;
         }
@@ -78,7 +78,7 @@ public class ChartaClient {
 
     public static ResourceLocation getDeckTexture(ResourceLocation location) {
         if (deckImages.containsKey(location)) {
-            return location.withPath(s -> "deck/"+s);
+            return location.withSuffix("deck/");
         }else{
             return MISSING_CARD;
         }

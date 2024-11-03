@@ -1,16 +1,29 @@
 package dev.lucaargolo.charta.game;
 
-import dev.lucaargolo.charta.Charta;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-public class Card implements Comparable<Card> {
+public class Card implements Comparable<Card>, StringRepresentable {
+
+    private static final Card[] CARDS = new Card[Suit.values().length * Rank.values().length];
+
+    static {
+        int i = 0;
+        for (Suit suit : Suit.values()) {
+            for (Rank rank : Rank.values()) {
+                CARDS[i++] = new Card(suit, rank);
+            }
+        }
+    }
+
+    public static final Codec<Card> CODEC = Codec.STRING.comapFlatMap(Card::read, Card::toString).stable();
 
     public static final StreamCodec<ByteBuf, Card> STREAM_CODEC = StreamCodec.composite(
             Suit.STREAM_CODEC, Card::getSuit,
@@ -18,8 +31,6 @@ public class Card implements Comparable<Card> {
             ByteBufCodecs.BOOL, Card::isFlipped,
             Card::new
     );
-
-    public static final StreamCodec<ByteBuf, List<Card>> LIST_STREAM_CODEC = ByteBufCodecs.collection(ArrayList::new, Card.STREAM_CODEC);
 
     public static final Card BLANK = new Card(Suit.BLANK, Rank.BLANK, true);
 
@@ -53,11 +64,6 @@ public class Card implements Comparable<Card> {
         this.flipped = !this.flipped;
     }
 
-    //TODO: Remove this
-    public ResourceLocation getId() {
-        return flipped ? Charta.id("red") : Charta.id("standard/"+suit.ordinal()+"_"+rank.ordinal());
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -78,16 +84,52 @@ public class Card implements Comparable<Card> {
         return this.rank.compareTo(other.rank);
     }
 
-    public enum Suit {
+    @Override
+    public String toString() {
+        return suit.getSerializedName()+":"+rank.getSerializedName();
+    }
+
+    public static DataResult<Card> read(String string) {
+        try {
+            String[] in = string.split(":");
+            Card card = new Card(Suit.valueOf(in[0].toUpperCase()), Rank.valueOf(in[1].toUpperCase()));
+            return DataResult.success(card);
+        } catch (Exception e) {
+            return DataResult.error(() -> {
+                return "Not a valid card: " + string + " " + e.getMessage();
+            });
+        }
+    }
+
+    @Override
+    public @NotNull String getSerializedName() {
+        return this.toString();
+    }
+
+    public static Card[] values() {
+        return CARDS;
+    }
+
+    public enum Suit implements StringRepresentable {
         BLANK, SPADES, HEARTS, CLUBS, DIAMONDS;
 
         public static final StreamCodec<ByteBuf, Suit> STREAM_CODEC = ByteBufCodecs.idMapper(i -> Suit.values()[i], Suit::ordinal);
+
+        @Override
+        public @NotNull String getSerializedName() {
+            return name().toLowerCase();
+        }
     }
 
-    public enum Rank {
+    public enum Rank implements StringRepresentable {
         BLANK, ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, JOKER;
 
         public static final StreamCodec<ByteBuf, Rank> STREAM_CODEC = ByteBufCodecs.idMapper(i -> Rank.values()[i], Rank::ordinal);
+
+        @Override
+        public @NotNull String getSerializedName() {
+            return name().toLowerCase();
+        }
     }
 
 }

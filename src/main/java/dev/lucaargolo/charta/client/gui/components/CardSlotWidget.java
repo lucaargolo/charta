@@ -117,8 +117,10 @@ public class CardSlotWidget<G extends CardGame> extends AbstractCardWidget {
 
     @Override
     public ResourceLocation getCardTexture(ResourceLocation cardId) {
-        Card card = cardSlot.getCards().getLast();
-        return card.isFlipped() ? ChartaClient.getDeckTexture(card.getId()) : ChartaClient.getCardTexture(card.getId());
+//        Card card = cardSlot.getCards().getLast();
+//        return card.isFlipped() ? ChartaClient.getDeckTexture(card.getId()) : ChartaClient.getCardTexture(card.getId());
+        //TODO
+        return cardId;
     }
 
     @Override

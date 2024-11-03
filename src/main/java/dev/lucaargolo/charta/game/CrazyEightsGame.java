@@ -28,17 +28,8 @@ public class CrazyEightsGame implements CardGame {
     public CrazyEightsGame(List<CardPlayer> players) {
         this.players = players;
 
-        ImmutableList.Builder<Card> deckBuilder = new ImmutableList.Builder<>();
-        for (Card.Suit suit : Card.Suit.values()) {
-            if(suit != Card.Suit.BLANK) {
-                for (Card.Rank rank : Card.Rank.values()) {
-                    if (rank != Card.Rank.BLANK && rank != Card.Rank.JOKER) {
-                        deckBuilder.add(new Card(suit, rank, true));
-                    }
-                }
-            }
-        }
-        this.deck = deckBuilder.build();
+        //TODO
+        this.deck = List.of();
 
         this.drawPile = new LinkedList<>();
         this.playPile = new LinkedList<>();
