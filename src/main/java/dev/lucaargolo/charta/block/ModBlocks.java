@@ -3,11 +3,8 @@ package dev.lucaargolo.charta.block;
 import dev.lucaargolo.charta.Charta;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.BlockFamilies;
-import net.minecraft.data.BlockFamily;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -22,7 +19,7 @@ public class ModBlocks {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Registries.BLOCK, Charta.MOD_ID);
     public static final Map<WoodType, DeferredHolder<Block, CardTableBlock>> CARD_TABLE_MAP = new HashMap<>();
-    public static final Map<WoodType, DeferredHolder<Block, StoolBlock>> STOOL_MAP = new HashMap<>();
+    public static final Map<WoodType, DeferredHolder<Block, GameChairBlock>> GAME_CHAIR_MAP = new HashMap<>();
 
     static {
         BlockFamilies.getAllFamilies().filter(f -> f.getRecipeGroupPrefix().orElse("").equals("wooden")).forEach(f -> {
@@ -33,9 +30,9 @@ public class ModBlocks {
                     Supplier<CardTableBlock> tableSupplier = () -> new CardTableBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
                     DeferredHolder<Block, CardTableBlock> tableHolder = BLOCKS.register(woodName + "_card_table", tableSupplier);
                     CARD_TABLE_MAP.put(type, tableHolder);
-                    Supplier<StoolBlock> stoolSupplier = () -> new StoolBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
-                    DeferredHolder<Block, StoolBlock> stoolHolder = BLOCKS.register(woodName + "_stool", stoolSupplier);
-                    STOOL_MAP.put(type, stoolHolder);
+                    Supplier<GameChairBlock> chairSupplier = () -> new GameChairBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
+                    DeferredHolder<Block, GameChairBlock> chairHolder = BLOCKS.register(woodName + "_game_chair", chairSupplier);
+                    GAME_CHAIR_MAP.put(type, chairHolder);
                 });
             }
         });

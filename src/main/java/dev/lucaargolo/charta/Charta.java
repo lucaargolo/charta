@@ -11,10 +11,7 @@ import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.ModMenus;
-import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
-import dev.lucaargolo.charta.network.CardImagesPayload;
-import dev.lucaargolo.charta.network.UpdateCardContainerCarriedPayload;
-import dev.lucaargolo.charta.network.UpdateCardContainerSlotPayload;
+import dev.lucaargolo.charta.network.*;
 import dev.lucaargolo.charta.resources.CardDeckResource;
 import dev.lucaargolo.charta.resources.CardImageResource;
 import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
@@ -46,8 +43,8 @@ public class Charta {
         Modfest Goals:
             - Implement generic game loop on table block entity
             - Implement game visualization on table block entity renderer
-            - Make players able to start games by sitting on the stools
-            - Make villagers able to join games by sitting on the stools
+            - Make players able to start games by sitting on the chairs
+            - Make villagers able to join games by sitting on the chairs
             - Make villagers able to randomly starts game
             - Make game bar structure that can spawn in villages
             - Make card seller that sells regular card decks
@@ -109,8 +106,10 @@ public class Charta {
             registrar.playToClient(CardImagesPayload.TYPE, CardImagesPayload.STREAM_CODEC, CardImagesPayload::handleClient);
             registrar.playToClient(UpdateCardContainerSlotPayload.TYPE, UpdateCardContainerSlotPayload.STREAM_CODEC, UpdateCardContainerSlotPayload::handleClient);
             registrar.playToClient(UpdateCardContainerCarriedPayload.TYPE, UpdateCardContainerCarriedPayload.STREAM_CODEC, UpdateCardContainerCarriedPayload::handleClient);
+            registrar.playToClient(OpenCardTableScreenPayload.TYPE, OpenCardTableScreenPayload.STREAM_CODEC, OpenCardTableScreenPayload::handleClient);
 
             registrar.playToServer(CardContainerSlotClickPayload.TYPE, CardContainerSlotClickPayload.STREAM_CODEC, CardContainerSlotClickPayload::handleServer);
+            registrar.playToServer(CardTableSelectGamePayload.TYPE, CardTableSelectGamePayload.STREAM_CODEC, CardTableSelectGamePayload::handleServer);
         }
 
     }
@@ -130,14 +129,6 @@ public class Charta {
             Player player = event.getEntity();
             if(player instanceof ServerPlayer serverPlayer) {
                 PacketDistributor.sendToPlayer(serverPlayer, new CardImagesPayload(Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
-            }
-        }
-
-        //TODO: Remove this
-        @SubscribeEvent
-        public static void onPlayerTick(PlayerTickEvent.Post event) {
-            if(event.getEntity().containerMenu instanceof AbstractCardMenu<?> cardMenu) {
-                cardMenu.getGame().tick();
             }
         }
 

@@ -3,7 +3,7 @@ package dev.lucaargolo.charta.datagen;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.block.CardTableBlock;
 import dev.lucaargolo.charta.block.ModBlocks;
-import dev.lucaargolo.charta.block.StoolBlock;
+import dev.lucaargolo.charta.block.GameChairBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +26,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
             String centerClothPath = "block/"+color+"_card_table_center_cloth";
             String cornerClothPath = "block/"+color+"_card_table_corner_cloth";
             String sideClothPath = "block/"+color+"_card_table_side_cloth";
-            String stoolPath = "block/"+color+"_stool_cloth";
+            String chairClothPath = "block/"+color+"_game_chair_cloth";
 
             this.models().getBuilder(centerClothPath)
                     .parent(this.models().getExistingFile(this.modLoc("block/card_table_center_cloth")))
@@ -40,8 +40,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
                     .parent(this.models().getExistingFile(this.modLoc("block/card_table_side_cloth")))
                     .texture("particle", this.mcLoc("block/"+color+"_wool"))
                     .texture("cloth", this.mcLoc("block/"+color+"_wool"));
-            this.models().getBuilder(stoolPath)
-                    .parent(this.models().getExistingFile(this.modLoc("block/stool_cloth")))
+            this.models().getBuilder(chairClothPath)
+                    .parent(this.models().getExistingFile(this.modLoc("block/game_chair_cloth")))
                     .texture("particle", this.mcLoc("block/"+color+"_wool"))
                     .texture("cloth", this.mcLoc("block/"+color+"_wool"));
         }
@@ -115,39 +115,39 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 addClothCardTablePart(cardTableBuilder.part(), this.modLoc(sideClothPath), 270, true, true, true, false, true, color);
             }
         });
-        ModBlocks.STOOL_MAP.forEach((woodType, cardTable) -> {
-            MultiPartBlockStateBuilder stoolBuilder = this.getMultipartBuilder(cardTable.get());
+        ModBlocks.GAME_CHAIR_MAP.forEach((woodType, cardTable) -> {
+            MultiPartBlockStateBuilder gameChairBuilder = this.getMultipartBuilder(cardTable.get());
 
             String wood = woodType.name();
 
-            String stoolPath = "block/"+wood+"_stool";
-            String itemPath = "item/"+wood+"_stool";
+            String chairPath = "block/"+wood+"_game_chair";
+            String itemPath = "item/"+wood+"_game_chair";
 
             ResourceLocation logResource = getLogResource(wood);
 
-            this.models().getBuilder(stoolPath)
-                    .parent(this.models().getExistingFile(this.modLoc("block/stool")))
+            this.models().getBuilder(chairPath)
+                    .parent(this.models().getExistingFile(this.modLoc("block/game_chair")))
                     .texture("particle", this.mcLoc("block/"+wood+"_planks"))
                     .texture("planks", this.mcLoc("block/"+wood+"_planks"))
                     .texture("log", logResource);
-            this.models().getBuilder(itemPath).parent(this.models().getExistingFile(this.modLoc(stoolPath)));
+            this.models().getBuilder(itemPath).parent(this.models().getExistingFile(this.modLoc(chairPath)));
 
             int rot = 0;
             for(Direction d : Direction.Plane.HORIZONTAL) {
-                stoolBuilder.part()
-                    .modelFile(this.models().getExistingFile(this.modLoc(stoolPath)))
+                gameChairBuilder.part()
+                    .modelFile(this.models().getExistingFile(this.modLoc(chairPath)))
                     .rotationY(rot)
                     .addModel()
-                    .condition(StoolBlock.FACING, d);
+                    .condition(GameChairBlock.FACING, d);
                 for(DyeColor color : DyeColor.values()) {
-                    String stoolClothPath = "block/"+color+"_stool_cloth";
-                    stoolBuilder.part()
-                        .modelFile(this.models().getExistingFile(this.modLoc(stoolClothPath)))
+                    String chairClothPath = "block/"+color+"_game_chair_cloth";
+                    gameChairBuilder.part()
+                        .modelFile(this.models().getExistingFile(this.modLoc(chairClothPath)))
                         .rotationY(rot)
                         .addModel()
-                        .condition(StoolBlock.FACING, d)
-                        .condition(StoolBlock.CLOTH, true)
-                        .condition(StoolBlock.COLOR, color);
+                        .condition(GameChairBlock.FACING, d)
+                        .condition(GameChairBlock.CLOTH, true)
+                        .condition(GameChairBlock.COLOR, color);
                 }
                 rot += 90;
             }

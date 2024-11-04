@@ -1,8 +1,6 @@
 package dev.lucaargolo.charta.game;
 
-import com.google.common.collect.ImmutableList;
 import net.minecraft.nbt.CompoundTag;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -25,14 +23,28 @@ public class CrazyEightsGame implements CardGame {
 
     public int drawsLeft = 3;
 
-    public CrazyEightsGame(List<CardPlayer> players) {
+    public CrazyEightsGame(List<CardPlayer> players, CardDeck deck) {
         this.players = players;
 
-        //TODO
-        this.deck = List.of();
-
+        this.deck = deck.getCards()
+            .stream()
+            .filter(c -> c.getSuit() != Card.Suit.BLANK && c.getRank() != Card.Rank.BLANK && c.getRank() != Card.Rank.JOKER)
+            .collect(Collectors.toList());
         this.drawPile = new LinkedList<>();
         this.playPile = new LinkedList<>();
+    }
+
+    @Override
+    public List<Card> getValidDeck() {
+        List<Card> necessaryCards = new ArrayList<>();
+        for(Card.Suit suit : Card.Suit.values()) {
+            for(Card.Rank rank : Card.Rank.values()) {
+                if(suit != Card.Suit.BLANK && rank != Card.Rank.BLANK && rank != Card.Rank.JOKER) {
+                    necessaryCards.add(new Card(suit, rank));
+                }
+            }
+        }
+        return necessaryCards;
     }
 
     public LinkedList<Card> getPlayPile() {
@@ -187,13 +199,5 @@ public class CrazyEightsGame implements CardGame {
     public CardPlayer getWinner() {
         return winner;
     }
-
-    @Override
-    public CompoundTag toNbt(CompoundTag tag) {
-        // Implementation of saving game state to NBT goes here
-        return null;
-    }
-
-
 
 }

@@ -2,10 +2,18 @@ package dev.lucaargolo.charta.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
+import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.item.CardDeckItem;
+import dev.lucaargolo.charta.item.ModDataComponentTypes;
+import dev.lucaargolo.charta.mixed.LivingEntityMixed;
+import dev.lucaargolo.charta.network.OpenCardTableScreenPayload;
 import dev.lucaargolo.charta.utils.DyeColorHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
@@ -21,13 +29,17 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.WoolCarpetBlock;
+import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
@@ -70,6 +82,11 @@ public class CardTableBlock extends BaseEntityBlock {
     }
 
     @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
+        return !level.isClientSide ? createTickerHelper(blockEntityType, ModBlockEntityTypes.CARD_TABLE.get(), CardTableBlockEntity::serverTick) : null;
+    }
+
+    @Override
     public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new CardTableBlockEntity(pos, state);
     }
@@ -81,15 +98,61 @@ public class CardTableBlock extends BaseEntityBlock {
 
     @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
-        if(!level.isClientSide()) {
-            ItemStack stack = player.getMainHandItem();
-            if(state.getValue(VALID) && !state.getValue(CLOTH)) {
-                if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof WoolCarpetBlock carpetBlock) {
-                    DyeColor color = carpetBlock.getColor();
-                    getMultiblock(level, pos).forEach(p -> {
-                        BlockState s = level.getBlockState(p);
-                        level.setBlockAndUpdate(p, s.setValue(CLOTH, true).setValue(COLOR, color));
+        if(player instanceof ServerPlayer serverPlayer) {
+            if(serverPlayer.isShiftKeyDown()) {
+                if (state.getValue(CLOTH)) {
+                    BlockPos center = getCenterPos(level, pos);
+                    level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
+                        Vec3 c = pos.getCenter();
+                        if(!cardTable.getDeckStack().isEmpty()) {
+                            Containers.dropItemStack(level, c.x, c.y, c.z, cardTable.getDeckStack());
+                            cardTable.setDeckStack(ItemStack.EMPTY);
+                            level.sendBlockUpdated(center, state, state, 3);
+                        }else{
+                            DyeColor color = state.getValue(COLOR);
+                            getMultiblock(level, pos).forEach(p -> {
+                                BlockState s = level.getBlockState(p);
+                                level.setBlockAndUpdate(p, s.setValue(CLOTH, false));
+                            });
+                            Containers.dropItemStack(level, c.x, c.y, c.z, DyeColorHelper.getCarpet(color).asItem().getDefaultInstance());
+                        }
                     });
+                }
+            }else {
+                ItemStack stack = player.getMainHandItem();
+                if (state.getValue(VALID)) {
+                    if (!state.getValue(CLOTH)) {
+                        if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof WoolCarpetBlock carpetBlock) {
+                            DyeColor color = carpetBlock.getColor();
+                            getMultiblock(level, pos).forEach(p -> {
+                                BlockState s = level.getBlockState(p);
+                                level.setBlockAndUpdate(p, s.setValue(CLOTH, true).setValue(COLOR, color));
+                            });
+                        } else {
+                            player.displayClientMessage(Component.literal("You need to put a cloth on this table.").withStyle(ChatFormatting.RED), true);
+                        }
+                    } else if (player instanceof LivingEntityMixed mixed) {
+                        BlockPos center = getCenterPos(level, pos);
+                        level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
+                            if (stack.getItem() instanceof CardDeckItem && stack.has(ModDataComponentTypes.CARD_DECK)) {
+                                if(!cardTable.getDeckStack().isEmpty()) {
+                                    Vec3 c = center.getCenter();
+                                    Containers.dropItemStack(level, c.x, c.y, c.z, cardTable.getDeckStack());
+                                }
+                                cardTable.setDeckStack(stack.copy());
+                                if(!serverPlayer.isCreative()) {
+                                    stack.shrink(1);
+                                }
+                                level.sendBlockUpdated(center, state, state, 3);
+                            } else if (cardTable.getPlayers().contains(mixed.charta_getCardPlayer())) {
+                                PacketDistributor.sendToPlayer(serverPlayer, new OpenCardTableScreenPayload(center));
+                            } else {
+                                player.displayClientMessage(Component.literal("You need to be sat in the table to start a game.").withStyle(ChatFormatting.RED), true);
+                            }
+                        });
+                    } else {
+                        player.displayClientMessage(Component.literal("You are not a valid Card Player.").withStyle(ChatFormatting.RED), true);
+                    }
                 }
             }
         }
@@ -99,9 +162,9 @@ public class CardTableBlock extends BaseEntityBlock {
     @Override
     protected void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
         if(!state.is(newState.getBlock()) && state.getValue(CLOTH)) {
-            Vec3 center = pos.getCenter();
+            Vec3 c = pos.getCenter();
             ItemStack carpetStack = DyeColorHelper.getCarpet(state.getValue(COLOR)).asItem().getDefaultInstance();
-            Containers.dropItemStack(level, center.x, center.y, center.z, carpetStack);
+            Containers.dropItemStack(level, c.x, c.y, c.z, carpetStack);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }

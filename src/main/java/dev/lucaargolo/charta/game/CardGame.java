@@ -1,13 +1,12 @@
 package dev.lucaargolo.charta.game;
 
-import net.minecraft.nbt.CompoundTag;
-
 import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public interface CardGame {
+
+    List<Card> getValidDeck();
 
     List<CardPlayer> getPlayers();
 
@@ -29,10 +28,22 @@ public interface CardGame {
 
     CardPlayer getWinner();
 
-    CompoundTag toNbt(CompoundTag tag);
-
     default void tick() {
         getPlayers().forEach(p -> p.tick(this));
+    }
+
+    default int getMinPlayers() {
+        return 2;
+    }
+
+    default int getMaxPlayers() {
+        return 8;
+    }
+
+    static boolean canPlayGame(CardGame cardGame, CardDeck cardDeck) {
+        List<Card> necessaryCards = cardGame.getValidDeck();
+        cardDeck.getCards().forEach(necessaryCards::remove);
+        return necessaryCards.isEmpty();
     }
 
     static void dealCards(LinkedList<Card> drawPile, CardPlayer player, List<Card> censoredHand, int count) {

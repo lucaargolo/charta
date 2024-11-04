@@ -20,7 +20,7 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
         ModBlocks.CARD_TABLE_MAP.values().forEach(holder -> {
             this.dropSelf(holder.get());
         });
-        ModBlocks.STOOL_MAP.values().forEach(holder -> {
+        ModBlocks.GAME_CHAIR_MAP.values().forEach(holder -> {
             this.dropSelf(holder.get());
         });
     }

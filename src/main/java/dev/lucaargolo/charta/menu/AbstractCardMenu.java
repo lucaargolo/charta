@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.menu;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import dev.lucaargolo.charta.game.Card;
+import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.utils.CardContainerListener;
 import dev.lucaargolo.charta.utils.CardContainerSynchronizer;
@@ -13,7 +14,6 @@ import net.minecraft.world.inventory.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -26,18 +26,21 @@ public abstract class AbstractCardMenu<G extends CardGame> extends AbstractConta
     private ImmutableList<Card> carriedCards = ImmutableList.of();
     private ImmutableList<Card> remoteCarriedCards = ImmutableList.of();;
 
+    @Nullable
+    protected final CardDeck deck;
     protected final Inventory inventory;
     protected final Player player;
     protected final ContainerLevelAccess access;
 
-    public AbstractCardMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, ContainerLevelAccess access) {
+    public AbstractCardMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, ContainerLevelAccess access, @Nullable CardDeck deck) {
         super(menuType, containerId);
         this.inventory = inventory;
         this.player = inventory.player;
         this.access = access;
+        this.deck = deck;
     }
 
-    public abstract G getGame();
+    public abstract @Nullable G getGame();
 
     public ImmutableList<Card> getCarriedCards() {
         return this.carriedCards;

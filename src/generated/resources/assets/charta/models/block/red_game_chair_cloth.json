@@ -1,0 +1,7 @@
+{
+  "parent": "charta:block/game_chair_cloth",
+  "textures": {
+    "cloth": "minecraft:block/red_wool",
+    "particle": "minecraft:block/red_wool"
+  }
+}
