@@ -34,9 +34,6 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
 
     public CardMenuScreen(T menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        menu.cardSlots.forEach(slot -> {
-            slotWidgets.add(new CardSlotWidget<>(this, slot));
-        });
     }
 
     public CardDeck getDeck() {
@@ -67,8 +64,17 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
     }
 
     @Override
+    protected void init() {
+        super.init();
+        slotWidgets.clear();
+        menu.cardSlots.forEach(slot -> {
+            slotWidgets.add(new CardSlotWidget<>(this, slot));
+        });
+    }
+
+    @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderTransparentBackground(guiGraphics);
+        this.renderBlurredBackground(partialTick);
         this.renderBg(guiGraphics, partialTick, mouseX, mouseY);
 
         List<Renderable> renderablesBackup = List.copyOf(this.renderables);
@@ -84,7 +90,13 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
             if(!slot.isEmpty()) {
                 CardSlotWidget<G> slotWidget = this.slotWidgets.get(k);
                 slotWidget.setPreciseX(slot.x + this.leftPos);
-                slotWidget.setPreciseY(slot.y + this.topPos);
+                if(slot.getType() == CardSlot.Type.INVENTORY) {
+                    slotWidget.setPreciseY(slot.y + this.height - slotWidget.getPreciseHeight());
+                }else if(slot.getType() == CardSlot.Type.PREVIEW) {
+                    slotWidget.setPreciseY(slot.y);
+                }else{
+                    slotWidget.setPreciseY(slot.y + this.topPos);
+                }
                 this.renderables.add(slotWidget);
             }
         }
@@ -143,7 +155,11 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
     }
 
     private boolean isHoveringPrecise(CardSlot<G> slot, float mouseX, float mouseY) {
-        return this.isHoveringPrecise(slot.x, slot.y, CardSlot.getWidth(slot), CardSlot.getHeight(slot), mouseX, mouseY);
+        return switch (slot.getType()) {
+            case INVENTORY -> this.isHoveringPrecise(slot.x, slot.y - topPos + height - CardSlot.getHeight(slot), CardSlot.getWidth(slot), CardSlot.getHeight(slot), mouseX, mouseY);
+            case PREVIEW -> this.isHoveringPrecise(slot.x, slot.y - topPos, CardSlot.getWidth(slot), CardSlot.getHeight(slot), mouseX, mouseY);
+            default -> this.isHoveringPrecise(slot.x, slot.y, CardSlot.getWidth(slot), CardSlot.getHeight(slot), mouseX, mouseY);
+        };
     }
 
     protected boolean isHoveringPrecise(float x, float y, float width, float height, double mouseX, double mouseY) {

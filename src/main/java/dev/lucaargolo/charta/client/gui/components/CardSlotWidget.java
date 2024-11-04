@@ -36,7 +36,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
             if(renderables.size() != cards.size() || renderablesDirty) {
                 renderables.clear();
                 int i = 0;
-                float childWidth = cardSlot.isSmall() ? CardSlot.getWidth(CardSlot.Type.DEFAULT_SMALL) : CardSlot.getWidth(CardSlot.Type.DEFAULT);
+                float childWidth = cardSlot.isSmall() ? CardSlot.getWidth(CardSlot.Type.SMALL) : CardSlot.getWidth(CardSlot.Type.DEFAULT);
                 float maxOffset = childWidth + childWidth/10f;
                 float offset = childWidth + Math.max(0f, this.getPreciseWidth() - (cards.size() * childWidth)/(float) cards.size());
                 float totalWidth = childWidth + (offset * (cards.size() - 1f));
@@ -57,11 +57,17 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
                         game -> List.of(card),
                         cardSlot.x + offset * i,
                         cardSlot.y,
-                        cardSlot.isSmall() ? CardSlot.Type.DEFAULT_SMALL : CardSlot.Type.DEFAULT
+                        cardSlot.isSmall() ? CardSlot.Type.SMALL : CardSlot.Type.DEFAULT
                     );
                     CardSlotWidget<G> child = new ChildCardSlotWidget(this.parent, childCardSlot, index, Mth.floor(offset));
                     child.setPreciseX(childCardSlot.x + parent.getGuiLeft() + left/2f);
-                    child.setPreciseY(childCardSlot.y + parent.getGuiTop());
+                    if(cardSlot.getType() == CardSlot.Type.INVENTORY) {
+                        child.setPreciseY(childCardSlot.y + parent.height - child.getPreciseHeight());
+                    }else if(cardSlot.getType() == CardSlot.Type.PREVIEW) {
+                        child.setPreciseY(childCardSlot.y);
+                    }else{
+                        child.setPreciseY(childCardSlot.y + parent.getGuiTop());
+                    }
                     renderables.add(child);
                     i++;
                 }
@@ -92,9 +98,6 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
             }
         }else{
             super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-        }
-        if(!(this instanceof ChildCardSlotWidget)) {
-            guiGraphics.drawString(parent.getMinecraft().font, cards.size() + "", this.getX(), this.getY(), 0x00FF00);
         }
     }
 

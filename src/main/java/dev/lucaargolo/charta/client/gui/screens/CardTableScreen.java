@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.client.gui.screens;
 import dev.lucaargolo.charta.game.CardGames;
 import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -23,12 +24,13 @@ public class CardTableScreen extends Screen {
     protected void init() {
         super.init();
         AtomicInteger counter = new AtomicInteger();
+        this.addRenderableWidget(new StringWidget(width/2 - 80, height/2 - 100, 160, 20, Component.literal("Please choose a game to play: "), font));
         CardGames.getGames().forEach((gameId, gameFactory) -> {
             Component name = Component.translatable(gameId.toLanguageKey());
             this.addRenderableWidget(Button.builder(name, button -> {
                 PacketDistributor.sendToServer(new CardTableSelectGamePayload(pos, gameId));
                 onClose();
-            }).bounds(width/2 - 80, 100+counter.get()*25, 160, 20).build());
+            }).bounds(width/2 - 80, height/2 - 80 +counter.get()*25, 160, 20).build());
             counter.getAndIncrement();
         });
     }

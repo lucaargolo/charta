@@ -8,7 +8,7 @@ import dev.lucaargolo.charta.utils.CardImage;
 import java.util.List;
 import java.util.function.Function;
 
-public class CardSlot<G extends CardGame> {
+public class CardSlot<G extends CardGame<G>> {
 
     public final G game;
 
@@ -82,26 +82,26 @@ public class CardSlot<G extends CardGame> {
     }
 
     public boolean isExtended() {
-        return type == Type.EXTENDED || type == Type.EXTENDED_SMALL;
+        return type == Type.INVENTORY || type == Type.PREVIEW;
     }
 
     public boolean isSmall() {
-        return type == Type.DEFAULT_SMALL || type == Type.EXTENDED_SMALL;
+        return type == Type.SMALL || type == Type.PREVIEW;
     }
 
     public enum Type {
         DEFAULT,
-        DEFAULT_SMALL,
-        EXTENDED,
-        EXTENDED_SMALL
+        SMALL,
+        INVENTORY,
+        PREVIEW
     }
 
     public static float getWidth(CardSlot.Type type) {
         return switch (type) {
             case DEFAULT -> CardImage.WIDTH * 1.5f;
-            case EXTENDED -> 150;
-            case DEFAULT_SMALL -> CardImage.WIDTH / 2f;
-            case EXTENDED_SMALL -> 41;
+            case INVENTORY -> 150;
+            case SMALL -> CardImage.WIDTH / 2f;
+            case PREVIEW -> 41;
         };
     }
 
@@ -111,8 +111,8 @@ public class CardSlot<G extends CardGame> {
 
     public static float getHeight(CardSlot.Type type) {
         return switch (type) {
-            case DEFAULT, EXTENDED -> CardImage.HEIGHT * 1.5f;
-            case DEFAULT_SMALL, EXTENDED_SMALL -> CardImage.HEIGHT / 2f;
+            case DEFAULT, INVENTORY -> CardImage.HEIGHT * 1.5f;
+            case SMALL, PREVIEW -> CardImage.HEIGHT / 2f;
         };
     }
 

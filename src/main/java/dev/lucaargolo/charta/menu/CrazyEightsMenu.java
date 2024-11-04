@@ -54,11 +54,11 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         this.cardPlayer = ((LivingEntityMixed) this.player).charta_getCardPlayer();
 
         //Players censored hand preview
-        float totalWidth = CardSlot.getWidth(CardSlot.Type.EXTENDED_SMALL);
+        float totalWidth = CardSlot.getWidth(CardSlot.Type.PREVIEW);
         float playersWidth = (players * totalWidth) + ((players - 1f) * (totalWidth / 10f));
         for (int i = 0; i < players; i++) {
             CardPlayer p = this.game.getPlayers().get(i);
-            addCardSlot(new CardSlot<>(this.game, g -> g.getCensoredHand(p), (176 / 2f - playersWidth / 2f) + (i * (totalWidth + totalWidth / 10f)), -18, CardSlot.Type.EXTENDED_SMALL) {
+            addCardSlot(new CardSlot<>(this.game, g -> g.getCensoredHand(p), (140 / 2f - playersWidth / 2f) + (i * (totalWidth + totalWidth / 10f)), 7, CardSlot.Type.PREVIEW) {
                 @Override
                 public boolean canInsertCard(CardPlayer player, List<Card> cards) {
                     return false;
@@ -72,7 +72,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         }
 
         //Draw pile
-        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getDrawPile, 19, 27) {
+        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getDrawPile, 21, 30) {
             @Override
             public boolean canInsertCard(CardPlayer player, List<Card> cards) {
                 return false;
@@ -91,7 +91,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         });
 
         //Play pile
-        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getPlayPile, 120, 27) {
+        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getPlayPile, 82, 30) {
             @Override
             public boolean canInsertCard(CardPlayer player, List<Card> cards) {
                 return player == this.game.getCurrentPlayer() && cards.size() == 1 && this.game.canPlayCard(player, cards.getLast());
@@ -108,7 +108,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
             }
         });
 
-        addCardSlot(new CardSlot<>(this.game, g -> cardPlayer.getHand(), 13, 95, CardSlot.Type.EXTENDED) {
+        addCardSlot(new CardSlot<>(this.game, g -> cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
             @Override
             public void onInsert(CardPlayer player, Card card) {
                 game.getCensoredHand(player).add(Card.BLANK);

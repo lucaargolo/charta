@@ -1,3 +1,35 @@
-{  "charta.cards": "Cards"
+{
+  "charta.cards": "Cards",
+  "charta.crazy_eights": "Crazy Eights",
 
+  "block.charta.oak_card_table": "Oak Card Table",
+  "block.charta.oak_game_chair": "Oak Game Chair",
+  "block.charta.bamboo_card_table": "Bamboo Card Table",
+  "block.charta.bamboo_game_chair": "Bamboo Game Chair",
+  "block.charta.dark_oak_card_table": "Dark Oak Card Table",
+  "block.charta.dark_oak_game_chair": "Dark Oak Game Chair",
+  "block.charta.mangrove_card_table": "Mangrove Card Table",
+  "block.charta.mangrove_game_chair": "Mangrove Game Chair",
+  "block.charta.warped_card_table": "Warped Card Table",
+  "block.charta.warped_game_chair": "Warped Game Chair",
+  "block.charta.crimson_card_table": "Crimson Card Table",
+  "block.charta.crimson_game_chair": "Crimson Game Chair",
+  "block.charta.jungle_card_table": "Jungle Card Table",
+  "block.charta.jungle_game_chair": "Jungle Game Chair",
+  "block.charta.cherry_card_table": "Cherry Card Table",
+  "block.charta.cherry_game_chair": "Cherry Game Chair",
+  "block.charta.birch_card_table": "Birch Card Table",
+  "block.charta.birch_game_chair": "Birch Game Chair",
+  "block.charta.spruce_card_table": "Spruce Card Table",
+  "block.charta.spruce_game_chair": "Spruce Game Chair",
+  "block.charta.acacia_card_table": "Acacia Card Table",
+  "block.charta.acacia_game_chair": "Acacia Game Chair",
+
+  "deck.charta.fun": "Fun Deck",
+  "deck.charta.standard_black": "Standard Black Deck",
+  "deck.charta.standard_red": "Standard Red Deck",
+  "deck.charta.standard_blue": "Standard Blue Deck",
+  "deck.charta.standard_green": "Standard Green Deck",
+  "deck.charta.standard_yellow": "Standard Yellow Deck",
+  "deck.charta.inverted": "Inverted Deck"
 }
