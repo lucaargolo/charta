@@ -30,9 +30,6 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
 
     @Override
     protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        if(cardSlot.isExtended() && cardSlot.isSmall()) {
-            guiGraphics.fill(this.getX(), this.getY(), this.getX()+this.getWidth(), this.getY()+this.getHeight(), 0xFFFF0000);
-        }
         List<Card> cards = cardSlot.getCards();
         if(cardSlot.isExtended()) {
             this.setPreciseWidth(CardSlot.getWidth(cardSlot));

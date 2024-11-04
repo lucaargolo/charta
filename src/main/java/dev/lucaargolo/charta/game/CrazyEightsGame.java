@@ -83,6 +83,10 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
         return current;
     }
 
+    public void setCurrentPlayer(int index) {
+        this.current = getPlayers().get(index);
+    }
+
     @Override
     public CardPlayer getNextPlayer() {
         if(current == null) {

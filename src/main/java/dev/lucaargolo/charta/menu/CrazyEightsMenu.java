@@ -5,18 +5,44 @@ import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
-    @Nullable
     private final CrazyEightsGame game;
     private final CardPlayer cardPlayer;
+
+    private int currentPlayer = 0;
+    private final ContainerData data = new ContainerData() {
+        @Override
+        public int get(int index) {
+            return switch (index) {
+                case 0 -> game.getCurrentPlayer() == cardPlayer ? 1 : currentPlayer;
+                case 1 -> game.getPlayers().indexOf(game.getCurrentPlayer());
+                case 2 -> game.drawsLeft;
+                default -> throw new IllegalStateException("Unexpected value: " + index);
+            };
+        }
+
+        @Override
+        public void set(int index, int value) {
+            switch (index) {
+                case 0 -> currentPlayer = value;
+                case 1 -> game.setCurrentPlayer(value);
+                case 2 -> game.drawsLeft = value;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+    };
 
     protected CrazyEightsMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buf) {
         this(containerId, inventory, ContainerLevelAccess.NULL, CardDeck.STREAM_CODEC.decode(buf), buf.readInt());
@@ -44,6 +70,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
                 }
             });
         }
+
         //Draw pile
         addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getDrawPile, 19, 27) {
             @Override
@@ -62,6 +89,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
                 player.getPlay(this.game).complete(null);
             }
         });
+
         //Play pile
         addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getPlayPile, 120, 27) {
             @Override
@@ -79,6 +107,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
                 player.getPlay(this.game).complete(card);
             }
         });
+
         addCardSlot(new CardSlot<>(this.game, g -> cardPlayer.getHand(), 13, 95, CardSlot.Type.EXTENDED) {
             @Override
             public void onInsert(CardPlayer player, Card card) {
@@ -95,10 +124,24 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
             }
         });
 
+        addDataSlots(data);
+
+    }
+
+    public boolean isCurrentPlayer() {
+        return data.get(0) == 1;
+    }
+
+    public int getCurrentPlayer() {
+        return data.get(1);
+    }
+
+    public int getDrawsLeft() {
+        return data.get(2);
     }
 
     @Override
-    public @Nullable CrazyEightsGame getGame() {
+    public CrazyEightsGame getGame() {
         return this.game;
     }
 
