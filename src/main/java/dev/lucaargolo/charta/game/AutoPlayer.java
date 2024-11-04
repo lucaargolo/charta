@@ -16,7 +16,7 @@ public class AutoPlayer implements CardPlayer {
     private CompletableFuture<Card> play = new CompletableFuture<>();
     private int playAge = 0;
 
-    private final float intelligence;
+    protected final float intelligence;
 
     public AutoPlayer(float intelligence) {
         this.intelligence = intelligence;

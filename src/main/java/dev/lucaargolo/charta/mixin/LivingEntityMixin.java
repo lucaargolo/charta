@@ -1,10 +1,7 @@
 package dev.lucaargolo.charta.mixin;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardDeck;
-import dev.lucaargolo.charta.game.CardGame;
-import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
 import net.minecraft.core.BlockPos;
@@ -22,41 +19,24 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements LivingEntityMixed {
 
     @Unique
-    private final List<Card> charta_hand = new ArrayList<>();
-    @Unique
-    private CompletableFuture<Card> charta_play = new CompletableFuture<>();
-    @Unique
-    private final CardPlayer charta_cardPlayer = new CardPlayer() {
-        @Override
-        public CompletableFuture<Card> getPlay(CardGame<?> game) {
-            return charta_play;
-        }
-
-        @Override
-        public void setPlay(CompletableFuture<Card> play) {
-            charta_play = play;
-        }
-
-        @Override
-        public List<Card> getHand() {
-            return charta_hand;
-        }
+    private final CardPlayer charta_cardPlayer = new AutoPlayer(random.nextFloat()) {
 
         @Override
         public void handUpdated() {
-            entityData.set(Charta.ENTITY_HAND, charta_hand);
+            entityData.set(Charta.ENTITY_HAND, getHand());
         }
 
         @Override
         public void tick(CardGame<?> game) {
-
+            LivingEntity living = (LivingEntity) (Object) LivingEntityMixin.this;
+            if(!(living instanceof ServerPlayer)) {
+                super.tick(game);
+            }
         }
 
         @Override
