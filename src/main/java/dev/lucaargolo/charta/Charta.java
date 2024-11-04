@@ -75,6 +75,8 @@ public class Charta {
     public static final String MOD_ID = "charta";
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    public static final ResourceLocation MISSING_CARD = Charta.id("missing_card");
+
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
     public static final CardDeckResource CARD_DECKS = new CardDeckResource("decks");
@@ -104,6 +106,7 @@ public class Charta {
             final PayloadRegistrar registrar = event.registrar("1");
 
             registrar.playToClient(CardImagesPayload.TYPE, CardImagesPayload.STREAM_CODEC, CardImagesPayload::handleClient);
+            registrar.playToClient(CardDecksPayload.TYPE, CardDecksPayload.STREAM_CODEC, CardDecksPayload::handleClient);
             registrar.playToClient(UpdateCardContainerSlotPayload.TYPE, UpdateCardContainerSlotPayload.STREAM_CODEC, UpdateCardContainerSlotPayload::handleClient);
             registrar.playToClient(UpdateCardContainerCarriedPayload.TYPE, UpdateCardContainerCarriedPayload.STREAM_CODEC, UpdateCardContainerCarriedPayload::handleClient);
             registrar.playToClient(OpenCardTableScreenPayload.TYPE, OpenCardTableScreenPayload.STREAM_CODEC, OpenCardTableScreenPayload::handleClient);
@@ -129,12 +132,14 @@ public class Charta {
             Player player = event.getEntity();
             if(player instanceof ServerPlayer serverPlayer) {
                 PacketDistributor.sendToPlayer(serverPlayer, new CardImagesPayload(Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
+                PacketDistributor.sendToPlayer(serverPlayer, new CardDecksPayload(Charta.CARD_DECKS.getDecks()));
             }
         }
 
         @SubscribeEvent
         public static void onDatapackReload(OnDatapackSyncEvent event) {
             PacketDistributor.sendToAllPlayers(new CardImagesPayload(Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
+            PacketDistributor.sendToAllPlayers(new CardDecksPayload(Charta.CARD_DECKS.getDecks()));
         }
 
     }

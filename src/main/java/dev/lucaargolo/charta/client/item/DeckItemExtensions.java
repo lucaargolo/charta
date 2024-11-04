@@ -2,7 +2,6 @@ package dev.lucaargolo.charta.client.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.item.CardDeckItem;
 import net.minecraft.client.Minecraft;
@@ -36,7 +35,7 @@ public class DeckItemExtensions implements IClientItemExtensions {
             @SuppressWarnings("deprecation")
             public void renderByItem(@NotNull ItemStack stack, @NotNull ItemDisplayContext displayContext, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight, int packedOverlay) {
                 CardDeck deck = CardDeckItem.getDeck(stack);
-                ResourceLocation deckTexture = deck != null ? deck.getDeckTexture() : ChartaClient.MISSING_CARD;
+                ResourceLocation deckTexture = deck != null ? deck.getDeckTexture() : Charta.MISSING_CARD;
                 RenderType renderType = RenderType.entityCutout(deckTexture);
 
                 BakedModel model = minecraft.getModelManager().getModel(new ModelResourceLocation(Charta.id("deck"), "standalone"));

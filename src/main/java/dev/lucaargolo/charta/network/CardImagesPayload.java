@@ -28,12 +28,11 @@ public record CardImagesPayload(HashMap<ResourceLocation, CardImage> cardImages,
         CardImagesPayload::new
     );
 
-    @OnlyIn(Dist.CLIENT)
     public static void handleClient(CardImagesPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             ChartaClient.clearImages();
-            ChartaClient.putCardImages(payload.cardImages);
-            ChartaClient.putDeckImages(payload.deckImages);
+            Charta.CARD_IMAGES.setImages(payload.cardImages());
+            Charta.DECK_IMAGES.setImages(payload.deckImages());
             ChartaClient.generateImages();
         });
     }

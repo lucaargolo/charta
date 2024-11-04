@@ -31,7 +31,6 @@ public record CardContainerSlotClickPayload(int containerId, int slotId, int car
             CardContainerSlotClickPayload::new
     );
 
-    @OnlyIn(Dist.CLIENT)
     public static void handleServer(CardContainerSlotClickPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();

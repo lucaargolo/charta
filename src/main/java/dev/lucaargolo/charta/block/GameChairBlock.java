@@ -79,7 +79,12 @@ public class GameChairBlock extends SeatBlock {
                 if (!state.getValue(CLOTH)) {
                     DyeColor color = carpetBlock.getColor();
                     level.setBlockAndUpdate(pos, state.setValue(CLOTH, true).setValue(COLOR, color));
-                }else if(player.isShiftKeyDown()){
+                }
+            }
+            return InteractionResult.SUCCESS;
+        }else if(player.isShiftKeyDown()){
+            if (!level.isClientSide()) {
+                if (state.getValue(CLOTH)) {
                     DyeColor color = state.getValue(COLOR);
                     level.setBlockAndUpdate(pos, state.setValue(CLOTH, false));
                     Vec3 c = pos.getCenter();

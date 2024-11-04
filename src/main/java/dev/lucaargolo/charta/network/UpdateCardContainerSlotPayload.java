@@ -32,7 +32,6 @@ public record UpdateCardContainerSlotPayload(int containerId, int stateId, int s
             UpdateCardContainerSlotPayload::new
     );
 
-    @OnlyIn(Dist.CLIENT)
     public static void handleClient(UpdateCardContainerSlotPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();

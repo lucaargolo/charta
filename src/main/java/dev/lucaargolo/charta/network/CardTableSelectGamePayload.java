@@ -25,7 +25,6 @@ public record CardTableSelectGamePayload(BlockPos pos, ResourceLocation gameId) 
             CardTableSelectGamePayload::new
     );
 
-    @OnlyIn(Dist.CLIENT)
     public static void handleServer(CardTableSelectGamePayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             context.player().level().getBlockEntity(payload.pos(), ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(table -> {

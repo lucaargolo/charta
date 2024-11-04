@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 public class CardDeckResource implements ResourceManagerReloadListener {
 
-    private final HashMap<ResourceLocation, CardDeck> decks = new HashMap<>();
+    private HashMap<ResourceLocation, CardDeck> decks = new HashMap<>();
 
     private final String path;
 
@@ -51,4 +51,7 @@ public class CardDeckResource implements ResourceManagerReloadListener {
         return decks;
     }
 
+    public void setDecks(HashMap<ResourceLocation, CardDeck> decks) {
+        this.decks = decks;
+    }
 }

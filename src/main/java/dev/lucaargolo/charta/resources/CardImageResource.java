@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class CardImageResource implements ResourceManagerReloadListener {
 
-    private final HashMap<ResourceLocation, CardImage> images = new HashMap<>();
+    private HashMap<ResourceLocation, CardImage> images = new HashMap<>();
 
     private final String path;
 
@@ -39,4 +39,7 @@ public class CardImageResource implements ResourceManagerReloadListener {
         return images;
     }
 
+    public void setImages(HashMap<ResourceLocation, CardImage> images) {
+        this.images = images;
+    }
 }

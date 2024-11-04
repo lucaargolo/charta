@@ -24,11 +24,15 @@ public record OpenCardTableScreenPayload(BlockPos pos) implements CustomPacketPa
             OpenCardTableScreenPayload::new
     );
 
-    @OnlyIn(Dist.CLIENT)
     public static void handleClient(OpenCardTableScreenPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
-            Minecraft.getInstance().setScreen(new CardTableScreen(payload.pos()));
+            openScreen(payload.pos);
         });
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static void openScreen(BlockPos pos) {
+        Minecraft.getInstance().setScreen(new CardTableScreen(pos));
     }
 
     @Override

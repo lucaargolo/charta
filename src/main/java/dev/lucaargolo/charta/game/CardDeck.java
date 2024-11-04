@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
@@ -47,7 +48,7 @@ public class CardDeck {
     private final Supplier<ResourceLocation> deckLocation;
 
     private CardDeck(String translatableKey, List<Card> cards, Map<Card, ResourceLocation> cardsLocation, ResourceLocation deckLocation) {
-        this(translatableKey, cards, card -> cardsLocation.getOrDefault(card, ChartaClient.MISSING_CARD), () -> deckLocation);
+        this(translatableKey, cards, card -> cardsLocation.getOrDefault(card, Charta.MISSING_CARD), () -> deckLocation);
     }
 
     public CardDeck(String translatableKey, List<Card> cards, Function<Card, ResourceLocation> cardsLocation, Supplier<ResourceLocation> deckLocation) {
