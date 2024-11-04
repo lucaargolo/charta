@@ -1,6 +1,5 @@
 package dev.lucaargolo.charta.client.gui.components;
 
-import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.client.gui.screens.CardMenuScreen;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardGame;
@@ -13,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CardSlotWidget<G extends CardGame> extends AbstractCardWidget {
+public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
 
     private final CardMenuScreen<G, ?> parent;
     private final CardSlot<G> cardSlot;
@@ -73,11 +72,11 @@ public class CardSlotWidget<G extends CardGame> extends AbstractCardWidget {
             }
             for (CardSlotWidget<G> renderable : renderables) {
                 if (renderable != this.hoverable) {
-                /*
-                This method call might seem weird at first, but by rendering the
-                current hoverable before each other possible hoverable, we stop
-                the cards from flashing weirdly on certain changing cases.
-                 */
+                    /*
+                    This method call might seem weird at first, but by rendering the
+                    current hoverable before each other possible hoverable, we stop
+                    the cards from flashing weirdly on certain changing cases.
+                     */
                     if (this.hoverable != null) {
                         this.hoverable.render(guiGraphics, mouseX, mouseY, partialTick);
                     }
@@ -117,10 +116,12 @@ public class CardSlotWidget<G extends CardGame> extends AbstractCardWidget {
 
     @Override
     public ResourceLocation getCardTexture(ResourceLocation cardId) {
-//        Card card = cardSlot.getCards().getLast();
-//        return card.isFlipped() ? ChartaClient.getDeckTexture(card.getId()) : ChartaClient.getCardTexture(card.getId());
-        //TODO
-        return cardId;
+        Card card = cardSlot.getCards().getLast();
+        if(card.isFlipped()) {
+            return parent.getDeck().getDeckTexture();
+        }else{
+            return parent.getDeck().getCardTexture(card);
+        }
     }
 
     @Override

@@ -18,8 +18,13 @@ public class CardWidget extends AbstractCardWidget {
     }
 
     public static void renderCard(ResourceLocation cardId, GuiGraphics graphics, int x, int y, int mouseX, int mouseY, float partialTicks) {
-        CardWidget dummyCardWidget = new CardWidget(null, cardId, x, y, 1f);
-        dummyCardWidget.renderWidget(graphics, mouseX, mouseY, partialTicks);
+        AbstractCardWidget dummyWidget = new AbstractCardWidget(null, cardId, x, y, 1f) {
+            @Override
+            public ResourceLocation getCardTexture(ResourceLocation cardId) {
+                return cardId;
+            }
+        };
+        dummyWidget.renderWidget(graphics, mouseX, mouseY, partialTicks);
     }
 
 }

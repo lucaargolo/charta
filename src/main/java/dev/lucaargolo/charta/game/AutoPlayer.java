@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.game;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
@@ -27,7 +28,7 @@ public class AutoPlayer implements CardPlayer {
     }
 
     @Override
-    public CompletableFuture<Card> getPlay(CardGame game) {
+    public CompletableFuture<Card> getPlay(CardGame<?> game) {
         return play;
     }
 
@@ -38,7 +39,7 @@ public class AutoPlayer implements CardPlayer {
     }
 
     @Override
-    public void tick(CardGame game) {
+    public void tick(CardGame<?> game) {
         if(game.getCurrentPlayer() == this && !play.isDone()) {
             int threshold = (int) Mth.lerp(intelligence, 50, 20);
             threshold += random.nextInt(-5, 40);
@@ -54,6 +55,11 @@ public class AutoPlayer implements CardPlayer {
 
     @Override
     public void handUpdated() {
+
+    }
+
+    @Override
+    public void openScreen(CardGame<?> game, BlockPos pos, CardDeck deck) {
 
     }
 

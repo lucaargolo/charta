@@ -2,12 +2,15 @@ package dev.lucaargolo.charta.mixin;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.Card;
+import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,9 +34,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityMi
     private CompletableFuture<Card> charta_play = new CompletableFuture<>();
     @Unique
     private final CardPlayer charta_cardPlayer = new CardPlayer() {
-
         @Override
-        public CompletableFuture<Card> getPlay(CardGame game) {
+        public CompletableFuture<Card> getPlay(CardGame<?> game) {
             return charta_play;
         }
 
@@ -53,8 +55,16 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityMi
         }
 
         @Override
-        public void tick(CardGame game) {
+        public void tick(CardGame<?> game) {
 
+        }
+
+        @Override
+        public void openScreen(CardGame<?> game, BlockPos pos, CardDeck deck) {
+            LivingEntity living = (LivingEntity) (Object) LivingEntityMixin.this;
+            if(living instanceof ServerPlayer serverPlayer) {
+                game.openScreen(serverPlayer, serverPlayer.serverLevel(), pos, deck);
+            }
         }
 
         @Override

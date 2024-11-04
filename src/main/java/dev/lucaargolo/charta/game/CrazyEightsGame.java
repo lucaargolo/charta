@@ -1,13 +1,18 @@
 package dev.lucaargolo.charta.game;
 
-import net.minecraft.nbt.CompoundTag;
+import dev.lucaargolo.charta.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.menu.CrazyEightsMenu;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class CrazyEightsGame implements CardGame {
+public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
     private final Map<CardPlayer, List<Card>> censoredHands = new HashMap<>();
 
@@ -29,9 +34,17 @@ public class CrazyEightsGame implements CardGame {
         this.deck = deck.getCards()
             .stream()
             .filter(c -> c.getSuit() != Card.Suit.BLANK && c.getRank() != Card.Rank.BLANK && c.getRank() != Card.Rank.JOKER)
+            .map(Card::copy)
             .collect(Collectors.toList());
+        this.deck.forEach(Card::flip);
+
         this.drawPile = new LinkedList<>();
         this.playPile = new LinkedList<>();
+    }
+
+    @Override
+    public AbstractCardMenu<CrazyEightsGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck) {
+        return new CrazyEightsMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.size());
     }
 
     @Override
@@ -169,6 +182,15 @@ public class CrazyEightsGame implements CardGame {
     }
 
     @Override
+    public void endGame() {
+        if(current.getHand().isEmpty()) {
+            //System.out.println(getPlayers().indexOf(current) +" won the game");
+            winner = current;
+        }
+        isGameOver = true;
+    }
+
+    @Override
     public boolean canPlayCard(CardPlayer player, Card card) {
         Card lastCard = playPile.peekLast();
         assert lastCard != null;
@@ -180,14 +202,6 @@ public class CrazyEightsGame implements CardGame {
     public Card getBestCard(CardPlayer player) {
         //System.out.println("Getting best card for Player"+getPlayers().indexOf(player));
         return player.getHand().stream().filter(c -> canPlayCard(player, c)).findFirst().orElse(null);
-    }
-
-    public void endGame() {
-        if(current.getHand().isEmpty()) {
-            //System.out.println(getPlayers().indexOf(current) +" won the game");
-            winner = current;
-        }
-        isGameOver = true;
     }
 
     @Override

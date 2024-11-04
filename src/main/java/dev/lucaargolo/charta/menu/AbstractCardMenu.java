@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
 
-public abstract class AbstractCardMenu<G extends CardGame> extends AbstractContainerMenu {
+public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractContainerMenu {
 
     public final NonNullList<CardSlot<G>> cardSlots = NonNullList.create();
     private final NonNullList<ImmutableList<Card>> lastCardSlots = NonNullList.create();
@@ -26,13 +26,12 @@ public abstract class AbstractCardMenu<G extends CardGame> extends AbstractConta
     private ImmutableList<Card> carriedCards = ImmutableList.of();
     private ImmutableList<Card> remoteCarriedCards = ImmutableList.of();;
 
-    @Nullable
     protected final CardDeck deck;
     protected final Inventory inventory;
     protected final Player player;
     protected final ContainerLevelAccess access;
 
-    public AbstractCardMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, ContainerLevelAccess access, @Nullable CardDeck deck) {
+    public AbstractCardMenu(MenuType<?> menuType, int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck) {
         super(menuType, containerId);
         this.inventory = inventory;
         this.player = inventory.player;
@@ -40,7 +39,11 @@ public abstract class AbstractCardMenu<G extends CardGame> extends AbstractConta
         this.deck = deck;
     }
 
-    public abstract @Nullable G getGame();
+    public CardDeck getDeck() {
+        return deck;
+    }
+
+    public abstract G getGame();
 
     public ImmutableList<Card> getCarriedCards() {
         return this.carriedCards;
@@ -49,7 +52,6 @@ public abstract class AbstractCardMenu<G extends CardGame> extends AbstractConta
     public ImmutableList<Card> getRemoteCarriedCards() {
         return this.remoteCarriedCards;
     }
-
 
     public void setCarriedCards(ImmutableList<Card> cards) {
         this.carriedCards = cards;

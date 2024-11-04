@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.block;
 import com.mojang.serialization.MapCodec;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.item.CardDeckItem;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
@@ -29,7 +30,6 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.WoolCarpetBlock;
-import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -144,10 +144,20 @@ public class CardTableBlock extends BaseEntityBlock {
                                     stack.shrink(1);
                                 }
                                 level.sendBlockUpdated(center, state, state, 3);
-                            } else if (cardTable.getPlayers().contains(mixed.charta_getCardPlayer())) {
-                                PacketDistributor.sendToPlayer(serverPlayer, new OpenCardTableScreenPayload(center));
                             } else {
-                                player.displayClientMessage(Component.literal("You need to be sat in the table to start a game.").withStyle(ChatFormatting.RED), true);
+                                List<CardPlayer> satPlayers = cardTable.getPlayers();
+                                if (satPlayers.contains(mixed.charta_getCardPlayer())){
+                                    CardGame<?> game = cardTable.getGame();
+                                    if (game == null || game.isGameOver()) {
+                                        PacketDistributor.sendToPlayer(serverPlayer, new OpenCardTableScreenPayload(center));
+                                    }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
+                                        game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
+                                    }else{
+                                        player.displayClientMessage(Component.literal("You're not playing the current game.").withStyle(ChatFormatting.RED), true);
+                                    }
+                                } else{
+                                    player.displayClientMessage(Component.literal("You need to be sat in the table to start a game.").withStyle(ChatFormatting.RED), true);
+                                }
                             }
                         });
                     } else {

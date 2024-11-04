@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.game.CrazyEightsGame;
 import dev.lucaargolo.charta.menu.CardSlot;
@@ -26,19 +27,22 @@ public class CrazyEightsScreen extends CardMenuScreen<CrazyEightsGame, CrazyEigh
 
     @Override
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int totalCards = 0;
-        for(CardSlot<CrazyEightsGame> slot : this.menu.cardSlots) {
-            totalCards += slot.getCards().size();
-        }
-        totalCards += this.menu.getCarriedCards().size();
-        totalCards -= ((LivingEntityMixed) this.minecraft.player).charta_getCardPlayer().getHand().size();
-        guiGraphics.drawString(font, "Total Cards: "+totalCards, 0, 0, 0xFFFF0000, false);
+        CardGame<CrazyEightsGame> game = this.menu.getGame();
+        if(game != null) {
+            int totalCards = 0;
+            for(CardSlot<CrazyEightsGame> slot : this.menu.cardSlots) {
+                totalCards += slot.getCards().size();
+            }
+            totalCards += this.menu.getCarriedCards().size();
+            totalCards -= ((LivingEntityMixed) this.minecraft.player).charta_getCardPlayer().getHand().size();
+            guiGraphics.drawString(font, "Total Cards: "+totalCards, 0, 0, 0xFFFF0000, false);
 
-        int players = this.menu.getGame().getPlayers().size();
-        float totalWidth = CardSlot.getWidth(CardSlot.Type.EXTENDED_SMALL);
-        float playersWidth = (players * totalWidth) + ((players-1f) * (totalWidth/10f));
-        for(int i = 0; i < players; i++) {
-            guiGraphics.drawString(font, "Player "+(i+1), 176/2f - playersWidth/2f + (i*(totalWidth + totalWidth/10f)), -27f, 0xFFFF0000, false);
+            int players = game.getPlayers().size();
+            float totalWidth = CardSlot.getWidth(CardSlot.Type.EXTENDED_SMALL);
+            float playersWidth = (players * totalWidth) + ((players-1f) * (totalWidth/10f));
+            for(int i = 0; i < players; i++) {
+                guiGraphics.drawString(font, "Player "+(i+1), 176/2f - playersWidth/2f + (i*(totalWidth + totalWidth/10f)), -27f, 0xFFFF0000, false);
+            }
         }
     }
 }

@@ -2,8 +2,8 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.client.gui.components.CardSlotWidget;
 import dev.lucaargolo.charta.client.gui.components.CardWidget;
-import dev.lucaargolo.charta.client.gui.components.DeckWidget;
 import dev.lucaargolo.charta.game.Card;
+import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class CardMenuScreen<G extends CardGame, T extends AbstractCardMenu<G>> extends AbstractContainerScreen<T> implements HoverableRenderable {
+public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCardMenu<G>> extends AbstractContainerScreen<T> implements HoverableRenderable {
 
     private final List<CardSlotWidget<G>> slotWidgets = new ArrayList<>();
     private HoverableRenderable hoverable = null;
@@ -37,6 +37,10 @@ public abstract class CardMenuScreen<G extends CardGame, T extends AbstractCardM
         menu.cardSlots.forEach(slot -> {
             slotWidgets.add(new CardSlotWidget<>(this, slot));
         });
+    }
+
+    public CardDeck getDeck() {
+        return menu.getDeck();
     }
 
     public G getGame() {
@@ -126,21 +130,16 @@ public abstract class CardMenuScreen<G extends CardGame, T extends AbstractCardM
         List<Card> cards = this.menu.getCarriedCards();
         if (!cards.isEmpty()) {
             Card card = cards.getLast();
-            //TODO:
             if(card.isFlipped()) {
-                //DeckWidget.renderDeck(card.getId(), guiGraphics, mouseX-CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
+                CardWidget.renderCard(this.getDeck().getDeckTexture(), guiGraphics, mouseX- CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
             }else{
-                //CardWidget.renderCard(card.getId(), guiGraphics, mouseX-CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
+                CardWidget.renderCard(this.getDeck().getCardTexture(card), guiGraphics, mouseX-CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
             }
         }
     }
 
     public boolean isHoveredCardSlot(CardSlot<G> slot) {
         return this.hoveredCardSlot == slot;
-    }
-
-    public void setHoveredCardSlot(CardSlot<G> hoveredCardSlot) {
-        this.hoveredCardSlot = hoveredCardSlot;
     }
 
     private boolean isHoveringPrecise(CardSlot<G> slot, float mouseX, float mouseY) {

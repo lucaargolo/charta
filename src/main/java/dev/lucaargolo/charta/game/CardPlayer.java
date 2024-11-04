@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.game;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -11,13 +12,14 @@ public interface CardPlayer {
 
     void handUpdated();
 
-    CompletableFuture<Card> getPlay(CardGame game);
+    CompletableFuture<Card> getPlay(CardGame<?> game);
 
     void setPlay(CompletableFuture<Card> play);
 
-    void tick(CardGame game);
+    void tick(CardGame<?> game);
+
+    void openScreen(CardGame<?> game, BlockPos pos, CardDeck deck);
 
     ResourceLocation getTexture();
-
 
 }

@@ -17,9 +17,4 @@ public class DeckWidget extends AbstractCardWidget{
         return ChartaClient.getDeckTexture(cardId);
     }
 
-    public static void renderDeck(ResourceLocation cardId, GuiGraphics graphics, int x, int y, int mouseX, int mouseY, float partialTicks) {
-        DeckWidget dummyDeckWidget = new DeckWidget(null, cardId, x, y, 1f);
-        dummyDeckWidget.renderWidget(graphics, mouseX, mouseY, partialTicks);
-    }
-
 }

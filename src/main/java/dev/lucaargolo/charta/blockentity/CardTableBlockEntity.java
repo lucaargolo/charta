@@ -43,7 +43,8 @@ public class CardTableBlockEntity extends BlockEntity {
     @Nullable
     private ResourceLocation gameId = null;
     @Nullable
-    private CardGame game = null;
+    private CardGame<?> game = null;
+    private int age = 0;
 
     public CardTableBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntityTypes.CARD_TABLE.get(), pos, blockState);
@@ -92,10 +93,11 @@ public class CardTableBlockEntity extends BlockEntity {
 
     public void setDeckStack(ItemStack deckStack) {
         this.deckStack = deckStack;
+        setChanged();
     }
 
     @Nullable
-    public CardGame getGame() {
+    public CardGame<?> getGame() {
         return game;
     }
 
@@ -106,7 +108,7 @@ public class CardTableBlockEntity extends BlockEntity {
                 List<CardPlayer> players = this.getPlayers();
                 CardGames.CardGameFactory<?> factory = CardGames.getGame(gameId);
                 if(factory != null) {
-                    CardGame game = factory.create(players, this.getDeck());
+                    CardGame<?> game = factory.create(players, this.getDeck());
                     if(CardGame.canPlayGame(game, this.getDeck())) {
                         if (players.size() >= game.getMinPlayers()) {
                             if (players.size() <= game.getMaxPlayers()) {
@@ -114,6 +116,7 @@ public class CardTableBlockEntity extends BlockEntity {
                                 this.game.startGame();
                                 this.game.runGame();
                                 this.gameId = gameId;
+                                this.getPlayers().forEach(player -> player.openScreen(this.game, this.worldPosition, deck));
                                 return Component.literal("Game successfully started").withStyle(ChatFormatting.GREEN);
                             } else {
                                 this.game = null;
@@ -204,7 +207,14 @@ public class CardTableBlockEntity extends BlockEntity {
             level.sendBlockUpdated(pos, state, state, 3);
         }
         if(blockEntity.getGame() != null) {
-            blockEntity.getGame().tick();
+            CardGame<?> game = blockEntity.getGame();
+            if(blockEntity.age++ % 100 == 0) {
+                List<CardPlayer> players = blockEntity.getPlayers();
+                if(!players.containsAll(game.getPlayers())) {
+                    game.endGame();
+                }
+            }
+            game.tick();
         }
     }
 }

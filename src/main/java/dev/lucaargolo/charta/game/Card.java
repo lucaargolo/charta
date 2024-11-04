@@ -110,6 +110,10 @@ public class Card implements Comparable<Card>, StringRepresentable {
         return CARDS;
     }
 
+    public Card copy() {
+        return new Card(suit, rank, flipped);
+    }
+
     public enum Suit implements StringRepresentable {
         BLANK, SPADES, HEARTS, CLUBS, DIAMONDS;
 
