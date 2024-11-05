@@ -142,7 +142,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             }
         }
 
-        System.out.println("Waiting for Player "+getPlayers().indexOf(current));
+        //System.out.println("Waiting for Player "+getPlayers().indexOf(current));
         current.getPlay(this).thenAccept(card -> {
 //            if(card != null)
 //                System.out.println("Player "+getPlayers().indexOf(current) +" tried played a "+card.getRank()+" of "+card.getSuit());
@@ -154,8 +154,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                 if(drawsLeft > 0) {
                     drawsLeft--;
                     //System.out.println("Player "+getPlayers().indexOf(current)+" drawed ("+drawsLeft+" draws left)");
-                    //TODO: This is a hack, all players should be able to draw by themselves.
-                    if(current instanceof AutoPlayer) {
+                    if(!current.isPreComputed()) {
                         CardGame.dealCards(drawPile, current, getCensoredHand(current), 1);
                         current.handUpdated();
                     }
@@ -168,11 +167,11 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                 }
             }else if(canPlayCard(current, card)) {
                 //System.out.println("Player "+getPlayers().indexOf(current)+" played a "+card.getRank()+" of "+card.getSuit());
-                if(current.getHand().remove(card)) {
+                if(!current.isPreComputed() && current.getHand().remove(card)) {
                     getCensoredHand(current).removeLast();
                     playPile.addLast(card);
+                    current.handUpdated();
                 }
-                current.handUpdated();
                 if(current.getHand().isEmpty()) {
                     endGame();
                 }else {

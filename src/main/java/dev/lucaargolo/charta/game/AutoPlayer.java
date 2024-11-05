@@ -68,4 +68,8 @@ public class AutoPlayer implements CardPlayer {
         return null;
     }
 
+    @Override
+    public boolean isPreComputed() {
+        return false;
+    }
 }

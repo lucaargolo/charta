@@ -64,6 +64,11 @@ public abstract class ServerPlayerMixin extends Player implements LivingEntityMi
         public ResourceLocation getTexture() {
             return null;
         }
+
+        @Override
+        public boolean isPreComputed() {
+            return true;
+        }
     };
 
     public ServerPlayerMixin(Level level, BlockPos pos, float yRot, GameProfile gameProfile) {

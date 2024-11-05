@@ -22,4 +22,6 @@ public interface CardPlayer {
 
     ResourceLocation getTexture();
 
+    boolean isPreComputed();
+
 }
