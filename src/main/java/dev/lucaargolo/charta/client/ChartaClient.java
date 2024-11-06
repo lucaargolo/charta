@@ -2,9 +2,11 @@ package dev.lucaargolo.charta.client;
 
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.client.blockentity.CardTableBlockEntityRenderer;
+import dev.lucaargolo.charta.client.entity.IronLeashKnotRenderer;
 import dev.lucaargolo.charta.client.gui.screens.CrazyEightsScreen;
 import dev.lucaargolo.charta.client.item.DeckItemExtensions;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
@@ -41,6 +43,7 @@ public class ChartaClient {
     public static Uniform CARD_X_ROT;
     public static Uniform CARD_Y_ROT;
     public static Uniform CARD_INSET;
+    public static ShaderInstance IRON_LEASH_SHADER;
 
     public static void generateImages() {
         Minecraft client = Minecraft.getInstance();
@@ -99,6 +102,7 @@ public class ChartaClient {
         @SubscribeEvent
         public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(ModEntityTypes.SEAT.get(), NoopRenderer::new);
+            event.registerEntityRenderer(ModEntityTypes.IRON_LEASH_KNOT.get(), IronLeashKnotRenderer::new);
             event.registerBlockEntityRenderer(ModBlockEntityTypes.CARD_TABLE.get(), CardTableBlockEntityRenderer::new);
         }
 
@@ -116,6 +120,9 @@ public class ChartaClient {
                 CARD_Y_ROT  = instance.getUniform("YRot");
                 CARD_INSET  = instance.getUniform("InSet");
                 CARD_SHADER = instance;
+            });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("rendertype_iron_leash"), DefaultVertexFormat.POSITION_COLOR_LIGHTMAP), instance -> {
+                IRON_LEASH_SHADER = instance;
             });
         }
 

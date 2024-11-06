@@ -83,7 +83,7 @@ public class CardDeck {
     }
 
     private Map<Card, ResourceLocation> getCardsLocation() {
-        return Maps.asMap(new HashSet<>(getCards()), cardsLocation::apply);
+        return Maps.asMap(new TreeSet<>(Arrays.asList(Card.values())), cardsLocation::apply);
     }
 
     @Override

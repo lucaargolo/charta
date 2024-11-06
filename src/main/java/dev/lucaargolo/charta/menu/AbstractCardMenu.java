@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableList;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
+import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.utils.CardContainerListener;
 import dev.lucaargolo.charta.utils.CardContainerSynchronizer;
 import net.minecraft.core.NonNullList;
@@ -26,17 +28,79 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
     private ImmutableList<Card> carriedCards = ImmutableList.of();
     private ImmutableList<Card> remoteCarriedCards = ImmutableList.of();;
 
-    protected final CardDeck deck;
     protected final Inventory inventory;
-    protected final Player player;
     protected final ContainerLevelAccess access;
+    protected final CardDeck deck;
+    protected final Player player;
+    protected final CardPlayer cardPlayer;
 
-    public AbstractCardMenu(MenuType<?> menuType, int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck) {
+    private int currentPlayer = 0;
+    private final ContainerData data = new ContainerData() {
+        @Override
+        public int get(int index) {
+            G game = getGame();
+            return switch (index) {
+                case 0 -> game.getCurrentPlayer() == cardPlayer ? 1 : currentPlayer;
+                case 1 -> game.getPlayers().indexOf(game.getCurrentPlayer());
+                default -> throw new IllegalStateException("Unexpected value: " + index);
+            };
+        }
+
+        @Override
+        public void set(int index, int value) {
+            G game = getGame();
+            switch (index) {
+                case 0 -> currentPlayer = value;
+                case 1 -> game.setCurrentPlayer(value);
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+    };
+
+    public AbstractCardMenu(MenuType<?> menuType, int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players) {
         super(menuType, containerId);
         this.inventory = inventory;
         this.player = inventory.player;
         this.access = access;
         this.deck = deck;
+        this.cardPlayer = ((LivingEntityMixed) this.player).charta_getCardPlayer();
+        this.addDataSlots(data);
+    }
+
+    public void addTopPreview(int[] players) {
+        float totalWidth = CardSlot.getWidth(CardSlot.Type.PREVIEW) + 28;
+        float playersWidth = (players.length * totalWidth) + ((players.length - 1f) * (totalWidth / 10f));
+        for (int i = 0; i < players.length; i++) {
+            G game = this.getGame();
+            CardPlayer p = game.getPlayers().get(i);
+            addCardSlot(new CardSlot<>(game, g -> g.getCensoredHand(p), 26 + (140 / 2f - playersWidth / 2f) + (i * (totalWidth + totalWidth / 10f)), 7, CardSlot.Type.PREVIEW) {
+                @Override
+                public boolean canInsertCard(CardPlayer player, List<Card> cards) {
+                    return false;
+                }
+
+                @Override
+                public boolean canRemoveCard(CardPlayer player) {
+                    return false;
+                }
+            });
+        }
+    }
+
+    public CardPlayer getCardPlayer() {
+        return cardPlayer;
+    }
+
+    public boolean isCurrentPlayer() {
+        return data.get(0) == 1;
+    }
+
+    public CardPlayer getCurrentPlayer() {
+        return this.getGame().getPlayers().get(data.get(1));
     }
 
     public CardDeck getDeck() {

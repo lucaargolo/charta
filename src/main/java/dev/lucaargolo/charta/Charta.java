@@ -41,18 +41,11 @@ public class Charta {
     /*
     TODO:
         Modfest Goals:
-            - Implement generic game loop on table block entity
             - Implement game visualization on table block entity renderer
-            - Make players able to start games by sitting on the chairs
-            - Make villagers able to join games by sitting on the chairs
             - Make villagers able to randomly starts game
             - Make game bar structure that can spawn in villages
             - Make card seller that sells regular card decks
             - Make some custom card decks spawn in dungeons
-            - Make card and deck items inventory
-                - Players can make custom decks by mixing cards inside the bundles
-                - A deck needs to have all cards to be able to start a game
-            - Add deck to table which changes the card designs
             - Add other card games:
                 - Solitaire
                 - ?
@@ -82,6 +75,7 @@ public class Charta {
     public static final CardDeckResource CARD_DECKS = new CardDeckResource("decks");
 
     public static EntityDataAccessor<List<Card>> ENTITY_HAND;
+    public static EntityDataAccessor<Boolean> MOB_IRON_LEASH;
 
     public Charta(IEventBus modEventBus, ModContainer modContainer) {
         ModEntityDataSerializers.register(modEventBus);

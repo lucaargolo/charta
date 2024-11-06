@@ -15,64 +15,42 @@ import java.util.List;
 public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
     private final CrazyEightsGame game;
-    private final CardPlayer cardPlayer;
 
-    private int currentPlayer = 0;
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
-                case 0 -> game.getCurrentPlayer() == cardPlayer ? 1 : currentPlayer;
-                case 1 -> game.getPlayers().indexOf(game.getCurrentPlayer());
-                case 2 -> game.drawsLeft;
-                default -> throw new IllegalStateException("Unexpected value: " + index);
+                case 0 -> game.drawsLeft;
+                case 1 -> game.currentSuit.ordinal();
+                default -> 0;
             };
         }
 
         @Override
         public void set(int index, int value) {
             switch (index) {
-                case 0 -> currentPlayer = value;
-                case 1 -> game.setCurrentPlayer(value);
-                case 2 -> game.drawsLeft = value;
+                case 0 -> game.drawsLeft = value;
+                case 1 -> game.currentSuit = Card.Suit.values()[value];
             }
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
     };
 
     protected CrazyEightsMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buf) {
-        this(containerId, inventory, ContainerLevelAccess.NULL, CardDeck.STREAM_CODEC.decode(buf), buf.readInt());
+        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), CardDeck.STREAM_CODEC.decode(buf), buf.readVarIntArray());
     }
 
-    public CrazyEightsMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int players) {
-        super(ModMenus.CRAZY_EIGHTS.get(), containerId, inventory, access, deck);
+    public CrazyEightsMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players) {
+        super(ModMenus.CRAZY_EIGHTS.get(), containerId, inventory, access, deck, players);
         this.game = CardGames.getGameForMenu(CardGames.CRAZY_EIGHTS, access, deck, players);
-        this.cardPlayer = ((LivingEntityMixed) this.player).charta_getCardPlayer();
 
-        //Players censored hand preview
-        float totalWidth = CardSlot.getWidth(CardSlot.Type.PREVIEW);
-        float playersWidth = (players * totalWidth) + ((players - 1f) * (totalWidth / 10f));
-        for (int i = 0; i < players; i++) {
-            CardPlayer p = this.game.getPlayers().get(i);
-            addCardSlot(new CardSlot<>(this.game, g -> g.getCensoredHand(p), (140 / 2f - playersWidth / 2f) + (i * (totalWidth + totalWidth / 10f)), 7, CardSlot.Type.PREVIEW) {
-                @Override
-                public boolean canInsertCard(CardPlayer player, List<Card> cards) {
-                    return false;
-                }
-
-                @Override
-                public boolean canRemoveCard(CardPlayer player) {
-                    return false;
-                }
-            });
-        }
-
+        this.addTopPreview(players);
         //Draw pile
-        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getDrawPile, 21, 30) {
+        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getDrawPile, 19, 30) {
             @Override
             public boolean canInsertCard(CardPlayer player, List<Card> cards) {
                 return false;
@@ -91,7 +69,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         });
 
         //Play pile
-        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getPlayPile, 82, 30) {
+        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getPlayPile, 84, 30) {
             @Override
             public boolean canInsertCard(CardPlayer player, List<Card> cards) {
                 return player == this.game.getCurrentPlayer() && cards.size() == 1 && this.game.canPlayCard(player, cards.getLast());
@@ -108,10 +86,11 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
             }
         });
 
-        addCardSlot(new CardSlot<>(this.game, g -> cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
+        addCardSlot(new CardSlot<>(this.game, g -> g.isChoosingWild ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
             @Override
             public void onInsert(CardPlayer player, Card card) {
-                game.getCensoredHand(player).add(Card.BLANK);
+                if(!game.isChoosingWild)
+                    game.getCensoredHand(player).add(Card.BLANK);
                 if (player == this.game.getCurrentPlayer() && this.game.drawsLeft == 0 && this.game.getBestCard(player) == null) {
                     player.getPlay(this.game).complete(null);
                 }
@@ -119,7 +98,8 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
             @Override
             public void onRemove(CardPlayer player, Card card) {
-                game.getCensoredHand(player).removeLast();
+                if(!game.isChoosingWild)
+                    game.getCensoredHand(player).removeLast();
                 super.onRemove(player, card);
             }
         });
@@ -128,16 +108,12 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
     }
 
-    public boolean isCurrentPlayer() {
-        return data.get(0) == 1;
-    }
-
-    public int getCurrentPlayer() {
-        return data.get(1);
-    }
-
     public int getDrawsLeft() {
-        return data.get(2);
+        return data.get(0);
+    }
+
+    public Card.Suit getCurrentSuit() {
+        return Card.Suit.values()[data.get(1)];
     }
 
     @Override

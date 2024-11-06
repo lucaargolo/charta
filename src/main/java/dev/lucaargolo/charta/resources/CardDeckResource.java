@@ -1,14 +1,12 @@
 package dev.lucaargolo.charta.resources;
 
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.CardDeck;
-import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -20,6 +18,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 public class CardDeckResource implements ResourceManagerReloadListener {
+
+    private static final CardDeck MISSING = CardDeck.simple(Charta.MISSING_CARD, Charta.MISSING_CARD);
 
     private HashMap<ResourceLocation, CardDeck> decks = new HashMap<>();
 
@@ -54,4 +54,9 @@ public class CardDeckResource implements ResourceManagerReloadListener {
     public void setDecks(HashMap<ResourceLocation, CardDeck> decks) {
         this.decks = decks;
     }
+
+    public CardDeck getDeck(ResourceLocation id) {
+        return decks.getOrDefault(id, MISSING);
+    }
+
 }

@@ -7,10 +7,16 @@
   "mixins": [
     "ContainerListenerMixin",
     "ContainerSynchronizerMixin",
+    "EntityMixin",
+    "FenceBlockMixin",
+    "LeadItemMixin",
+    "LeashableMixin",
     "LivingEntityMixin",
+    "MobMixin",
     "ServerPlayerMixin"
   ],
   "client": [
+    "EntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

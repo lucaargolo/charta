@@ -2,28 +2,34 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.client.gui.components.CardSlotWidget;
 import dev.lucaargolo.charta.client.gui.components.CardWidget;
-import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardDeck;
-import dev.lucaargolo.charta.game.CardGame;
+import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
 import dev.lucaargolo.charta.utils.CardImage;
+import dev.lucaargolo.charta.utils.CardPlayerHead;
 import dev.lucaargolo.charta.utils.HoverableRenderable;
 import dev.lucaargolo.charta.utils.TickableWidget;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.DyeColor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCardMenu<G>> extends AbstractContainerScreen<T> implements HoverableRenderable {
 
@@ -72,9 +78,56 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
         });
     }
 
+    public void renderTopBar(@NotNull GuiGraphics guiGraphics) {
+        G game = this.menu.getGame();
+        int players = game.getPlayers().size();
+        float totalWidth = CardSlot.getWidth(CardSlot.Type.PREVIEW) + 28;
+        float playersWidth = (players * totalWidth) + ((players-1f) * (totalWidth/10f));
+        guiGraphics.fill(0, 0, Mth.floor((width - playersWidth)/2f), 28, 0x88000000);
+        guiGraphics.fill(width - Mth.floor((width - playersWidth)/2f), 0, width, 28, 0x88000000);
+        for(int i = 0; i < players; i++) {
+            CardPlayer player = game.getPlayers().get(i);
+            float x = width/2f - playersWidth/2f + (i*(totalWidth + totalWidth/10f));
+            Component text = player.getName();
+            DyeColor color = player.getColor();
+            guiGraphics.fill(Mth.floor(x), 0, Mth.ceil(x + totalWidth), 28, 0x88000000 + color.getTextureDiffuseColor());
+            if(i < players-1) {
+                guiGraphics.fill(Mth.ceil(x + totalWidth), 0, Mth.floor(x + totalWidth + totalWidth/10f), 28, 0x88000000);
+            }
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate( x + 26f, 2f, 0f);
+            guiGraphics.pose().scale(0.5f, 0.5f, 0.5f);
+            guiGraphics.drawString(font, text, 0, 0, 0xFFFFFFFF, true);
+            guiGraphics.pose().popPose();
+
+            Minecraft mc = Minecraft.getInstance();
+            Function<ResourceLocation, TextureAtlasSprite> function = mc.getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
+            ResourceLocation wool = ResourceLocation.withDefaultNamespace("block/"+color.getName()+"_wool");
+            TextureAtlasSprite woolSprite = function.apply(wool);
+            guiGraphics.blit((int) (x+4), 2, 0, 16, 1, woolSprite);
+            guiGraphics.blit((int) (x+2), 2+1, 0, 20, 22, woolSprite);
+            guiGraphics.blit((int) (x+4), 2+23, 0, 16, 1, woolSprite);
+
+            CardPlayerHead.renderHead(guiGraphics, (int) x, 2, player);
+        }
+    }
+
+    public void renderBottomBar(@NotNull GuiGraphics guiGraphics) {
+        CardPlayer player = menu.getCardPlayer();
+        DyeColor color = player.getColor();
+        int totalWidth = Mth.floor(CardSlot.getWidth(CardSlot.Type.INVENTORY)) + 10;
+        guiGraphics.fill(0, height-63, (width-totalWidth)/2, height, 0x88000000);
+        guiGraphics.fill((width-totalWidth)/2, height-63, (width-totalWidth)/2 + totalWidth, height, 0x88000000  + color.getTextureDiffuseColor());
+        guiGraphics.fill((width-totalWidth)/2 + totalWidth, height-63, width, height, 0x88000000);
+
+    }
+
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBlurredBackground(partialTick);
+
+        this.renderTopBar(guiGraphics);
+        this.renderBottomBar(guiGraphics);
         this.renderBg(guiGraphics, partialTick, mouseX, mouseY);
 
         List<Renderable> renderablesBackup = List.copyOf(this.renderables);
@@ -139,6 +192,8 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
             this.hoveredCardId = cardSlotWidget.getHoveredId();
         }
 
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0f, 0f, 100f);
         List<Card> cards = this.menu.getCarriedCards();
         if (!cards.isEmpty()) {
             Card card = cards.getLast();
@@ -148,6 +203,7 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
                 CardWidget.renderCard(this.getDeck().getCardTexture(card), guiGraphics, mouseX-CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
             }
         }
+        guiGraphics.pose().popPose();
     }
 
     public boolean isHoveredCardSlot(CardSlot<G> slot) {
