@@ -11,7 +11,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
@@ -82,10 +84,13 @@ public class CardEditor extends JFrame {
         JMenu utilsMenu = new JMenu("Utils");
         JMenuItem convertAtlas = new JMenuItem("Convert Atlas");
         JMenuItem fixColors = new JMenuItem("Fix Colors");
-        JMenuItem generatePalette = new JMenuItem("Generate Palette");
+        JMenuItem generatePaletteImage = new JMenuItem("Generate PNG Palette");
+        JMenuItem generatePaletteFile = new JMenuItem("Generate GPL Palette");
         utilsMenu.add(convertAtlas);
         utilsMenu.add(fixColors);
-        utilsMenu.add(generatePalette);
+        utilsMenu.add(generatePaletteImage);
+        utilsMenu.add(generatePaletteFile);
+
         menuBar.add(utilsMenu);
 
         setJMenuBar(menuBar);
@@ -95,7 +100,8 @@ public class CardEditor extends JFrame {
         saveItem.addActionListener(e -> saveCardImage());
         convertAtlas.addActionListener(e -> convertCardAtlas());
         fixColors.addActionListener(e -> fixCardColors());
-        generatePalette.addActionListener(e -> generateCardPalette());
+        generatePaletteImage.addActionListener(e -> generatePNGPalette());
+        generatePaletteFile.addActionListener(e -> generateGPLPalette());
 
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
@@ -363,7 +369,7 @@ public class CardEditor extends JFrame {
         }
     }
 
-    private void generateCardPalette() {
+    private void generatePNGPalette() {
         JFileChooser fileChooser = getFileChooser();
         fileChooser.setDialogTitle("Specify a file to save");
         int userSelection = fileChooser.showSaveDialog(this);
@@ -386,6 +392,47 @@ public class CardEditor extends JFrame {
             }catch (IOException e) {
                 Charta.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error saving image.");
+            }
+        }
+    }
+
+    private void generateGPLPalette() {
+        JFileChooser fileChooser = getFileChooser();
+        fileChooser.setDialogTitle("Specify a file to save");
+        int userSelection = fileChooser.showSaveDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            PREFERENCES.put(LAST_DIRECTORY, selectedFile.getParent());
+            if (!selectedFile.getName().endsWith(".gpl")) {
+                selectedFile = new File(selectedFile.getAbsolutePath() + ".gpl");
+            }
+            try(BufferedWriter writer = new BufferedWriter(new FileWriter(selectedFile))) {
+                // Write the GPL header
+                writer.write("GIMP Palette\n");
+                writer.write("#\n");
+                writer.write("# --------------------------------------------------------\n");
+                writer.write("#      This is the Charta Minecraft Mod Card Palette.     \n");
+                writer.write("#                    Yeah I know its bad.                 \n");
+                writer.write("# --------------------------------------------------------\n");
+                writer.write("#\n");
+
+                // Write each color in the format: R G B    Name
+                for (int i = 0; i < CardImage.COLOR_PALETTE.length; i++) {
+                    int color = CardImage.COLOR_PALETTE[i];
+
+                    // Extract RGB components
+                    int red = (color >> 16) & 0xFF;
+                    int green = (color >> 8) & 0xFF;
+                    int blue = color & 0xFF;
+
+                    // Write the RGB values and a color name (optional)
+                    writer.write(String.format("%3d %3d %3d\t%s\n", red, green, blue, "Color "+(i+1)));
+                }
+                JOptionPane.showMessageDialog(this, "Exported palette file.");
+            }catch (IOException e) {
+                Charta.LOGGER.error("Error saving palette: {}", selectedFile.getAbsoluteFile(), e);
+                JOptionPane.showMessageDialog(this, "Error saving palette.");
             }
         }
     }
