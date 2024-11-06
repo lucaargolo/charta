@@ -192,6 +192,8 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
             this.hoveredCardId = cardSlotWidget.getHoveredId();
         }
 
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0f, 0f, 100f);
         List<Card> cards = this.menu.getCarriedCards();
         if (!cards.isEmpty()) {
             Card card = cards.getLast();
@@ -201,6 +203,7 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
                 CardWidget.renderCard(this.getDeck().getCardTexture(card), guiGraphics, mouseX-CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
             }
         }
+        guiGraphics.pose().popPose();
     }
 
     public boolean isHoveredCardSlot(CardSlot<G> slot) {

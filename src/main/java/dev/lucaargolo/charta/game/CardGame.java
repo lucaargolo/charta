@@ -41,8 +41,6 @@ public interface CardGame<G extends CardGame<G>> {
 
     boolean isGameOver();
 
-    CardPlayer getWinner();
-
     AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck);
 
     default void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, CardDeck deck) {

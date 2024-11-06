@@ -19,17 +19,24 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
-            return game.drawsLeft;
+            return switch (index) {
+                case 0 -> game.drawsLeft;
+                case 1 -> game.currentSuit.ordinal();
+                default -> 0;
+            };
         }
 
         @Override
         public void set(int index, int value) {
-            game.drawsLeft = value;
+            switch (index) {
+                case 0 -> game.drawsLeft = value;
+                case 1 -> game.currentSuit = Card.Suit.values()[value];
+            }
         }
 
         @Override
         public int getCount() {
-            return 1;
+            return 2;
         }
     };
 
@@ -43,7 +50,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
         this.addTopPreview(players);
         //Draw pile
-        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getDrawPile, 21, 30) {
+        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getDrawPile, 19, 30) {
             @Override
             public boolean canInsertCard(CardPlayer player, List<Card> cards) {
                 return false;
@@ -62,7 +69,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         });
 
         //Play pile
-        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getPlayPile, 82, 30) {
+        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getPlayPile, 84, 30) {
             @Override
             public boolean canInsertCard(CardPlayer player, List<Card> cards) {
                 return player == this.game.getCurrentPlayer() && cards.size() == 1 && this.game.canPlayCard(player, cards.getLast());
@@ -79,10 +86,11 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
             }
         });
 
-        addCardSlot(new CardSlot<>(this.game, g -> cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
+        addCardSlot(new CardSlot<>(this.game, g -> g.isChoosingWild ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
             @Override
             public void onInsert(CardPlayer player, Card card) {
-                game.getCensoredHand(player).add(Card.BLANK);
+                if(!game.isChoosingWild)
+                    game.getCensoredHand(player).add(Card.BLANK);
                 if (player == this.game.getCurrentPlayer() && this.game.drawsLeft == 0 && this.game.getBestCard(player) == null) {
                     player.getPlay(this.game).complete(null);
                 }
@@ -90,7 +98,8 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
             @Override
             public void onRemove(CardPlayer player, Card card) {
-                game.getCensoredHand(player).removeLast();
+                if(!game.isChoosingWild)
+                    game.getCensoredHand(player).removeLast();
                 super.onRemove(player, card);
             }
         });
@@ -101,6 +110,10 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
     public int getDrawsLeft() {
         return data.get(0);
+    }
+
+    public Card.Suit getCurrentSuit() {
+        return Card.Suit.values()[data.get(1)];
     }
 
     @Override

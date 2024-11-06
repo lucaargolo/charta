@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.CrazyEightsGame;
 import dev.lucaargolo.charta.menu.CrazyEightsMenu;
@@ -29,6 +30,15 @@ public class CrazyEightsScreen extends CardMenuScreen<CrazyEightsGame, CrazyEigh
     @Override
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         Component text;
+        Card.Suit suit = menu.getCurrentSuit();
+        text = Component.literal("Suit");
+        guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 40, 0xFFFFFFFF);
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(imageWidth/2f - 8f, 50f, 0f);
+        guiGraphics.pose().scale(1.5f, 1.5f, 1.5f);
+        guiGraphics.blit(TEXTURE, 0, 0, imageWidth+(suit.ordinal()-1)*11, 0, 11, 12);
+        guiGraphics.pose().popPose();
+
         CardPlayer player = menu.getCurrentPlayer();
         DyeColor color = player.getColor();
         if(menu.isCurrentPlayer()) {
@@ -39,5 +49,6 @@ public class CrazyEightsScreen extends CardMenuScreen<CrazyEightsGame, CrazyEigh
         guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 110, 0xFFFFFFFF);
         text = Component.literal("Draws left: "+menu.getDrawsLeft());
         guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 120, 0xFFFFFFFF);
+
     }
 }

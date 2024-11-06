@@ -2,7 +2,9 @@ package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CrazyEightsMenu;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -22,10 +24,12 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     private final LinkedList<Card> playPile;
     private final LinkedList<Card> drawPile;
 
-    private CardPlayer current;
-    private CardPlayer winner;
+    private CardPlayer currentPlayer;
     private boolean isGameOver;
 
+    public final LinkedList<Card> suits;
+    public boolean isChoosingWild;
+    public Card.Suit currentSuit;
     public int drawsLeft = 3;
 
     public CrazyEightsGame(List<CardPlayer> players, CardDeck deck) {
@@ -40,6 +44,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
         this.drawPile = new LinkedList<>();
         this.playPile = new LinkedList<>();
+        this.suits = new LinkedList<>();
     }
 
     @Override
@@ -80,20 +85,20 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
     @Override
     public CardPlayer getCurrentPlayer() {
-        return current;
+        return currentPlayer;
     }
 
     @Override
     public void setCurrentPlayer(int index) {
-        this.current = getPlayers().get(index);
+        this.currentPlayer = getPlayers().get(index);
     }
 
     @Override
     public CardPlayer getNextPlayer() {
-        if(current == null) {
+        if(currentPlayer == null) {
             return getPlayers().getFirst();
         }else{
-            int indexOf = getPlayers().indexOf(current);
+            int indexOf = getPlayers().indexOf(currentPlayer);
             return getPlayers().get((indexOf + 1) % players.size());
         }
     }
@@ -115,12 +120,18 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
         }
 
         Card last = drawPile.pollLast();
+        while (last.getRank() == Card.Rank.EIGHT) {
+            drawPile.add(last);
+            Collections.shuffle(drawPile);
+            last = drawPile.pollLast();
+        }
         last.flip();
         playPile.addLast(last);
+        currentSuit = last.getSuit();
 
-        current = players.getFirst();
+        currentPlayer = players.getFirst();
 
-        winner = null;
+        isChoosingWild = false;
         isGameOver = false;
     }
 
@@ -139,31 +150,70 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             }
         }
 
-        current.getPlay(this).thenAccept(card -> {
-            current.setPlay(new CompletableFuture<>());
+        currentPlayer.getPlay(this).thenAccept(card -> {
+            currentPlayer.setPlay(new CompletableFuture<>());
             if(card == null) {
                 if(drawsLeft > 0) {
                     drawsLeft--;
-                    if(current.shouldCompute()) {
-                        CardGame.dealCards(drawPile, current, getCensoredHand(current), 1);
-                        current.handUpdated();
+                    if(currentPlayer.shouldCompute()) {
+                        CardGame.dealCards(drawPile, currentPlayer, getCensoredHand(currentPlayer), 1);
+                        currentPlayer.handUpdated();
                     }
                     runGame();
                 }else{
-                    current = getNextPlayer();
+                    currentPlayer = getNextPlayer();
                     drawsLeft = 3;
                     runGame();
                 }
-            }else if(canPlayCard(current, card)) {
-                if(current.shouldCompute() && current.getHand().remove(card)) {
-                    getCensoredHand(current).removeLast();
-                    playPile.addLast(card);
-                    current.handUpdated();
+            }else if(canPlayCard(currentPlayer, card)) {
+                currentSuit = card.getSuit();
+                if(isChoosingWild) {
+                    playPile.removeLast();
+                    isChoosingWild = false;
                 }
-                if(current.getHand().isEmpty()) {
+                if(currentPlayer.shouldCompute() && currentPlayer.getHand().remove(card)) {
+                    getCensoredHand(currentPlayer).removeLast();
+                    playPile.addLast(card);
+                    currentPlayer.handUpdated();
+                }
+                if(currentPlayer.getHand().isEmpty()) {
                     endGame();
-                }else {
-                    current = getNextPlayer();
+                }else if(card.getRank() == Card.Rank.EIGHT) {
+                    if(currentPlayer.shouldCompute()) {
+                        Map<Card.Suit, Integer> suitCountMap = new HashMap<>();
+
+                        for (Card C : currentPlayer.getHand()) {
+                            Card.Suit suit = C.getSuit();
+                            suitCountMap.put(suit, suitCountMap.getOrDefault(suit, 0) + 1);
+                        }
+
+                        Card.Suit mostFrequentSuit = null;
+
+                        int maxCount = 0;
+                        for (Map.Entry<Card.Suit, Integer> entry : suitCountMap.entrySet()) {
+                            if (entry.getValue() > maxCount) {
+                                mostFrequentSuit = entry.getKey();
+                                maxCount = entry.getValue();
+                            }
+                        }
+                        currentSuit = mostFrequentSuit;
+                        currentPlayer = getNextPlayer();
+                        drawsLeft = 3;
+                        runGame();
+                    }else{
+                        isChoosingWild = true;
+                        suits.clear();
+                        suits.addAll(List.of(
+                                new Card(Card.Suit.SPADES, Card.Rank.BLANK),
+                                new Card(Card.Suit.HEARTS, Card.Rank.BLANK),
+                                new Card(Card.Suit.CLUBS, Card.Rank.BLANK),
+                                new Card(Card.Suit.DIAMONDS, Card.Rank.BLANK)
+                        ));
+                        drawsLeft = 0;
+                        runGame();
+                    }
+                } else {
+                    currentPlayer = getNextPlayer();
                     drawsLeft = 3;
                     runGame();
                 }
@@ -173,8 +223,15 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
     @Override
     public void endGame() {
-        if(current.getHand().isEmpty()) {
-            winner = current;
+        if(currentPlayer.getHand().isEmpty()) {
+            currentPlayer.sendTitle(Component.literal("You won!").withStyle(ChatFormatting.GREEN), Component.literal("Congratulations!"));
+            getPlayers().stream().filter(player -> player != currentPlayer).forEach(player -> {
+                player.sendTitle(Component.literal("You lost!").withStyle(ChatFormatting.RED), currentPlayer.getName().copy().append(" won the match."));
+            });
+        }else{
+            getPlayers().forEach(player -> {
+                player.sendMessage(Component.literal("<Charta> Crazy Eights match was unable to continue, either from lack of players or lack of cards."));
+            });
         }
         isGameOver = true;
     }
@@ -183,7 +240,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     public boolean canPlayCard(CardPlayer player, Card card) {
         Card lastCard = playPile.peekLast();
         assert lastCard != null;
-        return card.getRank() == lastCard.getRank() || card.getSuit() == lastCard.getSuit();
+        return (isChoosingWild && card.getRank() == Card.Rank.BLANK) || card.getRank() == Card.Rank.EIGHT || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;
     }
 
     @Nullable
@@ -197,9 +254,5 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
         return isGameOver;
     }
 
-    @Override
-    public CardPlayer getWinner() {
-        return winner;
-    }
 
 }
