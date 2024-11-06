@@ -21,7 +21,7 @@ public class ModCreativeTabs {
             .title(Component.literal("Charta Items"))
             .icon(ModBlocks.CARD_TABLE_MAP.get(WoodType.OAK).get().asItem()::getDefaultInstance)
             .displayItems((parameters, output) -> {
-                ModItems.ITEMS.getEntries().stream().filter(h -> h != ModItems.DECK).map(DeferredHolder::get).forEach(output::accept);
+                ModItems.ITEMS.getEntries().stream().filter(h -> h != ModItems.DECK && h != ModItems.IRON_LEAD).map(DeferredHolder::get).forEach(output::accept);
             })
             .build());
 
