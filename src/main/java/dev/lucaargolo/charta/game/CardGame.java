@@ -25,6 +25,8 @@ public interface CardGame<G extends CardGame<G>> {
 
     CardPlayer getCurrentPlayer();
 
+    void setCurrentPlayer(int index);
+
     CardPlayer getNextPlayer();
 
     void startGame();
@@ -55,8 +57,9 @@ public interface CardGame<G extends CardGame<G>> {
                 return CardGame.this.createMenu(containerId, playerInventory, level, pos, deck);
             }
         }, buf -> {
+            buf.writeBlockPos(pos);
             CardDeck.STREAM_CODEC.encode(buf, deck);
-            buf.writeInt(getPlayers().size());
+            buf.writeVarIntArray(getPlayers().stream().mapToInt(CardPlayer::getId).toArray());
         });
     }
 

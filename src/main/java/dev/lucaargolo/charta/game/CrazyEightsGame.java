@@ -44,7 +44,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
     @Override
     public AbstractCardMenu<CrazyEightsGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck) {
-        return new CrazyEightsMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.size());
+        return new CrazyEightsMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray());
     }
 
     @Override
@@ -83,6 +83,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
         return current;
     }
 
+    @Override
     public void setCurrentPlayer(int index) {
         this.current = getPlayers().get(index);
     }
@@ -121,9 +122,6 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
         winner = null;
         isGameOver = false;
-
-        //System.out.println("Game started");
-        //System.out.println("Its Player "+getPlayers().indexOf(current)+"'s turn");
     }
 
     @Override
@@ -136,38 +134,28 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                 Collections.shuffle(drawPile);
                 playPile.clear();
                 playPile.add(lastCard);
-                //System.out.println("Shuffling");
             }else{
                 endGame();
             }
         }
 
-        //System.out.println("Waiting for Player "+getPlayers().indexOf(current));
         current.getPlay(this).thenAccept(card -> {
-//            if(card != null)
-//                System.out.println("Player "+getPlayers().indexOf(current) +" tried played a "+card.getRank()+" of "+card.getSuit());
-//            else
-//                System.out.println("Player "+getPlayers().indexOf(current) +" tried played a null");
-
             current.setPlay(new CompletableFuture<>());
             if(card == null) {
                 if(drawsLeft > 0) {
                     drawsLeft--;
-                    //System.out.println("Player "+getPlayers().indexOf(current)+" drawed ("+drawsLeft+" draws left)");
-                    if(!current.isPreComputed()) {
+                    if(current.shouldCompute()) {
                         CardGame.dealCards(drawPile, current, getCensoredHand(current), 1);
                         current.handUpdated();
                     }
                     runGame();
                 }else{
                     current = getNextPlayer();
-                    //System.out.println("Its Player "+getPlayers().indexOf(current)+"'s turn");
                     drawsLeft = 3;
                     runGame();
                 }
             }else if(canPlayCard(current, card)) {
-                //System.out.println("Player "+getPlayers().indexOf(current)+" played a "+card.getRank()+" of "+card.getSuit());
-                if(!current.isPreComputed() && current.getHand().remove(card)) {
+                if(current.shouldCompute() && current.getHand().remove(card)) {
                     getCensoredHand(current).removeLast();
                     playPile.addLast(card);
                     current.handUpdated();
@@ -176,7 +164,6 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                     endGame();
                 }else {
                     current = getNextPlayer();
-                    //System.out.println("Its Player " + getPlayers().indexOf(current) + "'s turn");
                     drawsLeft = 3;
                     runGame();
                 }
@@ -187,7 +174,6 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     @Override
     public void endGame() {
         if(current.getHand().isEmpty()) {
-            //System.out.println(getPlayers().indexOf(current) +" won the game");
             winner = current;
         }
         isGameOver = true;
@@ -203,7 +189,6 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     @Nullable
     @Override
     public Card getBestCard(CardPlayer player) {
-        //System.out.println("Getting best card for Player"+getPlayers().indexOf(player));
         return player.getHand().stream().filter(c -> canPlayCard(player, c)).findFirst().orElse(null);
     }
 

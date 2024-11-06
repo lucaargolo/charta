@@ -3,13 +3,12 @@ package dev.lucaargolo.charta.client.gui.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.lucaargolo.charta.client.CardRenderType;
+import dev.lucaargolo.charta.client.ModRenderType;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.HoverableRenderable;
 import dev.lucaargolo.charta.utils.TickableWidget;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
@@ -48,7 +47,7 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
         float yRot = Mth.lerp(partialTick, this.lastYRot, this.yRot);
 
         ResourceLocation textureId = getCardTexture(cardId);
-        RenderType renderType = CardRenderType.getCardType(textureId);
+        RenderType renderType = ModRenderType.cardType(textureId);
 
         VertexConsumer consumer = guiGraphics.bufferSource().getBuffer(renderType);
         PoseStack.Pose pose = guiGraphics.pose().last();

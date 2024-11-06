@@ -1,12 +1,16 @@
 package dev.lucaargolo.charta.game;
 
+import dev.lucaargolo.charta.utils.CardPlayerHead;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.DyeColor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface CardPlayer {
+
 
     List<Card> getHand();
 
@@ -18,10 +22,22 @@ public interface CardPlayer {
 
     void tick(CardGame<?> game);
 
+    boolean shouldCompute();
+
     void openScreen(CardGame<?> game, BlockPos pos, CardDeck deck);
 
-    ResourceLocation getTexture();
+    void sendMessage(Component message);
 
-    boolean isPreComputed();
+    void sendTitle(Component title, @Nullable Component subtitle);
+
+    Component getName();
+
+    DyeColor getColor();
+
+    int getId();
+
+    default CardPlayerHead getHead() {
+        return CardPlayerHead.UNKNOWN;
+    };
 
 }

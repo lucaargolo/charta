@@ -1,17 +1,21 @@
 package dev.lucaargolo.charta.mixin;
 
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.block.CardTableBlock;
+import dev.lucaargolo.charta.block.GameChairBlock;
+import dev.lucaargolo.charta.entity.SeatEntity;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
+import dev.lucaargolo.charta.utils.CardPlayerHead;
 import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
-import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,24 +36,33 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityMi
         }
 
         @Override
-        public void tick(CardGame<?> game) {
+        public Component getName() {
             LivingEntity living = (LivingEntity) (Object) LivingEntityMixin.this;
-            if(!(living instanceof ServerPlayer)) {
-                super.tick(game);
-            }
+            return living.getDisplayName();
         }
 
         @Override
-        public void openScreen(CardGame<?> game, BlockPos pos, CardDeck deck) {
+        public int getId() {
             LivingEntity living = (LivingEntity) (Object) LivingEntityMixin.this;
-            if(living instanceof ServerPlayer serverPlayer) {
-                game.openScreen(serverPlayer, serverPlayer.serverLevel(), pos, deck);
-            }
+            return living.getId();
         }
 
         @Override
-        public ResourceLocation getTexture() {
-            return null;
+        public CardPlayerHead getHead() {
+            LivingEntity living = (LivingEntity) (Object) LivingEntityMixin.this;
+            return CardPlayerHead.get(living);
+        }
+
+        @Override
+        public DyeColor getColor() {
+            LivingEntity living = (LivingEntity) (Object) LivingEntityMixin.this;
+            if(living.getVehicle() instanceof SeatEntity seatEntity) {
+                BlockState state = seatEntity.getBlockStateOn();
+                if(state.getBlock() instanceof GameChairBlock) {
+                    return state.getValue(GameChairBlock.COLOR);
+                }
+            }
+            return DyeColor.WHITE;
         }
     };
 

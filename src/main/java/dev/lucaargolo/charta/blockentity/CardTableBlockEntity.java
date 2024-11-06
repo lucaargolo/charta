@@ -41,8 +41,6 @@ public class CardTableBlockEntity extends BlockEntity {
 
     private ItemStack deckStack = ItemStack.EMPTY;
     @Nullable
-    private ResourceLocation gameId = null;
-    @Nullable
     private CardGame<?> game = null;
     private int age = 0;
 
@@ -115,37 +113,30 @@ public class CardTableBlockEntity extends BlockEntity {
                                 this.game = game;
                                 this.game.startGame();
                                 this.game.runGame();
-                                this.gameId = gameId;
                                 this.getPlayers().forEach(player -> player.openScreen(this.game, this.worldPosition, deck));
                                 return Component.literal("Game successfully started").withStyle(ChatFormatting.GREEN);
                             } else {
                                 this.game = null;
-                                this.gameId = null;
                                 return Component.literal("You need at most " + game.getMaxPlayers() + " players to play this game").withStyle(ChatFormatting.RED);
                             }
                         } else {
                             this.game = null;
-                            this.gameId = null;
                             return Component.literal("You need at least " + game.getMinPlayers() + " players to play this game").withStyle(ChatFormatting.RED);
                         }
                     }else{
                         this.game = null;
-                        this.gameId = null;
                         return Component.literal("You can't play this game with this deck.").withStyle(ChatFormatting.RED);
                     }
                 }else{
                     this.game = null;
-                    this.gameId = null;
                     return Component.literal("Table received an unknown game id.").withStyle(ChatFormatting.RED);
                 }
             }else{
                 this.game = null;
-                this.gameId = null;
                 return Component.literal("Table received no game id.").withStyle(ChatFormatting.RED);
             }
         }else{
             this.game = null;
-            this.gameId = null;
             return Component.literal("You need a deck to be able to play games.").withStyle(ChatFormatting.RED);
         }
 
@@ -172,25 +163,12 @@ public class CardTableBlockEntity extends BlockEntity {
                 setDeckStack(ItemStack.EMPTY);
             }
         }
-        if(tag.contains("gameId")) {
-            CardDeck deck = getDeck();
-            this.gameId = ResourceLocation.tryParse(tag.getString("gameId"));
-            if(deck != null && this.gameId != null) {
-                CardGames.CardGameFactory<?> factory = CardGames.getGame(this.gameId);
-                if(factory != null) {
-                    this.game = factory.create(this.getPlayers(), this.getDeck());
-                }
-            }
-        }
     }
 
     @Override
     public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         saveAdditional(tag, registries);
-        if(game != null && gameId != null) {
-            tag.putString("gameId", gameId.toString());
-        }
         return tag;
     }
 

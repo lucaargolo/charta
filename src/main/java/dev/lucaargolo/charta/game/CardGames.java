@@ -2,7 +2,9 @@ package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,13 +35,22 @@ public class CardGames {
     }
 
     @SuppressWarnings({"OptionalGetWithoutIsPresent", "unchecked"})
-    public static <G extends CardGame<G>> G getGameForMenu(CardGameFactory<G> factory, ContainerLevelAccess access, CardDeck deck, int players) {
+    public static <G extends CardGame<G>> G getGameForMenu(CardGameFactory<G> factory, ContainerLevelAccess access, CardDeck deck, int[] players) {
         try{
             return access.evaluate((level, pos) -> level.getBlockEntity(pos, ModBlockEntityTypes.CARD_TABLE.get()).get()).map(table -> (G) table.getGame()).get();
         }catch (Exception e) {
             List<CardPlayer> cardPlayers = new ArrayList<>();
-            for(int i = 0; i < players; i++) {
-                cardPlayers.add(new AutoPlayer(1f));
+            for (int entityId : players) {
+                CardPlayer player = access.evaluate((level, pos) -> {
+                    if (entityId >= 0) {
+                        Entity entity = level.getEntity(entityId);
+                        if (entity instanceof LivingEntityMixed mixed) {
+                            return mixed.charta_getCardPlayer();
+                        }
+                    }
+                    return new AutoPlayer(1f);
+                }).orElse(new AutoPlayer(1f));
+                cardPlayers.add(player);
             }
             return factory.create(cardPlayers, deck);
         }

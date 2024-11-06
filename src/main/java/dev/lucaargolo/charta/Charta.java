@@ -82,6 +82,7 @@ public class Charta {
     public static final CardDeckResource CARD_DECKS = new CardDeckResource("decks");
 
     public static EntityDataAccessor<List<Card>> ENTITY_HAND;
+    public static EntityDataAccessor<Boolean> MOB_IRON_LEASH;
 
     public Charta(IEventBus modEventBus, ModContainer modContainer) {
         ModEntityDataSerializers.register(modEventBus);

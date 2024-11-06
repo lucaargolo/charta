@@ -6,6 +6,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.LeadItem;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -25,6 +26,7 @@ public class ModItems {
     }
 
     public static final DeferredHolder<Item, CardDeckItem> DECK = ITEMS.register("deck", () -> new CardDeckItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredHolder<Item, LeadItem> IRON_LEAD = ITEMS.register("iron_lead", () -> new LeadItem(new Item.Properties()));
 
     public static void register(IEventBus bus) {
         ITEMS.register(bus);

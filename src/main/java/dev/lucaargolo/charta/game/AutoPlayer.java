@@ -1,8 +1,11 @@
 package dev.lucaargolo.charta.game;
 
+import dev.lucaargolo.charta.utils.CardPlayerHead;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.DyeColor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,12 +67,37 @@ public class AutoPlayer implements CardPlayer {
     }
 
     @Override
-    public ResourceLocation getTexture() {
-        return null;
+    public void sendMessage(Component message) {
+
     }
 
     @Override
-    public boolean isPreComputed() {
-        return false;
+    public void sendTitle(Component title, @Nullable Component subtitle) {
+
+    }
+
+    @Override
+    public Component getName() {
+        return Component.literal("AutoPlayer");
+    }
+
+    @Override
+    public DyeColor getColor() {
+        return DyeColor.WHITE;
+    }
+
+    @Override
+    public int getId() {
+        return -1;
+    }
+
+    @Override
+    public CardPlayerHead getHead() {
+        return CardPlayerHead.ROBOT;
+    }
+
+    @Override
+    public boolean shouldCompute() {
+        return true;
     }
 }
