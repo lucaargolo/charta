@@ -8,7 +8,7 @@ import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardGames;
 import dev.lucaargolo.charta.game.CardPlayer;
-import dev.lucaargolo.charta.item.ModDataComponentTypes;
+import dev.lucaargolo.charta.item.CardDeckItem;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -40,6 +40,7 @@ public class CardTableBlockEntity extends BlockEntity {
 
 
     private ItemStack deckStack = ItemStack.EMPTY;
+
     @Nullable
     private CardGame<?> game = null;
     private int age = 0;
@@ -82,7 +83,7 @@ public class CardTableBlockEntity extends BlockEntity {
 
     @Nullable
     public CardDeck getDeck() {
-        return this.deckStack.get(ModDataComponentTypes.CARD_DECK.get());
+        return CardDeckItem.getDeck(this.deckStack);
     }
 
     public ItemStack getDeckStack() {
@@ -184,7 +185,7 @@ public class CardTableBlockEntity extends BlockEntity {
             blockEntity.setDeckStack(ItemStack.EMPTY);
             level.sendBlockUpdated(pos, state, state, 3);
         }
-        if(blockEntity.getGame() != null) {
+        if(blockEntity.getGame() != null && !blockEntity.getGame().isGameOver()) {
             CardGame<?> game = blockEntity.getGame();
             if(blockEntity.age++ % 100 == 0) {
                 List<CardPlayer> players = blockEntity.getPlayers();

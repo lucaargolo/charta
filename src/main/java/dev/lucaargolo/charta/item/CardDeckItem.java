@@ -1,8 +1,10 @@
 package dev.lucaargolo.charta.item;
 
+import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.CardDeck;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -34,7 +36,8 @@ public class CardDeckItem extends Item {
 
     @Nullable
     public static CardDeck getDeck(ItemStack stack) {
-        return stack.has(ModDataComponentTypes.CARD_DECK) ? stack.get(ModDataComponentTypes.CARD_DECK) : null;
+        ResourceLocation deckId = stack.get(ModDataComponentTypes.CARD_DECK);
+        return deckId != null ? Charta.CARD_DECKS.getDeck(deckId) : null;
     }
 
 }

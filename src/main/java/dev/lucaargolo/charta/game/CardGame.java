@@ -75,7 +75,12 @@ public interface CardGame<G extends CardGame<G>> {
 
     static boolean canPlayGame(CardGame<?> cardGame, CardDeck cardDeck) {
         List<Card> necessaryCards = cardGame.getValidDeck();
-        cardDeck.getCards().forEach(necessaryCards::remove);
+        for(Card card : cardDeck.getCards()) {
+            if(!necessaryCards.remove(card)) {
+                necessaryCards.add(card);
+                break;
+            }
+        }
         return necessaryCards.isEmpty();
     }
 

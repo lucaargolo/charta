@@ -149,7 +149,7 @@ public class CardTableBlock extends BaseEntityBlock {
                                 if (satPlayers.contains(mixed.charta_getCardPlayer())){
                                     CardGame<?> game = cardTable.getGame();
                                     if (game == null || game.isGameOver()) {
-                                        PacketDistributor.sendToPlayer(serverPlayer, new OpenCardTableScreenPayload(center));
+                                        PacketDistributor.sendToPlayer(serverPlayer, new OpenCardTableScreenPayload(center, cardTable.getDeck(), satPlayers.stream().mapToInt(CardPlayer::getId).toArray()));
                                     }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
                                         game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
                                     }else{
