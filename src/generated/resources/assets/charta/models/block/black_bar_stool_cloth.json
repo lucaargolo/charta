@@ -1,0 +1,7 @@
+{
+  "parent": "charta:block/bar_stool_cloth",
+  "textures": {
+    "cloth": "minecraft:block/black_wool",
+    "particle": "minecraft:block/black_wool"
+  }
+}

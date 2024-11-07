@@ -73,21 +73,28 @@ public class SeatBlock extends Block {
 
     @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
-        if (player instanceof FakePlayer) return InteractionResult.PASS;
-        if (!level.mayInteract(player, pos)) return InteractionResult.PASS;
-        if (!isSittable(state) || player.isPassenger() || player.isCrouching()) return InteractionResult.PASS;
+        if(tryAndSit(state, level, pos, player)) {
+            return InteractionResult.SUCCESS;
+        }else{
+            return InteractionResult.PASS;
+        }
+    }
 
-        if (isSeatBlocked(level, pos)) return InteractionResult.PASS;
+    public boolean tryAndSit(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player) {
+        if (player instanceof FakePlayer) return false;
+        if (!level.mayInteract(player, pos)) return false;
+        if (!isSittable(state) || player.isPassenger() || player.isCrouching()) return false;
+
+        if (isSeatBlocked(level, pos)) return false;
         if (isSeatOccupied(level, pos)) {
             List<SeatEntity> seats = level.getEntitiesOfClass(SeatEntity.class, new AABB(pos));
-            if (ejectSeatedExceptPlayer(level, seats.getFirst())) return InteractionResult.SUCCESS;
-            return InteractionResult.PASS;
+            return ejectSeatedExceptPlayer(level, seats.getFirst());
         }
 
 
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide)  return true;
         sitDown(level, pos, getLeashed(player).orElse(player));
-        return InteractionResult.SUCCESS;
+        return true;
     }
 
     public static boolean isSeatBlocked(Level level, BlockPos pos) {

@@ -1,0 +1,8 @@
+{
+  "parent": "charta:block/bar_stool",
+  "textures": {
+    "log": "minecraft:block/crimson_stem",
+    "particle": "minecraft:block/crimson_planks",
+    "planks": "minecraft:block/crimson_planks"
+  }
+}

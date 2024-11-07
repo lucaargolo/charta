@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class GameChairBlock extends SeatBlock {
+public class GameChairBlock extends BarStoolBlock {
 
     private static final VoxelShape NORTH_SHAPE = Stream.of(
             Block.box(3, 5, 3, 13, 7, 13),
@@ -53,8 +53,6 @@ public class GameChairBlock extends SeatBlock {
     private static final VoxelShape EAST_SHAPE = VoxelShapeUtils.rotate(NORTH_SHAPE, Direction.EAST);
     private static final VoxelShape WEST_SHAPE = VoxelShapeUtils.rotate(NORTH_SHAPE, Direction.WEST);
 
-    public static final BooleanProperty CLOTH = BooleanProperty.create("cloth");
-    public static final EnumProperty<DyeColor> COLOR = EnumProperty.create("color", DyeColor.class);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     public GameChairBlock(Properties properties) {
@@ -73,33 +71,19 @@ public class GameChairBlock extends SeatBlock {
 
     @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
-        ItemStack stack = player.getMainHandItem();
-        if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof WoolCarpetBlock carpetBlock) {
-            if (!level.isClientSide()) {
-                if (!state.getValue(CLOTH)) {
-                    DyeColor color = carpetBlock.getColor();
-                    level.setBlockAndUpdate(pos, state.setValue(CLOTH, true).setValue(COLOR, color));
-                }
-            }
+        if(tryAndSetCloth(state, level, pos, player)) {
             return InteractionResult.SUCCESS;
-        }else if(player.isShiftKeyDown()){
-            if (!level.isClientSide()) {
-                if (state.getValue(CLOTH)) {
-                    DyeColor color = state.getValue(COLOR);
-                    level.setBlockAndUpdate(pos, state.setValue(CLOTH, false));
-                    Vec3 c = pos.getCenter();
-                    Containers.dropItemStack(level, c.x, c.y, c.z, DyeColorHelper.getCarpet(color).asItem().getDefaultInstance());
-                }
-            }
-            return InteractionResult.SUCCESS;
-        }
-        if (!state.getValue(CLOTH)) {
+        }else if (!state.getValue(CLOTH)) {
             if(!level.isClientSide()) {
                 player.displayClientMessage(Component.literal("You need to put a cloth on this chair.").withStyle(ChatFormatting.RED), true);
             }
             return InteractionResult.FAIL;
         }else{
-            return super.useWithoutItem(state, level, pos, player, hitResult);
+            if(tryAndSit(state, level, pos, player)) {
+                return InteractionResult.SUCCESS;
+            }else{
+                return InteractionResult.PASS;
+            }
         }
     }
 

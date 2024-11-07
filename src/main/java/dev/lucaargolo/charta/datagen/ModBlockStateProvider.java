@@ -12,6 +12,7 @@ import net.minecraft.world.item.DyeColor;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class ModBlockStateProvider extends BlockStateProvider {
@@ -27,6 +28,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
             String cornerClothPath = "block/"+color+"_card_table_corner_cloth";
             String sideClothPath = "block/"+color+"_card_table_side_cloth";
             String chairClothPath = "block/"+color+"_game_chair_cloth";
+            String stoolClothPath = "block/"+color+"_bar_stool_cloth";
 
             this.models().getBuilder(centerClothPath)
                     .parent(this.models().getExistingFile(this.modLoc("block/card_table_center_cloth")))
@@ -42,6 +44,10 @@ public class ModBlockStateProvider extends BlockStateProvider {
                     .texture("cloth", this.mcLoc("block/"+color+"_wool"));
             this.models().getBuilder(chairClothPath)
                     .parent(this.models().getExistingFile(this.modLoc("block/game_chair_cloth")))
+                    .texture("particle", this.mcLoc("block/"+color+"_wool"))
+                    .texture("cloth", this.mcLoc("block/"+color+"_wool"));
+            this.models().getBuilder(stoolClothPath)
+                    .parent(this.models().getExistingFile(this.modLoc("block/bar_stool_cloth")))
                     .texture("particle", this.mcLoc("block/"+color+"_wool"))
                     .texture("cloth", this.mcLoc("block/"+color+"_wool"));
         }
@@ -152,6 +158,35 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 rot += 90;
             }
 
+        });
+        ModBlocks.BAR_STOOL_MAP.forEach((woodType, barStool) -> {
+            MultiPartBlockStateBuilder barStoolBuilder = this.getMultipartBuilder(barStool.get());
+
+            String wood = woodType.name();
+
+            String stoolPath = "block/"+wood+"_bar_stool";
+            String itemPath = "item/"+wood+"_bar_stool";
+
+            ResourceLocation logResource = getLogResource(wood);
+
+            this.models().getBuilder(stoolPath)
+                .parent(this.models().getExistingFile(this.modLoc("block/bar_stool")))
+                .texture("particle", this.mcLoc("block/"+wood+"_planks"))
+                .texture("planks", this.mcLoc("block/"+wood+"_planks"))
+                .texture("log", logResource);
+            this.models().getBuilder(itemPath).parent(this.models().getExistingFile(this.modLoc(stoolPath)));
+
+            barStoolBuilder.part()
+                    .modelFile(this.models().getExistingFile(this.modLoc(stoolPath)))
+                    .addModel();
+            for(DyeColor color : DyeColor.values()) {
+                String stoolClothPath = "block/" + color + "_bar_stool_cloth";
+                barStoolBuilder.part()
+                        .modelFile(this.models().getExistingFile(this.modLoc(stoolClothPath)))
+                        .addModel()
+                        .condition(GameChairBlock.CLOTH, true)
+                        .condition(GameChairBlock.COLOR, color);
+            }
         });
     }
 

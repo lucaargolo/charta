@@ -20,6 +20,7 @@ public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Registries.BLOCK, Charta.MOD_ID);
     public static final Map<WoodType, DeferredHolder<Block, CardTableBlock>> CARD_TABLE_MAP = new HashMap<>();
     public static final Map<WoodType, DeferredHolder<Block, GameChairBlock>> GAME_CHAIR_MAP = new HashMap<>();
+    public static final Map<WoodType, DeferredHolder<Block, BarStoolBlock>> BAR_STOOL_MAP = new HashMap<>();
 
     static {
         BlockFamilies.getAllFamilies().filter(f -> f.getRecipeGroupPrefix().orElse("").equals("wooden")).forEach(f -> {
@@ -33,6 +34,9 @@ public class ModBlocks {
                     Supplier<GameChairBlock> chairSupplier = () -> new GameChairBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
                     DeferredHolder<Block, GameChairBlock> chairHolder = BLOCKS.register(woodName + "_game_chair", chairSupplier);
                     GAME_CHAIR_MAP.put(type, chairHolder);
+                    Supplier<BarStoolBlock> stoolSupplier = () -> new BarStoolBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
+                    DeferredHolder<Block, BarStoolBlock> stoolHolder = BLOCKS.register(woodName + "_bar_stool", stoolSupplier);
+                    BAR_STOOL_MAP.put(type, stoolHolder);
                 });
             }
         });
