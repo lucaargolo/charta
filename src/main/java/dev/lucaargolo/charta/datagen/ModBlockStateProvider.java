@@ -1,9 +1,7 @@
 package dev.lucaargolo.charta.datagen;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.block.CardTableBlock;
-import dev.lucaargolo.charta.block.ModBlocks;
-import dev.lucaargolo.charta.block.GameChairBlock;
+import dev.lucaargolo.charta.block.*;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +12,9 @@ import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.registries.DeferredHolder;
+
+import java.util.List;
 
 public class ModBlockStateProvider extends BlockStateProvider {
 
@@ -187,6 +188,25 @@ public class ModBlockStateProvider extends BlockStateProvider {
                         .condition(GameChairBlock.CLOTH, true)
                         .condition(GameChairBlock.COLOR, color);
             }
+        });
+        ModBlocks.BLOCKS.getEntries().stream().filter(b -> b.get() instanceof BeerGlassBlock).forEach(block -> {
+            VariantBlockStateBuilder beerGlassBuilder = this.getVariantBuilder(block.get());
+            int i = 0;
+            for(Direction d : List.of(Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH)) {
+                beerGlassBuilder.partialState()
+                    .with(BeerGlassBlock.FACING, d)
+                    .modelForState()
+                    .modelFile(this.models().getExistingFile(this.modLoc("block/"+block.getId().getPath())))
+                    .rotationY((i++) * 90)
+                    .addModel();
+            }
+        });
+        ModBlocks.BLOCKS.getEntries().stream().filter(b -> b.get() instanceof WineGlassBlock).forEach(block -> {
+            VariantBlockStateBuilder wineGlassBuilder = this.getVariantBuilder(block.get());
+            wineGlassBuilder.partialState()
+                .modelForState()
+                .modelFile(this.models().getExistingFile(this.modLoc("block/"+block.getId().getPath())))
+                .addModel();
         });
     }
 

@@ -60,6 +60,16 @@ public class BarStoolBlock extends SeatBlock {
     }
 
     @Override
+    protected void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+        if(!state.is(newState.getBlock()) && state.getValue(CLOTH)) {
+            Vec3 center = pos.getCenter();
+            ItemStack carpetStack = DyeColorHelper.getCarpet(state.getValue(COLOR)).asItem().getDefaultInstance();
+            Containers.dropItemStack(level, center.x, center.y, center.z, carpetStack);
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
         if(tryAndSetCloth(state, level, pos, player)) {
             return InteractionResult.SUCCESS;

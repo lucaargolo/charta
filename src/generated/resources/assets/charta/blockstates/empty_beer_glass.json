@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "charta:block/empty_beer_glass"
+    },
+    "facing=north": {
+      "model": "charta:block/empty_beer_glass",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "charta:block/empty_beer_glass",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "charta:block/empty_beer_glass",
+      "y": 180
+    }
+  }
+}
