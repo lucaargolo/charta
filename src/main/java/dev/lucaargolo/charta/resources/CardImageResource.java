@@ -24,9 +24,10 @@ public class CardImageResource implements ResourceManagerReloadListener {
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
         images.clear();
-        manager.listResources(path, id -> id.getPath().endsWith(".mccard")).forEach((id, resource) -> {
+        String fullPath = "images/" + path;
+        manager.listResources(fullPath, id -> id.getPath().endsWith(".mccard")).forEach((id, resource) -> {
             try(InputStream stream = resource.open()) {
-                ResourceLocation location = id.withPath(s -> s.replace(path + "/", "").replace(".mccard", ""));
+                ResourceLocation location = id.withPath(s -> s.replace(fullPath + "/", "").replace(".mccard", ""));
                 images.put(location, CardImage.decompress(stream.readAllBytes()));
             }catch (IOException e) {
                 Charta.LOGGER.error("Error while reading {} image {} :", path, id, e);

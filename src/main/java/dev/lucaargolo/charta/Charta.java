@@ -72,7 +72,7 @@ public class Charta {
     public static final CardSuitResource CARD_SUITS = new CardSuitResource();
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
-    public static final CardDeckResource CARD_DECKS = new CardDeckResource("decks");
+    public static final CardDeckResource CARD_DECKS = new CardDeckResource();
 
     public static EntityDataAccessor<List<Card>> ENTITY_HAND;
     public static EntityDataAccessor<Boolean> MOB_IRON_LEASH;

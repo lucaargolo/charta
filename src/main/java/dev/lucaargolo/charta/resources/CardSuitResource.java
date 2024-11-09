@@ -19,9 +19,9 @@ public class CardSuitResource implements ResourceManagerReloadListener {
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
         images.clear();
-        manager.listResources("suit", id -> id.getPath().endsWith(".mcsuit")).forEach((id, resource) -> {
+        manager.listResources("images/suit", id -> id.getPath().endsWith(".mcsuit")).forEach((id, resource) -> {
             try(InputStream stream = resource.open()) {
-                ResourceLocation location = id.withPath(s -> s.replace("suit/", "").replace(".mcsuit", ""));
+                ResourceLocation location = id.withPath(s -> s.replace("images/suit/", "").replace(".mcsuit", ""));
                 images.put(location, SuitImage.decompress(stream.readAllBytes()));
             }catch (IOException e) {
                 Charta.LOGGER.error("Error while reading card suit {} :", id, e);

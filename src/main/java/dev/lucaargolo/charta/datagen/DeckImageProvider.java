@@ -34,7 +34,7 @@ public class DeckImageProvider implements DataProvider {
     public @NotNull CompletableFuture<?> run(@NotNull CachedOutput cachedOutput) {
         return CompletableFuture.runAsync(() -> {
             Path outputPath = this.output.getOutputFolder();
-            String decksOutputPath = outputPath + File.separator + "data" + File.separator + Charta.MOD_ID + File.separator + "deck";
+            String decksOutputPath = outputPath + File.separator + "data" + File.separator + Charta.MOD_ID + File.separator + "images" + File.separator + "deck";
             try {
                 URL resource = Charta.class.getClassLoader().getResource("decks");
                 URI uri = Objects.requireNonNull(resource).toURI();
