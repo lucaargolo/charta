@@ -1,5 +1,4 @@
 {
-  "key": "deck.charta.standard_red",
   "deck": [
     "spades:ace",
     "spades:two",
@@ -131,5 +130,13 @@
     "diamonds:king": "charta:standard/4_13",
     "diamonds:joker": "charta:standard/4_14"
   },
-  "image": "charta:red"
+  "image": "charta:red",
+  "key": "deck.charta.standard_red",
+  "suits": {
+    "blank": "charta:standard/0",
+    "spades": "charta:standard/1",
+    "hearts": "charta:standard/2",
+    "clubs": "charta:standard/3",
+    "diamonds": "charta:standard/4"
+  }
 }

@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.datagen;
 
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -46,7 +47,9 @@ public class DeckImageProvider implements DataProvider {
                         cardOutputFolder.mkdirs();
                         File cardOutputFile = new File(cardOutputFolder + File.separator + cardName);
                         try (InputStream stream = Files.newInputStream(path)) {
-                            CardImageUtils.saveCards(ImageIO.read(stream), cardOutputFile, cachedOutput);
+                            CardImage.saveCards(ImageIO.read(stream), cardOutputFile, (fileToSave, cardImage) -> {
+                                CardImageUtils.saveImage(cardImage, fileToSave, cachedOutput);
+                            });
                         }catch (Exception e) {
                             Charta.LOGGER.error("Error loading image: {}", path, e);
                         }

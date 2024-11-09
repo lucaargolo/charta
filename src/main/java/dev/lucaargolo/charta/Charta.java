@@ -3,17 +3,16 @@ package dev.lucaargolo.charta;
 import com.mojang.logging.LogUtils;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
-import dev.lucaargolo.charta.datagen.CardDeckProvider;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.item.ModCreativeTabs;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.item.ModItems;
-import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.network.*;
 import dev.lucaargolo.charta.resources.CardDeckResource;
 import dev.lucaargolo.charta.resources.CardImageResource;
+import dev.lucaargolo.charta.resources.CardSuitResource;
 import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceLocation;
@@ -27,7 +26,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -68,8 +66,10 @@ public class Charta {
     public static final String MOD_ID = "charta";
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    public static final ResourceLocation MISSING_SUIT = Charta.id("missing_suit");
     public static final ResourceLocation MISSING_CARD = Charta.id("missing_card");
 
+    public static final CardSuitResource CARD_SUITS = new CardSuitResource();
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
     public static final CardDeckResource CARD_DECKS = new CardDeckResource("decks");
@@ -99,7 +99,7 @@ public class Charta {
         public static void register(final RegisterPayloadHandlersEvent event) {
             final PayloadRegistrar registrar = event.registrar("1");
 
-            registrar.playToClient(CardImagesPayload.TYPE, CardImagesPayload.STREAM_CODEC, CardImagesPayload::handleClient);
+            registrar.playToClient(ImagesPayload.TYPE, ImagesPayload.STREAM_CODEC, ImagesPayload::handleClient);
             registrar.playToClient(CardDecksPayload.TYPE, CardDecksPayload.STREAM_CODEC, CardDecksPayload::handleClient);
             registrar.playToClient(UpdateCardContainerSlotPayload.TYPE, UpdateCardContainerSlotPayload.STREAM_CODEC, UpdateCardContainerSlotPayload::handleClient);
             registrar.playToClient(UpdateCardContainerCarriedPayload.TYPE, UpdateCardContainerCarriedPayload.STREAM_CODEC, UpdateCardContainerCarriedPayload::handleClient);
@@ -116,6 +116,7 @@ public class Charta {
 
         @SubscribeEvent
         public static void addReloadListeners(AddReloadListenerEvent event) {
+            event.addListener(CARD_SUITS);
             event.addListener(CARD_IMAGES);
             event.addListener(DECK_IMAGES);
             event.addListener(CARD_DECKS);
@@ -125,14 +126,14 @@ public class Charta {
         public static void onPlayerJoined(PlayerEvent.PlayerLoggedInEvent event) {
             Player player = event.getEntity();
             if(player instanceof ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, new CardImagesPayload(Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
+                PacketDistributor.sendToPlayer(serverPlayer, new ImagesPayload(Charta.CARD_SUITS.getImages(), Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
                 PacketDistributor.sendToPlayer(serverPlayer, new CardDecksPayload(Charta.CARD_DECKS.getDecks()));
             }
         }
 
         @SubscribeEvent
         public static void onDatapackReload(OnDatapackSyncEvent event) {
-            PacketDistributor.sendToAllPlayers(new CardImagesPayload(Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
+            PacketDistributor.sendToAllPlayers(new ImagesPayload(Charta.CARD_SUITS.getImages(), Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
             PacketDistributor.sendToAllPlayers(new CardDecksPayload(Charta.CARD_DECKS.getDecks()));
         }
 

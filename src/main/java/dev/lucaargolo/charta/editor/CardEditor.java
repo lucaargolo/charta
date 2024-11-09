@@ -330,7 +330,14 @@ public class CardEditor extends JFrame {
                 String fileName = selectedFile.getName();
                 String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
                 File outputFile = new File(selectedFile.toPath().getParent() + File.separator + cardName);
-                CardImage.saveCards(ImageIO.read(selectedFile), outputFile);
+                CardImage.saveCards(ImageIO.read(selectedFile), outputFile, (fileToSave, cardImage) -> {
+                    try {
+                        Charta.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
+                        cardImage.saveToFile(fileToSave.getAbsolutePath());
+                    } catch (IOException e) {
+                        Charta.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
+                    }
+                });
                 JOptionPane.showMessageDialog(this, "Finalized atlas conversion.");
             } catch (IOException e) {
                 Charta.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);

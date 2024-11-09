@@ -2,7 +2,6 @@ package dev.lucaargolo.charta.client;
 
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.client.blockentity.BarShelfBlockEntityRenderer;
@@ -14,10 +13,8 @@ import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.ModMenus;
-import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -50,20 +47,33 @@ public class ChartaClient {
     public static void generateImages() {
         Minecraft client = Minecraft.getInstance();
         TextureManager manager = client.getTextureManager();
-        manager.register(Charta.MISSING_CARD, CardImageUtils.convertCardImage(CardImageUtils.EMPTY));
+        manager.register(Charta.MISSING_SUIT, CardImageUtils.convertImage(CardImageUtils.EMPTY_SUIT));
+        Charta.CARD_SUITS.getImages().forEach((id, image) -> {
+            ResourceLocation suitId = ChartaClient.getSuitTexture(id);
+            manager.register(suitId, CardImageUtils.convertImage(image));
+        });
+        manager.register(Charta.MISSING_CARD, CardImageUtils.convertImage(CardImageUtils.EMPTY_CARD));
         Charta.CARD_IMAGES.getImages().forEach((id, image) -> {
             ResourceLocation cardId = ChartaClient.getCardTexture(id);
-            manager.register(cardId, CardImageUtils.convertCardImage(image));
+            manager.register(cardId, CardImageUtils.convertImage(image));
         });
         Charta.DECK_IMAGES.getImages().forEach((id, image) -> {
             ResourceLocation deckId = ChartaClient.getDeckTexture(id);
-            manager.register(deckId, CardImageUtils.convertCardImage(image));
+            manager.register(deckId, CardImageUtils.convertImage(image));
         });
+    }
+
+    public static ResourceLocation getSuitTexture(ResourceLocation location) {
+        if (Charta.CARD_SUITS.getImages().containsKey(location)) {
+            return location.withPrefix("suit/");
+        }else{
+            return Charta.MISSING_SUIT;
+        }
     }
 
     public static ResourceLocation getCardTexture(ResourceLocation location) {
         if (Charta.CARD_IMAGES.getImages().containsKey(location)) {
-            return location.withSuffix("card/");
+            return location.withPrefix("card/");
         }else{
             return Charta.MISSING_CARD;
         }
@@ -71,7 +81,7 @@ public class ChartaClient {
 
     public static ResourceLocation getDeckTexture(ResourceLocation location) {
         if (Charta.DECK_IMAGES.getImages().containsKey(location)) {
-            return location.withSuffix("deck/");
+            return location.withPrefix("deck/");
         }else{
             return Charta.MISSING_CARD;
         }
@@ -80,6 +90,9 @@ public class ChartaClient {
     public static void clearImages() {
         Minecraft client = Minecraft.getInstance();
         TextureManager manager = client.getTextureManager();
+        manager.release(Charta.MISSING_SUIT);
+        Charta.CARD_SUITS.getImages().keySet().stream().map(ChartaClient::getSuitTexture).forEach(manager::release);
+        Charta.CARD_SUITS.getImages().clear();
         manager.release(Charta.MISSING_CARD);
         Charta.CARD_IMAGES.getImages().keySet().stream().map(ChartaClient::getCardTexture).forEach(manager::release);
         Charta.DECK_IMAGES.getImages().keySet().stream().map(ChartaClient::getDeckTexture).forEach(manager::release);

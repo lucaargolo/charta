@@ -30,7 +30,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         public void set(int index, int value) {
             switch (index) {
                 case 0 -> game.drawsLeft = value;
-                case 1 -> game.currentSuit = Card.Suit.values()[value];
+                case 1 -> game.currentSuit = Suit.values()[value];
             }
         }
 
@@ -112,8 +112,8 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         return data.get(0);
     }
 
-    public Card.Suit getCurrentSuit() {
-        return Card.Suit.values()[data.get(1)];
+    public Suit getCurrentSuit() {
+        return Suit.values()[data.get(1)];
     }
 
     @Override

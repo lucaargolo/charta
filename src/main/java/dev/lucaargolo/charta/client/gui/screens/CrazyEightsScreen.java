@@ -2,9 +2,8 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardPlayer;
-import dev.lucaargolo.charta.game.CrazyEightsGame;
+import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.CrazyEightsMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -31,18 +30,14 @@ public class CrazyEightsScreen extends CardMenuScreen<CrazyEightsGame, CrazyEigh
     @Override
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         Component text;
-        Card.Suit suit = menu.getCurrentSuit();
+        Suit suit = menu.getCurrentSuit();
         text = Component.literal("Suit");
         guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 40, 0xFFFFFFFF);
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(imageWidth/2f - 8f, 50f, 0f);
+        guiGraphics.pose().translate(imageWidth/2f - 10f, 50f, 0f);
+        guiGraphics.pose().translate(0.5f, 0f, 0f);
         guiGraphics.pose().scale(1.5f, 1.5f, 1.5f);
-        guiGraphics.pose().translate(0.666f, 0.666f, 0.0f);
-        RenderSystem.setShaderColor(0.3f, 0.3f, 0.3f, 1.0f);
-        guiGraphics.blit(TEXTURE, 0, 0, imageWidth+(suit.ordinal()-1)*11, 0, 11, 12);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        guiGraphics.pose().translate(-0.666f, -0.666f, 0.0f);
-        guiGraphics.blit(TEXTURE, 0, 0, imageWidth+(suit.ordinal()-1)*11, 0, 11, 12);
+        guiGraphics.blit(this.getDeck().getSuitTexture(suit), 0, 0, 0, 0, 13, 13, 13, 13);
         guiGraphics.pose().popPose();
 
         CardPlayer player = menu.getCurrentPlayer();

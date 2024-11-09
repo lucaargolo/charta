@@ -1,5 +1,4 @@
 {
-  "key": "deck.charta.inverted",
   "deck": [
     "spades:ace",
     "spades:two",
@@ -131,5 +130,13 @@
     "diamonds:king": "charta:inverted/4_13",
     "diamonds:joker": "charta:inverted/4_14"
   },
-  "image": "charta:inverted"
+  "image": "charta:inverted",
+  "key": "deck.charta.inverted",
+  "suits": {
+    "blank": "charta:inverted/0",
+    "spades": "charta:inverted/1",
+    "hearts": "charta:inverted/2",
+    "clubs": "charta:inverted/3",
+    "diamonds": "charta:inverted/4"
+  }
 }

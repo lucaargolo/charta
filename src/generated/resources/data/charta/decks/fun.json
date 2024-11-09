@@ -1,5 +1,4 @@
 {
-  "key": "deck.charta.fun",
   "deck": [
     "spades:blank",
     "spades:ace",
@@ -187,5 +186,13 @@
     "diamonds:king": "charta:fun/4_13",
     "diamonds:joker": "charta:fun/4_14"
   },
-  "image": "charta:fun"
+  "image": "charta:fun",
+  "key": "deck.charta.fun",
+  "suits": {
+    "blank": "charta:fun/0",
+    "spades": "charta:fun/1",
+    "hearts": "charta:fun/2",
+    "clubs": "charta:fun/3",
+    "diamonds": "charta:fun/4"
+  }
 }

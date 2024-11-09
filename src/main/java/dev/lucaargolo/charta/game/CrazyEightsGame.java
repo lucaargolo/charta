@@ -29,7 +29,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
     public final LinkedList<Card> suits;
     public boolean isChoosingWild;
-    public Card.Suit currentSuit;
+    public Suit currentSuit;
     public int drawsLeft = 3;
 
     public CrazyEightsGame(List<CardPlayer> players, CardDeck deck) {
@@ -37,7 +37,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
         this.deck = deck.getCards()
             .stream()
-            .filter(c -> c.getSuit() != Card.Suit.BLANK && c.getRank() != Card.Rank.BLANK && c.getRank() != Card.Rank.JOKER)
+            .filter(c -> c.getSuit() != Suit.BLANK && c.getRank() != Rank.BLANK && c.getRank() != Rank.JOKER)
             .map(Card::copy)
             .collect(Collectors.toList());
         this.deck.forEach(Card::flip);
@@ -55,9 +55,9 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     @Override
     public List<Card> getValidDeck() {
         List<Card> necessaryCards = new ArrayList<>();
-        for(Card.Suit suit : Card.Suit.values()) {
-            for(Card.Rank rank : Card.Rank.values()) {
-                if(suit != Card.Suit.BLANK && rank != Card.Rank.BLANK && rank != Card.Rank.JOKER) {
+        for(Suit suit : Suit.values()) {
+            for(Rank rank : Rank.values()) {
+                if(suit != Suit.BLANK && rank != Rank.BLANK && rank != Rank.JOKER) {
                     necessaryCards.add(new Card(suit, rank));
                 }
             }
@@ -120,7 +120,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
         }
 
         Card last = drawPile.pollLast();
-        while (last.getRank() == Card.Rank.EIGHT) {
+        while (last.getRank() == Rank.EIGHT) {
             drawPile.add(last);
             Collections.shuffle(drawPile);
             last = drawPile.pollLast();
@@ -178,19 +178,19 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                 }
                 if(currentPlayer.getHand().isEmpty()) {
                     endGame();
-                }else if(card.getRank() == Card.Rank.EIGHT) {
+                }else if(card.getRank() == Rank.EIGHT) {
                     if(currentPlayer.shouldCompute()) {
-                        Map<Card.Suit, Integer> suitCountMap = new HashMap<>();
+                        Map<Suit, Integer> suitCountMap = new HashMap<>();
 
                         for (Card C : currentPlayer.getHand()) {
-                            Card.Suit suit = C.getSuit();
+                            Suit suit = C.getSuit();
                             suitCountMap.put(suit, suitCountMap.getOrDefault(suit, 0) + 1);
                         }
 
-                        Card.Suit mostFrequentSuit = null;
+                        Suit mostFrequentSuit = null;
 
                         int maxCount = 0;
-                        for (Map.Entry<Card.Suit, Integer> entry : suitCountMap.entrySet()) {
+                        for (Map.Entry<Suit, Integer> entry : suitCountMap.entrySet()) {
                             if (entry.getValue() > maxCount) {
                                 mostFrequentSuit = entry.getKey();
                                 maxCount = entry.getValue();
@@ -204,10 +204,10 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                         isChoosingWild = true;
                         suits.clear();
                         suits.addAll(List.of(
-                                new Card(Card.Suit.SPADES, Card.Rank.BLANK),
-                                new Card(Card.Suit.HEARTS, Card.Rank.BLANK),
-                                new Card(Card.Suit.CLUBS, Card.Rank.BLANK),
-                                new Card(Card.Suit.DIAMONDS, Card.Rank.BLANK)
+                                new Card(Suit.SPADES, Rank.BLANK),
+                                new Card(Suit.HEARTS, Rank.BLANK),
+                                new Card(Suit.CLUBS, Rank.BLANK),
+                                new Card(Suit.DIAMONDS, Rank.BLANK)
                         ));
                         drawsLeft = 0;
                         runGame();
@@ -240,7 +240,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     public boolean canPlayCard(CardPlayer player, Card card) {
         Card lastCard = playPile.peekLast();
         assert lastCard != null;
-        return (isChoosingWild && card.getRank() == Card.Rank.BLANK) || card.getRank() == Card.Rank.EIGHT || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;
+        return (isChoosingWild && card.getRank() == Rank.BLANK) || card.getRank() == Rank.EIGHT || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;
     }
 
     @Nullable

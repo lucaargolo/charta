@@ -24,6 +24,7 @@ public class DataGenerators {
         CompletableFuture<HolderLookup.Provider> registries = event.getLookupProvider();
         ExistingFileHelper exFileHelper = event.getExistingFileHelper();
         generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, exFileHelper));
+        generator.addProvider(event.includeServer(), new SuitImageProvider(output));
         generator.addProvider(event.includeServer(), new CardImageProvider(output));
         generator.addProvider(event.includeServer(), new DeckImageProvider(output));
         generator.addProvider(event.includeServer(), new CardDeckProvider(output));
