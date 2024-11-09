@@ -25,6 +25,8 @@ public class ModBlocks {
     public static final Map<WoodType, DeferredHolder<Block, BarStoolBlock>> BAR_STOOL_MAP = new HashMap<>();
     public static final Map<WoodType, DeferredHolder<Block, BarShelfBlock>> BAR_SHELF_MAP = new HashMap<>();
 
+    public static final DeferredHolder<Block, Block> DEALER_TABLE = BLOCKS.register("dealer_table", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)));
+
     public static final DeferredHolder<Block, BeerGlassBlock> EMPTY_BEER_GLASS = BLOCKS.register("empty_beer_glass", () -> new BeerGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
     public static final DeferredHolder<Block, BeerGlassBlock> WHEAT_BEER_GLASS = BLOCKS.register("wheat_beer_glass", () -> new BeerGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
     public static final DeferredHolder<Block, BeerGlassBlock> SORGHUM_BEER_GLASS = BLOCKS.register("sorghum_beer_glass", () -> new BeerGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
