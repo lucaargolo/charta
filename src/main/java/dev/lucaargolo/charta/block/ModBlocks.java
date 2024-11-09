@@ -27,14 +27,6 @@ public class ModBlocks {
 
     public static final DeferredHolder<Block, Block> DEALER_TABLE = BLOCKS.register("dealer_table", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)));
 
-    public static final DeferredHolder<Block, BeerGlassBlock> EMPTY_BEER_GLASS = BLOCKS.register("empty_beer_glass", () -> new BeerGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
-    public static final DeferredHolder<Block, BeerGlassBlock> WHEAT_BEER_GLASS = BLOCKS.register("wheat_beer_glass", () -> new BeerGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
-    public static final DeferredHolder<Block, BeerGlassBlock> SORGHUM_BEER_GLASS = BLOCKS.register("sorghum_beer_glass", () -> new BeerGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
-
-    public static final DeferredHolder<Block, WineGlassBlock> EMPTY_WINE_GLASS = BLOCKS.register("empty_wine_glass", () -> new WineGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
-    public static final DeferredHolder<Block, WineGlassBlock> BERRY_WINE_GLASS = BLOCKS.register("berry_wine_glass", () -> new WineGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
-    public static final DeferredHolder<Block, WineGlassBlock> CACTUS_WINE_GLASS = BLOCKS.register("cactus_wine_glass", () -> new WineGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
-
     static {
         BlockFamilies.getAllFamilies().filter(f -> f.getRecipeGroupPrefix().orElse("").equals("wooden")).forEach(f -> {
             ResourceKey<Block> resourceKey = f.getBaseBlock().builtInRegistryHolder().getKey();
@@ -57,6 +49,14 @@ public class ModBlocks {
             }
         });
     }
+
+    public static final DeferredHolder<Block, BeerGlassBlock> EMPTY_BEER_GLASS = BLOCKS.register("empty_beer_glass", () -> new BeerGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
+    public static final DeferredHolder<Block, BeerGlassBlock> WHEAT_BEER_GLASS = BLOCKS.register("wheat_beer_glass", () -> new BeerGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
+    public static final DeferredHolder<Block, BeerGlassBlock> SORGHUM_BEER_GLASS = BLOCKS.register("sorghum_beer_glass", () -> new BeerGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
+
+    public static final DeferredHolder<Block, WineGlassBlock> EMPTY_WINE_GLASS = BLOCKS.register("empty_wine_glass", () -> new WineGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
+    public static final DeferredHolder<Block, WineGlassBlock> BERRY_WINE_GLASS = BLOCKS.register("berry_wine_glass", () -> new WineGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
+    public static final DeferredHolder<Block, WineGlassBlock> CACTUS_WINE_GLASS = BLOCKS.register("cactus_wine_glass", () -> new WineGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
 
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);

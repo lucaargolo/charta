@@ -6,8 +6,6 @@ import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.block.WineGlassBlock;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.LeadItem;

@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta;
 
 import com.mojang.logging.LogUtils;
+import dev.lucaargolo.charta.block.ModBannerPatterns;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.entity.ModEntityTypes;

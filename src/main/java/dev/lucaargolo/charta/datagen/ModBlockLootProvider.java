@@ -17,6 +17,7 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
 
     @Override
     protected void generate() {
+        this.dropSelf(ModBlocks.DEALER_TABLE.get());
         ModBlocks.CARD_TABLE_MAP.values().forEach(holder -> {
             this.dropSelf(holder.get());
         });
