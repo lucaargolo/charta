@@ -26,6 +26,9 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
         ModBlocks.BAR_STOOL_MAP.values().forEach(holder -> {
             this.dropSelf(holder.get());
         });
+        ModBlocks.BAR_SHELF_MAP.values().forEach(holder -> {
+            this.dropSelf(holder.get());
+        });
         this.dropSelf(ModBlocks.EMPTY_BEER_GLASS.get());
         this.dropSelf(ModBlocks.WHEAT_BEER_GLASS.get());
         this.dropSelf(ModBlocks.SORGHUM_BEER_GLASS.get());

@@ -189,6 +189,45 @@ public class ModBlockStateProvider extends BlockStateProvider {
                         .condition(GameChairBlock.COLOR, color);
             }
         });
+        ModBlocks.BAR_SHELF_MAP.forEach((woodType, barShelf) -> {
+            MultiPartBlockStateBuilder barShelfBuilder = this.getMultipartBuilder(barShelf.get());
+
+            String wood = woodType.name();
+
+            String shelfPath = "block/"+wood+"_bar_shelf";
+            String shelfUpPath = "block/"+wood+"_bar_shelf_up";
+            String itemPath = "item/"+wood+"_bar_shelf";
+
+            ResourceLocation logResource = getLogResource(wood);
+
+            this.models().getBuilder(shelfPath)
+                    .parent(this.models().getExistingFile(this.modLoc("block/bar_shelf")))
+                    .texture("particle", this.mcLoc("block/"+wood+"_planks"))
+                    .texture("planks", this.mcLoc("block/"+wood+"_planks"))
+                    .texture("log", logResource);
+            this.models().getBuilder(shelfUpPath)
+                    .parent(this.models().getExistingFile(this.modLoc("block/bar_shelf_up")))
+                    .texture("particle", this.mcLoc("block/"+wood+"_planks"))
+                    .texture("planks", this.mcLoc("block/"+wood+"_planks"));
+            this.models().getBuilder(itemPath).parent(this.models().getExistingFile(this.modLoc(shelfPath)));
+
+            int i = 0;
+            for(Direction d : Direction.Plane.HORIZONTAL) {
+                barShelfBuilder.part()
+                        .modelFile(this.models().getExistingFile(this.modLoc(shelfPath)))
+                        .rotationY(i * 90)
+                        .addModel()
+                        .condition(BarShelfBlock.FACING, d);
+
+                barShelfBuilder.part()
+                        .modelFile(this.models().getExistingFile(this.modLoc(shelfUpPath)))
+                        .rotationY(i * 90)
+                        .addModel()
+                        .condition(BarShelfBlock.FACING, d)
+                        .condition(BarShelfBlock.UP, false);
+                i++;
+            }
+        });
         ModBlocks.BLOCKS.getEntries().stream().filter(b -> b.get() instanceof BeerGlassBlock).forEach(block -> {
             VariantBlockStateBuilder beerGlassBuilder = this.getVariantBuilder(block.get());
             int i = 0;

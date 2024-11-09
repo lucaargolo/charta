@@ -1,0 +1,7 @@
+{
+  "parent": "charta:block/bar_shelf_up",
+  "textures": {
+    "particle": "minecraft:block/oak_planks",
+    "planks": "minecraft:block/oak_planks"
+  }
+}

@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.client.blockentity.BarShelfBlockEntityRenderer;
 import dev.lucaargolo.charta.client.blockentity.CardTableBlockEntityRenderer;
 import dev.lucaargolo.charta.client.entity.IronLeashKnotRenderer;
 import dev.lucaargolo.charta.client.gui.screens.CrazyEightsScreen;
@@ -105,6 +106,7 @@ public class ChartaClient {
             event.registerEntityRenderer(ModEntityTypes.SEAT.get(), NoopRenderer::new);
             event.registerEntityRenderer(ModEntityTypes.IRON_LEASH_KNOT.get(), IronLeashKnotRenderer::new);
             event.registerBlockEntityRenderer(ModBlockEntityTypes.CARD_TABLE.get(), CardTableBlockEntityRenderer::new);
+            event.registerBlockEntityRenderer(ModBlockEntityTypes.BAR_SHELF.get(), BarShelfBlockEntityRenderer::new);
         }
 
 

@@ -10,6 +10,7 @@ import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.network.OpenCardTableScreenPayload;
 import dev.lucaargolo.charta.utils.DyeColorHelper;
+import dev.lucaargolo.charta.utils.VoxelShapeUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
@@ -24,6 +25,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -39,19 +41,44 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class CardTableBlock extends BaseEntityBlock {
 
     public static final MapCodec<CardTableBlock> CODEC = simpleCodec(CardTableBlock::new);
 
+    private static final VoxelShape CENTER = Block.box(0, 10, 0, 16, 13, 16);
+
+    private static final VoxelShape FEET_NORTH_EAST = Block.box(10, 0, 3, 13, 10, 6);
+    private static final VoxelShape FEET_SOUTH_EAST = VoxelShapeUtils.rotate(FEET_NORTH_EAST, Direction.EAST);
+    private static final VoxelShape FEET_SOUTH_WEST = VoxelShapeUtils.rotate(FEET_NORTH_EAST, Direction.SOUTH);
+    private static final VoxelShape FEET_NORTH_WEST = VoxelShapeUtils.rotate(FEET_NORTH_EAST, Direction.WEST);
+
+    private static final VoxelShape CORNER_NORTH_WEST = Stream.of(
+            Block.box(0, 13, 0, 6, 15, 6),
+            Block.box(0, 13, 6, 6, 15, 16),
+            Block.box(6, 13, 0, 16, 15, 6)
+    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+    private static final VoxelShape CORNER_NORTH_EAST = VoxelShapeUtils.rotate(CORNER_NORTH_WEST, Direction.EAST);
+    private static final VoxelShape CORNER_SOUTH_EAST = VoxelShapeUtils.rotate(CORNER_NORTH_WEST, Direction.SOUTH);
+    private static final VoxelShape CORNER_SOUTH_WEST = VoxelShapeUtils.rotate(CORNER_NORTH_WEST, Direction.WEST);
+
+    private static final VoxelShape SIDE_WEST = Block.box(0, 13, 0, 6, 15, 16);
+    private static final VoxelShape SIDE_NORTH = VoxelShapeUtils.rotate(SIDE_WEST, Direction.EAST);
+    private static final VoxelShape SIDE_EAST = VoxelShapeUtils.rotate(SIDE_WEST, Direction.SOUTH);
+    private static final VoxelShape SIDE_SOUTH = VoxelShapeUtils.rotate(SIDE_WEST, Direction.WEST);
+
+    private static final Map<Combination, VoxelShape> SHAPES = new HashMap<>();
     private static final List<Vector2i> VALID_DIMENSIONS = List.of(new Vector2i(3, 3), new Vector2i(4, 3), new Vector2i(5, 3));
     private static final int MAX_SIZE;
 
@@ -66,6 +93,47 @@ public class CardTableBlock extends BaseEntityBlock {
     static {
         Vector2i last = VALID_DIMENSIONS.getLast();
         MAX_SIZE = last.x * last.y;
+
+        for (int i = 0; i < 32; i++) {
+            boolean[] combination = new boolean[5];
+            for (int j = 0; j < 5; j++) {
+                combination[j] = ((i & (1 << j)) != 0);
+            }
+            boolean valid = combination[0];
+            boolean north = combination[1];
+            boolean east = combination[2];
+            boolean south = combination[3];
+            boolean west = combination[4];
+            VoxelShape combinedShape = CENTER;
+            if(!north && !east)
+                combinedShape = Shapes.join(combinedShape, FEET_NORTH_EAST, BooleanOp.OR);
+            if(!south && !east)
+                combinedShape = Shapes.join(combinedShape, FEET_SOUTH_EAST, BooleanOp.OR);
+            if(!south && !west)
+                combinedShape = Shapes.join(combinedShape, FEET_SOUTH_WEST, BooleanOp.OR);
+            if(!north && !west)
+                combinedShape = Shapes.join(combinedShape, FEET_NORTH_WEST, BooleanOp.OR);
+            if(valid) {
+                if(!north && east && south && !west)
+                    combinedShape = Shapes.join(combinedShape, CORNER_NORTH_WEST, BooleanOp.OR);
+                if(!north && !east && south && west)
+                    combinedShape = Shapes.join(combinedShape, CORNER_NORTH_EAST, BooleanOp.OR);
+                if(north && !east && !south && west)
+                    combinedShape = Shapes.join(combinedShape, CORNER_SOUTH_EAST, BooleanOp.OR);
+                if(north && east && !south && !west)
+                    combinedShape = Shapes.join(combinedShape, CORNER_SOUTH_WEST, BooleanOp.OR);
+                if(north && east && south && !west)
+                    combinedShape = Shapes.join(combinedShape, SIDE_WEST, BooleanOp.OR);
+                if(!north && east && south && west)
+                    combinedShape = Shapes.join(combinedShape, SIDE_NORTH, BooleanOp.OR);
+                if(north && !east && south && west)
+                    combinedShape = Shapes.join(combinedShape, SIDE_EAST, BooleanOp.OR);
+                if(north && east && !south && west)
+                    combinedShape = Shapes.join(combinedShape, SIDE_SOUTH, BooleanOp.OR);
+            }
+            SHAPES.put(new Combination(valid, north, east, south, west), combinedShape);
+        }
+
     }
 
     public CardTableBlock(Properties properties) {
@@ -203,6 +271,18 @@ public class CardTableBlock extends BaseEntityBlock {
     }
 
     @Override
+    protected @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+        Combination combination = new Combination(
+            state.getValue(VALID),
+            state.getValue(NORTH),
+            state.getValue(EAST),
+            state.getValue(SOUTH),
+            state.getValue(WEST)
+        );
+        return SHAPES.getOrDefault(combination, Shapes.empty());
+    }
+
+    @Override
     protected @NotNull MapCodec<CardTableBlock> codec() {
         return CODEC;
     }
@@ -293,6 +373,10 @@ public class CardTableBlock extends BaseEntityBlock {
             maxZ = Math.max(maxZ, pos.getZ());
         }
         return maxZ - minZ + 1;
+    }
+
+    private record Combination(boolean valid, boolean north, boolean east, boolean south, boolean west) {
+
     }
 
 }

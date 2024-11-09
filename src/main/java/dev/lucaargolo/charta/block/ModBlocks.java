@@ -23,6 +23,7 @@ public class ModBlocks {
     public static final Map<WoodType, DeferredHolder<Block, CardTableBlock>> CARD_TABLE_MAP = new HashMap<>();
     public static final Map<WoodType, DeferredHolder<Block, GameChairBlock>> GAME_CHAIR_MAP = new HashMap<>();
     public static final Map<WoodType, DeferredHolder<Block, BarStoolBlock>> BAR_STOOL_MAP = new HashMap<>();
+    public static final Map<WoodType, DeferredHolder<Block, BarShelfBlock>> BAR_SHELF_MAP = new HashMap<>();
 
     public static final DeferredHolder<Block, BeerGlassBlock> EMPTY_BEER_GLASS = BLOCKS.register("empty_beer_glass", () -> new BeerGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
     public static final DeferredHolder<Block, BeerGlassBlock> WHEAT_BEER_GLASS = BLOCKS.register("wheat_beer_glass", () -> new BeerGlassBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS)));
@@ -38,15 +39,18 @@ public class ModBlocks {
             if(resourceKey != null) {
                 String woodName = resourceKey.location().withPath(s -> s.replace("_planks", "")).getPath();
                 WoodType.values().filter(t -> t.name().equals(woodName)).findFirst().ifPresent(type -> {
-                    Supplier<CardTableBlock> tableSupplier = () -> new CardTableBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
+                    Supplier<CardTableBlock> tableSupplier = () -> new CardTableBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
                     DeferredHolder<Block, CardTableBlock> tableHolder = BLOCKS.register(woodName + "_card_table", tableSupplier);
                     CARD_TABLE_MAP.put(type, tableHolder);
-                    Supplier<GameChairBlock> chairSupplier = () -> new GameChairBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
+                    Supplier<GameChairBlock> chairSupplier = () -> new GameChairBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
                     DeferredHolder<Block, GameChairBlock> chairHolder = BLOCKS.register(woodName + "_game_chair", chairSupplier);
                     GAME_CHAIR_MAP.put(type, chairHolder);
-                    Supplier<BarStoolBlock> stoolSupplier = () -> new BarStoolBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
+                    Supplier<BarStoolBlock> stoolSupplier = () -> new BarStoolBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
                     DeferredHolder<Block, BarStoolBlock> stoolHolder = BLOCKS.register(woodName + "_bar_stool", stoolSupplier);
                     BAR_STOOL_MAP.put(type, stoolHolder);
+                    Supplier<BarShelfBlock> shelfSupplier = () -> new BarShelfBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
+                    DeferredHolder<Block, BarShelfBlock> shelfHolder = BLOCKS.register(woodName + "_bar_shelf", shelfSupplier);
+                    BAR_SHELF_MAP.put(type, shelfHolder);
                 });
             }
         });
