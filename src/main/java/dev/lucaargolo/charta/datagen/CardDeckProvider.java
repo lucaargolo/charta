@@ -12,9 +12,13 @@ import dev.lucaargolo.charta.game.CardDeck;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.Rarity;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
@@ -23,13 +27,13 @@ import java.util.concurrent.CompletableFuture;
 public class CardDeckProvider implements DataProvider {
 
     private static final List<CardDeck> DECKS = List.of(
-        CardDeck.simple(Charta.id("standard"), Charta.id("black")),
-        CardDeck.simple(Charta.id("standard"), Charta.id("blue")),
-        CardDeck.simple(Charta.id("standard"), Charta.id("green")),
-        CardDeck.simple(Charta.id("standard"), Charta.id("red")),
-        CardDeck.simple(Charta.id("standard"), Charta.id("yellow")),
-        CardDeck.simple(Charta.id("inverted"), Charta.id("inverted")),
-        CardDeck.fun(Charta.id("fun"), Charta.id("fun"))
+        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("black")),
+        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("blue")),
+        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("green")),
+        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("red")),
+        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("yellow")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("inverted"), Charta.id("inverted")),
+        CardDeck.fun(Rarity.UNCOMMON, true, Charta.id("fun"), Charta.id("fun"))
     );
 
     private final PackOutput output;

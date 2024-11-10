@@ -5,7 +5,6 @@ import dev.lucaargolo.charta.block.ModBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -27,16 +26,10 @@ public class ModCreativeTabs {
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> DECKS = CREATIVE_MODE_TABS.register("decks", () -> CreativeModeTab.builder()
             .title(Component.literal("Charta Decks"))
-            .icon(() -> {
-                ItemStack stack = ModItems.DECK.get().getDefaultInstance();
-                stack.set(ModDataComponentTypes.CARD_DECK, new ArrayList<>(Charta.CARD_DECKS.getDecks().keySet()).getFirst());
-                return stack;
-            })
+            .icon(() -> CardDeckItem.getDeck(new ArrayList<>(Charta.CARD_DECKS.getDecks().keySet()).getFirst()))
             .displayItems((parameters, output) -> {
                 Charta.CARD_DECKS.getDecks().forEach((id, deck) -> {
-                    ItemStack stack = ModItems.DECK.get().getDefaultInstance();
-                    stack.set(ModDataComponentTypes.CARD_DECK, id);
-                    output.accept(stack);
+                    output.accept(CardDeckItem.getDeck(id));
                 });
             })
             .build());

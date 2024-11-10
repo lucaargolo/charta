@@ -2,6 +2,8 @@
   "charta.cards": "Cards",
   "charta.crazy_eights": "Crazy Eights",
 
+  "entity.minecraft.villager.charta.dealer": "Dealer",
+
   "block.charta.dealer_table": "Dealer Table",
 
   "block.charta.oak_card_table": "Oak Card Table",

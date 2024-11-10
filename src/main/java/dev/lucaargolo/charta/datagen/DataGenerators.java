@@ -2,7 +2,6 @@ package dev.lucaargolo.charta.datagen;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.block.ModBannerPatterns;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
@@ -14,7 +13,6 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 @EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class DataGenerators {
@@ -24,7 +22,7 @@ public class DataGenerators {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
         ExistingFileHelper exFileHelper = event.getExistingFileHelper();
-        DatapackBuiltinEntriesProvider builtinProvider = new DatapackBuiltinEntriesProvider(output, event.getLookupProvider(), new RegistrySetBuilder().add(Registries.BANNER_PATTERN, ModBannerPatterns::bootstrap), Set.of(Charta.MOD_ID));
+        DatapackBuiltinEntriesProvider builtinProvider = new DatapackBuiltinEntriesProvider(output, event.getLookupProvider(), bootstrapRegistries(), Set.of(Charta.MOD_ID));
         generator.addProvider(true, builtinProvider);
         generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, exFileHelper));
         generator.addProvider(event.includeServer(), new SuitImageProvider(output));
@@ -33,6 +31,11 @@ public class DataGenerators {
         generator.addProvider(event.includeServer(), new CardDeckProvider(output));
         generator.addProvider(event.includeServer(), new ModLootProvider(output, builtinProvider.getRegistryProvider()));
         generator.addProvider(event.includeServer(), new ModBannerPatternTagsProvider(output, builtinProvider.getRegistryProvider(), exFileHelper));
+    }
+
+    public static RegistrySetBuilder bootstrapRegistries() {
+        return new RegistrySetBuilder()
+            .add(Registries.BANNER_PATTERN, ModBannerPatterns::bootstrap);
     }
 
 }

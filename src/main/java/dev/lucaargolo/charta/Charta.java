@@ -1,10 +1,11 @@
 package dev.lucaargolo.charta;
 
 import com.mojang.logging.LogUtils;
-import dev.lucaargolo.charta.block.ModBannerPatterns;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
+import dev.lucaargolo.charta.entity.ModPoiTypes;
+import dev.lucaargolo.charta.entity.ModVillagerProfessions;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.item.ModCreativeTabs;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
@@ -83,6 +84,8 @@ public class Charta {
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntityTypes.register(modEventBus);
+        ModPoiTypes.register(modEventBus);
+        ModVillagerProfessions.register(modEventBus);
         ModBlockEntityTypes.register(modEventBus);
         ModMenus.register(modEventBus);
         ModCreativeTabs.register(modEventBus);

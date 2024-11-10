@@ -10,6 +10,7 @@ import dev.lucaargolo.charta.game.CardDeck;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.world.item.Rarity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +20,7 @@ import java.util.HashMap;
 
 public class CardDeckResource implements ResourceManagerReloadListener {
 
-    private static final CardDeck MISSING = CardDeck.simple(Charta.MISSING_CARD, Charta.MISSING_CARD);
+    private static final CardDeck MISSING = CardDeck.simple(Rarity.COMMON, false, Charta.MISSING_CARD, Charta.MISSING_CARD);
 
     private HashMap<ResourceLocation, CardDeck> decks = new HashMap<>();
 

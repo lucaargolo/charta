@@ -122,7 +122,6 @@ public class ChartaClient {
             event.registerBlockEntityRenderer(ModBlockEntityTypes.BAR_SHELF.get(), BarShelfBlockEntityRenderer::new);
         }
 
-
         @SubscribeEvent
         public static void registerMenuScreens(RegisterMenuScreensEvent event) {
             event.register(ModMenus.CRAZY_EIGHTS.get(), CrazyEightsScreen::new);
