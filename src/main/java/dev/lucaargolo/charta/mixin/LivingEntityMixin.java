@@ -1,10 +1,10 @@
 package dev.lucaargolo.charta.mixin;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.block.CardTableBlock;
 import dev.lucaargolo.charta.block.GameChairBlock;
 import dev.lucaargolo.charta.entity.SeatEntity;
-import dev.lucaargolo.charta.game.*;
+import dev.lucaargolo.charta.game.AutoPlayer;
+import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.utils.CardPlayerHead;
 import dev.lucaargolo.charta.utils.ModEntityDataSerializers;

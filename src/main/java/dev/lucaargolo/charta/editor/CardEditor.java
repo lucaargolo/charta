@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.editor;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.utils.CardImage;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -15,10 +16,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.Queue;
+import java.util.*;
 import java.util.prefs.Preferences;
-import javax.imageio.ImageIO;
 
 public class CardEditor extends JFrame {
 

@@ -2,7 +2,6 @@ package dev.lucaargolo.charta.utils;
 
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
 
 import java.util.List;

@@ -1,13 +1,11 @@
 package dev.lucaargolo.charta.utils;
 
 import dev.lucaargolo.charta.Charta;
-import org.apache.commons.lang3.function.TriFunction;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CardImage {

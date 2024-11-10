@@ -1,7 +1,6 @@
 package dev.lucaargolo.charta.datagen;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import dev.lucaargolo.charta.utils.SuitImage;
 import net.minecraft.data.CachedOutput;

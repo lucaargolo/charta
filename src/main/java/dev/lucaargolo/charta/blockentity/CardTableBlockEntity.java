@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.blockentity;
 
 import dev.lucaargolo.charta.block.CardTableBlock;
-import dev.lucaargolo.charta.block.SeatBlock;
 import dev.lucaargolo.charta.block.GameChairBlock;
+import dev.lucaargolo.charta.block.SeatBlock;
 import dev.lucaargolo.charta.entity.SeatEntity;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;

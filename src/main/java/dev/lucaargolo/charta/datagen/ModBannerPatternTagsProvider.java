@@ -1,7 +1,5 @@
 package dev.lucaargolo.charta.datagen;
 
-import java.util.concurrent.CompletableFuture;
-
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.block.ModBannerPatterns;
 import net.minecraft.core.HolderLookup;
@@ -10,9 +8,10 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.BannerPatternTags;
 import net.minecraft.world.level.block.entity.BannerPattern;
-import net.minecraft.world.level.block.entity.BannerPatterns;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.CompletableFuture;
 
 public class ModBannerPatternTagsProvider extends TagsProvider<BannerPattern> {
 

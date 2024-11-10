@@ -3,8 +3,8 @@ package dev.lucaargolo.charta.client.gui.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.lucaargolo.charta.client.ModRenderType;
 import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.client.ModRenderType;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.HoverableRenderable;
 import dev.lucaargolo.charta.utils.TickableWidget;

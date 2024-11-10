@@ -2,7 +2,6 @@ package dev.lucaargolo.charta.resources;
 
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.SuitImage;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;

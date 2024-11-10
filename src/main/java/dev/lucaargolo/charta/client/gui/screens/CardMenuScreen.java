@@ -2,7 +2,10 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.client.gui.components.CardSlotWidget;
 import dev.lucaargolo.charta.client.gui.components.CardWidget;
-import dev.lucaargolo.charta.game.*;
+import dev.lucaargolo.charta.game.Card;
+import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.CardGame;
+import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;

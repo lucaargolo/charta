@@ -1,7 +1,6 @@
 package dev.lucaargolo.charta.menu;
 
 import dev.lucaargolo.charta.game.*;
-import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;

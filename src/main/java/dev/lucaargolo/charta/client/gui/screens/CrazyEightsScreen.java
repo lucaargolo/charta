@@ -1,9 +1,9 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.client.ChartaClient;
-import dev.lucaargolo.charta.game.*;
+import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.game.CrazyEightsGame;
+import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.CrazyEightsMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;

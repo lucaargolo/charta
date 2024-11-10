@@ -1,7 +1,8 @@
 package dev.lucaargolo.charta.utils;
 
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.function.BiConsumer;
 
 public class SuitImage extends CardImage{

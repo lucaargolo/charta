@@ -1,10 +1,7 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.game.CardDeck;
-import dev.lucaargolo.charta.utils.CardImage;
-import dev.lucaargolo.charta.utils.CardImageUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
