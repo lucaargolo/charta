@@ -12,91 +12,112 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.MobCategory;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class CardDeck {
 
-    public static final StreamCodec<ByteBuf, CardDeck> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.STRING_UTF8,
-        CardDeck::getTranslatableKey,
-        ByteBufCodecs.map(HashMap::new, Suit.STREAM_CODEC, ResourceLocation.STREAM_CODEC),
-        CardDeck::getSuitsLocation,
+    public static final StreamCodec<ByteBuf, CardDeck> STREAM_CODEC = ExpandedStreamCodec.composite(
         ByteBufCodecs.collection(ArrayList::new, Card.STREAM_CODEC),
         CardDeck::getCards,
+        ByteBufCodecs.map(HashMap::new, Suit.STREAM_CODEC, ResourceLocation.STREAM_CODEC),
+        CardDeck::getSuitsLocation,
+        ByteBufCodecs.map(HashMap::new, Suit.STREAM_CODEC, ByteBufCodecs.STRING_UTF8),
+        CardDeck::getSuitsTranslatableKeys,
         ByteBufCodecs.map(HashMap::new, Card.STREAM_CODEC, ResourceLocation.STREAM_CODEC),
         CardDeck::getCardsLocation,
+        ByteBufCodecs.map(HashMap::new, Card.STREAM_CODEC, ByteBufCodecs.STRING_UTF8),
+        CardDeck::getCardsTranslatableKeys,
         ResourceLocation.STREAM_CODEC,
         CardDeck::getDeckLocation,
+        ByteBufCodecs.STRING_UTF8,
+        CardDeck::getDeckTranslatableKey,
         CardDeck::new
     );
 
     public static final Codec<CardDeck> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Codec.STRING.fieldOf("key").forGetter(CardDeck::getTranslatableKey),
-            Codec.simpleMap(Suit.CODEC, ResourceLocation.CODEC, StringRepresentable.keys(Suit.values())).fieldOf("suits").forGetter(CardDeck::getSuitsLocation),
-            Card.CODEC.listOf().fieldOf("deck").forGetter(CardDeck::getCards),
-            Codec.simpleMap(Card.CODEC, ResourceLocation.CODEC, StringRepresentable.keys(Card.values())).fieldOf("images").forGetter(CardDeck::getCardsLocation),
-            ResourceLocation.CODEC.fieldOf("image").forGetter(CardDeck::getDeckLocation)
+            Card.CODEC.listOf().fieldOf("cards").forGetter(CardDeck::getCards),
+            Codec.simpleMap(Suit.CODEC, ResourceLocation.CODEC, StringRepresentable.keys(Suit.values())).fieldOf("suits_images").forGetter(CardDeck::getSuitsLocation),
+            Codec.simpleMap(Suit.CODEC, Codec.STRING, StringRepresentable.keys(Suit.values())).fieldOf("suits_keys").forGetter(CardDeck::getSuitsTranslatableKeys),
+            Codec.simpleMap(Card.CODEC, ResourceLocation.CODEC, StringRepresentable.keys(Card.values())).fieldOf("cards_images").forGetter(CardDeck::getCardsLocation),
+            Codec.simpleMap(Card.CODEC, Codec.STRING, StringRepresentable.keys(Suit.values())).fieldOf("cards_keys").forGetter(CardDeck::getCardsTranslatableKeys),
+            ResourceLocation.CODEC.fieldOf("deck_image").forGetter(CardDeck::getDeckLocation),
+            Codec.STRING.fieldOf("deck_key").forGetter(CardDeck::getDeckTranslatableKey)
         ).apply(instance, CardDeck::new);
     });
 
-    private final String translatableKey;
-    private final Function<Suit, ResourceLocation> suitsLocation;
     private final ImmutableList<Card> cards;
+
+    private final Function<Suit, ResourceLocation> suitsLocation;
+    private final Function<Suit, String> suitsTranslatableKeys;
+
     private final Function<Card, ResourceLocation> cardsLocation;
+    private final Function<Card, String> cardsTranslatableKeys;
+
     private final Supplier<ResourceLocation> deckLocation;
+    private final Supplier<String> deckTranslatableKey;
 
-    private CardDeck(String translatableKey, Map<Suit, ResourceLocation> suitsLocation, List<Card> cards, Map<Card, ResourceLocation> cardsLocation, ResourceLocation deckLocation) {
-        this(translatableKey, suit -> suitsLocation.getOrDefault(suit, Charta.MISSING_SUIT), cards, card -> cardsLocation.getOrDefault(card, Charta.MISSING_CARD), () -> deckLocation);
+    private CardDeck(List<Card> cards, Map<Suit, ResourceLocation> suitsLocation, Map<Suit, String> suitsTranslatableKey, Map<Card, ResourceLocation> cardsLocation, Map<Card, String> cardsTranslatableKey, ResourceLocation deckLocation, String deckTranslatableKey) {
+        this(cards, suit -> suitsLocation.getOrDefault(suit, Charta.MISSING_SUIT), suit -> suitsTranslatableKey.getOrDefault(suit, "charta.suit.unknown"), card -> cardsLocation.getOrDefault(card, Charta.MISSING_CARD), card -> cardsTranslatableKey.getOrDefault(card, "charta.card.unknown"), () -> deckLocation, () -> deckTranslatableKey);
     }
 
-    public CardDeck(String translatableKey, Function<Suit, ResourceLocation> suitsLocation, List<Card> cards, Function<Card, ResourceLocation> cardsLocation, Supplier<ResourceLocation> deckLocation) {
-        this.translatableKey = translatableKey;
-        this.suitsLocation = suitsLocation;
+    public CardDeck(List<Card> cards, Function<Suit, ResourceLocation> suitsLocation, Function<Suit, String> suitsTranslatableKey, Function<Card, ResourceLocation> cardsLocation, Function<Card, String> cardsTranslatableKey, Supplier<ResourceLocation> deckLocation, Supplier<String> deckTranslatableKey) {
         this.cards = ImmutableList.copyOf(cards);
+        this.suitsLocation = suitsLocation;
+        this.suitsTranslatableKeys = suitsTranslatableKey;
         this.cardsLocation = cardsLocation;
+        this.cardsTranslatableKeys = cardsTranslatableKey;
         this.deckLocation = deckLocation;
-    }
-
-    public String getTranslatableKey() {
-        return translatableKey;
+        this.deckTranslatableKey = deckTranslatableKey;
     }
 
     public Component getName() {
-        return Component.translatable(this.translatableKey);
+        return Component.translatable(deckTranslatableKey.get());
     }
 
     public ResourceLocation getSuitTexture(Suit suit) {
         return ChartaClient.getSuitTexture(suitsLocation.apply(suit));
     }
 
-    private Map<Suit, ResourceLocation> getSuitsLocation() {
-        return Maps.asMap(new TreeSet<>(Arrays.asList(Suit.values())), suitsLocation::apply);
-    }
-
-    public ImmutableList<Card> getCards() {
-        return cards;
-    }
-
     public ResourceLocation getCardTexture(Card card) {
         return ChartaClient.getCardTexture(cardsLocation.apply(card));
-    }
-
-    public ResourceLocation getDeckLocation() {
-        return deckLocation.get();
     }
 
     public ResourceLocation getDeckTexture() {
         return ChartaClient.getDeckTexture(deckLocation.get());
     }
 
+    //CODEC Getters
+
+    public ImmutableList<Card> getCards() {
+        return cards;
+    }
+
+    private Map<Suit, ResourceLocation> getSuitsLocation() {
+        return Maps.asMap(new TreeSet<>(Arrays.asList(Suit.values())), suitsLocation::apply);
+    }
+
+    private Map<Suit, String> getSuitsTranslatableKeys() {
+        return Maps.asMap(new TreeSet<>(Arrays.asList(Suit.values())), suitsTranslatableKeys::apply);
+    }
+
     private Map<Card, ResourceLocation> getCardsLocation() {
         return Maps.asMap(new TreeSet<>(Arrays.asList(Card.values())), cardsLocation::apply);
+    }
+
+    private Map<Card, String> getCardsTranslatableKeys() {
+        return Maps.asMap(new TreeSet<>(Arrays.asList(Card.values())), cardsTranslatableKeys::apply);
+    }
+
+    public ResourceLocation getDeckLocation() {
+        return deckLocation.get();
+    }
+
+    public String getDeckTranslatableKey() {
+        return deckTranslatableKey.get();
     }
 
     @Override
@@ -105,7 +126,7 @@ public class CardDeck {
         if (o == null || getClass() != o.getClass()) return false;
         CardDeck cardDeck = (CardDeck) o;
 
-        if (!Objects.equals(translatableKey, cardDeck.translatableKey)) return false;
+        if (!Objects.equals(deckTranslatableKey, cardDeck.deckTranslatableKey)) return false;
         if (!cards.equals(cardDeck.cards)) return false;
 
         for (Card card : cards) {
@@ -119,7 +140,7 @@ public class CardDeck {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(translatableKey, cards, deckLocation.get());
+        int result = Objects.hash(deckTranslatableKey, cards, deckLocation.get());
 
         for (Card card : cards) {
             result = 31 * result + Objects.hashCode(cardsLocation.apply(card));
@@ -143,11 +164,16 @@ public class CardDeck {
         if(!cardLocation.getPath().equals(deckLocation.getPath())) {
             translatableKey +=  "_" + deckLocation.getPath();
         }
-        return new CardDeck(translatableKey, (suit) -> {
+        String deckTranslatableKey = translatableKey;
+        return new CardDeck(deck, (suit) -> {
             return cardLocation.withSuffix("/" + suit.ordinal());
-        }, deck, (card) -> {
+        }, (suit) -> {
+            return "charta.suit."+(suit == Suit.BLANK ? "unknown" : suit.getSerializedName());
+        }, (card) -> {
             return cardLocation.withSuffix( "/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal());
-        }, () -> deckLocation);
+        }, (card) -> {
+            return "charta.card."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getRank().getSerializedName()+"."+card.getSuit().getSerializedName());
+        }, () -> deckLocation, () -> deckTranslatableKey);
     }
 
     public static CardDeck fun(ResourceLocation cardLocation, ResourceLocation deckLocation) {
@@ -166,11 +192,45 @@ public class CardDeck {
         if(!cardLocation.getPath().equals(deckLocation.getPath())) {
             translatableKey +=  "_" + deckLocation.getPath();
         }
-        return new CardDeck(translatableKey, (suit) -> {
+        String deckTranslatableKey = translatableKey;
+        return new CardDeck(deck, (suit) -> {
             return cardLocation.withSuffix("/" + suit.ordinal());
-        }, deck, (card) -> {
-            return cardLocation.withSuffix("/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal());
-        }, () -> deckLocation);
+        }, (suit) -> {
+            return "charta.suit."+getFunSuit(suit);
+        }, (card) -> {
+            return cardLocation.withSuffix( "/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal());
+        }, (card) -> {
+            return "charta.card."+getFunCardKey(card);
+        }, () -> deckLocation, () -> deckTranslatableKey);
+    }
+
+    private static String getFunSuit(Suit suit) {
+        return switch (suit) {
+            case SPADES -> "red";
+            case HEARTS -> "yellow";
+            case CLUBS -> "green";
+            case DIAMONDS -> "blue";
+            default -> "unknown";
+        };
+    }
+
+    private static String getFunCardKey(Card card) {
+        if(card.getSuit() == Suit.BLANK) {
+            return "unknown";
+        }
+        String rank = switch (card.getRank()) {
+            case BLANK -> "wild";
+            case TEN -> "zero";
+            case JACK -> "block";
+            case QUEEN -> "reverse";
+            case KING -> "plus_two";
+            case JOKER -> "wild_plus_four";
+            default -> card.getRank().getSerializedName();
+        };
+        return switch (card.getRank()) {
+            case BLANK, JOKER -> rank;
+            default -> getFunSuit(card.getSuit())+"."+rank;
+        };
     }
 
 }

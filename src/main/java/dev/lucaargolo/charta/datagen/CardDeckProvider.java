@@ -8,28 +8,17 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardDeck;
-import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-import javax.imageio.ImageIO;
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 
 public class CardDeckProvider implements DataProvider {
 
@@ -58,7 +47,7 @@ public class CardDeckProvider implements DataProvider {
             Path outputPath = this.output.getOutputFolder();
             String decksOutputPath = outputPath + File.separator + "data" + File.separator + Charta.MOD_ID + File.separator + "decks";
             DECKS.forEach(deck -> {
-                String key = deck.getTranslatableKey();
+                String key = deck.getDeckTranslatableKey();
                 String path = key.replace("deck." + Charta.MOD_ID + "." , "").replace(".", File.separator) + ".json";
                 Path fullPath = Path.of(decksOutputPath, path);
                 ByteArrayOutputStream outStream = new ByteArrayOutputStream();
