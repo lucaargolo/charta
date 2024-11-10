@@ -23,7 +23,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
     private CardSlotWidget<G> hoverable = null;
 
     public CardSlotWidget(CardMenuScreen<G, ?> parent, CardSlot<G> slot) {
-        super(parent, null, slot.x, slot.y, slot.isSmall() ? 0.333f : 1f);
+        super(parent, null, null, slot.x, slot.y, slot.isSmall() ? 0.333f : 1f);
         this.parent = parent;
         this.cardSlot = slot;
     }
@@ -115,13 +115,19 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
     }
 
     @Override
-    public ResourceLocation getCardTexture(ResourceLocation cardId) {
+    public @NotNull ResourceLocation getCardTexture(@NotNull ResourceLocation cardId) {
         Card card = cardSlot.getCards().getLast();
         if(card.isFlipped()) {
             return parent.getDeck().getDeckTexture();
         }else{
             return parent.getDeck().getCardTexture(card);
         }
+    }
+
+    @Override
+    public String getCardTranslatableKey() {
+        Card card = cardSlot.getCards().getLast();
+        return parent.getDeck().getCardTranslatableKey(card);
     }
 
     @Override

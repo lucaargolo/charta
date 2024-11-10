@@ -1,4 +1,4 @@
-package dev.lucaargolo.charta.game;
+package dev.lucaargolo.charta.utils;
 
 import com.mojang.datafixers.util.Function7;
 import net.minecraft.network.codec.StreamCodec;

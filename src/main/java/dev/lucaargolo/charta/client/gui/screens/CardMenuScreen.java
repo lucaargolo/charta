@@ -206,6 +206,11 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
         guiGraphics.pose().popPose();
     }
 
+    @Override
+    public void scheduleTooltip(Component component) {
+        setTooltipForNextRenderPass(component);
+    }
+
     public boolean isHoveredCardSlot(CardSlot<G> slot) {
         return this.hoveredCardSlot == slot;
     }

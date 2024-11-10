@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.utils.ExpandedStreamCodec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -82,8 +83,16 @@ public class CardDeck {
         return ChartaClient.getSuitTexture(suitsLocation.apply(suit));
     }
 
+    public String getSuitTranslatableKey(Suit suit) {
+        return suitsTranslatableKeys.apply(suit);
+    }
+
     public ResourceLocation getCardTexture(Card card) {
         return ChartaClient.getCardTexture(cardsLocation.apply(card));
+    }
+
+    public String getCardTranslatableKey(Card card) {
+        return cardsTranslatableKeys.apply(card);
     }
 
     public ResourceLocation getDeckTexture() {
@@ -168,11 +177,11 @@ public class CardDeck {
         return new CardDeck(deck, (suit) -> {
             return cardLocation.withSuffix("/" + suit.ordinal());
         }, (suit) -> {
-            return "charta.suit."+(suit == Suit.BLANK ? "unknown" : suit.getSerializedName());
+            return "suit.charta."+(suit == Suit.BLANK ? "unknown" : suit.getSerializedName());
         }, (card) -> {
             return cardLocation.withSuffix( "/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal());
         }, (card) -> {
-            return "charta.card."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getRank().getSerializedName()+"."+card.getSuit().getSerializedName());
+            return card.getRank() == Rank.BLANK ? "suit.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getSuit().getSerializedName()) : "card.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getRank().getSerializedName()+"."+card.getSuit().getSerializedName());
         }, () -> deckLocation, () -> deckTranslatableKey);
     }
 
@@ -196,11 +205,11 @@ public class CardDeck {
         return new CardDeck(deck, (suit) -> {
             return cardLocation.withSuffix("/" + suit.ordinal());
         }, (suit) -> {
-            return "charta.suit."+getFunSuit(suit);
+            return "suit.charta."+getFunSuit(suit);
         }, (card) -> {
             return cardLocation.withSuffix( "/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal());
         }, (card) -> {
-            return "charta.card."+getFunCardKey(card);
+            return "card.charta."+getFunCardKey(card);
         }, () -> deckLocation, () -> deckTranslatableKey);
     }
 

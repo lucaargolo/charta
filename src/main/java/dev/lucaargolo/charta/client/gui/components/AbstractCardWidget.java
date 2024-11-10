@@ -22,7 +22,10 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
 
     @Nullable
     private final HoverableRenderable parent;
+    @Nullable
     private final ResourceLocation cardId;
+    @Nullable
+    private final String cardTranslatableKey;
 
     private float lastInset = 0f;
     private float inset = 0f;
@@ -33,14 +36,19 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
     private float lastYRot = 0f;
     private float yRot = 0f;
 
-    public AbstractCardWidget(@Nullable HoverableRenderable parent, ResourceLocation cardId, float x, float y, float scale) {
+    public AbstractCardWidget(@Nullable HoverableRenderable parent, @Nullable ResourceLocation cardId, @Nullable String cardTranslatableKey, float x, float y, float scale) {
         super(x, y, CardImage.WIDTH * 1.5f * scale, CardImage.HEIGHT * 1.5f * scale, Component.empty());
         this.parent = parent;
         this.cardId = cardId;
+        this.cardTranslatableKey = cardTranslatableKey;
     }
 
     @Override
     protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        if(isHovered && this.getCardTranslatableKey() != null) {
+            scheduleTooltip(Component.translatable(this.getCardTranslatableKey()));
+        }
+
         float inset = Mth.lerp(partialTick, this.lastInset, this.inset);
         float fov = Mth.lerp(partialTick, this.lastFov, this.fov);
         float xRot = Mth.lerp(partialTick, this.lastXRot, this.xRot);
@@ -94,11 +102,23 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
     }
 
     @Override
+    public void scheduleTooltip(Component component) {
+        if(parent != null)
+            parent.scheduleTooltip(component);
+    }
+
+    @Override
     public boolean isHovered() {
         return parent != null && parent.getHoverable() == this;
     }
 
-    public abstract ResourceLocation getCardTexture(ResourceLocation cardId);
+    @NotNull
+    public abstract ResourceLocation getCardTexture(@NotNull ResourceLocation cardId);
+
+    @Nullable
+    public String getCardTranslatableKey() {
+        return cardTranslatableKey;
+    }
 
     @Override
     protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
