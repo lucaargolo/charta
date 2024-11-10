@@ -40,16 +40,20 @@ public class Charta {
 
     /*
     TODO:
-        Modfest Goals:
+        Release Goals:
+            - Add deck visualization screen (Right click on deck and you can see all cards)
             - Implement game visualization on table block entity renderer
-            - Make villagers able to randomly starts game
+            - Improve game screen (sound effects and if possible animate plays) (hovered cards)
             - Make game bar structure that can spawn in villages
-            - Make card seller that sells regular card decks
+            - Make dealer villager and nitpick villagers spawn in bar
+            - Make nitpick villagers able to randomly starts game
             - Make some custom card decks spawn in dungeons
+            - Add recipes for furniture
+            - Remove all Component.literals D:
             - Add other card games:
                 - Solitaire
                 - ?
-        Other Goals:
+        Future Goals:
             - Add card painter so players can make new cards on the go. (They'll be stored in a PersistentData instead of the datapack)
             - Add other games
                 - Add domino
