@@ -59,9 +59,6 @@ public class Charta {
             - Add deck visualization screen (Right click on deck and you can see all cards)
             - Implement game visualization on table block entity renderer
             - Improve game screen (sound effects and if possible animate plays) (hovered cards)
-            - Make game bar structure that can spawn in villages
-            - Make dealer villager and nitpick villagers spawn in bar
-            - Make nitpick villagers able to randomly starts game
             - Make some custom card decks spawn in dungeons
             - Add recipes for furniture
             - Remove all Component.literals D:
@@ -147,6 +144,18 @@ public class Charta {
             addBuildingToPool(templatePoolRegistry, processorListRegistry,
                     ResourceLocation.tryParse("minecraft:village/plains/houses"),
                     "charta:plains_card_bar", 50);
+
+            addBuildingToPool(templatePoolRegistry, processorListRegistry,
+                    ResourceLocation.tryParse("minecraft:village/desert/houses"),
+                    "charta:desert_card_bar", 50);
+
+            addBuildingToPool(templatePoolRegistry, processorListRegistry,
+                    ResourceLocation.tryParse("minecraft:village/taiga/houses"),
+                    "charta:taiga_card_bar", 50);
+
+            addBuildingToPool(templatePoolRegistry, processorListRegistry,
+                    ResourceLocation.tryParse("minecraft:village/savanna/houses"),
+                    "charta:savanna_card_bar", 50);
         }
 
         @SubscribeEvent
