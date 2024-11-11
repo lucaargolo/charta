@@ -5,10 +5,8 @@ import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.CardSlot;
-import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.HoverableRenderable;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class DeckScreen extends Screen implements HoverableRenderable {
+public class DeckScreen extends CardScreen implements HoverableRenderable {
 
     private final CardDeck deck;
     private final Set<Suit> suits;
@@ -82,7 +80,6 @@ public class DeckScreen extends Screen implements HoverableRenderable {
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.drawCenteredString(font, title, width/2, 20, 0xFFFFFFFF);
         int i = 0;
         int totalWidth = suits.size()*16 - 3;
         for(Suit suit : suits) {
@@ -97,11 +94,5 @@ public class DeckScreen extends Screen implements HoverableRenderable {
     public void scheduleTooltip(Component component) {
         this.setTooltipForNextRenderPass(component);
     }
-
-    @Override
-    public boolean isPauseScreen() {
-        return false;
-    }
-
 
 }
