@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
@@ -16,10 +17,20 @@ import dev.lucaargolo.charta.resources.CardDeckResource;
 import dev.lucaargolo.charta.resources.CardImageResource;
 import dev.lucaargolo.charta.resources.CardSuitResource;
 import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -28,15 +39,19 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mod(Charta.MOD_ID)
 public class Charta {
+
+    private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, ResourceLocation.withDefaultNamespace( "empty"));
 
     /*
     TODO:
@@ -123,7 +138,19 @@ public class Charta {
     public static class GameEvents {
 
         @SubscribeEvent
-        public static void addReloadListeners(AddReloadListenerEvent event) {
+        public static void serverAboutToStart(final ServerAboutToStartEvent event) {
+            MinecraftServer server = event.getServer();
+            RegistryAccess registryAccess = server.registryAccess();
+            Registry<StructureTemplatePool> templatePoolRegistry = registryAccess.registry(Registries.TEMPLATE_POOL).orElseThrow();
+            Registry<StructureProcessorList> processorListRegistry = registryAccess.registry(Registries.PROCESSOR_LIST).orElseThrow();
+
+            addBuildingToPool(templatePoolRegistry, processorListRegistry,
+                    ResourceLocation.tryParse("minecraft:village/plains/houses"),
+                    "charta:plains_card_bar", 50);
+        }
+
+        @SubscribeEvent
+        public static void addReloadListeners(final AddReloadListenerEvent event) {
             event.addListener(CARD_SUITS);
             event.addListener(CARD_IMAGES);
             event.addListener(DECK_IMAGES);
@@ -131,7 +158,7 @@ public class Charta {
         }
 
         @SubscribeEvent
-        public static void onPlayerJoined(PlayerEvent.PlayerLoggedInEvent event) {
+        public static void onPlayerJoined(final PlayerEvent.PlayerLoggedInEvent event) {
             Player player = event.getEntity();
             if(player instanceof ServerPlayer serverPlayer) {
                 PacketDistributor.sendToPlayer(serverPlayer, new ImagesPayload(Charta.CARD_SUITS.getImages(), Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
@@ -140,11 +167,26 @@ public class Charta {
         }
 
         @SubscribeEvent
-        public static void onDatapackReload(OnDatapackSyncEvent event) {
+        public static void onDatapackReload(final OnDatapackSyncEvent event) {
             PacketDistributor.sendToAllPlayers(new ImagesPayload(Charta.CARD_SUITS.getImages(), Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
             PacketDistributor.sendToAllPlayers(new CardDecksPayload(Charta.CARD_DECKS.getDecks()));
         }
 
+    }
+
+    private static void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry, Registry<StructureProcessorList> processorListRegistry, ResourceLocation poolRL, String nbtPieceRL, int weight) {
+        Holder<StructureProcessorList> emptyProcessorList = processorListRegistry.getHolderOrThrow(EMPTY_PROCESSOR_LIST_KEY);
+        StructureTemplatePool pool = templatePoolRegistry.get(poolRL);
+        if (pool == null) return;
+
+        SinglePoolElement piece = SinglePoolElement.legacy(nbtPieceRL, emptyProcessorList).apply(StructureTemplatePool.Projection.RIGID);
+        for (int i = 0; i < weight; i++) {
+            pool.templates.add(piece);
+        }
+
+        List<Pair<StructurePoolElement, Integer>> listOfPieceEntries = new ArrayList<>(pool.rawTemplates);
+        listOfPieceEntries.add(new Pair<>(piece, weight));
+        pool.rawTemplates = listOfPieceEntries;
     }
 
 }

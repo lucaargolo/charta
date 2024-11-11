@@ -28,10 +28,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.WoolCarpetBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -239,10 +236,16 @@ public class CardTableBlock extends BaseEntityBlock {
 
     @Override
     protected void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
-        if(!state.is(newState.getBlock()) && state.getValue(CLOTH)) {
-            Vec3 c = pos.getCenter();
-            ItemStack carpetStack = DyeColorHelper.getCarpet(state.getValue(COLOR)).asItem().getDefaultInstance();
-            Containers.dropItemStack(level, c.x, c.y, c.z, carpetStack);
+        if(!state.is(newState.getBlock())) {
+            if(state.getValue(CLOTH)) {
+                Vec3 c = pos.getCenter();
+                ItemStack carpetStack = DyeColorHelper.getCarpet(state.getValue(COLOR)).asItem().getDefaultInstance();
+                Containers.dropItemStack(level, c.x, c.y, c.z, carpetStack);
+            }
+            level.getBlockEntity(pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(entity -> {
+                Vec3 c = pos.getCenter();
+                Containers.dropItemStack(level, c.x, c.y, c.z, entity.getDeckStack());
+            });
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
@@ -258,6 +261,65 @@ public class CardTableBlock extends BaseEntityBlock {
             default -> super.updateShape(state, direction, neighborState, level, pos, neighborPos).setValue(VALID, valid);
         };
         return neighborState.is(this) ? state.setValue(CLOTH, neighborState.getValue(CLOTH)) : valid ? state : state.setValue(CLOTH, false);
+    }
+
+    @Override
+    protected @NotNull BlockState rotate(BlockState state, @NotNull Rotation rot) {
+        boolean north = state.getValue(NORTH);
+        boolean east = state.getValue(EAST);
+        boolean south = state.getValue(SOUTH);
+        boolean west = state.getValue(WEST);
+        state = state.setValue(NORTH, false);
+        state = state.setValue(EAST, false);
+        state = state.setValue(SOUTH, false);
+        state = state.setValue(WEST, false);
+        if(north) {
+            switch (rot.rotate(Direction.NORTH)) {
+                case NORTH -> state = state.setValue(NORTH, true);
+                case EAST -> state = state.setValue(EAST, true);
+                case SOUTH -> state = state.setValue(SOUTH, true);
+                case WEST -> state = state.setValue(WEST, true);
+            }
+        }
+        if(east) {
+            switch (rot.rotate(Direction.EAST)) {
+                case NORTH -> state = state.setValue(NORTH, true);
+                case EAST -> state = state.setValue(EAST, true);
+                case SOUTH -> state = state.setValue(SOUTH, true);
+                case WEST -> state = state.setValue(WEST, true);
+            }
+        }
+        if(south) {
+            switch (rot.rotate(Direction.SOUTH)) {
+                case NORTH -> state = state.setValue(NORTH, true);
+                case EAST -> state = state.setValue(EAST, true);
+                case SOUTH -> state = state.setValue(SOUTH, true);
+                case WEST -> state = state.setValue(WEST, true);
+            }
+        }
+        if(west) {
+            switch (rot.rotate(Direction.WEST)) {
+                case NORTH -> state = state.setValue(NORTH, true);
+                case EAST -> state = state.setValue(EAST, true);
+                case SOUTH -> state = state.setValue(SOUTH, true);
+                case WEST -> state = state.setValue(WEST, true);
+            }
+        }
+        return state;
+    }
+
+    @Override
+    protected @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
+        if(mirror == Mirror.FRONT_BACK) {
+            boolean east = state.getValue(EAST);
+            boolean west = state.getValue(WEST);
+            state = state.setValue(EAST, west).setValue(WEST, east);
+        }else if(mirror == Mirror.LEFT_RIGHT) {
+            boolean north = state.getValue(NORTH);
+            boolean south = state.getValue(SOUTH);
+            state = state.setValue(NORTH, south).setValue(SOUTH, north);
+        }
+        return state;
     }
 
     @Override
