@@ -113,7 +113,7 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
     }
 
     @NotNull
-    public abstract ResourceLocation getCardTexture(@NotNull ResourceLocation cardId);
+    public abstract ResourceLocation getCardTexture(@Nullable ResourceLocation cardId);
 
     @Nullable
     public String getCardTranslatableKey() {

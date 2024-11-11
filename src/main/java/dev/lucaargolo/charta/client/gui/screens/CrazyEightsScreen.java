@@ -31,7 +31,7 @@ public class CrazyEightsScreen extends CardMenuScreen<CrazyEightsGame, CrazyEigh
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         Component text;
         Suit suit = menu.getCurrentSuit();
-        text = Component.literal("Suit");
+        text = Component.translatable("charta.suit");
         guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 40, 0xFFFFFFFF);
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(imageWidth/2f - 10f, 50f, 0f);
@@ -43,12 +43,12 @@ public class CrazyEightsScreen extends CardMenuScreen<CrazyEightsGame, CrazyEigh
         CardPlayer player = menu.getCurrentPlayer();
         DyeColor color = player.getColor();
         if(menu.isCurrentPlayer()) {
-            text = Component.literal("It's your turn!").withStyle(s -> s.withColor(color.getTextureDiffuseColor()));
+            text = Component.translatable("charta.message.your_turn").withStyle(s -> s.withColor(color.getTextureDiffuseColor()));
         }else{
-            text = Component.literal("It's ").append(player.getName()).append("'s turn").withStyle(s -> s.withColor(color.getTextureDiffuseColor()));;
+            text = Component.translatable("charta.message.other_turn", player.getName()).withStyle(s -> s.withColor(color.getTextureDiffuseColor()));;
         }
         guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 105, 0xFFFFFFFF);
-        text = Component.literal("Draws left: "+menu.getDrawsLeft());
+        text = Component.translatable("charta.message.draws_left", menu.getDrawsLeft());
         guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 115, 0xFFFFFFFF);
 
     }

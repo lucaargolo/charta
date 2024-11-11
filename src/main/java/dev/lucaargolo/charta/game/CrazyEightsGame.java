@@ -224,13 +224,14 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     @Override
     public void endGame() {
         if(currentPlayer.getHand().isEmpty()) {
-            currentPlayer.sendTitle(Component.literal("You won!").withStyle(ChatFormatting.GREEN), Component.literal("Congratulations!"));
+            currentPlayer.sendTitle(Component.translatable("charta.message.you_won").withStyle(ChatFormatting.GREEN), Component.translatable("charta.message.congratulations"));
             getPlayers().stream().filter(player -> player != currentPlayer).forEach(player -> {
-                player.sendTitle(Component.literal("You lost!").withStyle(ChatFormatting.RED), currentPlayer.getName().copy().append(" won the match."));
+                player.sendTitle(Component.translatable("charta.message.you_lost").withStyle(ChatFormatting.RED), Component.translatable("charta.message.won_the_match",currentPlayer.getName()));
             });
         }else{
             getPlayers().forEach(player -> {
-                player.sendMessage(Component.literal("<Charta> Crazy Eights match was unable to continue, either from lack of players or lack of cards."));
+                currentPlayer.sendTitle(Component.translatable("charta.message.draw").withStyle(ChatFormatting.YELLOW), Component.translatable("charta.message.no_winner"));
+                player.sendMessage(Component.translatable("charta.message.match_unable").withStyle(ChatFormatting.GOLD));
             });
         }
         isGameOver = true;

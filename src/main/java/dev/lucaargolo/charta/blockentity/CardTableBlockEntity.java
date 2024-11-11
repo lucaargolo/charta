@@ -115,30 +115,30 @@ public class CardTableBlockEntity extends BlockEntity {
                                 this.game.startGame();
                                 this.game.runGame();
                                 this.getPlayers().forEach(player -> player.openScreen(this.game, this.worldPosition, deck));
-                                return Component.literal("Game successfully started").withStyle(ChatFormatting.GREEN);
+                                return Component.translatable("charta.message.game_started").withStyle(ChatFormatting.GREEN);
                             } else {
                                 this.game = null;
-                                return Component.literal("You need at most " + game.getMaxPlayers() + " players to play this game").withStyle(ChatFormatting.RED);
+                                return Component.translatable("charta.message.need_at_most", game.getMaxPlayers()).withStyle(ChatFormatting.RED);
                             }
                         } else {
                             this.game = null;
-                            return Component.literal("You need at least " + game.getMinPlayers() + " players to play this game").withStyle(ChatFormatting.RED);
+                            return Component.translatable("charta.message.need_at_least", game.getMinPlayers()).withStyle(ChatFormatting.RED);
                         }
                     }else{
                         this.game = null;
-                        return Component.literal("You can't play this game with this deck.").withStyle(ChatFormatting.RED);
+                        return Component.translatable("charta.message.cant_play_deck").withStyle(ChatFormatting.RED);
                     }
                 }else{
                     this.game = null;
-                    return Component.literal("Table received an unknown game id.").withStyle(ChatFormatting.RED);
+                    return Component.translatable("charta.message.table_unknown_game").withStyle(ChatFormatting.RED);
                 }
             }else{
                 this.game = null;
-                return Component.literal("Table received no game id.").withStyle(ChatFormatting.RED);
+                return Component.translatable("charta.message.table_no_game").withStyle(ChatFormatting.RED);
             }
         }else{
             this.game = null;
-            return Component.literal("You need a deck to be able to play games.").withStyle(ChatFormatting.RED);
+            return Component.translatable("charta.message.table_no_deck").withStyle(ChatFormatting.RED);
         }
 
     }

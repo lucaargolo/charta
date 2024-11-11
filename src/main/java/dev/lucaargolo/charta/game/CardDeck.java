@@ -200,7 +200,7 @@ public class CardDeck {
         }, (card) -> {
             return cardLocation.withSuffix( "/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal());
         }, (card) -> {
-            return card.getRank() == Rank.BLANK ? "suit.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getSuit().getSerializedName()) : "card.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getRank().getSerializedName()+"."+card.getSuit().getSerializedName());
+            return card.getRank() == Rank.BLANK ? "suit.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getSuit().getSerializedName()) : "card.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getSuit().getSerializedName()+"."+card.getRank().getSerializedName());
         }, () -> deckLocation, () -> deckTranslatableKey);
     }
 
@@ -248,6 +248,7 @@ public class CardDeck {
         }
         String rank = switch (card.getRank()) {
             case BLANK -> "wild";
+            case ACE -> "one";
             case TEN -> "zero";
             case JACK -> "block";
             case QUEEN -> "reverse";

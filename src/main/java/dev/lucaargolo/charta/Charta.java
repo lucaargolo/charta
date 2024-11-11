@@ -56,12 +56,10 @@ public class Charta {
     /*
     TODO:
         Release Goals:
-            - Add deck visualization screen (Right click on deck and you can see all cards)
             - Implement game visualization on table block entity renderer
             - Improve game screen (sound effects and if possible animate plays) (hovered cards)
             - Make some custom card decks spawn in dungeons
             - Add recipes for furniture
-            - Remove all Component.literals D:
             - Add other card games:
                 - Solitaire
                 - ?

@@ -73,7 +73,7 @@ public class GameChairBlock extends BarStoolBlock {
             return InteractionResult.SUCCESS;
         }else if (!state.getValue(CLOTH)) {
             if(!level.isClientSide()) {
-                player.displayClientMessage(Component.literal("You need to put a cloth on this chair.").withStyle(ChatFormatting.RED), true);
+                player.displayClientMessage(Component.translatable("charta.message.put_chair_cloth").withStyle(ChatFormatting.RED), true);
             }
             return InteractionResult.FAIL;
         }else{

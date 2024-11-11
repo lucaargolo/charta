@@ -72,7 +72,7 @@ public class BarShelfBlockEntity extends RandomizableContainerBlockEntity implem
 
     @Override
     protected @NotNull Component getDefaultName() {
-        return Component.literal("Bar Shelf");
+        return getBlockState().getBlock().getName();
     }
 
     @Override

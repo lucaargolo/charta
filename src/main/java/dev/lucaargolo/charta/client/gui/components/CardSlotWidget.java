@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,7 +116,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
     }
 
     @Override
-    public @NotNull ResourceLocation getCardTexture(@NotNull ResourceLocation cardId) {
+    public @NotNull ResourceLocation getCardTexture(@Nullable ResourceLocation cardId) {
         Card card = cardSlot.getCards().getLast();
         if(card.isFlipped()) {
             return parent.getDeck().getDeckTexture();

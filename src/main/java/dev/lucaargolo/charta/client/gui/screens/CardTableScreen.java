@@ -32,7 +32,7 @@ public class CardTableScreen extends Screen {
     protected void init() {
         super.init();
         AtomicInteger counter = new AtomicInteger();
-        this.addRenderableWidget(new StringWidget(width/2 - 80, height/2 - 100, 160, 20, Component.literal("Please choose a game to play: "), font));
+        this.addRenderableWidget(new StringWidget(width/2 - 80, height/2 - 100, 160, 20, Component.translatable("charta.message.choose_game"), font));
         CardGames.getGames().forEach((gameId, gameFactory) -> {
             CardGame<?> game = gameFactory.create(List.of(), deck);
             boolean invalidDeck = !CardGame.canPlayGame(game, deck);
@@ -46,11 +46,11 @@ public class CardTableScreen extends Screen {
             widget.active = !(invalidDeck || notEnoughPlayers || tooManyPlayers);
             Tooltip tooltip;
             if(invalidDeck) {
-                tooltip = Tooltip.create(Component.literal("You can't play this game using this deck. Try finding another one."));
+                tooltip = Tooltip.create(Component.translatable("charta.message.cant_play_deck").append(" ").append(Component.translatable("charta.message.try_finding_another")));
             }else if(notEnoughPlayers) {
-                tooltip = Tooltip.create(Component.literal("There are not enough players for this game. (Minimum of "+game.getMinPlayers()+")"));
+                tooltip = Tooltip.create(Component.translatable("charta.message.not_enough_players", game.getMinPlayers()));
             }else if(tooManyPlayers) {
-                tooltip = Tooltip.create(Component.literal("There are too many players for this game. (Maximum of"+game.getMaxPlayers()+")"));
+                tooltip = Tooltip.create(Component.translatable("charta.message.too_many_players", game.getMaxPlayers()));
             }else{
                 tooltip = null;
             }
