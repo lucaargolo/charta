@@ -59,7 +59,6 @@ public class Charta {
             - Implement game visualization on table block entity renderer
             - Improve game screen (sound effects and if possible animate plays) (hovered cards)
             - Make some custom card decks spawn in dungeons
-            - Add recipes for furniture
             - Add other card games:
                 - Solitaire
                 - ?

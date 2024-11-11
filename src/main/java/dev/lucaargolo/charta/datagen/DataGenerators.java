@@ -31,6 +31,8 @@ public class DataGenerators {
         generator.addProvider(event.includeServer(), new CardDeckProvider(output));
         generator.addProvider(event.includeServer(), new ModLootProvider(output, builtinProvider.getRegistryProvider()));
         generator.addProvider(event.includeServer(), new ModBannerPatternTagsProvider(output, builtinProvider.getRegistryProvider(), exFileHelper));
+        generator.addProvider(event.includeServer(), new ModBlockTagsProvider(output, builtinProvider.getRegistryProvider(), exFileHelper));
+        generator.addProvider(event.includeServer(), new ModRecipeProvider(output, builtinProvider.getRegistryProvider()));
     }
 
     public static RegistrySetBuilder bootstrapRegistries() {

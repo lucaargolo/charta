@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": {
+      "item": "minecraft:dark_oak_log"
+    },
+    "S": {
+      "item": "minecraft:dark_oak_slab"
+    }
+  },
+  "pattern": [
+    "SLS",
+    "SLS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "charta:dark_oak_bar_shelf"
+  }
+}
