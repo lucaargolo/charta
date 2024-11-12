@@ -29,6 +29,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -39,6 +40,8 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.util.*;
 
@@ -52,6 +55,7 @@ public class CardTableBlockEntity extends BlockEntity {
     private final Set<Integer> dirtySlotPositions = new HashSet<>();
 
     private ItemStack deckStack = ItemStack.EMPTY;
+    public Vector2f centerOffset = new Vector2f();
 
     @Nullable
     private CardGame<?> game = null;
@@ -89,17 +93,17 @@ public class CardTableBlockEntity extends BlockEntity {
                                 this.game.runGame();
                                 int index = 0;
                                 for(GameSlot slot : this.game.getGameSlots()) {
+                                    slot.setX(slot.getX() + centerOffset.x * 160f);
+                                    slot.setY(slot.getY() + centerOffset.y * 160f);
                                     slot.setup(this, index++);
                                     addGameSlot(slot);
                                 }
                                 for(CardPlayer player : players) {
-                                    BlockPos position = player.getPosition();
-                                    if(position != null) {
-                                        BlockPos offset = position.atY(0).offset(-worldPosition.getX(), 0, -worldPosition.getZ());
-                                        Direction direction = Direction.fromDelta(offset.getX(), offset.getY(), offset.getZ());
-                                        //TODO: We still need to calculate the offsets for tables that are not squared.
+                                    LivingEntity entity = player.getEntity();
+                                    if(entity != null) {
+                                        Vector3f offset = entity.position().subtract(worldPosition.getX() + 0.5, entity.getY(), worldPosition.getZ() + 0.5).toVector3f();
+                                        Direction direction = GameChairBlock.getSeatedDirection(entity);
                                         if(direction != null) {
-                                            direction = direction.getOpposite();
                                             float angle = switch (direction) {
                                                 case EAST -> 90;
                                                 case SOUTH -> 180;
@@ -107,17 +111,17 @@ public class CardTableBlockEntity extends BlockEntity {
                                                 default -> 0;
                                             };
                                             float x = switch (direction) {
-                                                case NORTH -> 40f;
-                                                case EAST -> -147.5f;
-                                                case SOUTH -> 160f - 40f;
-                                                case WEST -> 160f + 147.5f;
+                                                case NORTH -> 40f + (160f * offset.x);
+                                                case EAST -> -147.5f + (160f * (offset.x + 2));
+                                                case SOUTH -> 160f - 40f + (160f * offset.x);
+                                                case WEST -> 160f + 147.5f + (160f * (offset.x - 2));
                                                 default -> 0;
                                             };
                                             float y = switch (direction) {
-                                                case NORTH -> -147.5f;
-                                                case EAST -> 160f - 40f;
-                                                case SOUTH -> 160f + 147.5f;
-                                                case WEST -> 160f - 147.5f + CardImage.WIDTH + 2f;
+                                                case NORTH -> -147.5f - (160f * (offset.z - 2));
+                                                case EAST -> 160f - 40f - (160f * offset.z);
+                                                case SOUTH -> 160f + 147.5f - (160f * (offset.z + 2));
+                                                case WEST -> 160f - 147.5f - (160f * offset.z) + (CardImage.WIDTH + CardImage.WIDTH/10f);
                                                 default -> 0;
                                             };
                                             GameSlot slot = new GameSlot(game.getCensoredHand(player), x, y, 0f, angle, direction.getClockWise());
@@ -130,11 +134,11 @@ public class CardTableBlockEntity extends BlockEntity {
                                 return Component.translatable("charta.message.game_started").withStyle(ChatFormatting.GREEN);
                             } else {
                                 this.game = null;
-                                return Component.translatable("charta.message.need_at_most", game.getMaxPlayers()).withStyle(ChatFormatting.RED);
+                                return Component.translatable("charta.message.too_many_players", game.getMaxPlayers()).withStyle(ChatFormatting.RED);
                             }
                         } else {
                             this.game = null;
-                            return Component.translatable("charta.message.need_at_least", game.getMinPlayers()).withStyle(ChatFormatting.RED);
+                            return Component.translatable("charta.message.not_enough_players", game.getMinPlayers()).withStyle(ChatFormatting.RED);
                         }
                     }else{
                         this.game = null;
@@ -163,6 +167,8 @@ public class CardTableBlockEntity extends BlockEntity {
         }else{
             tag.put("deckStack", new CompoundTag());
         }
+        tag.putFloat("centerOffsetX", centerOffset.x);
+        tag.putFloat("centerOffsetY", centerOffset.y);
     }
 
     @Override
@@ -176,6 +182,8 @@ public class CardTableBlockEntity extends BlockEntity {
                 setDeckStack(ItemStack.EMPTY);
             }
         }
+        centerOffset.x = tag.getFloat("centerOffsetX");
+        centerOffset.y = tag.getFloat("centerOffsetY");
     }
 
     @Override

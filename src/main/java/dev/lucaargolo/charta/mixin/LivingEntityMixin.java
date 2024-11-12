@@ -6,7 +6,6 @@ import dev.lucaargolo.charta.game.AutoPlayer;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.utils.CardPlayerHead;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -54,9 +53,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityMi
         }
 
         @Override
-        public BlockPos getPosition() {
-            LivingEntity living = (LivingEntity) (Object) LivingEntityMixin.this;
-            return living.blockPosition();
+        public LivingEntity getEntity() {
+            return (LivingEntity) (Object) LivingEntityMixin.this;
         }
     };
 

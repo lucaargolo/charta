@@ -286,8 +286,6 @@
   "charta.message.invalid_card_player": "You are not a valid Card Player.",
   "charta.message.put_chair_cloth": "You need to put a cloth on this chair.",
   "charta.message.game_started": "Game successfully started",
-  "charta.message.need_at_most": "You need at most %s players to play this game",
-  "charta.message.need_at_least": "You need at least %s players to play this game",
   "charta.message.cant_play_deck": "You can't play this game with this deck.",
   "charta.message.try_finding_another": "Try finding another one.",
   "charta.message.table_unknown_game": "Table received an unknown game id.",

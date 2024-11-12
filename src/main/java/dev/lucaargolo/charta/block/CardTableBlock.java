@@ -1,8 +1,10 @@
 package dev.lucaargolo.charta.block;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.item.CardDeckItem;
@@ -45,6 +47,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2f;
 import org.joml.Vector2i;
 
 import java.util.*;
@@ -166,9 +169,15 @@ public class CardTableBlock extends BaseEntityBlock {
         if(player instanceof ServerPlayer serverPlayer) {
             if(serverPlayer.isShiftKeyDown()) {
                 if (state.getValue(CLOTH)) {
-                    BlockPos center = getCenterPos(level, pos);
+                    Pair<BlockPos, Vector2f> pair = getCenterAndOffset(level, pos);
+                    BlockPos center = pair.getFirst();
+                    Vector2f offset = pair.getSecond();
                     level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
                         Vec3 c = pos.getCenter();
+                        if(!cardTable.centerOffset.equals(offset)) {
+                            cardTable.centerOffset = offset;
+                            level.sendBlockUpdated(center, state, state, 3);
+                        }
                         if(!cardTable.getDeckStack().isEmpty()) {
                             Containers.dropItemStack(level, c.x, c.y, c.z, cardTable.getDeckStack());
                             cardTable.setDeckStack(ItemStack.EMPTY);
@@ -197,8 +206,14 @@ public class CardTableBlock extends BaseEntityBlock {
                             player.displayClientMessage(Component.translatable("charta.message.put_table_cloth").withStyle(ChatFormatting.RED), true);
                         }
                     } else if (player instanceof LivingEntityMixed mixed) {
-                        BlockPos center = getCenterPos(level, pos);
+                        Pair<BlockPos, Vector2f> pair = getCenterAndOffset(level, pos);
+                        BlockPos center = pair.getFirst();
+                        Vector2f offset = pair.getSecond();
                         level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
+                            if(!cardTable.centerOffset.equals(offset)) {
+                                cardTable.centerOffset = offset;
+                                level.sendBlockUpdated(center, state, state, 3);
+                            }
                             if (stack.getItem() instanceof CardDeckItem && stack.has(ModDataComponentTypes.CARD_DECK)) {
                                 if(!cardTable.getDeckStack().isEmpty()) {
                                     Vec3 c = center.getCenter();
@@ -210,18 +225,23 @@ public class CardTableBlock extends BaseEntityBlock {
                                 }
                                 level.sendBlockUpdated(center, state, state, 3);
                             } else {
-                                List<CardPlayer> satPlayers = cardTable.getPlayers();
-                                if (satPlayers.contains(mixed.charta_getCardPlayer())){
-                                    CardGame<?> game = cardTable.getGame();
-                                    if (game == null || game.isGameOver()) {
-                                        PacketDistributor.sendToPlayer(serverPlayer, new OpenCardTableScreenPayload(center, cardTable.getDeck(), satPlayers.stream().mapToInt(CardPlayer::getId).toArray()));
-                                    }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
-                                        game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
-                                    }else{
-                                        player.displayClientMessage(Component.translatable("charta.message.not_playing_current").withStyle(ChatFormatting.RED), true);
+                                CardDeck deck = cardTable.getDeck();
+                                if(deck != null) {
+                                    List<CardPlayer> satPlayers = cardTable.getPlayers();
+                                    if (satPlayers.contains(mixed.charta_getCardPlayer())){
+                                        CardGame<?> game = cardTable.getGame();
+                                        if (game == null || game.isGameOver()) {
+                                            PacketDistributor.sendToPlayer(serverPlayer, new OpenCardTableScreenPayload(center, deck, satPlayers.stream().mapToInt(CardPlayer::getId).toArray()));
+                                        }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
+                                            game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
+                                        }else{
+                                            player.displayClientMessage(Component.translatable("charta.message.not_playing_current").withStyle(ChatFormatting.RED), true);
+                                        }
+                                    } else{
+                                        player.displayClientMessage(Component.translatable("charta.message.need_to_be_sat").withStyle(ChatFormatting.RED), true);
                                     }
-                                } else{
-                                    player.displayClientMessage(Component.translatable("charta.message.need_to_be_sat").withStyle(ChatFormatting.RED), true);
+                                }else{
+                                    player.displayClientMessage(Component.translatable("charta.message.table_no_deck").withStyle(ChatFormatting.RED), true);
                                 }
                             }
                         });
@@ -360,12 +380,22 @@ public class CardTableBlock extends BaseEntityBlock {
         return multiblock;
     }
 
-    public BlockPos getCenterPos(LevelAccessor level, BlockPos pos) {
+    public Pair<BlockPos, Vector2f> getCenterAndOffset(LevelAccessor level, BlockPos pos) {
         Set<BlockPos> multiblock = getMultiblock(level, pos);
+        Vector2f offset = new Vector2f();
+        int width = getWidth(multiblock);
+        if(width % 2 == 0) {
+            offset.x = 0.5f;
+        }
+        int height = getHeight(multiblock);
+        if(height % 2 == 0) {
+            offset.y = -0.5f;
+        }
         BlockBox box = getBoundingBox(multiblock);
         BlockPos min = box.min();
         BlockPos max = box.max();
-        return new BlockPos(min.getX() + Mth.floor((max.getX() - min.getX())/2.0), min.getY() + Mth.floor((max.getY() - min.getY())/2.0), min.getZ() + Mth.floor((max.getZ() - min.getZ())/2.0));
+        BlockPos center = new BlockPos(min.getX() + Mth.floor((max.getX() - min.getX())/2.0), min.getY() + Mth.floor((max.getY() - min.getY())/2.0), min.getZ() + Mth.floor((max.getZ() - min.getZ())/2.0));
+        return Pair.of(center, offset);
     }
 
     public boolean isValidMultiblock(LevelAccessor level, BlockPos pos) {

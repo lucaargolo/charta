@@ -1,11 +1,13 @@
 package dev.lucaargolo.charta.block;
 
+import dev.lucaargolo.charta.entity.SeatEntity;
 import dev.lucaargolo.charta.utils.VoxelShapeUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -134,6 +136,18 @@ public class GameChairBlock extends BarStoolBlock {
             }
         }
         return valid.size() == 1 ? valid.getFirst() : null;
+    }
+
+    @Nullable
+    public static Direction getSeatedDirection(LivingEntity living) {
+        if(living.getVehicle() instanceof SeatEntity seatEntity) {
+            BlockPos pos = seatEntity.blockPosition();
+            BlockState state = living.level().getBlockState(pos);
+            if(state.getBlock() instanceof GameChairBlock) {
+                return state.getValue(GameChairBlock.FACING);
+            }
+        }
+        return null;
     }
 
 }

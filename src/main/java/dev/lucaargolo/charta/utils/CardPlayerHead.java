@@ -54,6 +54,7 @@ public record CardPlayerHead(ResourceLocation texture, float u, float v, float u
                 Class<?> modelClass = model.getClass();
                 Field headField = null;
                 boolean last = false;
+                boolean bone = false;
                 while (headField == null && modelClass.getSuperclass() != Object.class) {
                     for(Field f : modelClass.getFields()) {
                         if(f.getName().contains("head")) {
@@ -70,11 +71,19 @@ public record CardPlayerHead(ResourceLocation texture, float u, float v, float u
                     modelClass = modelClass.getSuperclass();
                 }
                 if(headField == null) {
-                    headField = model.getClass().getDeclaredField("root");
-                    last = true;
+                    try {
+                        headField = model.getClass().getDeclaredField("bone");
+                        bone = true;
+                    }catch (NoSuchFieldException e) {
+                        headField = model.getClass().getDeclaredField("root");
+                        last = true;
+                    }
                 }
                 headField.setAccessible(true);
                 ModelPart part = (ModelPart) headField.get(model);
+                if(bone) {
+                    part = part.getChild("body");
+                }
                 ModelPart.Cube cube;
                 if(!part.cubes.isEmpty()) {
                     cube = part.cubes.getFirst();

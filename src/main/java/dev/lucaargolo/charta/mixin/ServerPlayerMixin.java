@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
@@ -95,9 +96,8 @@ public abstract class ServerPlayerMixin extends Player implements LivingEntityMi
         }
 
         @Override
-        public BlockPos getPosition() {
-            ServerPlayer serverPlayer = (ServerPlayer) (Object) ServerPlayerMixin.this;
-            return serverPlayer.blockPosition();
+        public LivingEntity getEntity() {
+            return ServerPlayerMixin.this;
         }
 
     };

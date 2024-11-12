@@ -103,7 +103,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
                 }
             }
         }else if(!deckStack.isEmpty()) {
-            poseStack.translate(0.5, 0.275, 0.0);
+            poseStack.translate(0.5 + blockEntity.centerOffset.x, 0.275 + blockEntity.centerOffset.y, 0.0);
             context.getItemRenderer().renderStatic(deckStack, ItemDisplayContext.GROUND, packedLight, packedOverlay, poseStack, bufferSource, blockEntity.getLevel(), 1);
         }
         poseStack.popPose();

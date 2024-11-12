@@ -59,7 +59,7 @@ public class Charta {
     /*
     TODO:
         Release Goals:
-            - Implement game visualization on table block entity renderer
+            - Fix the order of the players to make sense.
             - Improve game screen (sound effects and if possible animate plays) (hovered cards)
             - Make some custom card decks spawn in dungeons
             - Add other card games:

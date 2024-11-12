@@ -4,6 +4,7 @@ import dev.lucaargolo.charta.utils.CardPlayerHead;
 import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +35,7 @@ public interface CardPlayer {
     int getId();
 
     @Nullable
-    default BlockPos getPosition() {
+    default LivingEntity getEntity() {
         return null;
     }
 
