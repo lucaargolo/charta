@@ -79,7 +79,7 @@ public class CardTableBlockEntity extends BlockEntity {
         CardDeck deck = getDeck();
         if(deck != null) {
             if(gameId != null) {
-                List<CardPlayer> players = this.getPlayers();
+                List<CardPlayer> players = this.getOrderedPlayers();
                 CardGames.CardGameFactory<?> factory = CardGames.getGame(gameId);
                 if(factory != null) {
                     CardGame<?> game = factory.create(players, this.getDeck());
@@ -130,7 +130,7 @@ public class CardTableBlockEntity extends BlockEntity {
                                         }
                                     }
                                 }
-                                this.getPlayers().forEach(player -> player.openScreen(this.game, this.worldPosition, deck));
+                                players.forEach(player -> player.openScreen(this.game, this.worldPosition, deck));
                                 return Component.translatable("charta.message.game_started").withStyle(ChatFormatting.GREEN);
                             } else {
                                 this.game = null;
@@ -245,8 +245,8 @@ public class CardTableBlockEntity extends BlockEntity {
         this.dirtySlotPositions.clear();
     }
 
-    public List<CardPlayer> getPlayers() {
-        List<CardPlayer> players = new ArrayList<>();
+    public List<LivingEntity> getPlayers() {
+        List<LivingEntity> players = new ArrayList<>();
         if(this.level != null) {
             BlockState state = this.level.getBlockState(this.worldPosition);
             if(state.getBlock() instanceof CardTableBlock cardTable) {
@@ -265,8 +265,8 @@ public class CardTableBlockEntity extends BlockEntity {
                             List<SeatEntity> seats = level.getEntitiesOfClass(SeatEntity.class, new AABB(pos));
                             if(!seats.isEmpty()) {
                                 List<Entity> passengers = seats.getFirst().getPassengers();
-                                if(!passengers.isEmpty() && passengers.getFirst() instanceof LivingEntityMixed mixed) {
-                                    players.add(mixed.charta_getCardPlayer());
+                                if(!passengers.isEmpty() && passengers.getFirst() instanceof LivingEntity entity) {
+                                    players.add(entity);
                                 }
                             }
                         }
@@ -276,6 +276,68 @@ public class CardTableBlockEntity extends BlockEntity {
         }
         return players;
     }
+
+    private List<CardPlayer> getOrderedPlayers() {
+        List<LivingEntity> players = this.getPlayers();
+        return reorderPlayersByDistance(players).stream().map(l -> ((LivingEntityMixed) l).charta_getCardPlayer()).toList();
+    }
+
+    public static List<LivingEntity> reorderPlayersByDistance(List<LivingEntity> players) {
+        if (players.isEmpty()) {
+            return players;
+        }
+
+        List<LivingEntity> orderedPlayers = new ArrayList<>();
+        Random random = new Random();
+
+        LivingEntity current = players.remove(random.nextInt(players.size()));
+        orderedPlayers.add(current);
+
+        while (!players.isEmpty()) {
+            LivingEntity closestLeftPlayer = findClosestLeftPlayer(current, players);
+
+            if (closestLeftPlayer != null) {
+                players.remove(closestLeftPlayer);
+                orderedPlayers.add(closestLeftPlayer);
+                current = closestLeftPlayer;
+            } else {
+                break;
+            }
+        }
+
+        return orderedPlayers;
+    }
+
+    private static LivingEntity findClosestLeftPlayer(LivingEntity current, List<LivingEntity> players) {
+        return players.stream()
+                .filter(player -> isPlayerToLeft(current, player))
+                .min(Comparator.comparingDouble(current::distanceTo))
+                .orElse(null);
+    }
+
+    private static boolean isPlayerToLeft(LivingEntity current, LivingEntity other) {
+        double currentX = current.getX();
+        double currentZ = current.getZ();
+        double otherX = other.getX();
+        double otherZ = other.getZ();
+
+        Direction facing = GameChairBlock.getSeatedDirection(current);
+        if(facing == null) {
+            return false;
+        }
+
+        double toOtherX = otherX - currentX;
+        double toOtherZ = otherZ - currentZ;
+
+        return switch (facing) {
+            case NORTH -> toOtherX <= 0;
+            case SOUTH -> toOtherX >= 0;
+            case WEST -> toOtherZ >= 0;
+            case EAST -> toOtherZ <= 0;
+            default -> false;
+        };
+    }
+
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, CardTableBlockEntity blockEntity) {
         Iterator<Integer> updateIterator = blockEntity.dirtySlotCards.iterator();
@@ -303,7 +365,7 @@ public class CardTableBlockEntity extends BlockEntity {
             CardGame<?> game = blockEntity.game;
             if(!game.isGameOver()) {
                 if (blockEntity.age++ % 100 == 0) {
-                    List<CardPlayer> players = blockEntity.getPlayers();
+                    List<CardPlayer> players = blockEntity.getOrderedPlayers();
                     if (!players.containsAll(game.getPlayers())) {
                         game.endGame();
                     }

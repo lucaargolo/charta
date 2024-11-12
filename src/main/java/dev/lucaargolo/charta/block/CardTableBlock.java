@@ -6,7 +6,6 @@ import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
-import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.item.CardDeckItem;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
@@ -22,6 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
@@ -227,11 +227,11 @@ public class CardTableBlock extends BaseEntityBlock {
                             } else {
                                 CardDeck deck = cardTable.getDeck();
                                 if(deck != null) {
-                                    List<CardPlayer> satPlayers = cardTable.getPlayers();
-                                    if (satPlayers.contains(mixed.charta_getCardPlayer())){
+                                    List<LivingEntity> satPlayers = cardTable.getPlayers();
+                                    if (satPlayers.contains(player)){
                                         CardGame<?> game = cardTable.getGame();
                                         if (game == null || game.isGameOver()) {
-                                            PacketDistributor.sendToPlayer(serverPlayer, new OpenCardTableScreenPayload(center, deck, satPlayers.stream().mapToInt(CardPlayer::getId).toArray()));
+                                            PacketDistributor.sendToPlayer(serverPlayer, new OpenCardTableScreenPayload(center, deck, satPlayers.stream().mapToInt(LivingEntity::getId).toArray()));
                                         }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
                                             game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
                                         }else{
