@@ -1,6 +1,8 @@
 package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.utils.GameSlot;
+import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -17,11 +19,13 @@ import java.util.List;
 
 public interface CardGame<G extends CardGame<G>> {
 
+    List<GameSlot> getGameSlots();
+
     List<Card> getValidDeck();
 
     List<CardPlayer> getPlayers();
 
-    List<Card> getCensoredHand(CardPlayer player);
+    TransparentLinkedList<Card> getCensoredHand(CardPlayer player);
 
     CardPlayer getCurrentPlayer();
 

@@ -10,7 +10,6 @@ import dev.lucaargolo.charta.client.entity.IronLeashKnotRenderer;
 import dev.lucaargolo.charta.client.gui.screens.CrazyEightsScreen;
 import dev.lucaargolo.charta.client.item.DeckItemExtensions;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
-import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.utils.CardImageUtils;
@@ -20,7 +19,6 @@ import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -32,7 +30,6 @@ import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
 import java.io.IOException;
-import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class ChartaClient {
@@ -141,11 +138,6 @@ public class ChartaClient {
             });
         }
 
-    }
-
-    //TODO: Use this method to get the entity hand outside of the CardMenu
-    public static List<Card> getEntityHand(LivingEntity entity) {
-        return entity.getEntityData().get(Charta.ENTITY_HAND);
     }
 
 }

@@ -3,11 +3,11 @@ package dev.lucaargolo.charta;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import dev.lucaargolo.charta.block.ModBlocks;
+import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.entity.ModPoiTypes;
 import dev.lucaargolo.charta.entity.ModVillagerProfessions;
-import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.item.ModCreativeTabs;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.item.ModItems;
@@ -16,7 +16,7 @@ import dev.lucaargolo.charta.network.*;
 import dev.lucaargolo.charta.resources.CardDeckResource;
 import dev.lucaargolo.charta.resources.CardImageResource;
 import dev.lucaargolo.charta.resources.CardSuitResource;
-import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
+import dev.lucaargolo.charta.utils.GameSlot;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -27,6 +27,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
@@ -39,6 +40,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -46,6 +48,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Mod(Charta.MOD_ID)
@@ -89,11 +92,9 @@ public class Charta {
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
     public static final CardDeckResource CARD_DECKS = new CardDeckResource();
 
-    public static EntityDataAccessor<List<Card>> ENTITY_HAND;
     public static EntityDataAccessor<Boolean> MOB_IRON_LEASH;
 
     public Charta(IEventBus modEventBus, ModContainer modContainer) {
-        ModEntityDataSerializers.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntityTypes.register(modEventBus);
@@ -121,6 +122,9 @@ public class Charta {
             registrar.playToClient(UpdateCardContainerSlotPayload.TYPE, UpdateCardContainerSlotPayload.STREAM_CODEC, UpdateCardContainerSlotPayload::handleClient);
             registrar.playToClient(UpdateCardContainerCarriedPayload.TYPE, UpdateCardContainerCarriedPayload.STREAM_CODEC, UpdateCardContainerCarriedPayload::handleClient);
             registrar.playToClient(OpenCardTableScreenPayload.TYPE, OpenCardTableScreenPayload.STREAM_CODEC, OpenCardTableScreenPayload::handleClient);
+            registrar.playToClient(GameSlotCompletePayload.TYPE, GameSlotCompletePayload.STREAM_CODEC, GameSlotCompletePayload::handleClient);
+            registrar.playToClient(GameSlotPositionPayload.TYPE, GameSlotPositionPayload.STREAM_CODEC, GameSlotPositionPayload::handleClient);
+            registrar.playToClient(GameSlotResetPayload.TYPE, GameSlotResetPayload.STREAM_CODEC, GameSlotResetPayload::handleClient);
 
             registrar.playToServer(CardContainerSlotClickPayload.TYPE, CardContainerSlotClickPayload.STREAM_CODEC, CardContainerSlotClickPayload::handleServer);
             registrar.playToServer(CardTableSelectGamePayload.TYPE, CardTableSelectGamePayload.STREAM_CODEC, CardTableSelectGamePayload::handleServer);
@@ -164,17 +168,41 @@ public class Charta {
         }
 
         @SubscribeEvent
+        public static void onChunkSent(final ChunkWatchEvent.Sent event) {
+            LevelChunk chunk = event.getChunk();
+            chunk.getBlockEntities().forEach((pos, blockEntity) -> {
+                if(blockEntity instanceof CardTableBlockEntity cardTable) {
+                    int count = cardTable.getGameSlotCount();
+                    for(int i = 0; i < count; i++) {
+                        GameSlot slot = cardTable.getGameSlot(i);
+                        GameSlotCompletePayload payload = new GameSlotCompletePayload(pos, i, slot);
+                        PacketDistributor.sendToPlayer(event.getPlayer(), payload);
+                    }
+                }
+            });
+
+        }
+
+        @SubscribeEvent
         public static void onPlayerJoined(final PlayerEvent.PlayerLoggedInEvent event) {
             Player player = event.getEntity();
             if(player instanceof ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, new ImagesPayload(Charta.CARD_SUITS.getImages(), Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
+                PacketDistributor.sendToPlayer(serverPlayer, new ImagesPayload(
+                    new HashMap<>(Charta.CARD_SUITS.getImages()),
+                    new HashMap<>(Charta.CARD_IMAGES.getImages()),
+                    new HashMap<>(Charta.DECK_IMAGES.getImages())
+                ));
                 PacketDistributor.sendToPlayer(serverPlayer, new CardDecksPayload(Charta.CARD_DECKS.getDecks()));
             }
         }
 
         @SubscribeEvent
         public static void onDatapackReload(final OnDatapackSyncEvent event) {
-            PacketDistributor.sendToAllPlayers(new ImagesPayload(Charta.CARD_SUITS.getImages(), Charta.CARD_IMAGES.getImages(), Charta.DECK_IMAGES.getImages()));
+            PacketDistributor.sendToAllPlayers(new ImagesPayload(
+                new HashMap<>(Charta.CARD_SUITS.getImages()),
+                new HashMap<>(Charta.CARD_IMAGES.getImages()),
+                new HashMap<>(Charta.DECK_IMAGES.getImages())
+            ));
             PacketDistributor.sendToAllPlayers(new CardDecksPayload(Charta.CARD_DECKS.getDecks()));
         }
 

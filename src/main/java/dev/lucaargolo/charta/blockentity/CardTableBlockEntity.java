@@ -10,8 +10,14 @@ import dev.lucaargolo.charta.game.CardGames;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.item.CardDeckItem;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
+import dev.lucaargolo.charta.network.GameSlotCompletePayload;
+import dev.lucaargolo.charta.network.GameSlotPositionPayload;
+import dev.lucaargolo.charta.network.GameSlotResetPayload;
+import dev.lucaargolo.charta.utils.CardImage;
+import dev.lucaargolo.charta.utils.GameSlot;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -20,24 +26,30 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CardTableBlockEntity extends BlockEntity {
 
+    public static final int TABLE_WIDTH = 160;
+    public static final int TABLE_HEIGHT = 160;
+
+    private final List<GameSlot> trackedGameSlots = new ArrayList<>();
+    private final Set<Integer> dirtySlotCards = new HashSet<>();
+    private final Set<Integer> dirtySlotPositions = new HashSet<>();
 
     private ItemStack deckStack = ItemStack.EMPTY;
 
@@ -49,50 +61,9 @@ public class CardTableBlockEntity extends BlockEntity {
         super(ModBlockEntityTypes.CARD_TABLE.get(), pos, blockState);
     }
 
-    public List<CardPlayer> getPlayers() {
-        List<CardPlayer> players = new ArrayList<>();
-        if(this.level != null) {
-            BlockState state = this.level.getBlockState(this.worldPosition);
-            if(state.getBlock() instanceof CardTableBlock cardTable) {
-                Set<BlockPos> set = cardTable.getMultiblock(this.level, this.worldPosition);
-                Set<BlockPos> chairs = new HashSet<>();
-                for(BlockPos pos : set) {
-                    if(!set.contains(pos.north())) chairs.add(pos.north());
-                    if(!set.contains(pos.south())) chairs.add(pos.south());
-                    if(!set.contains(pos.east())) chairs.add(pos.east());
-                    if(!set.contains(pos.west())) chairs.add(pos.west());
-                }
-                for(BlockPos pos : chairs) {
-                    BlockState chairState = this.level.getBlockState(pos);
-                    if(chairState.getBlock() instanceof GameChairBlock && set.contains(pos.relative(chairState.getValue(GameChairBlock.FACING)))) {
-                        if(SeatBlock.isSeatOccupied(this.level, pos)) {
-                            List<SeatEntity> seats = level.getEntitiesOfClass(SeatEntity.class, new AABB(pos));
-                            if(!seats.isEmpty()) {
-                                List<Entity> passengers = seats.getFirst().getPassengers();
-                                if(!passengers.isEmpty() && passengers.getFirst() instanceof LivingEntityMixed mixed) {
-                                    players.add(mixed.charta_getCardPlayer());
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return players;
-    }
-
     @Nullable
     public CardDeck getDeck() {
         return CardDeckItem.getDeck(this.deckStack);
-    }
-
-    public ItemStack getDeckStack() {
-        return deckStack;
-    }
-
-    public void setDeckStack(ItemStack deckStack) {
-        this.deckStack = deckStack;
-        setChanged();
     }
 
     @Nullable
@@ -111,9 +82,50 @@ public class CardTableBlockEntity extends BlockEntity {
                     if(CardGame.canPlayGame(game, this.getDeck())) {
                         if (players.size() >= game.getMinPlayers()) {
                             if (players.size() <= game.getMaxPlayers()) {
+                                PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), new GameSlotResetPayload(worldPosition));
+                                this.resetGameSlots();
                                 this.game = game;
                                 this.game.startGame();
                                 this.game.runGame();
+                                int index = 0;
+                                for(GameSlot slot : this.game.getGameSlots()) {
+                                    slot.setup(this, index++);
+                                    addGameSlot(slot);
+                                }
+                                for(CardPlayer player : players) {
+                                    BlockPos position = player.getPosition();
+                                    if(position != null) {
+                                        BlockPos offset = position.atY(0).offset(-worldPosition.getX(), 0, -worldPosition.getZ());
+                                        Direction direction = Direction.fromDelta(offset.getX(), offset.getY(), offset.getZ());
+                                        //TODO: We still need to calculate the offsets for tables that are not squared.
+                                        if(direction != null) {
+                                            direction = direction.getOpposite();
+                                            float angle = switch (direction) {
+                                                case EAST -> 90;
+                                                case SOUTH -> 180;
+                                                case WEST -> 270;
+                                                default -> 0;
+                                            };
+                                            float x = switch (direction) {
+                                                case NORTH -> 40f;
+                                                case EAST -> -147.5f;
+                                                case SOUTH -> 160f - 40f;
+                                                case WEST -> 160f + 147.5f;
+                                                default -> 0;
+                                            };
+                                            float y = switch (direction) {
+                                                case NORTH -> -147.5f;
+                                                case EAST -> 160f - 40f;
+                                                case SOUTH -> 160f + 147.5f;
+                                                case WEST -> 160f - 147.5f + CardImage.WIDTH + 2f;
+                                                default -> 0;
+                                            };
+                                            GameSlot slot = new GameSlot(game.getCensoredHand(player), x, y, 0f, angle, direction.getClockWise());
+                                            slot.setup(this, index++);
+                                            addGameSlot(slot);
+                                        }
+                                    }
+                                }
                                 this.getPlayers().forEach(player -> player.openScreen(this.game, this.worldPosition, deck));
                                 return Component.translatable("charta.message.game_started").withStyle(ChatFormatting.GREEN);
                             } else {
@@ -167,6 +179,12 @@ public class CardTableBlockEntity extends BlockEntity {
     }
 
     @Override
+    public void handleUpdateTag(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider lookupProvider) {
+        this.resetGameSlots();
+        super.handleUpdateTag(tag, lookupProvider);
+    }
+
+    @Override
     public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         saveAdditional(tag, registries);
@@ -178,22 +196,117 @@ public class CardTableBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    public ItemStack getDeckStack() {
+        return deckStack;
+    }
+
+    public void setDeckStack(ItemStack deckStack) {
+        this.deckStack = deckStack;
+        setChanged();
+    }
+
+    public GameSlot getGameSlot(int index) {
+        return this.trackedGameSlots.get(index);
+    }
+
+    public void addGameSlot(GameSlot slot) {
+        this.dirtySlotCards.add(this.getGameSlotCount());
+        this.trackedGameSlots.add(slot);
+    }
+
+    public void setGameSlot(int index, GameSlot slot) {
+        this.trackedGameSlots.set(index, slot);
+        this.dirtySlotCards.add(index);
+    }
+
+    public void setGameSlotDirty(int index, boolean cards) {
+        if (cards)
+            this.dirtySlotCards.add(index);
+        else
+            this.dirtySlotPositions.add(index);
+    }
+
+    public int getGameSlotCount() {
+        return this.trackedGameSlots.size();
+    }
+
+    public void resetGameSlots() {
+        this.trackedGameSlots.forEach(GameSlot::clear);
+        this.trackedGameSlots.clear();
+        this.dirtySlotCards.clear();
+        this.dirtySlotPositions.clear();
+    }
+
+    public List<CardPlayer> getPlayers() {
+        List<CardPlayer> players = new ArrayList<>();
+        if(this.level != null) {
+            BlockState state = this.level.getBlockState(this.worldPosition);
+            if(state.getBlock() instanceof CardTableBlock cardTable) {
+                Set<BlockPos> set = cardTable.getMultiblock(this.level, this.worldPosition);
+                Set<BlockPos> chairs = new HashSet<>();
+                for(BlockPos pos : set) {
+                    if(!set.contains(pos.north())) chairs.add(pos.north());
+                    if(!set.contains(pos.south())) chairs.add(pos.south());
+                    if(!set.contains(pos.east())) chairs.add(pos.east());
+                    if(!set.contains(pos.west())) chairs.add(pos.west());
+                }
+                for(BlockPos pos : chairs) {
+                    BlockState chairState = this.level.getBlockState(pos);
+                    if(chairState.getBlock() instanceof GameChairBlock && set.contains(pos.relative(chairState.getValue(GameChairBlock.FACING)))) {
+                        if(SeatBlock.isSeatOccupied(this.level, pos)) {
+                            List<SeatEntity> seats = level.getEntitiesOfClass(SeatEntity.class, new AABB(pos));
+                            if(!seats.isEmpty()) {
+                                List<Entity> passengers = seats.getFirst().getPassengers();
+                                if(!passengers.isEmpty() && passengers.getFirst() instanceof LivingEntityMixed mixed) {
+                                    players.add(mixed.charta_getCardPlayer());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return players;
+    }
+
     public static void serverTick(Level level, BlockPos pos, BlockState state, CardTableBlockEntity blockEntity) {
+        Iterator<Integer> updateIterator = blockEntity.dirtySlotCards.iterator();
+        while (updateIterator.hasNext()) {
+            int index = updateIterator.next();
+            GameSlot slot = blockEntity.trackedGameSlots.get(index);
+            PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotCompletePayload(pos, index, slot));
+            blockEntity.dirtySlotPositions.remove(index);
+            updateIterator.remove();
+        }
+        updateIterator = blockEntity.dirtySlotPositions.iterator();
+        while (updateIterator.hasNext()) {
+            int index = updateIterator.next();
+            GameSlot slot = blockEntity.trackedGameSlots.get(index);
+            PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotPositionPayload(pos, index, slot.getX(), slot.getY(), slot.getZ(), slot.getAngle()));
+            updateIterator.remove();
+        }
         if(!state.getValue(CardTableBlock.CLOTH) && !blockEntity.getDeckStack().isEmpty()) {
             Vec3 c = pos.getCenter();
             Containers.dropItemStack(level, c.x, c.y, c.z, blockEntity.getDeckStack());
             blockEntity.setDeckStack(ItemStack.EMPTY);
             level.sendBlockUpdated(pos, state, state, 3);
         }
-        if(blockEntity.getGame() != null && !blockEntity.getGame().isGameOver()) {
-            CardGame<?> game = blockEntity.getGame();
-            if(blockEntity.age++ % 100 == 0) {
-                List<CardPlayer> players = blockEntity.getPlayers();
-                if(!players.containsAll(game.getPlayers())) {
-                    game.endGame();
+        if(blockEntity.game != null) {
+            CardGame<?> game = blockEntity.game;
+            if(!game.isGameOver()) {
+                if (blockEntity.age++ % 100 == 0) {
+                    List<CardPlayer> players = blockEntity.getPlayers();
+                    if (!players.containsAll(game.getPlayers())) {
+                        game.endGame();
+                    }
                 }
+                game.tick();
+            }else{
+                PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotResetPayload(pos));
+                blockEntity.resetGameSlots();
+                blockEntity.game = null;
             }
-            game.tick();
         }
     }
+
 }

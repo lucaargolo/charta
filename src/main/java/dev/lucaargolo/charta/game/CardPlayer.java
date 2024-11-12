@@ -1,20 +1,17 @@
 package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.utils.CardPlayerHead;
+import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface CardPlayer {
 
-
-    List<Card> getHand();
-
-    void handUpdated();
+    TransparentLinkedList<Card> getHand();
 
     CompletableFuture<Card> getPlay(CardGame<?> game);
 
@@ -36,8 +33,13 @@ public interface CardPlayer {
 
     int getId();
 
+    @Nullable
+    default BlockPos getPosition() {
+        return null;
+    }
+
     default CardPlayerHead getHead() {
         return CardPlayerHead.UNKNOWN;
-    };
+    }
 
 }

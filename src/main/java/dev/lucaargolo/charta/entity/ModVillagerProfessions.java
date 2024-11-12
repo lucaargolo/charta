@@ -20,6 +20,7 @@ public class ModVillagerProfessions {
 
     public static final DeferredRegister<VillagerProfession> VILLAGER_PROFESSIONS = DeferredRegister.create(Registries.VILLAGER_PROFESSION, Charta.MOD_ID);
 
+    @SuppressWarnings("deprecation")
     public static final DeferredHolder<VillagerProfession, VillagerProfession> DEALER = VILLAGER_PROFESSIONS.register("dealer", () -> new VillagerProfession(
         "dealer",
         heldJob -> heldJob.is(ModPoiTypes.DEALER),

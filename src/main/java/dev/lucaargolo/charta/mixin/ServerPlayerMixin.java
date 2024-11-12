@@ -1,12 +1,12 @@
 package dev.lucaargolo.charta.mixin;
 
 import com.mojang.authlib.GameProfile;
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
+import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
@@ -19,28 +19,21 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements LivingEntityMixed {
 
     @Unique
-    private final List<Card> charta_hand = new ArrayList<>();
+    private final TransparentLinkedList<Card> charta_hand = new TransparentLinkedList<>();
     @Unique
     private CompletableFuture<Card> charta_play = new CompletableFuture<>();
     @Unique
     private final CardPlayer charta_cardPlayer = new CardPlayer() {
 
         @Override
-        public List<Card> getHand() {
+        public TransparentLinkedList<Card> getHand() {
             return charta_hand;
-        }
-
-        @Override
-        public void handUpdated() {
-            entityData.set(Charta.ENTITY_HAND, charta_hand);
         }
 
         @Override
@@ -100,6 +93,13 @@ public abstract class ServerPlayerMixin extends Player implements LivingEntityMi
             ServerPlayer serverPlayer = (ServerPlayer) (Object) ServerPlayerMixin.this;
             return serverPlayer.getId();
         }
+
+        @Override
+        public BlockPos getPosition() {
+            ServerPlayer serverPlayer = (ServerPlayer) (Object) ServerPlayerMixin.this;
+            return serverPlayer.blockPosition();
+        }
+
     };
 
     public ServerPlayerMixin(Level level, BlockPos pos, float yRot, GameProfile gameProfile) {

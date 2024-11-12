@@ -1,7 +1,11 @@
 package dev.lucaargolo.charta.game;
 
+import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CrazyEightsMenu;
+import dev.lucaargolo.charta.utils.CardImage;
+import dev.lucaargolo.charta.utils.GameSlot;
+import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -16,18 +20,19 @@ import java.util.stream.Collectors;
 
 public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
-    private final Map<CardPlayer, List<Card>> censoredHands = new HashMap<>();
+    private final Map<CardPlayer, TransparentLinkedList<Card>> censoredHands = new HashMap<>();
 
-    private final List<Card> deck;
+    private final TransparentLinkedList<Card> playPile = new TransparentLinkedList<>();
+    private final TransparentLinkedList<Card> drawPile = new TransparentLinkedList<>();
+    private final List<GameSlot> gameSlots = new ArrayList<>();
+
     private final List<CardPlayer> players;
-
-    private final LinkedList<Card> playPile;
-    private final LinkedList<Card> drawPile;
+    private final List<Card> deck;
 
     private CardPlayer currentPlayer;
     private boolean isGameOver;
 
-    public final LinkedList<Card> suits;
+    public final LinkedList<Card> suits = new LinkedList<>();
     public boolean isChoosingWild;
     public Suit currentSuit;
     public int drawsLeft = 3;
@@ -42,14 +47,20 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             .collect(Collectors.toList());
         this.deck.forEach(Card::flip);
 
-        this.drawPile = new LinkedList<>();
-        this.playPile = new LinkedList<>();
-        this.suits = new LinkedList<>();
+        GameSlot playPileSlot = new GameSlot(playPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f + 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
+        GameSlot drawPileSlot = new GameSlot(drawPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f - 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
+        gameSlots.add(playPileSlot);
+        gameSlots.add(drawPileSlot);
     }
 
     @Override
     public AbstractCardMenu<CrazyEightsGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck) {
         return new CrazyEightsMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray());
+    }
+
+    @Override
+    public List<GameSlot> getGameSlots() {
+        return gameSlots;
     }
 
     @Override
@@ -79,8 +90,12 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     }
 
     @Override
-    public List<Card> getCensoredHand(CardPlayer player) {
-        return censoredHands.computeIfAbsent(player, p -> p.getHand().stream().map(c -> Card.BLANK).collect(Collectors.toList()));
+    public TransparentLinkedList<Card> getCensoredHand(CardPlayer player) {
+        return censoredHands.computeIfAbsent(player, p -> {
+            TransparentLinkedList<Card> list = new TransparentLinkedList<>();
+            p.getHand().stream().map(c -> Card.BLANK).forEach(list::add);
+            return list;
+        });
     }
 
     @Override
@@ -116,7 +131,6 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             player.getHand().clear();
             getCensoredHand(player).clear();
             CardGame.dealCards(drawPile, player, getCensoredHand(player), 5);
-            player.handUpdated();
         }
 
         Card last = drawPile.pollLast();
@@ -157,7 +171,6 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                     drawsLeft--;
                     if(currentPlayer.shouldCompute()) {
                         CardGame.dealCards(drawPile, currentPlayer, getCensoredHand(currentPlayer), 1);
-                        currentPlayer.handUpdated();
                     }
                     runGame();
                 }else{
@@ -174,7 +187,6 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                 if(currentPlayer.shouldCompute() && currentPlayer.getHand().remove(card)) {
                     getCensoredHand(currentPlayer).removeLast();
                     playPile.addLast(card);
-                    currentPlayer.handUpdated();
                 }
                 if(currentPlayer.getHand().isEmpty()) {
                     endGame();
