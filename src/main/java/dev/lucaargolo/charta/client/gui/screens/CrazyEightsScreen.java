@@ -5,6 +5,7 @@ import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.CrazyEightsGame;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.CrazyEightsMenu;
+import dev.lucaargolo.charta.utils.PaletteGuiGraphics;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -37,7 +38,7 @@ public class CrazyEightsScreen extends CardMenuScreen<CrazyEightsGame, CrazyEigh
         guiGraphics.pose().translate(imageWidth/2f - 10f, 50f, 0f);
         guiGraphics.pose().translate(0.5f, 0f, 0f);
         guiGraphics.pose().scale(1.5f, 1.5f, 1.5f);
-        guiGraphics.blit(this.getDeck().getSuitTexture(suit), 0, 0, 0, 0, 13, 13, 13, 13);
+        PaletteGuiGraphics.blit(guiGraphics, this.getDeck().getSuitTexture(suit), 0, 0, 0, 0, 13, 13, 13, 13);
         guiGraphics.pose().popPose();
 
         CardPlayer player = menu.getCurrentPlayer();

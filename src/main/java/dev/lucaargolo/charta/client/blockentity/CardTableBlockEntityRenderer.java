@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
+import dev.lucaargolo.charta.client.ModRenderType;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.utils.CardImage;
@@ -111,7 +112,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
 
     private void drawCard(CardDeck deck, Card card, int packedLight, int packedOverlay, PoseStack poseStack, MultiBufferSource bufferSource, float x, float y, Vector3f normal) {
         ResourceLocation texture = card.isFlipped() ? deck.getDeckTexture() : deck.getCardTexture(card);
-        RenderType type = RenderType.entityCutout(texture);
+        RenderType type = ModRenderType.entityCard(texture);
         VertexConsumer consumer = bufferSource.getBuffer(type);
         PoseStack.Pose entry = poseStack.last();
         consumer.addVertex(entry.pose(), (x+CardImage.WIDTH)/160f, y/160f, 0).setColor(1f, 1f, 1f, 1f).setUv(1f, 1f).setOverlay(packedOverlay).setLight(packedLight).setNormal(entry, normal.x, normal.y, normal.z);

@@ -55,7 +55,7 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
         float yRot = Mth.lerp(partialTick, this.lastYRot, this.yRot);
 
         ResourceLocation textureId = getCardTexture(cardId);
-        RenderType renderType = ModRenderType.cardType(textureId);
+        RenderType renderType = ModRenderType.card(textureId);
 
         VertexConsumer consumer = guiGraphics.bufferSource().getBuffer(renderType);
         PoseStack.Pose pose = guiGraphics.pose().last();

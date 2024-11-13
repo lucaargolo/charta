@@ -6,6 +6,7 @@ import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.utils.HoverableRenderable;
+import dev.lucaargolo.charta.utils.PaletteGuiGraphics;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -83,7 +84,7 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
         int i = 0;
         int totalWidth = suits.size()*16 - 3;
         for(Suit suit : suits) {
-            guiGraphics.blit(deck.getSuitTexture(suit), width/2 - totalWidth/2 + (i*16), 30, 0, 0, 13, 13, 13, 13);
+            PaletteGuiGraphics.blit(guiGraphics, deck.getSuitTexture(suit), width/2 - totalWidth/2 + (i*16), 30, 0, 0, 13, 13, 13, 13);
             i++;
         }
         guiGraphics.drawCenteredString(font, Component.literal(deck.getCards().size() + " ").append(Component.translatable("charta.cards")).append(" | "+suits.size()+" ").append(Component.translatable("charta.suits")), width/2, height-30, 0xFFFFFFFF);

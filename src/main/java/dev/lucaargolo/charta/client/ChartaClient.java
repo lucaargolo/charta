@@ -29,16 +29,21 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 
 @OnlyIn(Dist.CLIENT)
 public class ChartaClient {
+
+    public static ShaderInstance POSITION_PALETTE_COLOR_SHADER;
+    public static ShaderInstance ENTITY_CARD_SHADER;
 
     public static ShaderInstance CARD_SHADER;
     public static Uniform CARD_FOV;
     public static Uniform CARD_X_ROT;
     public static Uniform CARD_Y_ROT;
     public static Uniform CARD_INSET;
+
     public static ShaderInstance IRON_LEASH_SHADER;
 
     public static void generateImages() {
@@ -126,6 +131,12 @@ public class ChartaClient {
 
         @SubscribeEvent
         public static void registerShaders(RegisterShadersEvent event) throws IOException {
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("position_palette_color"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                POSITION_PALETTE_COLOR_SHADER = instance;
+            });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("rendertype_entity_card"), DefaultVertexFormat.NEW_ENTITY), instance -> {
+                ENTITY_CARD_SHADER = instance;
+            });
             event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("rendertype_card"), DefaultVertexFormat.BLOCK), instance -> {
                 CARD_FOV = instance.getUniform("Fov");
                 CARD_X_ROT  = instance.getUniform("XRot");
@@ -138,6 +149,11 @@ public class ChartaClient {
             });
         }
 
+    }
+
+    @Nullable
+    public static ShaderInstance getPositionPaletteColorShader() {
+        return POSITION_PALETTE_COLOR_SHADER;
     }
 
 }
