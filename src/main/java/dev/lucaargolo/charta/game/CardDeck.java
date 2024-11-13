@@ -71,7 +71,7 @@ public class CardDeck {
     private final Supplier<String> deckTranslatableKey;
 
     private CardDeck(Rarity rarity, boolean tradeable, List<Card> cards, Map<Suit, ResourceLocation> suitsLocation, Map<Suit, String> suitsTranslatableKey, Map<Card, ResourceLocation> cardsLocation, Map<Card, String> cardsTranslatableKey, ResourceLocation deckLocation, String deckTranslatableKey) {
-        this(rarity, tradeable, cards, suit -> suitsLocation.getOrDefault(suit, Charta.MISSING_SUIT), suit -> suitsTranslatableKey.getOrDefault(suit, "charta.suit.unknown"), card -> cardsLocation.getOrDefault(card, Charta.MISSING_CARD), card -> cardsTranslatableKey.getOrDefault(card, "charta.card.unknown"), () -> deckLocation, () -> deckTranslatableKey);
+        this(rarity, tradeable, cards, suit -> suitsLocation.getOrDefault(suit, Charta.MISSING_SUIT), suit -> suitsTranslatableKey.getOrDefault(suit, "suit.charta.unknown"), card -> cardsLocation.getOrDefault(card, Charta.MISSING_CARD), card -> cardsTranslatableKey.getOrDefault(card, "card.charta.unknown"), () -> deckLocation, () -> deckTranslatableKey);
     }
 
     public CardDeck(Rarity rarity, boolean tradeable, List<Card> cards, Function<Suit, ResourceLocation> suitsLocation, Function<Suit, String> suitsTranslatableKey, Function<Card, ResourceLocation> cardsLocation, Function<Card, String> cardsTranslatableKey, Supplier<ResourceLocation> deckLocation, Supplier<String> deckTranslatableKey) {
@@ -178,6 +178,10 @@ public class CardDeck {
     }
 
     public static CardDeck simple(Rarity rarity, boolean canBeTraded, ResourceLocation cardLocation, ResourceLocation deckLocation) {
+        return simple(rarity, canBeTraded, cardLocation, cardLocation, deckLocation);
+    }
+
+    public static CardDeck simple(Rarity rarity, boolean canBeTraded, ResourceLocation suitLocation, ResourceLocation cardLocation, ResourceLocation deckLocation) {
         List<Card> deck = new ArrayList<>();
         for (Suit suit : Suit.values()) {
             if(suit != Suit.BLANK) {
@@ -194,7 +198,7 @@ public class CardDeck {
         }
         String deckTranslatableKey = translatableKey;
         return new CardDeck(rarity, canBeTraded, deck, (suit) -> {
-            return cardLocation.withSuffix("/" + suit.ordinal());
+            return suitLocation.withSuffix("/" + suit.ordinal());
         }, (suit) -> {
             return "suit.charta."+(suit == Suit.BLANK ? "unknown" : suit.getSerializedName());
         }, (card) -> {

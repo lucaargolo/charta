@@ -39,7 +39,7 @@ public class DeckImageProvider implements DataProvider {
                 URL resource = Charta.class.getClassLoader().getResource("decks");
                 URI uri = Objects.requireNonNull(resource).toURI();
 
-                try (Stream<Path> paths = Files.walk(Paths.get(uri), 1)) {
+                try (Stream<Path> paths = Files.walk(Paths.get(uri))) {
                     paths.filter(Files::isRegularFile).forEach(path -> {
                         String fileName = path.getFileName().toString();
                         String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;

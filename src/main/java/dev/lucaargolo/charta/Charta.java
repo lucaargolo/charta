@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Mod(Charta.MOD_ID)
@@ -191,7 +192,7 @@ public class Charta {
                     new HashMap<>(Charta.CARD_IMAGES.getImages()),
                     new HashMap<>(Charta.DECK_IMAGES.getImages())
                 ));
-                PacketDistributor.sendToPlayer(serverPlayer, new CardDecksPayload(Charta.CARD_DECKS.getDecks()));
+                PacketDistributor.sendToPlayer(serverPlayer, new CardDecksPayload(new LinkedHashMap<>(Charta.CARD_DECKS.getDecks())));
             }
         }
 
@@ -202,7 +203,7 @@ public class Charta {
                 new HashMap<>(Charta.CARD_IMAGES.getImages()),
                 new HashMap<>(Charta.DECK_IMAGES.getImages())
             ));
-            PacketDistributor.sendToAllPlayers(new CardDecksPayload(Charta.CARD_DECKS.getDecks()));
+            PacketDistributor.sendToAllPlayers(new CardDecksPayload(new LinkedHashMap<>(Charta.CARD_DECKS.getDecks())));
         }
 
     }

@@ -39,7 +39,7 @@ public class SuitImageProvider implements DataProvider {
                 URL resource = Charta.class.getClassLoader().getResource("suits");
                 URI uri = Objects.requireNonNull(resource).toURI();
 
-                try (Stream<Path> paths = Files.walk(Paths.get(uri), 1)) {
+                try (Stream<Path> paths = Files.walk(Paths.get(uri))) {
                     paths.filter(Files::isRegularFile).forEach(path -> {
                         String fileName = path.getFileName().toString();
                         String suitName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;

@@ -16,17 +16,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CardDeckResource implements ResourceManagerReloadListener {
 
     private static final CardDeck MISSING = CardDeck.simple(Rarity.COMMON, false, Charta.MISSING_CARD, Charta.MISSING_CARD);
 
-    private HashMap<ResourceLocation, CardDeck> decks = new HashMap<>();
+    private LinkedHashMap<ResourceLocation, CardDeck> decks = new LinkedHashMap<>();
 
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
         decks.clear();
+
         manager.listResources("decks", id -> id.getPath().endsWith(".json")).forEach((id, resource) -> {
             try(InputStream stream = resource.open()) {
                 ResourceLocation location = id.withPath(s -> s.replace("decks/", "").replace(".json", ""));
@@ -39,6 +44,14 @@ public class CardDeckResource implements ResourceManagerReloadListener {
                 Charta.LOGGER.error("Error while reading deck {} :", id, e);
             }
         });
+
+        //Sort it so it looks great in the creative menu.
+        decks = decks.entrySet().stream().sorted(Comparator.comparing((Map.Entry<ResourceLocation, CardDeck> entry) -> entry.getValue().isTradeable()).reversed()
+            .thenComparing(entry -> entry.getValue().getRarity().ordinal())
+            .thenComparing(entry -> entry.getValue().getCards().size())
+            .thenComparing(Map.Entry::getKey)
+        ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
         Charta.LOGGER.info("Loaded {} decks", decks.size());
     }
 
@@ -46,7 +59,7 @@ public class CardDeckResource implements ResourceManagerReloadListener {
         return decks;
     }
 
-    public void setDecks(HashMap<ResourceLocation, CardDeck> decks) {
+    public void setDecks(LinkedHashMap<ResourceLocation, CardDeck> decks) {
         this.decks = decks;
     }
 
