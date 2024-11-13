@@ -145,6 +145,23 @@
   "deck.charta.standard.blue": "Standard Blue Deck",
   "deck.charta.standard.green": "Standard Green Deck",
   "deck.charta.standard.yellow": "Standard Yellow Deck",
+
+  "deck.charta.light.aqua": "Light Aqua Deck",
+  "deck.charta.light.blue": "Light Blue Deck",
+  "deck.charta.light.green": "Light Green Deck",
+  "deck.charta.light.orange": "Light Orange Deck",
+  "deck.charta.light.pink": "Light Ping Deck",
+  "deck.charta.light.red": "Light Red Deck",
+  "deck.charta.light.yellow": "Light Yellow Deck",
+
+  "deck.charta.dark.aqua": "Dark Aqua Deck",
+  "deck.charta.dark.blue": "Dark Blue Deck",
+  "deck.charta.dark.green": "Dark Green Deck",
+  "deck.charta.dark.orange": "Dark Orange Deck",
+  "deck.charta.dark.pink": "Dark Ping Deck",
+  "deck.charta.dark.red": "Dark Red Deck",
+  "deck.charta.dark.yellow": "Dark Yellow Deck",
+
   "deck.charta.inverted": "Inverted Deck",
   "deck.charta.metals.copper": "Copper Deck",
   "deck.charta.metals.gold": "Gold Deck",

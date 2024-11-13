@@ -162,7 +162,7 @@
     "diamonds:king": "charta:fun/4_13",
     "diamonds:joker": "charta:fun/4_14"
   },
-  "rarity": "uncommon",
+  "rarity": "rare",
   "tradeable": true,
   "cards": [
     "spades:blank",

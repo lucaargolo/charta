@@ -33,7 +33,24 @@ public class CardDeckProvider implements DataProvider {
         CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/red")),
         CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/yellow")),
 
-        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("inverted"), Charta.id("inverted")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/aqua")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/blue")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/green")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/orange")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/pink")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/red")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/yellow")),
+
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/aqua")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/blue")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/green")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/orange")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/pink")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/red")),
+        CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/yellow")),
+
+        CardDeck.simple(Rarity.RARE, true, Charta.id("inverted"), Charta.id("inverted")),
+        CardDeck.fun(Rarity.RARE, true, Charta.id("fun"), Charta.id("fun")),
 
         CardDeck.simple(Rarity.UNCOMMON, false, Charta.id("metallic"), Charta.id("metals/copper"), Charta.id("metals/copper")),
         CardDeck.simple(Rarity.UNCOMMON, false, Charta.id("metallic"), Charta.id("metals/iron"), Charta.id("metals/iron")),
@@ -43,9 +60,8 @@ public class CardDeckProvider implements DataProvider {
         CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/emerald"), Charta.id("gems/emerald")),
         CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/ruby"), Charta.id("gems/ruby")),
         CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/sapphire"), Charta.id("gems/sapphire")),
-        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/amethyst"), Charta.id("gems/amethyst")),
+        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/amethyst"), Charta.id("gems/amethyst"))
 
-        CardDeck.fun(Rarity.UNCOMMON, true, Charta.id("fun"), Charta.id("fun"))
     );
 
     private final PackOutput output;
