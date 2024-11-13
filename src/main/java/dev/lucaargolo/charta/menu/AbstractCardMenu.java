@@ -228,4 +228,17 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         }
     }
 
+    @Override
+    public void removed(@NotNull Player player) {
+        super.removed(player);
+        List<Card> carriedCards = this.getCarriedCards();
+        if (!carriedCards.isEmpty()) {
+            for(Card carriedCard : carriedCards) {
+                this.cardPlayer.getHand().add(carriedCard);
+                this.getGame().getCensoredHand(this.cardPlayer).add(Card.BLANK);
+            }
+            this.setCarriedCards(ImmutableList.of());
+        }
+
+    }
 }
