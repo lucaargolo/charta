@@ -36,16 +36,10 @@ public class CardImageUtils {
     }
 
     public static <I extends CardImage> DynamicTexture convertImage(I image) {
-        NativeImage nativeImage = new NativeImage(image.getWidth(), image.getHeight(), true);
+        NativeImage nativeImage = new NativeImage(NativeImage.Format.LUMINANCE, image.getWidth(), image.getHeight(), true);
         for(int x = 0; x < image.getWidth(); x++) {
             for(int y = 0; y < image.getHeight(); y++) {
-                int argbColor = image.getARGBPixel(x, y);
-                int alpha = (argbColor >> 24) & 0xFF;
-                int red = (argbColor >> 16) & 0xFF;
-                int green = (argbColor >> 8) & 0xFF;
-                int blue = argbColor & 0xFF;
-                int abgrColor = (alpha << 24) | (blue << 16) | (green << 8) | red;
-                nativeImage.setPixelRGBA(x, y, abgrColor);
+                nativeImage.setPixelLuminance(x, y, image.getPixel(x, y));
             }
         }
         return new DynamicTexture(nativeImage);
