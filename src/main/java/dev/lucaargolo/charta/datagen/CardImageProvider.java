@@ -43,7 +43,8 @@ public class CardImageProvider implements DataProvider {
                     paths.filter(Files::isRegularFile).forEach(path -> {
                         String fileName = path.getFileName().toString();
                         String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
-                        File cardOutputFolder = new File(cardsOutputPath + File.separator + cardName);
+                        String subFolder = path.getParent().toString().replace("cards", "");
+                        File cardOutputFolder = new File(cardsOutputPath + File.separator + subFolder + File.separator + cardName);
                         cardOutputFolder.mkdirs();
                         try (InputStream stream = Files.newInputStream(path)) {
                             CardImage.saveCards(ImageIO.read(stream), cardOutputFolder, (fileToSave, cardImage) -> {

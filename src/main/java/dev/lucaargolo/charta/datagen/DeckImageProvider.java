@@ -43,9 +43,10 @@ public class DeckImageProvider implements DataProvider {
                     paths.filter(Files::isRegularFile).forEach(path -> {
                         String fileName = path.getFileName().toString();
                         String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
+                        String subFolder = path.getParent().toString().replace("decks", "");
                         File cardOutputFolder = new File(decksOutputPath);
                         cardOutputFolder.mkdirs();
-                        File cardOutputFile = new File(cardOutputFolder + File.separator + cardName);
+                        File cardOutputFile = new File(cardOutputFolder + File.separator + subFolder + File.separator + cardName);
                         try (InputStream stream = Files.newInputStream(path)) {
                             CardImage.saveCards(ImageIO.read(stream), cardOutputFile, (fileToSave, cardImage) -> {
                                 CardImageUtils.saveImage(cardImage, fileToSave, cachedOutput);

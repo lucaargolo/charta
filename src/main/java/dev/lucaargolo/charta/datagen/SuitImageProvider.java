@@ -43,7 +43,8 @@ public class SuitImageProvider implements DataProvider {
                     paths.filter(Files::isRegularFile).forEach(path -> {
                         String fileName = path.getFileName().toString();
                         String suitName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
-                        File cardOutputFolder = new File(cardsOutputPath + File.separator + suitName);
+                        String subFolder = path.getParent().toString().replace("suits", "");
+                        File cardOutputFolder = new File(cardsOutputPath + File.separator + subFolder + File.separator + suitName);
                         cardOutputFolder.mkdirs();
                         try (InputStream stream = Files.newInputStream(path)) {
                             SuitImage.saveSuits(ImageIO.read(stream), cardOutputFolder, (fileToSave, suitImage) -> {

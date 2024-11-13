@@ -27,23 +27,23 @@ import java.util.concurrent.CompletableFuture;
 public class CardDeckProvider implements DataProvider {
 
     private static final List<CardDeck> DECKS = List.of(
-        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("black")),
-        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("blue")),
-        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("green")),
-        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("red")),
-        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("yellow")),
+        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/black")),
+        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/blue")),
+        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/green")),
+        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/red")),
+        CardDeck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/yellow")),
 
         CardDeck.simple(Rarity.UNCOMMON, true, Charta.id("inverted"), Charta.id("inverted")),
 
-        CardDeck.simple(Rarity.UNCOMMON, false, Charta.id("metallic"), Charta.id("copper"), Charta.id("copper")),
-        CardDeck.simple(Rarity.UNCOMMON, false, Charta.id("metallic"), Charta.id("iron"), Charta.id("iron")),
-        CardDeck.simple(Rarity.UNCOMMON, false, Charta.id("metallic"), Charta.id("gold"), Charta.id("gold")),
+        CardDeck.simple(Rarity.UNCOMMON, false, Charta.id("metallic"), Charta.id("metals/copper"), Charta.id("metals/copper")),
+        CardDeck.simple(Rarity.UNCOMMON, false, Charta.id("metallic"), Charta.id("metals/iron"), Charta.id("metals/iron")),
+        CardDeck.simple(Rarity.UNCOMMON, false, Charta.id("metallic"), Charta.id("metals/gold"), Charta.id("metals/gold")),
 
-        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("diamond"), Charta.id("diamond")),
-        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("emerald"), Charta.id("emerald")),
-        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("ruby"), Charta.id("ruby")),
-        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("sapphire"), Charta.id("sapphire")),
-        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("amethyst"), Charta.id("amethyst")),
+        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/diamond"), Charta.id("gems/diamond")),
+        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/emerald"), Charta.id("gems/emerald")),
+        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/ruby"), Charta.id("gems/ruby")),
+        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/sapphire"), Charta.id("gems/sapphire")),
+        CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/amethyst"), Charta.id("gems/amethyst")),
 
         CardDeck.fun(Rarity.UNCOMMON, true, Charta.id("fun"), Charta.id("fun"))
     );

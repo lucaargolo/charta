@@ -192,9 +192,9 @@ public class CardDeck {
                 }
             }
         }
-        String translatableKey = "deck." + deckLocation.getNamespace() + "." + cardLocation.getPath();
+        String translatableKey = "deck." + deckLocation.getNamespace() + "." + cardLocation.getPath().replace("/", ".");
         if(!cardLocation.getPath().equals(deckLocation.getPath())) {
-            translatableKey +=  "_" + deckLocation.getPath();
+            translatableKey =  "deck." + deckLocation.getNamespace() + "." + deckLocation.getPath().replace("/", ".");
         }
         String deckTranslatableKey = translatableKey;
         return new CardDeck(rarity, canBeTraded, deck, (suit) -> {
@@ -220,9 +220,9 @@ public class CardDeck {
                 }
             }
         }
-        String translatableKey = "deck." + deckLocation.getNamespace() + "." + cardLocation.getPath();
+        String translatableKey = "deck." + deckLocation.getNamespace() + "." + cardLocation.getPath().replace("/", ".");
         if(!cardLocation.getPath().equals(deckLocation.getPath())) {
-            translatableKey +=  "_" + deckLocation.getPath();
+            translatableKey =  "deck." + deckLocation.getNamespace() + "." + deckLocation.getPath().replace("/", ".");
         }
         String deckTranslatableKey = translatableKey;
         return new CardDeck(rarity, canBeTraded, deck, (suit) -> {
