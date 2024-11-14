@@ -4,6 +4,7 @@
 #moj_import <charta:palette.glsl>
 
 uniform sampler2D Sampler0;
+uniform sampler2D Sampler2;
 
 uniform vec4 ColorModulator;
 uniform float FogStart;
@@ -20,11 +21,18 @@ out vec4 fragColor;
 
 void main() {
     vec4 color = paletteTexture(Sampler0, texCoord0);
+    bool glow = false;
+    if(color.a > 1.0) {
+        glow = true;
+        color.a = 1.0;
+    }
     if (color.a < 0.1) {
         discard;
     }
-    color *= vertexColor * ColorModulator;
-    color.rgb = mix(overlayColor.rgb, color.rgb, overlayColor.a);
-    color *= lightMapColor;
+    if(!glow) {
+        color *= vertexColor * ColorModulator;
+        color.rgb = mix(overlayColor.rgb, color.rgb, overlayColor.a);
+        color *= lightMapColor;
+    }
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

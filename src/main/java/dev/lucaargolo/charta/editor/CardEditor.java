@@ -181,9 +181,11 @@ public class CardEditor extends JFrame {
             }
             if (isValidButton(button) && x >= 0 && x < CardImage.WIDTH && y >= 0 && y < CardImage.HEIGHT) {
                 int colorIndex = button == MouseEvent.BUTTON1 ? toolPanel.getLeftIndex() : toolPanel.getRightIndex();
-                int alphaIndex = toolPanel.getAlphaIndex() - 1;
-                if(!toolPanel.isFilling()) {
+                int alphaIndex = toolPanel.getAlphaIndex();
+                if(!toolPanel.isFilling() && !toolPanel.isErasing()) {
                     currentImage.setPixel(x, y, colorIndex, alphaIndex);
+                }else if(toolPanel.isErasing()) {
+                    currentImage.setPixel(x, y, 0, 0);
                 }else{
                     byte targetPixel = (byte) ((alphaIndex << 6) | (colorIndex & 0x3F));
                     byte currentPixel = currentImage.getPixel(x, y);

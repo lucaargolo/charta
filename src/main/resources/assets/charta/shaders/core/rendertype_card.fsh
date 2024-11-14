@@ -18,7 +18,10 @@ out vec4 fragColor;
 void main() {
     vec2 uv = (p.xy / p.z) - o;
     vec4 color = paletteTexture(Sampler0, uv + 0.5);
-
+    color.a = min(color.a, 1.0);
+    if (color.a < 0.1) {
+        discard;
+    }
     fragColor = color * vertexColor * ColorModulator;
     fragColor.a *= step(max(abs(uv.x), abs(uv.y)), 0.5);
 }

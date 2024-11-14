@@ -97,7 +97,7 @@ public class CardImage {
         int colorIndex = pixelByte & 0x3F;
 
         int rgb = COLOR_PALETTE[colorIndex];
-        int alpha = ALPHA_PALETTE[alphaIndex];
+        int alpha = (colorIndex != 0 && alphaIndex == 0) ? 255 : ALPHA_PALETTE[alphaIndex];
 
         return (alpha << 24) | (rgb & 0x00FFFFFF);
     }

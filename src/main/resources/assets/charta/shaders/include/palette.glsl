@@ -27,10 +27,15 @@ vec4 paletteTexture(sampler2D Sampler0, vec2 uv) {
     int pixelValue = int(redChannel * 255.0);
 
     int colorIndex = pixelValue & 63;
-    int transparencyIndex = (pixelValue >> 6) & 3;
+    int alphaIndex = (pixelValue >> 6) & 3;
 
     vec3 color = COLOR_PALETTE[colorIndex];
-    float alpha = ALPHA_PALETTE[transparencyIndex];
+    float alpha;
+    if(colorIndex != 0 && alphaIndex == 0) {
+        alpha = 2.0;
+    }else{
+        alpha = ALPHA_PALETTE[alphaIndex];
+    }
 
     return vec4(color, alpha);
 }

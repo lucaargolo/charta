@@ -13,6 +13,7 @@ out vec4 fragColor;
 
 void main() {
     vec4 color = paletteTexture(Sampler0, texCoord0) * vertexColor;
+    color.a = min(color.a, 1.0);
     if (color.a < 0.1) {
         discard;
     }
