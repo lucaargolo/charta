@@ -162,7 +162,7 @@
     "diamonds:king": "charta:metals/copper/4_13",
     "diamonds:joker": "charta:metals/copper/4_14"
   },
-  "rarity": "uncommon",
+  "rarity": "rare",
   "tradeable": false,
   "cards": [
     "spades:ace",

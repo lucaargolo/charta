@@ -104,6 +104,7 @@ public class Charta {
         ModMenus.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
         ModDataComponentTypes.register(modEventBus);
+        
     }
 
     public static ResourceLocation id(String path) {

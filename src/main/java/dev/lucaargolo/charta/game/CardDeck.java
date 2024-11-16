@@ -209,6 +209,10 @@ public class CardDeck {
     }
 
     public static CardDeck fun(Rarity rarity, boolean canBeTraded, ResourceLocation cardLocation, ResourceLocation deckLocation) {
+        return fun(rarity, canBeTraded, cardLocation, cardLocation, deckLocation);
+    }
+
+    public static CardDeck fun(Rarity rarity, boolean canBeTraded, ResourceLocation suitLocation, ResourceLocation cardLocation, ResourceLocation deckLocation) {
         List<Card> deck = new ArrayList<>();
         for (Suit suit : Suit.values()) {
             if(suit != Suit.BLANK) {
@@ -226,7 +230,7 @@ public class CardDeck {
         }
         String deckTranslatableKey = translatableKey;
         return new CardDeck(rarity, canBeTraded, deck, (suit) -> {
-            return cardLocation.withSuffix("/" + suit.ordinal());
+            return suitLocation.withSuffix("/" + suit.ordinal());
         }, (suit) -> {
             return "suit.charta."+getFunSuit(suit);
         }, (card) -> {

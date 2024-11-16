@@ -1,12 +1,18 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderSystem;
+import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import dev.lucaargolo.charta.utils.HoverableRenderable;
 import dev.lucaargolo.charta.utils.TickableWidget;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,8 +25,12 @@ public abstract class CardScreen extends Screen implements HoverableRenderable {
         super(title);
     }
 
+    protected abstract void renderFg(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY);
+
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        ChartaClient.getGlowRenderTarget().clear(Minecraft.ON_OSX);
+        Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(font, title, width/2, 20, 0xFFFFFFFF);
         for (Renderable renderable : this.renderables) {
@@ -47,6 +57,8 @@ public abstract class CardScreen extends Screen implements HoverableRenderable {
                 this.hoverable = null;
             }
         }
+        renderFg(guiGraphics, mouseX, mouseY);
+        renderGlowBlur(guiGraphics, partialTick);
     }
 
     @Override
@@ -60,6 +72,15 @@ public abstract class CardScreen extends Screen implements HoverableRenderable {
                 }
             }
         }
+    }
+
+    protected void renderGlowBlur(GuiGraphics guiGraphics, float partialTick) {
+        ChartaClient.processBlurEffect(partialTick);
+        RenderTarget glowTarget = ChartaClient.getGlowRenderTarget();
+        Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, glowTarget.getColorTextureId());
+        ChartaGuiGraphics.innerBlit(guiGraphics, 0, width, 0, height, 0, 1, 1, 0);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderSystem;
+import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.client.gui.components.CardSlotWidget;
 import dev.lucaargolo.charta.client.gui.components.CardWidget;
 import dev.lucaargolo.charta.game.Card;
@@ -9,16 +12,14 @@ import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
-import dev.lucaargolo.charta.utils.CardImage;
-import dev.lucaargolo.charta.utils.CardPlayerHead;
-import dev.lucaargolo.charta.utils.HoverableRenderable;
-import dev.lucaargolo.charta.utils.TickableWidget;
+import dev.lucaargolo.charta.utils.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -207,6 +208,16 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
             }
         }
         guiGraphics.pose().popPose();
+        renderGlowBlur(guiGraphics, partialTick);
+    }
+
+    protected void renderGlowBlur(GuiGraphics guiGraphics, float partialTick) {
+        ChartaClient.processBlurEffect(partialTick);
+        RenderTarget glowTarget = ChartaClient.getGlowRenderTarget();
+        Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, glowTarget.getColorTextureId());
+        ChartaGuiGraphics.innerBlit(guiGraphics, 0, width, 0, height, 0, 1, 1, 0);
     }
 
     @Override

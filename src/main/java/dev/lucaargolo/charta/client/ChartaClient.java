@@ -1,6 +1,8 @@
 package dev.lucaargolo.charta.client;
 
-import com.mojang.blaze3d.shaders.Uniform;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.blaze3d.pipeline.MainTarget;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
@@ -14,15 +16,18 @@ import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
@@ -31,19 +36,34 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
 public class ChartaClient {
 
-    public static ShaderInstance POSITION_PALETTE_COLOR_SHADER;
-    public static ShaderInstance ENTITY_CARD_SHADER;
+    private static final ResourceLocation BLUR_LOCATION = Charta.id("shaders/post/blur.json");
 
+    private static RenderTarget glowRenderTarget;
+    private static PostChain glowBlurEffect;
+
+    public static ShaderInstance IMAGE_SHADER;
+    public static ShaderInstance IMAGE_GLOW_SHADER;
     public static ShaderInstance CARD_SHADER;
-    public static Uniform CARD_FOV;
-    public static Uniform CARD_X_ROT;
-    public static Uniform CARD_Y_ROT;
-    public static Uniform CARD_INSET;
+    public static ShaderInstance CARD_GLOW_SHADER;
 
+    private static final List<Consumer<Float>> cardFovUniforms = new ArrayList<>();
+    public static Consumer<Float> CARD_FOV = f -> cardFovUniforms.forEach(c -> c.accept(f));
+    private static final List<Consumer<Float>> cardXRotUniforms = new ArrayList<>();
+    public static Consumer<Float> CARD_X_ROT = f -> cardXRotUniforms.forEach(c -> c.accept(f));
+    private static final List<Consumer<Float>> cardYRotUniforms = new ArrayList<>();
+    public static Consumer<Float> CARD_Y_ROT = f -> cardYRotUniforms.forEach(c -> c.accept(f));
+    private static final List<Consumer<Float>> cardInsetUniforms = new ArrayList<>();
+    public static Consumer<Float> CARD_INSET = f -> cardInsetUniforms.forEach(c -> c.accept(f));
+
+    public static ShaderInstance ENTITY_CARD_SHADER;
     public static ShaderInstance IRON_LEASH_SHADER;
 
     public static void generateImages() {
@@ -102,9 +122,52 @@ public class ChartaClient {
         Charta.DECK_IMAGES.getImages().clear();
     }
 
+    public static void processBlurEffect(float partialTick) {
+        float f = 2f;
+        if (glowBlurEffect != null) {
+            glowBlurEffect.setUniform("Radius", f);
+            glowBlurEffect.process(partialTick);
+        }
+    }
+
+    public static RenderTarget getGlowRenderTarget() {
+        return glowRenderTarget;
+    }
+
+    public static PostChain getGlowBlurEffect() {
+        return glowBlurEffect;
+    }
+
+    private static void loadGlowBlurEffect(ResourceProvider resourceProvider) {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        if (glowBlurEffect != null) {
+            glowBlurEffect.close();
+        }
+
+        try {
+            glowBlurEffect = new PostChain(minecraft.getTextureManager(), resourceProvider, getGlowRenderTarget(), BLUR_LOCATION);
+            glowBlurEffect.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
+        } catch (IOException ioexception) {
+            Charta.LOGGER.warn("Failed to load shader: {}", BLUR_LOCATION, ioexception);
+        } catch (JsonSyntaxException jsonsyntaxexception) {
+            Charta.LOGGER.warn("Failed to parse shader: {}", BLUR_LOCATION, jsonsyntaxexception);
+        }
+    }
+
     @OnlyIn(Dist.CLIENT)
     @EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
+
+        @SubscribeEvent
+        public static void onClientSetup(FMLClientSetupEvent event) {
+            Minecraft minecraft = Minecraft.getInstance();
+            minecraft.submit(() -> {
+                glowRenderTarget = new MainTarget(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
+                glowRenderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+                glowRenderTarget.clear(Minecraft.ON_OSX);
+            });
+        }
 
         @SubscribeEvent
         public static void registerCoverModel(ModelEvent.RegisterAdditional event) {
@@ -131,18 +194,33 @@ public class ChartaClient {
 
         @SubscribeEvent
         public static void registerShaders(RegisterShadersEvent event) throws IOException {
-            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("position_palette_color"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
-                POSITION_PALETTE_COLOR_SHADER = instance;
+            loadGlowBlurEffect(event.getResourceProvider());
+            cardFovUniforms.clear();
+            cardXRotUniforms.clear();
+            cardYRotUniforms.clear();
+            cardInsetUniforms.clear();
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("image"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                IMAGE_SHADER = instance;
+            });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("image_glow"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                IMAGE_GLOW_SHADER = instance;
+            });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("card"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                cardFovUniforms.add(Objects.requireNonNull(instance.getUniform("Fov"))::set);
+                cardXRotUniforms.add(Objects.requireNonNull(instance.getUniform("XRot"))::set);
+                cardYRotUniforms.add(Objects.requireNonNull(instance.getUniform("YRot"))::set);
+                cardInsetUniforms.add(Objects.requireNonNull(instance.getUniform("InSet"))::set);
+                CARD_SHADER = instance;
+            });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("card_glow"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                cardFovUniforms.add(Objects.requireNonNull(instance.getUniform("Fov"))::set);
+                cardXRotUniforms.add(Objects.requireNonNull(instance.getUniform("XRot"))::set);
+                cardYRotUniforms.add(Objects.requireNonNull(instance.getUniform("YRot"))::set);
+                cardInsetUniforms.add(Objects.requireNonNull(instance.getUniform("InSet"))::set);
+                CARD_GLOW_SHADER = instance;
             });
             event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("rendertype_entity_card"), DefaultVertexFormat.NEW_ENTITY), instance -> {
                 ENTITY_CARD_SHADER = instance;
-            });
-            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("rendertype_card"), DefaultVertexFormat.BLOCK), instance -> {
-                CARD_FOV = instance.getUniform("Fov");
-                CARD_X_ROT  = instance.getUniform("XRot");
-                CARD_Y_ROT  = instance.getUniform("YRot");
-                CARD_INSET  = instance.getUniform("InSet");
-                CARD_SHADER = instance;
             });
             event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("rendertype_iron_leash"), DefaultVertexFormat.POSITION_COLOR_LIGHTMAP), instance -> {
                 IRON_LEASH_SHADER = instance;
@@ -152,8 +230,22 @@ public class ChartaClient {
     }
 
     @Nullable
-    public static ShaderInstance getPositionPaletteColorShader() {
-        return POSITION_PALETTE_COLOR_SHADER;
+    public static ShaderInstance getImageShader() {
+        return IMAGE_SHADER;
     }
 
+    @Nullable
+    public static ShaderInstance getImageGlowShader() {
+        return IMAGE_GLOW_SHADER;
+    }
+
+    @Nullable
+    public static ShaderInstance getCardShader() {
+        return CARD_SHADER;
+    }
+
+    @Nullable
+    public static ShaderInstance getCardGlowShader() {
+        return CARD_GLOW_SHADER;
+    }
 }

@@ -13,7 +13,6 @@ public class ModRenderType extends RenderType {
     }
 
     private static final RenderStateShard.ShaderStateShard ENTITY_CARD_SHADER = new RenderStateShard.ShaderStateShard(() -> ChartaClient.ENTITY_CARD_SHADER);
-    private static final RenderStateShard.ShaderStateShard CARD_SHADER = new RenderStateShard.ShaderStateShard(() -> ChartaClient.CARD_SHADER);
     private static final RenderStateShard.ShaderStateShard IRON_LEASH_SHADER = new RenderStateShard.ShaderStateShard(() -> ChartaClient.IRON_LEASH_SHADER);
 
     private static final RenderType IRON_LEASH = create(
@@ -38,17 +37,6 @@ public class ModRenderType extends RenderType {
                 .setCullState(NO_CULL)
                 .setLightmapState(LIGHTMAP)
                 .setOverlayState(OVERLAY)
-                .createCompositeState(true)
-        );
-    }
-
-    public static RenderType card(ResourceLocation id) {
-        return create("card", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 2097152, true, true,
-            RenderType.CompositeState.builder()
-                .setLightmapState(LIGHTMAP)
-                .setShaderState(CARD_SHADER)
-                .setTextureState(new RenderStateShard.TextureStateShard(id, false, false))
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                 .createCompositeState(true)
         );
     }

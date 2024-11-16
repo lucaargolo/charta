@@ -61,8 +61,10 @@ public class CardImage {
 
     public boolean isEmpty() {
         for (int i = 0; i < totalPixels; i++) {
-            int alphaIndex = (pixels[i] >> 6) & 0x03;
-            if(alphaIndex != 0) {
+            byte pixelByte = pixels[i];
+            int alphaIndex = (pixelByte >> 6) & 0x03;
+            int colorIndex = pixelByte & 0x3F;
+            if(alphaIndex != 0 || colorIndex != 0) {
                 return false;
             }
         }
