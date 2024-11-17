@@ -90,6 +90,22 @@ public class CardImage {
         pixels[y * width + x] = pixelByte;
     }
 
+    public int getARGBGlowPixel(int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height)
+            throw new IllegalArgumentException("Invalid pixel coordinates.");
+
+        byte pixelByte = pixels[y * width + x];
+        int alphaIndex = (pixelByte >> 6) & 0x03;
+        int colorIndex = pixelByte & 0x3F;
+
+        int rgb = COLOR_PALETTE[colorIndex];
+        if(colorIndex != 0 && alphaIndex == 0) {
+            return (255 << 24) | (rgb & 0x00FFFFFF);
+        }else{
+            return 0x00000000;
+        }
+    }
+
     public int getARGBPixel(int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height)
             throw new IllegalArgumentException("Invalid pixel coordinates.");

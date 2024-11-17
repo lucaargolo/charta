@@ -70,7 +70,7 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
 
             int j = 0;
             for(Card card : cards) {
-                CardWidget cardWidget = new CardWidget(this, deck.getCardTexture(card), deck.getCardTranslatableKey(card), 25+(leftOffset*j) + left/2, 45+(topOffset*i) + top/2, 1f);
+                CardWidget cardWidget = new CardWidget(this, card, deck, 25+(leftOffset*j) + left/2, 45+(topOffset*i) + top/2, 1f);
                 this.addRenderableWidget(cardWidget);
                 j++;
             }

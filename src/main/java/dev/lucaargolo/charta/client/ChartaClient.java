@@ -11,6 +11,7 @@ import dev.lucaargolo.charta.client.blockentity.CardTableBlockEntityRenderer;
 import dev.lucaargolo.charta.client.entity.IronLeashKnotRenderer;
 import dev.lucaargolo.charta.client.gui.screens.CrazyEightsScreen;
 import dev.lucaargolo.charta.client.item.DeckItemExtensions;
+import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.ModMenus;
@@ -51,8 +52,10 @@ public class ChartaClient {
 
     public static ShaderInstance IMAGE_SHADER;
     public static ShaderInstance IMAGE_GLOW_SHADER;
+    public static ShaderInstance IMAGE_ARGB_SHADER;
     public static ShaderInstance CARD_SHADER;
     public static ShaderInstance CARD_GLOW_SHADER;
+    public static ShaderInstance CARD_ARGB_SHADER;
 
     private static final List<Consumer<Float>> cardFovUniforms = new ArrayList<>();
     public static Consumer<Float> CARD_FOV = f -> cardFovUniforms.forEach(c -> c.accept(f));
@@ -69,20 +72,21 @@ public class ChartaClient {
     public static void generateImages() {
         Minecraft client = Minecraft.getInstance();
         TextureManager manager = client.getTextureManager();
-        manager.register(Charta.MISSING_SUIT, CardImageUtils.convertImage(CardImageUtils.EMPTY_SUIT));
+        manager.register(Charta.MISSING_SUIT, CardImageUtils.convertImage(CardImageUtils.EMPTY_SUIT, IrisCompat.isPresent(), false));
         Charta.CARD_SUITS.getImages().forEach((id, image) -> {
             ResourceLocation suitId = ChartaClient.getSuitTexture(id);
-            manager.register(suitId, CardImageUtils.convertImage(image));
+            manager.register(suitId, CardImageUtils.convertImage(image, IrisCompat.isPresent(), false));
         });
-        manager.register(Charta.MISSING_CARD, CardImageUtils.convertImage(CardImageUtils.EMPTY_CARD));
+        manager.register(Charta.MISSING_CARD, CardImageUtils.convertImage(CardImageUtils.EMPTY_CARD, IrisCompat.isPresent(), false));
         Charta.CARD_IMAGES.getImages().forEach((id, image) -> {
             ResourceLocation cardId = ChartaClient.getCardTexture(id);
-            manager.register(cardId, CardImageUtils.convertImage(image));
+            manager.register(cardId, CardImageUtils.convertImage(image, IrisCompat.isPresent(), false));
         });
         Charta.DECK_IMAGES.getImages().forEach((id, image) -> {
             ResourceLocation deckId = ChartaClient.getDeckTexture(id);
-            manager.register(deckId, CardImageUtils.convertImage(image));
+            manager.register(deckId, CardImageUtils.convertImage(image, IrisCompat.isPresent(), false));
         });
+        IrisCompat.generateImages();
     }
 
     public static ResourceLocation getSuitTexture(ResourceLocation location) {
@@ -118,6 +122,7 @@ public class ChartaClient {
         manager.release(Charta.MISSING_CARD);
         Charta.CARD_IMAGES.getImages().keySet().stream().map(ChartaClient::getCardTexture).forEach(manager::release);
         Charta.DECK_IMAGES.getImages().keySet().stream().map(ChartaClient::getDeckTexture).forEach(manager::release);
+        IrisCompat.clearImages();
         Charta.CARD_IMAGES.getImages().clear();
         Charta.DECK_IMAGES.getImages().clear();
     }
@@ -205,6 +210,9 @@ public class ChartaClient {
             event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("image_glow"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
                 IMAGE_GLOW_SHADER = instance;
             });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("image_argb"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                IMAGE_ARGB_SHADER = instance;
+            });
             event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("card"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
                 cardFovUniforms.add(Objects.requireNonNull(instance.getUniform("Fov"))::set);
                 cardXRotUniforms.add(Objects.requireNonNull(instance.getUniform("XRot"))::set);
@@ -218,6 +226,13 @@ public class ChartaClient {
                 cardYRotUniforms.add(Objects.requireNonNull(instance.getUniform("YRot"))::set);
                 cardInsetUniforms.add(Objects.requireNonNull(instance.getUniform("InSet"))::set);
                 CARD_GLOW_SHADER = instance;
+            });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("card_argb"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                cardFovUniforms.add(Objects.requireNonNull(instance.getUniform("Fov"))::set);
+                cardXRotUniforms.add(Objects.requireNonNull(instance.getUniform("XRot"))::set);
+                cardYRotUniforms.add(Objects.requireNonNull(instance.getUniform("YRot"))::set);
+                cardInsetUniforms.add(Objects.requireNonNull(instance.getUniform("InSet"))::set);
+                CARD_ARGB_SHADER = instance;
             });
             event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("rendertype_entity_card"), DefaultVertexFormat.NEW_ENTITY), instance -> {
                 ENTITY_CARD_SHADER = instance;
@@ -240,6 +255,11 @@ public class ChartaClient {
     }
 
     @Nullable
+    public static ShaderInstance getImageArgbShader() {
+        return IMAGE_ARGB_SHADER;
+    }
+
+    @Nullable
     public static ShaderInstance getCardShader() {
         return CARD_SHADER;
     }
@@ -247,5 +267,10 @@ public class ChartaClient {
     @Nullable
     public static ShaderInstance getCardGlowShader() {
         return CARD_GLOW_SHADER;
+    }
+
+    @Nullable
+    public static ShaderInstance getCardArgbShader() {
+        return CARD_ARGB_SHADER;
     }
 }

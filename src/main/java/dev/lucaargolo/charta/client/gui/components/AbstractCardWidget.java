@@ -59,12 +59,12 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
 
         float xOffset = (this.getPreciseWidth()*1.333333f - this.getPreciseWidth())/2f;
         float yOffset = (this.getPreciseHeight()*1.333333f - this.getPreciseHeight())/2f;
-        ChartaGuiGraphics.blitCard(guiGraphics, this.getCardTexture(cardId), this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseWidth()+(xOffset*2f), this.getPreciseHeight()+(yOffset*2f));
+        ChartaGuiGraphics.blitCard(guiGraphics, this.getCardTexture(cardId, false), this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseWidth()+(xOffset*2f), this.getPreciseHeight()+(yOffset*2f));
         ChartaClient.getGlowRenderTarget().bindWrite(false);
         RenderSystem.setShaderColor(0f, 0f, 0f, 0f);
-        ChartaGuiGraphics.blitCard(guiGraphics, this.getCardTexture(cardId), this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseWidth()+(xOffset*2f), this.getPreciseHeight()+(yOffset*2f));
+        ChartaGuiGraphics.blitCard(guiGraphics, this.getCardTexture(cardId, false), this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseWidth()+(xOffset*2f), this.getPreciseHeight()+(yOffset*2f));
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        ChartaGuiGraphics.blitCardGlow(guiGraphics, this.getCardTexture(cardId), this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseWidth()+(xOffset*2f), this.getPreciseHeight()+(yOffset*2f));
+        ChartaGuiGraphics.blitCardGlow(guiGraphics, this.getCardTexture(cardId, true), this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseWidth()+(xOffset*2f), this.getPreciseHeight()+(yOffset*2f));
         Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
 
         lastInset = inset;
@@ -103,7 +103,7 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
     }
 
     @NotNull
-    public abstract ResourceLocation getCardTexture(@Nullable ResourceLocation cardId);
+    public abstract ResourceLocation getCardTexture(@Nullable ResourceLocation cardId, boolean glow);
 
     @Nullable
     public String getCardTranslatableKey() {

@@ -3,10 +3,12 @@ package dev.lucaargolo.charta.client.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ModRenderType;
+import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.item.CardDeckItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -35,13 +37,26 @@ public class DeckItemExtensions implements IClientItemExtensions {
             @Override
             @SuppressWarnings("deprecation")
             public void renderByItem(@NotNull ItemStack stack, @NotNull ItemDisplayContext displayContext, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight, int packedOverlay) {
-                CardDeck deck = CardDeckItem.getDeck(stack);
-                ResourceLocation deckTexture = deck != null ? deck.getDeckTexture() : Charta.MISSING_CARD;
-                RenderType renderType = ModRenderType.entityCard(deckTexture);
-
                 BakedModel model = minecraft.getModelManager().getModel(new ModelResourceLocation(Charta.id("deck"), "standalone"));
                 List<BakedQuad> transformedQuads = model.getQuads(null, null, RANDOM).stream().map(DeckItemExtensions::replaceQuadSprite).toList();
+
+                CardDeck deck = CardDeckItem.getDeck(stack);
+
+                if(IrisCompat.isPresent()) {
+                    ResourceLocation deckGlowTexture = deck != null ? deck.getDeckTexture(true) : Charta.MISSING_CARD;
+                    RenderType glowRenderType = RenderType.entityTranslucentEmissive(deckGlowTexture);
+                    minecraft.getItemRenderer().renderQuadList(poseStack, buffer.getBuffer(glowRenderType), transformedQuads, stack, LightTexture.FULL_BRIGHT, packedOverlay);
+                }
+
+                ResourceLocation deckTexture = deck != null ? deck.getDeckTexture(false) : Charta.MISSING_CARD;
+                RenderType renderType = IrisCompat.isPresent() ? RenderType.entityTranslucent(deckTexture) : ModRenderType.entityCard(deckTexture);
                 minecraft.getItemRenderer().renderQuadList(poseStack, buffer.getBuffer(renderType), transformedQuads, stack, packedLight, packedOverlay);
+
+                if(IrisCompat.isPresent()) {
+                    ResourceLocation deckGlowTexture = deck != null ? deck.getDeckTexture(true) : Charta.MISSING_CARD;
+                    RenderType glowRenderType = RenderType.entityTranslucentEmissive(deckGlowTexture);
+                    minecraft.getItemRenderer().renderQuadList(poseStack, buffer.getBuffer(glowRenderType), transformedQuads, stack, LightTexture.FULL_BRIGHT, packedOverlay);
+                }
             }
         };
     }

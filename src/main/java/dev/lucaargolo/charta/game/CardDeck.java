@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.utils.ExpandedStreamCodec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
@@ -98,16 +99,24 @@ public class CardDeck {
         return suitsTranslatableKeys.apply(suit);
     }
 
-    public ResourceLocation getCardTexture(Card card) {
-        return ChartaClient.getCardTexture(cardsLocation.apply(card));
+    public ResourceLocation getCardTexture(Card card, boolean glow) {
+        if(glow && IrisCompat.isPresent()) {
+            return IrisCompat.getCardGlowTexture(cardsLocation.apply(card));
+        }else {
+            return ChartaClient.getCardTexture(cardsLocation.apply(card));
+        }
     }
 
     public String getCardTranslatableKey(Card card) {
         return cardsTranslatableKeys.apply(card);
     }
 
-    public ResourceLocation getDeckTexture() {
-        return ChartaClient.getDeckTexture(deckLocation.get());
+    public ResourceLocation getDeckTexture(boolean glow) {
+        if(glow && IrisCompat.isPresent()) {
+            return IrisCompat.getDeckGlowTexture(deckLocation.get());
+        }else{
+            return ChartaClient.getDeckTexture(deckLocation.get());
+        }
     }
 
     //CODEC Getters

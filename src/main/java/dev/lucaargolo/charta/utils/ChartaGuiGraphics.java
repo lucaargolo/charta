@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.utils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.compat.IrisCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -22,25 +23,41 @@ public class ChartaGuiGraphics {
 
     public static void blitImage(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
         RenderSystem.setShaderTexture(0, textureLocation);
-        RenderSystem.setShader(ChartaClient::getImageShader);
+        if(IrisCompat.isPresent()) {
+            RenderSystem.setShader(ChartaClient::getImageArgbShader);
+        }else{
+            RenderSystem.setShader(ChartaClient::getImageShader);
+        }
         innerBlit(parent, x, x + width, y, y + height, (u + 0.0F) / textureWidth, (u + width) / textureWidth, (v + 0.0F) / textureHeight, (v + height) / textureHeight);
     }
 
     public static void blitImageGlow(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
         RenderSystem.setShaderTexture(0, textureLocation);
-        RenderSystem.setShader(ChartaClient::getImageGlowShader);
+        if(IrisCompat.isPresent()) {
+            RenderSystem.setShader(ChartaClient::getImageArgbShader);
+        }else{
+            RenderSystem.setShader(ChartaClient::getImageGlowShader);
+        }
         innerBlit(parent, x, x + width, y, y + height, (u + 0.0F) / textureWidth, (u + width) / textureWidth, (v + 0.0F) / textureHeight, (v + height) / textureHeight);
     }
 
     public static void blitCard(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float width, float height) {
         RenderSystem.setShaderTexture(0, textureLocation);
-        RenderSystem.setShader(ChartaClient::getCardShader);
+        if(IrisCompat.isPresent()) {
+            RenderSystem.setShader(ChartaClient::getCardArgbShader);
+        }else{
+            RenderSystem.setShader(ChartaClient::getCardShader);
+        }
         innerBlit(parent, x, x + width, y, y + height, 0f, 1f, 0f, 1f);
     }
 
     public static void blitCardGlow(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float width, float height) {
         RenderSystem.setShaderTexture(0, textureLocation);
-        RenderSystem.setShader(ChartaClient::getCardGlowShader);
+        if(IrisCompat.isPresent()) {
+            RenderSystem.setShader(ChartaClient::getCardArgbShader);
+        }else{
+            RenderSystem.setShader(ChartaClient::getCardGlowShader);
+        }
         innerBlit(parent, x, x + width, y, y + height, 0f, 1f, 0f, 1f);
     }
 
