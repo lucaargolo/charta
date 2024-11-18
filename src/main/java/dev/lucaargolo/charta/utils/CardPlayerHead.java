@@ -16,12 +16,14 @@ import org.lwjgl.opengl.GL11;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public record CardPlayerHead(ResourceLocation texture, float u, float v, float uOffset, float vOffset, float width, float height) {
 
     public static final CardPlayerHead UNKNOWN = new CardPlayerHead(Charta.id("textures/misc/unknown.png"), 0f, 0f, 12f, 12f, 12f, 12f);
     public static final CardPlayerHead ROBOT = new CardPlayerHead(Charta.id("textures/misc/robot.png"), 0f, 0f, 12f, 12f, 12f, 12f);
 
+    private static final Map<UUID, CardPlayerHead> playerCache = new HashMap<>();
     private static final Map<EntityType<?>, CardPlayerHead> cache = new HashMap<>();
 
     public static void renderHead(GuiGraphics graphics, int x, int y, CardPlayer player) {
@@ -35,6 +37,15 @@ public record CardPlayerHead(ResourceLocation texture, float u, float v, float u
         graphics.pose().popPose();
     }
 
+    public static CardPlayerHead get(LivingEntity entity) {
+        EntityType<?> type = entity.getType();
+        if(type.equals(EntityType.PLAYER)) {
+            return playerCache.computeIfAbsent(entity.getUUID(), u -> innerGet(entity));
+        }else{
+            return cache.computeIfAbsent(type, t -> innerGet(entity));
+        }
+    }
+
     /*
         This is a massive hack to get the head texture of an entity.
         It works by assuming lots of things:
@@ -43,91 +54,90 @@ public record CardPlayerHead(ResourceLocation texture, float u, float v, float u
             - That the single cube contains the head texture at the polygons[3]
         It works... Kinda....
      */
+
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static CardPlayerHead get(LivingEntity entity) {
-        EntityType<?> type = entity.getType();
-        return cache.computeIfAbsent(type, t -> {
-            try {
-                Minecraft minecraft = Minecraft.getInstance();
-                LivingEntityRenderer renderer = (LivingEntityRenderer) minecraft.getEntityRenderDispatcher().getRenderer(entity);
-                EntityModel<?> model = renderer.getModel();
-                Class<?> modelClass = model.getClass();
-                Field headField = null;
-                boolean last = false;
-                boolean bone = false;
-                while (headField == null && modelClass.getSuperclass() != Object.class) {
-                    for(Field f : modelClass.getFields()) {
-                        if(f.getName().contains("head")) {
-                            headField = f;
-                            break;
-                        }
-                    }
-                    for(Field f : modelClass.getDeclaredFields()) {
-                        if(f.getName().contains("head")) {
-                            headField = f;
-                            break;
-                        }
-                    }
-                    modelClass = modelClass.getSuperclass();
-                }
-                if(headField == null) {
-                    try {
-                        headField = model.getClass().getDeclaredField("bone");
-                        bone = true;
-                    }catch (NoSuchFieldException e) {
-                        headField = model.getClass().getDeclaredField("root");
-                        last = true;
+    private static CardPlayerHead innerGet(LivingEntity entity) {
+        try {
+            Minecraft minecraft = Minecraft.getInstance();
+            LivingEntityRenderer renderer = (LivingEntityRenderer) minecraft.getEntityRenderDispatcher().getRenderer(entity);
+            EntityModel<?> model = renderer.getModel();
+            Class<?> modelClass = model.getClass();
+            Field headField = null;
+            boolean last = false;
+            boolean bone = false;
+            while (headField == null && modelClass.getSuperclass() != Object.class) {
+                for (Field f : modelClass.getFields()) {
+                    if (f.getName().contains("head") && f.getType() == ModelPart.class) {
+                        headField = f;
+                        break;
                     }
                 }
-                headField.setAccessible(true);
-                ModelPart part = (ModelPart) headField.get(model);
-                if(bone) {
-                    part = part.getChild("body");
-                }
-                ModelPart.Cube cube;
-                if(!part.cubes.isEmpty()) {
-                    cube = part.cubes.getFirst();
-                }else{
-                    while (part.cubes.isEmpty() && !part.children.isEmpty()) {
-                        if(last)
-                            part = part.children.values().stream().reduce((first, second) -> second).get();
-                        else
-                            part = part.children.values().stream().findFirst().get();
-                    }
-                    cube = part.cubes.getFirst();
-                }
-                ModelPart.Polygon polygon = cube.polygons[3];
-                float minU = Float.MAX_VALUE;
-                float maxU = Float.MIN_VALUE;
-                float minV = Float.MAX_VALUE;
-                float maxV = Float.MIN_VALUE;
-                for (int i = 0; i < 4; i++) {
-                    ModelPart.Vertex vertex = polygon.vertices[i];
-                    if (vertex.u > maxU) {
-                        maxU = vertex.u;
-                    }
-                    if (vertex.v > maxV) {
-                        maxV = vertex.v;
-                    }
-                    if (vertex.u < minU) {
-                        minU = vertex.u;
-                    }
-                    if (vertex.v < minV) {
-                        minV = vertex.v;
+                for (Field f : modelClass.getDeclaredFields()) {
+                    if (f.getName().contains("head")  && f.getType() == ModelPart.class) {
+                        headField = f;
+                        break;
                     }
                 }
-                int currentTexture = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
-                ResourceLocation location = renderer.getTextureLocation(entity);
-                AbstractTexture texture = minecraft.getTextureManager().getTexture(location);
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getId());
-                int textureWidth = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
-                int textureHeight = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, currentTexture);
-                return new CardPlayerHead(location, minU * textureWidth, minV * textureHeight, (maxU - minU) * textureWidth, (maxV - minV) * textureHeight, textureWidth, textureHeight);
-            }catch (Exception e) {
-                return UNKNOWN;
+                modelClass = modelClass.getSuperclass();
             }
-        });
+            if (headField == null) {
+                try {
+                    headField = model.getClass().getDeclaredField("bone");
+                    bone = true;
+                } catch (NoSuchFieldException e) {
+                    headField = model.getClass().getDeclaredField("root");
+                    last = true;
+                }
+            }
+            headField.setAccessible(true);
+            ModelPart part = (ModelPart) headField.get(model);
+            if (bone) {
+                part = part.getChild("body");
+            }
+            ModelPart.Cube cube;
+            if (!part.cubes.isEmpty()) {
+                cube = part.cubes.getFirst();
+            } else {
+                while (part.cubes.isEmpty() && !part.children.isEmpty()) {
+                    if (last)
+                        part = part.children.values().stream().reduce((first, second) -> second).get();
+                    else
+                        part = part.children.values().stream().findFirst().get();
+                }
+                cube = part.cubes.getFirst();
+            }
+            ModelPart.Polygon polygon = cube.polygons[3];
+            float minU = Float.MAX_VALUE;
+            float maxU = Float.MIN_VALUE;
+            float minV = Float.MAX_VALUE;
+            float maxV = Float.MIN_VALUE;
+            for (int i = 0; i < 4; i++) {
+                ModelPart.Vertex vertex = polygon.vertices[i];
+                if (vertex.u > maxU) {
+                    maxU = vertex.u;
+                }
+                if (vertex.v > maxV) {
+                    maxV = vertex.v;
+                }
+                if (vertex.u < minU) {
+                    minU = vertex.u;
+                }
+                if (vertex.v < minV) {
+                    minV = vertex.v;
+                }
+            }
+            int currentTexture = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+            ResourceLocation location = renderer.getTextureLocation(entity);
+            AbstractTexture texture = minecraft.getTextureManager().getTexture(location);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getId());
+            int textureWidth = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
+            int textureHeight = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, currentTexture);
+            return new CardPlayerHead(location, minU * textureWidth, minV * textureHeight, (maxU - minU) * textureWidth, (maxV - minV) * textureHeight, textureWidth, textureHeight);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return UNKNOWN;
+        }
     }
 
 }
