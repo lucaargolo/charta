@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.menu;
 
 import dev.lucaargolo.charta.game.*;
+import dev.lucaargolo.charta.sound.ModSounds;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -20,7 +21,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         public int get(int index) {
             return switch (index) {
                 case 0 -> game.drawsLeft;
-                case 1 -> game.currentSuit.ordinal();
+                case 1 -> game.currentSuit != null ? game.currentSuit.ordinal() : -1;
                 default -> 0;
             };
         }
@@ -29,7 +30,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         public void set(int index, int value) {
             switch (index) {
                 case 0 -> game.drawsLeft = value;
-                case 1 -> game.currentSuit = Suit.values()[value];
+                case 1 -> game.currentSuit = value >= 0 ? Suit.values()[value] : null;
             }
         }
 
@@ -88,6 +89,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         addCardSlot(new CardSlot<>(this.game, g -> (cardPlayer == g.getCurrentPlayer() && g.isChoosingWild) ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
             @Override
             public void onInsert(CardPlayer player, Card card) {
+                player.playSound(ModSounds.CARD_DRAW.get());
                 if(!game.isChoosingWild)
                     game.getCensoredHand(player).add(Card.BLANK);
                 if (player == this.game.getCurrentPlayer() && this.game.drawsLeft == 0 && this.game.getBestCard(player) == null) {
@@ -97,6 +99,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
             @Override
             public void onRemove(CardPlayer player, Card card) {
+                player.playSound(ModSounds.CARD_DRAW.get());
                 if(!game.isChoosingWild)
                     game.getCensoredHand(player).removeLast();
                 super.onRemove(player, card);
@@ -112,7 +115,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     }
 
     public Suit getCurrentSuit() {
-        return Suit.values()[data.get(1)];
+        return data.get(1) >= 0 ? Suit.values()[data.get(1)] : null;
     }
 
     @Override

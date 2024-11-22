@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.game;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CrazyEightsMenu;
+import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.GameSlot;
 import dev.lucaargolo.charta.utils.TransparentLinkedList;
@@ -25,6 +26,9 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     private final TransparentLinkedList<Card> playPile = new TransparentLinkedList<>();
     private final TransparentLinkedList<Card> drawPile = new TransparentLinkedList<>();
     private final List<GameSlot> gameSlots = new ArrayList<>();
+
+    private final List<Runnable> scheduledActions = new ArrayList<>();
+    private boolean isGameReady;
 
     private final List<CardPlayer> players;
     private final List<Card> deck;
@@ -130,27 +134,44 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             player.setPlay(new CompletableFuture<>());
             player.getHand().clear();
             getCensoredHand(player).clear();
-            CardGame.dealCards(drawPile, player, getCensoredHand(player), 5);
+        }
+
+        for(int i = 0; i < 5; i++) {
+            for (CardPlayer player : players) {
+                scheduledActions.add(() -> {
+                    player.playSound(ModSounds.CARD_DRAW.get());
+                    CardGame.dealCards(drawPile, player, getCensoredHand(player), 1);
+                });
+                scheduledActions.add(() -> {});
+            }
         }
 
         Card last = drawPile.pollLast();
-        while (last.getRank() == Rank.EIGHT) {
+        while (last != null && last.getRank() == Rank.EIGHT) {
             drawPile.add(last);
             Collections.shuffle(drawPile);
             last = drawPile.pollLast();
         }
+        assert last != null;
         last.flip();
-        playPile.addLast(last);
-        currentSuit = last.getSuit();
+        Card startingCard = last;
+        scheduledActions.add(() -> {
+            playPile.addLast(startingCard);
+            currentSuit = startingCard.getSuit();
+        });
 
         currentPlayer = players.getFirst();
-
         isChoosingWild = false;
+        isGameReady = false;
         isGameOver = false;
     }
 
     @Override
     public void runGame() {
+        if(!isGameReady) {
+            return;
+        }
+
         if(drawPile.isEmpty()) {
             if(playPile.size() > 1) {
                 Card lastCard = playPile.pollLast();
@@ -167,6 +188,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
         currentPlayer.getPlay(this).thenAccept(card -> {
             currentPlayer.setPlay(new CompletableFuture<>());
             if(card == null) {
+                currentPlayer.playSound(ModSounds.CARD_DRAW.get());
                 if(drawsLeft > 0) {
                     drawsLeft--;
                     if(currentPlayer.shouldCompute()) {
@@ -179,6 +201,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                     runGame();
                 }
             }else if(canPlayCard(currentPlayer, card)) {
+                currentPlayer.playSound(ModSounds.CARD_DRAW.get());
                 currentSuit = card.getSuit();
                 if(isChoosingWild) {
                     playPile.removeLast();
@@ -250,16 +273,33 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     }
 
     @Override
+    public void tick() {
+        CardGame.super.tick();
+        if(!isGameReady) {
+            if(!scheduledActions.isEmpty()) {
+                scheduledActions.removeFirst().run();
+            } else {
+                isGameReady = true;
+                runGame();
+            }
+        }
+    }
+
+    @Override
     public boolean canPlayCard(CardPlayer player, Card card) {
         Card lastCard = playPile.peekLast();
-        assert lastCard != null;
-        return (isChoosingWild && card.getRank() == Rank.BLANK) || card.getRank() == Rank.EIGHT || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;
+        return isGameReady && lastCard != null && ((isChoosingWild && card.getRank() == Rank.BLANK) || card.getRank() == Rank.EIGHT || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit);
     }
 
     @Nullable
     @Override
     public Card getBestCard(CardPlayer player) {
         return player.getHand().stream().filter(c -> canPlayCard(player, c)).findFirst().orElse(null);
+    }
+
+    @Override
+    public boolean isGameReady() {
+        return isGameReady;
     }
 
     @Override

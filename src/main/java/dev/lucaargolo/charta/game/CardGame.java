@@ -43,6 +43,8 @@ public interface CardGame<G extends CardGame<G>> {
 
     @Nullable Card getBestCard(CardPlayer cards);
 
+    boolean isGameReady();
+
     boolean isGameOver();
 
     AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck);

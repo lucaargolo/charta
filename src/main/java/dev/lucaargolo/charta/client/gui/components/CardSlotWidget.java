@@ -35,6 +35,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
         if(cardSlot.isExtended()) {
             this.setPreciseWidth(CardSlot.getWidth(cardSlot));
             if(renderables.size() != cards.size() || renderablesDirty) {
+                this.hoverable = null;
                 renderables.clear();
                 int i = 0;
                 float childWidth = cardSlot.isSmall() ? CardSlot.getWidth(CardSlot.Type.SMALL) : CardSlot.getWidth(CardSlot.Type.DEFAULT);

@@ -369,6 +369,7 @@
   "charta.message.match_unable": "Match was unable to continue, either from lack of players or lack of cards.",
   "charta.message.draws_left": "Draws left: %s",
   "charta.message.your_turn": "It's your turn!",
-  "charta.message.other_turn": "It's %s's turn"
+  "charta.message.other_turn": "It's %s's turn",
+  "charta.message.dealing_cards": "Dealing cards..."
 
 }

@@ -16,6 +16,7 @@ import dev.lucaargolo.charta.network.*;
 import dev.lucaargolo.charta.resources.CardDeckResource;
 import dev.lucaargolo.charta.resources.CardImageResource;
 import dev.lucaargolo.charta.resources.CardSuitResource;
+import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.GameSlot;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -104,7 +105,7 @@ public class Charta {
         ModMenus.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
         ModDataComponentTypes.register(modEventBus);
-        
+        ModSounds.register(modEventBus);
     }
 
     public static ResourceLocation id(String path) {

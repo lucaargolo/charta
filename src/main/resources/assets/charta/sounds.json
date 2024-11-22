@@ -1,0 +1,16 @@
+{
+  "card_draw": {
+    "sounds": [
+      {
+        "name": "charta:card_draw"
+      }
+    ]
+  },
+  "card_shuffle": {
+    "sounds": [
+      {
+        "name": "charta:card_shuffle"
+      }
+    ]
+  }
+}
