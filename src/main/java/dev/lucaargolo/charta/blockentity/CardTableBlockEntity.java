@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.blockentity;
 
+import com.mojang.datafixers.util.Pair;
 import dev.lucaargolo.charta.block.CardTableBlock;
 import dev.lucaargolo.charta.block.GameChairBlock;
 import dev.lucaargolo.charta.block.SeatBlock;
@@ -27,6 +28,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,14 +43,30 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class CardTableBlockEntity extends BlockEntity {
 
     public static final int TABLE_WIDTH = 160;
     public static final int TABLE_HEIGHT = 160;
+
+    private static final Predicate<Vector2i> PY = pos -> pos.x == 0 && pos.y > 0;
+    private static final Predicate<Vector2i> PX_PY = pos -> pos.x > 0 && pos.y > 0;
+    private static final Predicate<Vector2i> PX = pos -> pos.x > 0 && pos.y == 0;
+    private static final Predicate<Vector2i> PX_NY = pos -> pos.x > 0 && pos.y < 0;
+    private static final Predicate<Vector2i> NY = pos -> pos.x == 0 && pos.y < 0;
+    private static final Predicate<Vector2i> NX_XY = pos -> pos.x < 0 && pos.y < 0;
+    private static final Predicate<Vector2i> NX = pos -> pos.x < 0 && pos.y == 0;
+    private static final Predicate<Vector2i> NX_PY = pos -> pos.x < 0 && pos.y > 0;
+
+    @SuppressWarnings("unchecked")
+    private static final Predicate<Vector2i>[] PREDICATES = new Predicate[] {
+        PY, PX_PY, PX, PX_NY, NY, NX_XY, NX, NX_PY
+    };
 
     private final List<GameSlot> trackedGameSlots = new ArrayList<>();
     private final Set<Integer> dirtySlotCards = new HashSet<>();
@@ -60,6 +78,7 @@ public class CardTableBlockEntity extends BlockEntity {
     @Nullable
     private CardGame<?> game = null;
     private int age = 0;
+    public boolean playersDirty = true;
 
     public CardTableBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntityTypes.CARD_TABLE.get(), pos, blockState);
@@ -277,67 +296,54 @@ public class CardTableBlockEntity extends BlockEntity {
         return players;
     }
 
+
     private List<CardPlayer> getOrderedPlayers() {
         List<LivingEntity> players = this.getPlayers();
-        return reorderPlayersByDistance(players).stream().map(l -> ((LivingEntityMixed) l).charta_getCardPlayer()).toList();
-    }
+        if(players.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Pair<Vector2i, CardPlayer>> entries = new LinkedList<>();
+        Vec3 center = worldPosition.getCenter();
+        players.forEach(player -> {
+            Vector2i pos = new Vector2i(Mth.floor((player.getX()-center.x)*2), Mth.floor((player.getZ()-center.z)*2));
+            entries.add(new Pair<>(pos, ((LivingEntityMixed) player).charta_getCardPlayer()));
+        });
 
-    public static List<LivingEntity> reorderPlayersByDistance(List<LivingEntity> players) {
-        if (players.isEmpty()) {
-            return players;
+        Collections.shuffle(entries);
+        Pair<Vector2i, CardPlayer> firstEntry = entries.getFirst();
+        Vector2i firstPos = firstEntry.getFirst();
+        int firstQuadrant = getQuadrant(firstPos);
+        List<Integer> order = new ArrayList<>();
+        for(int i = 0; i < PREDICATES.length; i++) {
+            order.add((firstQuadrant + i) % PREDICATES.length);
         }
 
-        List<LivingEntity> orderedPlayers = new ArrayList<>();
-        Random random = new Random();
+        entries.sort((a, b) -> {
+            Vector2i va = a.getFirst();
+            Vector2i vb = b.getFirst();
 
-        LivingEntity current = players.remove(random.nextInt(players.size()));
-        orderedPlayers.add(current);
+            int aq = getQuadrant(va);
+            int bq = getQuadrant(vb);
 
-        while (!players.isEmpty()) {
-            LivingEntity closestLeftPlayer = findClosestLeftPlayer(current, players);
-
-            if (closestLeftPlayer != null) {
-                players.remove(closestLeftPlayer);
-                orderedPlayers.add(closestLeftPlayer);
-                current = closestLeftPlayer;
-            } else {
-                break;
+            if(aq == bq) {
+                return switch (aq) {
+                    case 0 -> Integer.compare(vb.y, va.y);
+                    case 1 -> vb.y != va.y ? Integer.compare(vb.y, va.y) : Integer.compare(va.x, vb.x);
+                    case 2 -> Integer.compare(vb.x, va.x);
+                    case 3 -> vb.x != va.x ? Integer.compare(vb.x, va.x) : Integer.compare(vb.y, va.y);
+                    case 4 -> Integer.compare(va.y, vb.y);
+                    case 5 -> va.y != vb.y ? Integer.compare(va.y, vb.y) : Integer.compare(vb.x, va.x);
+                    case 6 -> Integer.compare(va.x, vb.x);
+                    case 7 -> va.x != vb.x ? Integer.compare(va.x, vb.x) : Integer.compare(va.y, vb.y);
+                    default -> 0;
+                };
+            }else{
+                return Integer.compare(order.indexOf(aq), order.indexOf(bq));
             }
-        }
+        });
 
-        return orderedPlayers;
+        return entries.stream().map(Pair::getSecond).toList().reversed();
     }
-
-    private static LivingEntity findClosestLeftPlayer(LivingEntity current, List<LivingEntity> players) {
-        return players.stream()
-                .filter(player -> isPlayerToLeft(current, player))
-                .min(Comparator.comparingDouble(current::distanceTo))
-                .orElse(null);
-    }
-
-    private static boolean isPlayerToLeft(LivingEntity current, LivingEntity other) {
-        double currentX = current.getX();
-        double currentZ = current.getZ();
-        double otherX = other.getX();
-        double otherZ = other.getZ();
-
-        Direction facing = GameChairBlock.getSeatedDirection(current);
-        if(facing == null) {
-            return false;
-        }
-
-        double toOtherX = otherX - currentX;
-        double toOtherZ = otherZ - currentZ;
-
-        return switch (facing) {
-            case NORTH -> toOtherX <= 0;
-            case SOUTH -> toOtherX >= 0;
-            case WEST -> toOtherZ >= 0;
-            case EAST -> toOtherZ <= 0;
-            default -> false;
-        };
-    }
-
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, CardTableBlockEntity blockEntity) {
         Iterator<Integer> updateIterator = blockEntity.dirtySlotCards.iterator();
@@ -364,11 +370,12 @@ public class CardTableBlockEntity extends BlockEntity {
         if(blockEntity.game != null) {
             CardGame<?> game = blockEntity.game;
             if(!game.isGameOver()) {
-                if (blockEntity.age++ % 100 == 0) {
+                if (blockEntity.age++ % 100 == 0 || blockEntity.playersDirty) {
                     List<CardPlayer> players = blockEntity.getOrderedPlayers();
                     if (!players.containsAll(game.getPlayers())) {
                         game.endGame();
                     }
+                    blockEntity.playersDirty = false;
                 }
                 game.tick();
             }else{
@@ -377,6 +384,17 @@ public class CardTableBlockEntity extends BlockEntity {
                 blockEntity.game = null;
             }
         }
+    }
+
+    private static int getQuadrant(Vector2i pos) {
+        int quadrant = 0;
+        for(int i = 0; i < PREDICATES.length; i++) {
+            if(PREDICATES[i].test(pos)) {
+                quadrant = i;
+                break;
+            }
+        }
+        return quadrant;
     }
 
 }
