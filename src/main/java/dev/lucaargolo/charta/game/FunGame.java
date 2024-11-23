@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
-import dev.lucaargolo.charta.menu.CrazyEightsMenu;
+import dev.lucaargolo.charta.menu.FunMenu;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.GameSlot;
@@ -18,7 +18,15 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
+public class FunGame implements CardGame<FunGame> {
+
+    //Rules
+    public static final int STACK_ANY_PLUS2_ON_PLUS2 = 0;
+    public static final int STACK_SAME_COLOR_PLUS2_ON_PLUS2 = 1;
+    public static final int STACK_PLUS4_ON_PLUS2 = 2;
+    public static final int STACK_PLUS4_ON_PLUS4 = 3;
+    public static final int STACK_SAME_COLOR_PLUS2_ON_PLUS4 = 4;
+    public static final int STACK_ANY_PLUS2_ON_PLUS4 = 5;
 
     private final Map<CardPlayer, TransparentLinkedList<Card>> censoredHands = new HashMap<>();
 
@@ -38,17 +46,26 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     public final LinkedList<Card> suits = new LinkedList<>();
     public boolean isChoosingWild;
     public Suit currentSuit;
-    public int drawsLeft = 3;
 
-    public CrazyEightsGame(List<CardPlayer> players, CardDeck deck) {
+    public boolean canDraw = true;
+    public int drawStack = 1;
+    public boolean reversed = false;
+    public int rules;
+
+    public FunGame(List<CardPlayer> players, CardDeck deck) {
+        this(players, deck, 0b000111);
+    }
+
+    public FunGame(List<CardPlayer> players, CardDeck deck, int rules) {
         this.players = players;
 
         this.deck = deck.getCards()
             .stream()
-            .filter(c -> c.getSuit() != Suit.BLANK && c.getRank() != Rank.BLANK && c.getRank() != Rank.JOKER)
             .map(Card::copy)
             .collect(Collectors.toList());
         this.deck.forEach(Card::flip);
+
+        this.rules = rules;
 
         GameSlot playPileSlot = new GameSlot(playPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f + 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
         GameSlot drawPileSlot = new GameSlot(drawPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f - 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
@@ -56,9 +73,13 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
         gameSlots.add(drawPileSlot);
     }
 
+    public boolean isRule(int rule) {
+        return (rules & (1 << rule)) != 0;
+    }
+
     @Override
-    public AbstractCardMenu<CrazyEightsGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck) {
-        return new CrazyEightsMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray());
+    public AbstractCardMenu<FunGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck) {
+        return new FunMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray());
     }
 
     @Override
@@ -69,10 +90,13 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     @Override
     public List<Card> getValidDeck() {
         List<Card> necessaryCards = new ArrayList<>();
-        for(Suit suit : Suit.values()) {
-            for(Rank rank : Rank.values()) {
-                if(suit != Suit.BLANK && rank != Rank.BLANK && rank != Rank.JOKER) {
+        for (Suit suit : Suit.values()) {
+            if(suit != Suit.BLANK) {
+                for (Rank rank : Rank.values()) {
                     necessaryCards.add(new Card(suit, rank));
+                    if(rank != Rank.BLANK && rank != Rank.JOKER && rank != Rank.TEN) {
+                        necessaryCards.add(new Card(suit, rank));
+                    }
                 }
             }
         }
@@ -116,7 +140,15 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             return getPlayers().getFirst();
         }else{
             int indexOf = getPlayers().indexOf(currentPlayer);
-            return getPlayers().get((indexOf + 1) % players.size());
+            if(reversed) {
+                if(indexOf - 1 >= 0) {
+                    return getPlayers().get((indexOf - 1) % players.size());
+                }else{
+                    return getPlayers().getLast();
+                }
+            }else{
+                return getPlayers().get((indexOf + 1) % players.size());
+            }
         }
     }
 
@@ -187,15 +219,17 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             currentPlayer.setPlay(new CompletableFuture<>());
             if(card == null) {
                 currentPlayer.playSound(ModSounds.CARD_DRAW.get());
-                if(drawsLeft > 0) {
-                    drawsLeft--;
-                    if(currentPlayer.shouldCompute()) {
+                if(canDraw) {
+                    drawStack--;
+                    canDraw = drawStack > 0;
+                    if (currentPlayer.shouldCompute()) {
                         CardGame.dealCards(drawPile, currentPlayer, getCensoredHand(currentPlayer), 1);
                     }
                     runGame();
-                }else{
+                }else {
+                    drawStack = 1;
+                    canDraw = true;
                     currentPlayer = getNextPlayer();
-                    drawsLeft = 3;
                     runGame();
                 }
             }else if(canPlayCard(currentPlayer, card)) {
@@ -211,7 +245,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                 }
                 if(currentPlayer.getHand().isEmpty()) {
                     endGame();
-                }else if(card.getRank() == Rank.EIGHT) {
+                }else if(card.getRank() == Rank.BLANK || card.getRank() == Rank.JOKER) {
                     if(currentPlayer.shouldCompute()) {
                         Map<Suit, Integer> suitCountMap = new HashMap<>();
 
@@ -231,23 +265,40 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                         }
                         currentSuit = mostFrequentSuit;
                         currentPlayer = getNextPlayer();
-                        drawsLeft = 3;
+                        if(card.getRank() == Rank.JOKER) {
+                            drawStack += 4;
+                            drawStack -= drawStack % 2;
+                        }else{
+                            drawStack = 1;
+                        }
+                        canDraw = true;
                         runGame();
                     }else{
                         isChoosingWild = true;
                         suits.clear();
                         suits.addAll(List.of(
-                                new Card(Suit.SPADES, Rank.BLANK),
-                                new Card(Suit.HEARTS, Rank.BLANK),
-                                new Card(Suit.CLUBS, Rank.BLANK),
-                                new Card(Suit.DIAMONDS, Rank.BLANK)
+                                new Card(Suit.SPADES, Rank.ACE),
+                                new Card(Suit.HEARTS, Rank.TWO),
+                                new Card(Suit.CLUBS, Rank.THREE),
+                                new Card(Suit.DIAMONDS, Rank.FOUR)
                         ));
-                        drawsLeft = 0;
+                        canDraw = false;
                         runGame();
                     }
                 } else {
+                    if(card.getRank() == Rank.JACK) {
+                        currentPlayer = getNextPlayer();
+                    }else if(card.getRank() == Rank.QUEEN) {
+                        reversed = !reversed;
+                    }
+                    if(card.getRank() == Rank.KING) {
+                        drawStack += 2;
+                        drawStack -= drawStack % 2;
+                    }else{
+                        drawStack = 1;
+                    }
+                    canDraw = true;
                     currentPlayer = getNextPlayer();
-                    drawsLeft = 3;
                     runGame();
                 }
             }
@@ -286,7 +337,18 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     @Override
     public boolean canPlayCard(CardPlayer player, Card card) {
         Card lastCard = playPile.peekLast();
-        return isGameReady && lastCard != null && ((isChoosingWild && card.getRank() == Rank.BLANK) || card.getRank() == Rank.EIGHT || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit);
+        if(!isGameReady || lastCard == null) {
+            return false;
+        }
+        if(drawStack > 1) {
+            boolean isPlus4 = lastCard.getRank() == Rank.JOKER;
+            if(isPlus4) {
+                return (isRule(STACK_PLUS4_ON_PLUS4) && card.getRank() == Rank.JOKER) || (isRule(STACK_ANY_PLUS2_ON_PLUS4) && card.getRank() == Rank.KING) || (isRule(STACK_SAME_COLOR_PLUS2_ON_PLUS4) && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
+            }else{
+                return (isRule(STACK_PLUS4_ON_PLUS2) && card.getRank() == Rank.JOKER) || (isRule(STACK_ANY_PLUS2_ON_PLUS2) && card.getRank() == Rank.KING) || (isRule(STACK_SAME_COLOR_PLUS2_ON_PLUS2) && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
+            }
+        }
+        return isChoosingWild || card.getRank() == Rank.BLANK || card.getRank() == Rank.JOKER || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;
     }
 
     @Override
@@ -298,6 +360,5 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     public boolean isGameOver() {
         return isGameOver;
     }
-
 
 }

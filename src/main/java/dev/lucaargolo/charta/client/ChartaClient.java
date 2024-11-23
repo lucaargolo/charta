@@ -10,6 +10,7 @@ import dev.lucaargolo.charta.client.blockentity.BarShelfBlockEntityRenderer;
 import dev.lucaargolo.charta.client.blockentity.CardTableBlockEntityRenderer;
 import dev.lucaargolo.charta.client.entity.IronLeashKnotRenderer;
 import dev.lucaargolo.charta.client.gui.screens.CrazyEightsScreen;
+import dev.lucaargolo.charta.client.gui.screens.FunScreen;
 import dev.lucaargolo.charta.client.item.DeckItemExtensions;
 import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
@@ -195,6 +196,7 @@ public class ChartaClient {
         @SubscribeEvent
         public static void registerMenuScreens(RegisterMenuScreensEvent event) {
             event.register(ModMenus.CRAZY_EIGHTS.get(), CrazyEightsScreen::new);
+            event.register(ModMenus.FUN.get(), FunScreen::new);
         }
 
         @SubscribeEvent

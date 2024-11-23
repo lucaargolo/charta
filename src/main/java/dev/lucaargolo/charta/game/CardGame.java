@@ -31,8 +31,6 @@ public interface CardGame<G extends CardGame<G>> {
 
     void setCurrentPlayer(int index);
 
-    CardPlayer getNextPlayer();
-
     void startGame();
 
     void runGame();
@@ -41,13 +39,15 @@ public interface CardGame<G extends CardGame<G>> {
 
     boolean canPlayCard(CardPlayer player, Card card);
 
-    @Nullable Card getBestCard(CardPlayer cards);
-
     boolean isGameReady();
 
     boolean isGameOver();
 
     AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck);
+
+    default @Nullable Card getBestCard(CardPlayer player) {
+        return player.getHand().stream().filter(c -> canPlayCard(player, c)).findFirst().orElse(null);
+    }
 
     default void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, CardDeck deck) {
         serverPlayer.openMenu(new MenuProvider() {
