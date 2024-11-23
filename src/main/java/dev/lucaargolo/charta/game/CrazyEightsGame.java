@@ -201,7 +201,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                     runGame();
                 }
             }else if(canPlayCard(currentPlayer, card)) {
-                currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+                currentPlayer.playSound(ModSounds.CARD_PLAY.get());
                 currentSuit = card.getSuit();
                 if(isChoosingWild) {
                     playPile.removeLast();

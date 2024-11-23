@@ -6,10 +6,10 @@
       }
     ]
   },
-  "card_shuffle": {
+  "card_play": {
     "sounds": [
       {
-        "name": "charta:card_shuffle"
+        "name": "charta:card_play"
       }
     ]
   }
