@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.network.CardPlayPayload;
 import dev.lucaargolo.charta.utils.GameSlot;
 import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.core.BlockPos;
@@ -8,9 +9,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -18,6 +21,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 public interface CardGame<G extends CardGame<G>> {
+
+    static CardPlayer TABLE = new AutoPlayer(0f) {
+        @Override
+        public Component getName() {
+            return Component.literal("Table");
+        }
+    };
 
     List<GameSlot> getGameSlots();
 
@@ -77,6 +87,19 @@ public interface CardGame<G extends CardGame<G>> {
 
     default int getMaxPlayers() {
         return 8;
+    }
+
+    default void tablePlay(Component play) {
+        cardPlay(TABLE, play);
+    }
+
+    default void cardPlay(CardPlayer player, Component play) {
+        for(CardPlayer p : this.getPlayers()) {
+            LivingEntity entity = p.getEntity();
+            if(entity instanceof ServerPlayer serverPlayer) {
+                PacketDistributor.sendToPlayer(serverPlayer, new CardPlayPayload(player.getName(), player.getHand().size(), play));
+            }
+        }
     }
 
     static boolean canPlayGame(CardGame<?> cardGame, CardDeck cardDeck) {

@@ -39,6 +39,7 @@ public class FunGame implements CardGame<FunGame> {
 
     private final List<CardPlayer> players;
     private final List<Card> deck;
+    private final CardDeck cardDeck;
 
     private CardPlayer currentPlayer;
     private boolean isGameOver;
@@ -48,7 +49,8 @@ public class FunGame implements CardGame<FunGame> {
     public Suit currentSuit;
 
     public boolean canDraw = true;
-    public int drawStack = 1;
+    public int drawStack = 0;
+    public boolean startedDraw = false;
     public boolean reversed = false;
     public int rules;
 
@@ -65,6 +67,7 @@ public class FunGame implements CardGame<FunGame> {
             .collect(Collectors.toList());
         this.deck.forEach(Card::flip);
 
+        this.cardDeck = deck;
         this.rules = rules;
 
         GameSlot playPileSlot = new GameSlot(playPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f + 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
@@ -166,7 +169,7 @@ public class FunGame implements CardGame<FunGame> {
             getCensoredHand(player).clear();
         }
 
-        for(int i = 0; i < 5; i++) {
+        for(int i = 0; i < 7; i++) {
             for (CardPlayer player : players) {
                 scheduledActions.add(() -> {
                     player.playSound(ModSounds.CARD_DRAW.get());
@@ -177,7 +180,7 @@ public class FunGame implements CardGame<FunGame> {
         }
 
         Card last = drawPile.pollLast();
-        while (last != null && last.getRank() == Rank.EIGHT) {
+        while (last != null && (last.getRank() == Rank.BLANK || last.getRank() == Rank.JACK && last.getRank() == Rank.QUEEN || last.getRank() == Rank.KING || last.getRank() == Rank.JOKER)) {
             drawPile.add(last);
             Collections.shuffle(drawPile);
             last = drawPile.pollLast();
@@ -194,6 +197,9 @@ public class FunGame implements CardGame<FunGame> {
         isChoosingWild = false;
         isGameReady = false;
         isGameOver = false;
+
+        tablePlay(Component.literal("Game Started!"));
+        tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
     }
 
     @Override
@@ -210,6 +216,7 @@ public class FunGame implements CardGame<FunGame> {
                 Collections.shuffle(drawPile);
                 playPile.clear();
                 playPile.add(lastCard);
+                tablePlay(Component.literal("Piles shuffled!"));
             }else{
                 endGame();
             }
@@ -218,26 +225,35 @@ public class FunGame implements CardGame<FunGame> {
         currentPlayer.getPlay(this).thenAccept(card -> {
             currentPlayer.setPlay(new CompletableFuture<>());
             if(card == null) {
-                currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+                boolean canPlay = this.getBestCard(currentPlayer) != null;
                 if(canDraw) {
+                    currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+                    cardPlay(currentPlayer, Component.literal("Player drew a card."));
+                    canPlay = drawStack < 1;
+                    startedDraw = startedDraw || !canPlay;
                     drawStack--;
                     canDraw = drawStack > 0;
                     if (currentPlayer.shouldCompute()) {
                         CardGame.dealCards(drawPile, currentPlayer, getCensoredHand(currentPlayer), 1);
                     }
-                    runGame();
-                }else {
-                    drawStack = 1;
-                    canDraw = true;
-                    currentPlayer = getNextPlayer();
-                    runGame();
                 }
+                if(!canDraw && !canPlay) {
+                    canDraw = true;
+                    drawStack = 0;
+                    startedDraw = false;
+                    currentPlayer = getNextPlayer();
+                    tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
+                }
+                runGame();
             }else if(canPlayCard(currentPlayer, card)) {
                 currentPlayer.playSound(ModSounds.CARD_PLAY.get());
                 currentSuit = card.getSuit();
                 if(isChoosingWild) {
+                    cardPlay(currentPlayer, Component.literal("Player chose "+cardDeck.getSuitTranslatableKey(currentSuit)));
                     playPile.removeLast();
                     isChoosingWild = false;
+                }else{
+                    cardPlay(currentPlayer, Component.literal("Player played a "+cardDeck.getCardTranslatableKey(card)));
                 }
                 if(currentPlayer.shouldCompute() && currentPlayer.getHand().remove(card)) {
                     getCensoredHand(currentPlayer).removeLast();
@@ -264,14 +280,19 @@ public class FunGame implements CardGame<FunGame> {
                             }
                         }
                         currentSuit = mostFrequentSuit;
-                        currentPlayer = getNextPlayer();
+                        cardPlay(currentPlayer, Component.literal("Player chose "+cardDeck.getSuitTranslatableKey(currentSuit)));
                         if(card.getRank() == Rank.JOKER) {
                             drawStack += 4;
-                            drawStack -= drawStack % 2;
                         }else{
-                            drawStack = 1;
+                            drawStack = 0;
                         }
                         canDraw = true;
+                        currentPlayer = getNextPlayer();
+                        if(drawStack > 0) {
+                            tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn. They need to draw "+drawStack+" cards."));
+                        }else{
+                            tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
+                        }
                         runGame();
                     }else{
                         isChoosingWild = true;
@@ -288,17 +309,23 @@ public class FunGame implements CardGame<FunGame> {
                 } else {
                     if(card.getRank() == Rank.JACK) {
                         currentPlayer = getNextPlayer();
+                        tablePlay(Component.literal(currentPlayer.getName().getString()+" was skipped."));
                     }else if(card.getRank() == Rank.QUEEN) {
                         reversed = !reversed;
+                        tablePlay(Component.literal("Game direction was reversed."));
                     }
                     if(card.getRank() == Rank.KING) {
                         drawStack += 2;
-                        drawStack -= drawStack % 2;
                     }else{
-                        drawStack = 1;
+                        drawStack = 0;
                     }
                     canDraw = true;
                     currentPlayer = getNextPlayer();
+                    if(drawStack > 0) {
+                        tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn. They need to draw "+drawStack+" cards."));
+                    }else{
+                        tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
+                    }
                     runGame();
                 }
             }
@@ -340,12 +367,16 @@ public class FunGame implements CardGame<FunGame> {
         if(!isGameReady || lastCard == null) {
             return false;
         }
-        if(drawStack > 1) {
-            boolean isPlus4 = lastCard.getRank() == Rank.JOKER;
-            if(isPlus4) {
-                return (isRule(STACK_PLUS4_ON_PLUS4) && card.getRank() == Rank.JOKER) || (isRule(STACK_ANY_PLUS2_ON_PLUS4) && card.getRank() == Rank.KING) || (isRule(STACK_SAME_COLOR_PLUS2_ON_PLUS4) && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
-            }else{
-                return (isRule(STACK_PLUS4_ON_PLUS2) && card.getRank() == Rank.JOKER) || (isRule(STACK_ANY_PLUS2_ON_PLUS2) && card.getRank() == Rank.KING) || (isRule(STACK_SAME_COLOR_PLUS2_ON_PLUS2) && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
+        if(drawStack > 0) {
+            if(startedDraw) {
+                return false;
+            }else {
+                boolean isPlus4 = lastCard.getRank() == Rank.JOKER;
+                if (isPlus4) {
+                    return (isRule(STACK_PLUS4_ON_PLUS4) && card.getRank() == Rank.JOKER) || (isRule(STACK_ANY_PLUS2_ON_PLUS4) && card.getRank() == Rank.KING) || (isRule(STACK_SAME_COLOR_PLUS2_ON_PLUS4) && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
+                } else {
+                    return (isRule(STACK_PLUS4_ON_PLUS2) && card.getRank() == Rank.JOKER) || (isRule(STACK_ANY_PLUS2_ON_PLUS2) && card.getRank() == Rank.KING) || (isRule(STACK_SAME_COLOR_PLUS2_ON_PLUS2) && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
+                }
             }
         }
         return isChoosingWild || card.getRank() == Rank.BLANK || card.getRank() == Rank.JOKER || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;

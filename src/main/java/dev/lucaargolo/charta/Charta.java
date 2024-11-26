@@ -127,6 +127,8 @@ public class Charta {
             registrar.playToClient(GameSlotCompletePayload.TYPE, GameSlotCompletePayload.STREAM_CODEC, GameSlotCompletePayload::handleClient);
             registrar.playToClient(GameSlotPositionPayload.TYPE, GameSlotPositionPayload.STREAM_CODEC, GameSlotPositionPayload::handleClient);
             registrar.playToClient(GameSlotResetPayload.TYPE, GameSlotResetPayload.STREAM_CODEC, GameSlotResetPayload::handleClient);
+            registrar.playToClient(GameStartPayload.TYPE, GameStartPayload.STREAM_CODEC, GameStartPayload::handleClient);
+            registrar.playToClient(CardPlayPayload.TYPE, CardPlayPayload.STREAM_CODEC, CardPlayPayload::handleClient);
 
             registrar.playToServer(CardContainerSlotClickPayload.TYPE, CardContainerSlotClickPayload.STREAM_CODEC, CardContainerSlotClickPayload::handleServer);
             registrar.playToServer(CardTableSelectGamePayload.TYPE, CardTableSelectGamePayload.STREAM_CODEC, CardTableSelectGamePayload::handleServer);

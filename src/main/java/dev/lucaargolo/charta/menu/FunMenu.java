@@ -51,7 +51,7 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
     }
 
     public FunMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players) {
-        super(ModMenus.CRAZY_EIGHTS.get(), containerId, inventory, access, deck, players);
+        super(ModMenus.FUN.get(), containerId, inventory, access, deck, players);
         this.game = CardGames.getGameForMenu(CardGames.FUN, access, deck, players);
 
         this.addTopPreview(players);
@@ -98,9 +98,6 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
                 player.playSound(ModSounds.CARD_PLAY.get());
                 if(!game.isChoosingWild)
                     game.getCensoredHand(player).add(Card.BLANK);
-                if (player == this.game.getCurrentPlayer() && this.game.canDraw && this.game.getBestCard(player) == null) {
-                    player.getPlay(this.game).complete(null);
-                }
             }
 
             @Override
