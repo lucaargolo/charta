@@ -9,7 +9,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -22,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 public class CardDeckItem extends Item {
 
@@ -65,6 +65,17 @@ public class CardDeckItem extends Item {
     public static CardDeck getDeck(ItemStack stack) {
         ResourceLocation deckId = stack.get(ModDataComponentTypes.CARD_DECK);
         return deckId != null ? Charta.CARD_DECKS.getDeck(deckId) : null;
+    }
+
+    public static ItemStack getDeck(CardDeck cardDeck) {
+        ResourceLocation deckId = Charta.CARD_DECKS.getDecks()
+            .entrySet()
+            .stream()
+            .filter(e -> e.getValue() == cardDeck)
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .orElse(Charta.id("missing"));
+        return getDeck(deckId);
     }
 
     public static ItemStack getDeck(ResourceLocation deckId) {

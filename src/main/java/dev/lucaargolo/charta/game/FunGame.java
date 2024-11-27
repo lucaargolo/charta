@@ -1,8 +1,10 @@
 package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
+import dev.lucaargolo.charta.item.CardDeckItem;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.FunMenu;
+import dev.lucaargolo.charta.network.LastFunPayload;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.GameSlot;
@@ -11,14 +13,20 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class FunGame implements CardGame<FunGame> {
+
+    public static final int LAST_COOLDOWN = 40;
 
     //Rules
     public static final int STACK_ANY_PLUS2_ON_PLUS2 = 0;
@@ -48,11 +56,16 @@ public class FunGame implements CardGame<FunGame> {
     public boolean isChoosingWild;
     public Suit currentSuit;
 
+    private final boolean[] saidLast;
+    private final int[] lastCooldown;
+
     public boolean canDraw = true;
     public int drawStack = 0;
     public boolean startedDraw = false;
     public boolean reversed = false;
     public int rules;
+
+    private final Random random = new Random();
 
     public FunGame(List<CardPlayer> players, CardDeck deck) {
         this(players, deck, 0b000111);
@@ -60,6 +73,12 @@ public class FunGame implements CardGame<FunGame> {
 
     public FunGame(List<CardPlayer> players, CardDeck deck, int rules) {
         this.players = players;
+        this.saidLast = new boolean[players.size()];
+        this.lastCooldown = new int[players.size()];
+        for (int i = 0; i < players.size(); i++) {
+            this.saidLast[i] = false;
+            this.lastCooldown[i] = 0;
+        }
 
         this.deck = deck.getCards()
             .stream()
@@ -180,7 +199,7 @@ public class FunGame implements CardGame<FunGame> {
         }
 
         Card last = drawPile.pollLast();
-        while (last != null && (last.getRank() == Rank.BLANK || last.getRank() == Rank.JACK && last.getRank() == Rank.QUEEN || last.getRank() == Rank.KING || last.getRank() == Rank.JOKER)) {
+        while (last != null && (last.getRank() == Rank.BLANK || last.getRank() == Rank.JACK || last.getRank() == Rank.QUEEN || last.getRank() == Rank.KING || last.getRank() == Rank.JOKER)) {
             drawPile.add(last);
             Collections.shuffle(drawPile);
             last = drawPile.pollLast();
@@ -202,6 +221,16 @@ public class FunGame implements CardGame<FunGame> {
         tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
     }
 
+    private void shufflePiles() {
+        Card lastCard = playPile.pollLast();
+        playPile.forEach(Card::flip);
+        drawPile.addAll(playPile);
+        Collections.shuffle(drawPile);
+        playPile.clear();
+        playPile.add(lastCard);
+        tablePlay(Component.literal("Piles shuffled!"));
+    }
+
     @Override
     public void runGame() {
         if(!isGameReady) {
@@ -210,13 +239,7 @@ public class FunGame implements CardGame<FunGame> {
 
         if(drawPile.isEmpty()) {
             if(playPile.size() > 1) {
-                Card lastCard = playPile.pollLast();
-                playPile.forEach(Card::flip);
-                drawPile.addAll(playPile);
-                Collections.shuffle(drawPile);
-                playPile.clear();
-                playPile.add(lastCard);
-                tablePlay(Component.literal("Piles shuffled!"));
+                shufflePiles();
             }else{
                 endGame();
             }
@@ -229,10 +252,11 @@ public class FunGame implements CardGame<FunGame> {
                 if(canDraw) {
                     currentPlayer.playSound(ModSounds.CARD_DRAW.get());
                     cardPlay(currentPlayer, Component.literal("Player drew a card."));
-                    canPlay = drawStack < 1;
-                    startedDraw = startedDraw || !canPlay;
+                    canPlay = canPlay && drawStack < 1;
+                    startedDraw = startedDraw || drawStack < 1;
                     drawStack--;
                     canDraw = drawStack > 0;
+                    saidLast[getPlayers().indexOf(currentPlayer)] = false;
                     if (currentPlayer.shouldCompute()) {
                         CardGame.dealCards(drawPile, currentPlayer, getCensoredHand(currentPlayer), 1);
                     }
@@ -262,6 +286,11 @@ public class FunGame implements CardGame<FunGame> {
                 if(currentPlayer.getHand().isEmpty()) {
                     endGame();
                 }else if(card.getRank() == Rank.BLANK || card.getRank() == Rank.JOKER) {
+                    if(card.getRank() == Rank.JOKER) {
+                        drawStack += 4;
+                    }else{
+                        drawStack = 0;
+                    }
                     if(currentPlayer.shouldCompute()) {
                         Map<Suit, Integer> suitCountMap = new HashMap<>();
 
@@ -281,11 +310,6 @@ public class FunGame implements CardGame<FunGame> {
                         }
                         currentSuit = mostFrequentSuit;
                         cardPlay(currentPlayer, Component.literal("Player chose "+cardDeck.getSuitTranslatableKey(currentSuit)));
-                        if(card.getRank() == Rank.JOKER) {
-                            drawStack += 4;
-                        }else{
-                            drawStack = 0;
-                        }
                         canDraw = true;
                         currentPlayer = getNextPlayer();
                         if(drawStack > 0) {
@@ -358,6 +382,76 @@ public class FunGame implements CardGame<FunGame> {
                 isGameReady = true;
                 runGame();
             }
+        }else{
+            for(int i = 0; i < this.getPlayers().size(); i++) {
+                CardPlayer player = this.getPlayers().get(i);
+                boolean didntSayLast = didntSayLast(player);
+                if(player.shouldCompute()) {
+                    if(didntSayLast && lastCooldown[i] % (LAST_COOLDOWN/3) == 0 && random.nextBoolean()) {
+                        saidLast[i] = true;
+                    }
+                    for(int j = 0; j < this.getPlayers().size(); j++) {
+                        CardPlayer other = this.getPlayers().get(j);
+                        if(lastCooldown[j] > LAST_COOLDOWN && random.nextBoolean() && didntSayLast(other)) {
+                            sayLast(player);
+                        }
+                    }
+                }
+                if(didntSayLast) {
+                    lastCooldown[i]++;
+                }
+            }
+        }
+    }
+
+    private boolean didntSayLast(CardPlayer player) {
+        int index = this.getPlayers().indexOf(player);
+        if(this.saidLast[index]) {
+            return false;
+        }else{
+            int size = player.getHand().size();
+            LivingEntity entity = player.getEntity();
+            if(entity instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof FunMenu menu) {
+                size += menu.getCarriedCards().size();
+            }
+            return size == 1;
+        }
+    }
+
+    public boolean canDoLast() {
+        return isGameReady && getPlayers().stream().anyMatch(this::didntSayLast);
+    }
+
+    public void sayLast(CardPlayer current) {
+        for(int i = 0; i < players.size(); i++) {
+            CardPlayer player = players.get(i);
+            if(didntSayLast(player)) {
+                tablePlay(Component.literal(current.getName().getString()+" said Last!"));
+                if(player != current && lastCooldown[i] > LAST_COOLDOWN) {
+                    int drawAmount = 2;
+                    if(drawPile.size() < drawAmount) {
+                        shufflePiles();
+                    }
+                    if(drawPile.size() >= drawAmount) {
+                        players.forEach(p -> {
+                            LivingEntity entity = p.getEntity();
+                            if(entity instanceof ServerPlayer serverPlayer) {
+                                PacketDistributor.sendToPlayer(serverPlayer, new LastFunPayload(CardDeckItem.getDeck(cardDeck)));
+                            }
+                        });
+                        tablePlay(Component.literal(current.getName().getString()+" automatically drew "+drawAmount+" cards"));
+                        CardGame.dealCards(drawPile, player, getCensoredHand(player), drawAmount);
+                    }else{
+                        endGame();
+                    }
+                    saidLast[i] = true;
+                    lastCooldown[i] = 0;
+                }else if(player == current) {
+                    player.playSound(SoundEvents.NOTE_BLOCK_PLING.value());
+                    saidLast[i] = true;
+                    lastCooldown[i] = 0;
+                }
+            }
         }
     }
 
@@ -366,6 +460,9 @@ public class FunGame implements CardGame<FunGame> {
         Card lastCard = playPile.peekLast();
         if(!isGameReady || lastCard == null) {
             return false;
+        }
+        if(isChoosingWild) {
+            return true;
         }
         if(drawStack > 0) {
             if(startedDraw) {
@@ -379,7 +476,7 @@ public class FunGame implements CardGame<FunGame> {
                 }
             }
         }
-        return isChoosingWild || card.getRank() == Rank.BLANK || card.getRank() == Rank.JOKER || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;
+        return card.getRank() == Rank.BLANK || card.getRank() == Rank.JOKER || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;
     }
 
     @Override

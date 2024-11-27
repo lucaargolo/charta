@@ -77,7 +77,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityMi
     @Inject(at = @At("HEAD"), method = "stopRiding")
     public void dismountVehicle(CallbackInfo ci) {
         LivingEntity living = (LivingEntity) (Object) LivingEntityMixin.this;
-        if(living.getVehicle() instanceof SeatEntity seatEntity) {
+        if(!living.isRemoved() && living.getVehicle() instanceof SeatEntity seatEntity) {
             Level level = seatEntity.level();
             BlockPos pos = seatEntity.getOnPos();
             BlockState state = level.getBlockState(pos);

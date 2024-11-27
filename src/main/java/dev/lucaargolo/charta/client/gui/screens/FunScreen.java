@@ -7,14 +7,18 @@ import dev.lucaargolo.charta.game.FunGame;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.menu.FunMenu;
+import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
+import dev.lucaargolo.charta.network.LastFunPayload;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -23,10 +27,39 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
 
     private static final ResourceLocation TEXTURE = Charta.id("textures/gui/fun.png");
 
+    private int lastCooldown = FunGame.LAST_COOLDOWN;
+    private boolean drawAll = false;
+
     public FunScreen(FunMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 140;
         this.imageHeight = 180;
+    }
+
+    @Override
+    public void containerTick() {
+        super.containerTick();
+        if(!menu.canDoLast()) {
+            lastCooldown = FunGame.LAST_COOLDOWN;
+        }else if(menu.getCardPlayer().getHand().size() == 1){
+            lastCooldown = 0;
+        }else if(lastCooldown > 0) {
+            lastCooldown--;
+        }
+        if(!menu.isCurrentPlayer()) {
+            drawAll = false;
+        }else if(drawAll) {
+            if(menu.getCarriedCards().isEmpty()) {
+                PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size() - 3, -1));
+            }else{
+                drawAll = false;
+            }
+            if(!menu.getCarriedCards().isEmpty()) {
+                PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-1, -1));
+            }else{
+                drawAll = false;
+            }
+        }
     }
 
     @Override
@@ -35,14 +68,18 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         Style style = Style.EMPTY.withFont(Charta.id("minercraftory"));
         int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2)/2 - 65/2;
         int y = height - ((int) CardSlot.getHeight(CardSlot.Type.INVENTORY))/2 - 14;
-        int color = menu.getCurrentPlayer().getHand().size() == 1 ? menu.isCurrentPlayer() ? 0x00FF00 : 0xFF0000 : 0x333333;
+        int color = menu.canDoLast() ? menu.getCardPlayer().getHand().size() == 1 ? 0x00FF00 : 0xFF0000 : 0x333333;
         guiGraphics.fill(x+1, y+1, x+63, y+16, 0xFF000000 + color);
         Vec3 c = Vec3.fromRGB24(color);
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
         guiGraphics.blit(TEXTURE, x, y, 161, 0, 65, 18);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        Component text = Component.literal("Last!").withStyle(style);
+        Component text = Component.literal(menu.canDoLast() && lastCooldown > 0 ? Integer.toString(lastCooldown) : "Last!").withStyle(style);
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
+        if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
+            guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
+            scheduleTooltip(Component.literal("Last!"));
+        }
 
         x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2;
         color = menu.isCurrentPlayer() && menu.getDrawStack() > 0 ? Color.HSBtoRGB(0.333f + ((menu.getDrawStack()/32f)*0.666f), 1f, 1f) : 0x333333;
@@ -53,7 +90,34 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         text = Component.literal(menu.getDrawStack() > 0 ? "Draw "+menu.getDrawStack() : "Draw").withStyle(style);
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
+        if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
+            guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
+            scheduleTooltip(Component.literal("Draw all cards."));
+        }
 
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2)/2 - 65/2;
+        int y = height - ((int) CardSlot.getHeight(CardSlot.Type.INVENTORY))/2 - 14;
+        if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
+            PacketDistributor.sendToServer(new LastFunPayload());
+            return true;
+        }
+        x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2;
+        if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
+            drawAll = menu.isCurrentPlayer() && menu.getCarriedCards().isEmpty();
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        Minecraft mc = Minecraft.getInstance();
+        mc.gameRenderer.renderItemActivationAnimation(guiGraphics, mc.getTimer().getGameTimeDeltaPartialTick(false));
     }
 
     @Override
@@ -113,6 +177,5 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
             text = Component.translatable("charta.message.dealing_cards").withStyle(ChatFormatting.GOLD);
             guiGraphics.drawString(font, text, imageWidth / 2 - font.width(text) / 2, 110, 0xFFFFFFFF);
         }
-
     }
 }

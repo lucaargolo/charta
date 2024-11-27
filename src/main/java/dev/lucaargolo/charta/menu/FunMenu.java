@@ -16,15 +16,16 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
 
     private final FunGame game;
 
+    private int canDoLast = 0;
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
-                case 0 -> game.canDraw ? 1 : 0;
                 case 1 -> game.currentSuit != null ? game.currentSuit.ordinal() : -1;
                 case 2 -> game.reversed ? 1 : 0;
                 case 3 -> game.drawStack;
                 case 4 -> game.rules;
+                case 0 -> game.canDoLast() ? 1 : canDoLast;
                 default -> 0;
             };
         }
@@ -32,11 +33,11 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
         @Override
         public void set(int index, int value) {
             switch (index) {
-                case 0 -> game.canDraw = value > 0;
                 case 1 -> game.currentSuit = value >= 0 ? Suit.values()[value] : null;
                 case 2 -> game.reversed = value > 0;
                 case 3 -> game.drawStack = value;
                 case 4 -> game.rules = value;
+                case 0 -> canDoLast = value;
             }
         }
 
@@ -113,8 +114,8 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
 
     }
 
-    public boolean canDraw() {
-        return data.get(0) > 0;
+    public boolean canDoLast() {
+        return canDoLast > 0;
     }
 
     public Suit getCurrentSuit() {

@@ -14,6 +14,7 @@ import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.network.GameSlotCompletePayload;
 import dev.lucaargolo.charta.network.GameSlotPositionPayload;
 import dev.lucaargolo.charta.network.GameSlotResetPayload;
+import dev.lucaargolo.charta.network.GameStartPayload;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.GameSlot;
 import net.minecraft.ChatFormatting;
@@ -28,6 +29,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.Entity;
@@ -147,9 +149,12 @@ public class CardTableBlockEntity extends BlockEntity {
                                             slot.setup(this, index++);
                                             addGameSlot(slot);
                                         }
+                                        if(entity instanceof ServerPlayer serverPlayer) {
+                                            PacketDistributor.sendToPlayer(serverPlayer, new GameStartPayload());
+                                        }
                                     }
+                                    player.openScreen(this.game, this.worldPosition, deck);
                                 }
-                                players.forEach(player -> player.openScreen(this.game, this.worldPosition, deck));
                                 return Component.translatable("charta.message.game_started").withStyle(ChatFormatting.GREEN);
                             } else {
                                 this.game = null;

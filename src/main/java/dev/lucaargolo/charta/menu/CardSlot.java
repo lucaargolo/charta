@@ -42,7 +42,7 @@ public class CardSlot<G extends CardGame<G>> {
 
     public final boolean insertCards(CardPlayer player, List<Card> collection, int index) {
         List<Card> cards = getter.apply(game);
-        boolean result = index == -1 ? cards.addAll(collection) : cards.addAll(index, collection);
+        boolean result = index == -1 ? cards.addAll(collection) : cards.addAll(index % cards.size(), collection);
         for(Card card : collection) {
             onInsert(player, card);
         }
@@ -51,7 +51,7 @@ public class CardSlot<G extends CardGame<G>> {
 
     public final Card removeCard(CardPlayer player, int index) {
         List<Card> cards = getter.apply(game);
-        Card card = index == -1 ? cards.removeLast() : cards.remove(index);
+        Card card = index == -1 ? cards.removeLast() : cards.remove(index % cards.size());
         onRemove(player, card);
         return card;
     }
