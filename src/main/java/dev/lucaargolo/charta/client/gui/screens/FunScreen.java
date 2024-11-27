@@ -51,10 +51,6 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         }else if(drawAll) {
             if(menu.getCarriedCards().isEmpty()) {
                 PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size() - 3, -1));
-            }else{
-                drawAll = false;
-            }
-            if(!menu.getCarriedCards().isEmpty()) {
                 PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-1, -1));
             }else{
                 drawAll = false;

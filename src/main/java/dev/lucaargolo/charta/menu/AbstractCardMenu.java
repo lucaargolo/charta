@@ -79,7 +79,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         for (int i = 0; i < players.length; i++) {
             G game = this.getGame();
             CardPlayer p = game.getPlayers().get(i);
-            addCardSlot(new CardSlot<>(game, g -> g.getCensoredHand(p), 26 + (140 / 2f - playersWidth / 2f) + (i * (totalWidth + totalWidth / 10f)), 7, CardSlot.Type.PREVIEW) {
+            addCardSlot(new CardSlot<>(game, g -> g.getCensoredHand(cardPlayer, p), 26 + (140 / 2f - playersWidth / 2f) + (i * (totalWidth + totalWidth / 10f)), 7, CardSlot.Type.PREVIEW) {
                 @Override
                 public boolean canInsertCard(CardPlayer player, List<Card> cards) {
                     return false;

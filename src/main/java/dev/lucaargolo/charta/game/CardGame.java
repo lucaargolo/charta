@@ -35,7 +35,7 @@ public interface CardGame<G extends CardGame<G>> {
 
     List<CardPlayer> getPlayers();
 
-    TransparentLinkedList<Card> getCensoredHand(CardPlayer player);
+    TransparentLinkedList<Card> getCensoredHand(CardPlayer viewer, CardPlayer player);
 
     CardPlayer getCurrentPlayer();
 
@@ -54,6 +54,10 @@ public interface CardGame<G extends CardGame<G>> {
     boolean isGameOver();
 
     AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck);
+
+    default TransparentLinkedList<Card> getCensoredHand(CardPlayer player) {
+        return getCensoredHand(null, player);
+    }
 
     default @Nullable Card getBestCard(CardPlayer player) {
         return player.getHand().stream().filter(c -> canPlayCard(player, c)).findFirst().orElse(null);
@@ -89,6 +93,15 @@ public interface CardGame<G extends CardGame<G>> {
         return 8;
     }
 
+    default void dealCards(LinkedList<Card> drawPile, CardPlayer player, int count) {
+        for (int i = 0; i < count; i++) {
+            Card card = drawPile.pollLast();
+            card.flip();
+            player.getHand().add(card);
+            getCensoredHand(player).add(Card.BLANK);
+        }
+    }
+
     default void tablePlay(Component play) {
         cardPlay(TABLE, play);
     }
@@ -111,15 +124,6 @@ public interface CardGame<G extends CardGame<G>> {
             }
         }
         return necessaryCards.isEmpty();
-    }
-
-    static void dealCards(LinkedList<Card> drawPile, CardPlayer player, List<Card> censoredHand, int count) {
-        for (int i = 0; i < count; i++) {
-            Card card = drawPile.pollLast();
-            card.flip();
-            player.getHand().add(card);
-            censoredHand.add(Card.BLANK);
-        }
     }
 
 }

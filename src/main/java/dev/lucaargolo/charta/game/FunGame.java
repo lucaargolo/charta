@@ -19,6 +19,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -139,7 +140,10 @@ public class FunGame implements CardGame<FunGame> {
     }
 
     @Override
-    public TransparentLinkedList<Card> getCensoredHand(CardPlayer player) {
+    public TransparentLinkedList<Card> getCensoredHand(@Nullable CardPlayer viewer, CardPlayer player) {
+        if(viewer == player && player.getEntity() instanceof ServerPlayer) {
+            return player.getHand();
+        }
         return censoredHands.computeIfAbsent(player, p -> {
             TransparentLinkedList<Card> list = new TransparentLinkedList<>();
             p.getHand().stream().map(c -> Card.BLANK).forEach(list::add);
@@ -155,23 +159,6 @@ public class FunGame implements CardGame<FunGame> {
     @Override
     public void setCurrentPlayer(int index) {
         this.currentPlayer = getPlayers().get(index);
-    }
-
-    private CardPlayer getNextPlayer() {
-        if(currentPlayer == null) {
-            return getPlayers().getFirst();
-        }else{
-            int indexOf = getPlayers().indexOf(currentPlayer);
-            if(reversed) {
-                if(indexOf - 1 >= 0) {
-                    return getPlayers().get((indexOf - 1) % players.size());
-                }else{
-                    return getPlayers().getLast();
-                }
-            }else{
-                return getPlayers().get((indexOf + 1) % players.size());
-            }
-        }
     }
 
     @Override
@@ -192,7 +179,7 @@ public class FunGame implements CardGame<FunGame> {
             for (CardPlayer player : players) {
                 scheduledActions.add(() -> {
                     player.playSound(ModSounds.CARD_DRAW.get());
-                    CardGame.dealCards(drawPile, player, getCensoredHand(player), 1);
+                    dealCards(drawPile, player, 1);
                 });
                 scheduledActions.add(() -> {});
             }
@@ -212,7 +199,7 @@ public class FunGame implements CardGame<FunGame> {
             currentSuit = startingCard.getSuit();
         });
 
-        currentPlayer = players.getFirst();
+        currentPlayer = getNextPlayer();
         isChoosingWild = false;
         isGameReady = false;
         isGameOver = false;
@@ -237,6 +224,9 @@ public class FunGame implements CardGame<FunGame> {
             return;
         }
 
+        //We check if the drawPile is empty.
+        //If it is, we shuffle remove all cards except the last one from the play pile, add them to the draw pile, and shuffle them.
+        //If there are no cards in the play pile either, we end the game due to lack of cards.
         if(drawPile.isEmpty()) {
             if(playPile.size() > 1) {
                 shufflePiles();
@@ -246,79 +236,86 @@ public class FunGame implements CardGame<FunGame> {
         }
 
         currentPlayer.getPlay(this).thenAccept(card -> {
+            //Setup next play.
             currentPlayer.setPlay(new CompletableFuture<>());
+
             if(card == null) {
-                boolean canPlay = this.getBestCard(currentPlayer) != null;
-                if(canDraw) {
-                    currentPlayer.playSound(ModSounds.CARD_DRAW.get());
-                    cardPlay(currentPlayer, Component.literal("Player drew a card."));
-                    canPlay = canPlay && drawStack < 1;
-                    startedDraw = startedDraw || drawStack < 1;
+                //Player tried drawing a card.
+
+                boolean canPlay = false;
+
+                if (currentPlayer.shouldCompute()) {
+                    dealCards(drawPile, currentPlayer, 1);
+                }
+                currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+                cardPlay(currentPlayer, Component.literal("Player drew a card."));
+
+                if(drawStack > 0) {
+                    //They started drawing from a draw stack, so we need to block them from drawing.
+                    startedDraw = true;
                     drawStack--;
-                    canDraw = drawStack > 0;
-                    saidLast[getPlayers().indexOf(currentPlayer)] = false;
-                    if (currentPlayer.shouldCompute()) {
-                        CardGame.dealCards(drawPile, currentPlayer, getCensoredHand(currentPlayer), 1);
-                    }
+                }else{
+                    //They finished drawing from a draw stack, or they just did a regular draw. So they cant draw anymore.
+                    canDraw = false;
                 }
+                //The player drew but not from a stack, so if they're able to, they should play.
+                if(!startedDraw) {
+                    canPlay = this.getBestCard(currentPlayer) != null;
+                }
+                //Since they drew a card, we reset their saidLast
+                saidLast[getPlayers().indexOf(currentPlayer)] = false;
+
+                //If the player can't draw anymore, and they cant play anymore, we skip to the next player.
                 if(!canDraw && !canPlay) {
-                    canDraw = true;
-                    drawStack = 0;
                     startedDraw = false;
-                    currentPlayer = getNextPlayer();
-                    tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
+                    nextPlayerAndRunGame();
                 }
+
+                //Continue game.
                 runGame();
+
             }else if(canPlayCard(currentPlayer, card)) {
+                //Player played a card.
                 currentPlayer.playSound(ModSounds.CARD_PLAY.get());
                 currentSuit = card.getSuit();
+
                 if(isChoosingWild) {
+                    //Player was choosing the suit from a wild card.
                     cardPlay(currentPlayer, Component.literal("Player chose "+cardDeck.getSuitTranslatableKey(currentSuit)));
-                    playPile.removeLast();
+                    //If the player was not a bot, there will be an extra card in the play pile, so we need to remove it.
+                    if(!currentPlayer.shouldCompute()) {
+                        playPile.removeLast();
+                    }
                     isChoosingWild = false;
                 }else{
                     cardPlay(currentPlayer, Component.literal("Player played a "+cardDeck.getCardTranslatableKey(card)));
                 }
+
+                //If the player is a bot, we need to manually remove the card from its hand and censored hand, and add it to the play pile.
                 if(currentPlayer.shouldCompute() && currentPlayer.getHand().remove(card)) {
                     getCensoredHand(currentPlayer).removeLast();
                     playPile.addLast(card);
                 }
+
                 if(currentPlayer.getHand().isEmpty()) {
+                    //If the player hand is empty, they win!
+
                     endGame();
                 }else if(card.getRank() == Rank.BLANK || card.getRank() == Rank.JOKER) {
+                    //If they played a wild card (Blank) or a wild plus four (Joker) we need to set up the suit choosing logic.
+
                     if(card.getRank() == Rank.JOKER) {
+                        //If they played a wild plus four (Joker), add 4 to the next player draw stack.
                         drawStack += 4;
-                    }else{
-                        drawStack = 0;
                     }
+
                     if(currentPlayer.shouldCompute()) {
-                        Map<Suit, Integer> suitCountMap = new HashMap<>();
-
-                        for (Card C : currentPlayer.getHand()) {
-                            Suit suit = C.getSuit();
-                            suitCountMap.put(suit, suitCountMap.getOrDefault(suit, 0) + 1);
-                        }
-
-                        Suit mostFrequentSuit = null;
-
-                        int maxCount = 0;
-                        for (Map.Entry<Suit, Integer> entry : suitCountMap.entrySet()) {
-                            if (entry.getValue() > maxCount) {
-                                mostFrequentSuit = entry.getKey();
-                                maxCount = entry.getValue();
-                            }
-                        }
-                        currentSuit = mostFrequentSuit;
+                        //If the player is a bot, we need to manually select the most frequent suit of that bot.
+                        currentSuit = getMostFrequentSuit(currentPlayer);
                         cardPlay(currentPlayer, Component.literal("Player chose "+cardDeck.getSuitTranslatableKey(currentSuit)));
-                        canDraw = true;
-                        currentPlayer = getNextPlayer();
-                        if(drawStack > 0) {
-                            tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn. They need to draw "+drawStack+" cards."));
-                        }else{
-                            tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
-                        }
-                        runGame();
+                        nextPlayerAndRunGame();
                     }else{
+                        //If the player is not a bot, we need to set the game state as choosing wild, and set up the suits hand for the player.
                         isChoosingWild = true;
                         suits.clear();
                         suits.addAll(List.of(
@@ -327,33 +324,42 @@ public class FunGame implements CardGame<FunGame> {
                                 new Card(Suit.CLUBS, Rank.THREE),
                                 new Card(Suit.DIAMONDS, Rank.FOUR)
                         ));
+                        //They also can't draw during the suit choosing phase, so that's important.
                         canDraw = false;
                         runGame();
                     }
                 } else {
+                    //If the player did a regular play.
+
                     if(card.getRank() == Rank.JACK) {
+                        //If the play was a block (Jack), we skip the player manually once, so it ends up happening twice.
                         currentPlayer = getNextPlayer();
                         tablePlay(Component.literal(currentPlayer.getName().getString()+" was skipped."));
                     }else if(card.getRank() == Rank.QUEEN) {
+                        //If the play was a reverse (Queen), we reverse the game order.
                         reversed = !reversed;
                         tablePlay(Component.literal("Game direction was reversed."));
-                    }
-                    if(card.getRank() == Rank.KING) {
+                    }else if(card.getRank() == Rank.KING) {
+                        //If the play was a plus 2 (King), we add 2 to the next player draw stack
                         drawStack += 2;
-                    }else{
-                        drawStack = 0;
                     }
-                    canDraw = true;
-                    currentPlayer = getNextPlayer();
-                    if(drawStack > 0) {
-                        tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn. They need to draw "+drawStack+" cards."));
-                    }else{
-                        tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
-                    }
-                    runGame();
+
+                    nextPlayerAndRunGame();
                 }
             }
         });
+    }
+
+    private void nextPlayerAndRunGame() {
+        //Reset states and go to the next player;
+        canDraw = true;
+        currentPlayer = getNextPlayer();
+        if(drawStack > 0) {
+            tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn. They need to draw "+drawStack+" cards."));
+        }else{
+            tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
+        }
+        runGame();
     }
 
     @Override
@@ -375,6 +381,7 @@ public class FunGame implements CardGame<FunGame> {
     @Override
     public void tick() {
         CardGame.super.tick();
+        //TODO: Move this logic to the CardGame default method..
         if(!isGameReady) {
             if(!scheduledActions.isEmpty()) {
                 scheduledActions.removeFirst().run();
@@ -383,6 +390,7 @@ public class FunGame implements CardGame<FunGame> {
                 runGame();
             }
         }else{
+            //Here we do the logic to increase the grace period if the player can say last. Enable bots to say last for themselves and for other players.
             for(int i = 0; i < this.getPlayers().size(); i++) {
                 CardPlayer player = this.getPlayers().get(i);
                 boolean didntSayLast = didntSayLast(player);
@@ -404,70 +412,26 @@ public class FunGame implements CardGame<FunGame> {
         }
     }
 
-    private boolean didntSayLast(CardPlayer player) {
-        int index = this.getPlayers().indexOf(player);
-        if(this.saidLast[index]) {
-            return false;
-        }else{
-            int size = player.getHand().size();
-            LivingEntity entity = player.getEntity();
-            if(entity instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof FunMenu menu) {
-                size += menu.getCarriedCards().size();
-            }
-            return size == 1;
-        }
-    }
-
-    public boolean canDoLast() {
-        return isGameReady && getPlayers().stream().anyMatch(this::didntSayLast);
-    }
-
-    public void sayLast(CardPlayer current) {
-        for(int i = 0; i < players.size(); i++) {
-            CardPlayer player = players.get(i);
-            if(didntSayLast(player)) {
-                tablePlay(Component.literal(current.getName().getString()+" said Last!"));
-                if(player != current && lastCooldown[i] > LAST_COOLDOWN) {
-                    int drawAmount = 2;
-                    if(drawPile.size() < drawAmount) {
-                        shufflePiles();
-                    }
-                    if(drawPile.size() >= drawAmount) {
-                        players.forEach(p -> {
-                            LivingEntity entity = p.getEntity();
-                            if(entity instanceof ServerPlayer serverPlayer) {
-                                PacketDistributor.sendToPlayer(serverPlayer, new LastFunPayload(CardDeckItem.getDeck(cardDeck)));
-                            }
-                        });
-                        tablePlay(Component.literal(current.getName().getString()+" automatically drew "+drawAmount+" cards"));
-                        CardGame.dealCards(drawPile, player, getCensoredHand(player), drawAmount);
-                    }else{
-                        endGame();
-                    }
-                    saidLast[i] = true;
-                    lastCooldown[i] = 0;
-                }else if(player == current) {
-                    player.playSound(SoundEvents.NOTE_BLOCK_PLING.value());
-                    saidLast[i] = true;
-                    lastCooldown[i] = 0;
-                }
-            }
-        }
-    }
-
     @Override
     public boolean canPlayCard(CardPlayer player, Card card) {
         Card lastCard = playPile.peekLast();
+
         if(!isGameReady || lastCard == null) {
+            //Check if game is ready.
             return false;
         }
         if(isChoosingWild) {
+            //If player is choosing wild. They can play anything.
             return true;
         }
+
         if(drawStack > 0) {
+            //If draw stack is greater than one, we need to check a few conditions based on the current rules.
             if(startedDraw) {
+                //If the player already started drawing, they can't stop anymore.
                 return false;
             }else {
+                //If the player didn't start drawing, they can stack another plus card if the rules allow it.
                 boolean isPlus4 = lastCard.getRank() == Rank.JOKER;
                 if (isPlus4) {
                     return (isRule(STACK_PLUS4_ON_PLUS4) && card.getRank() == Rank.JOKER) || (isRule(STACK_ANY_PLUS2_ON_PLUS4) && card.getRank() == Rank.KING) || (isRule(STACK_SAME_COLOR_PLUS2_ON_PLUS4) && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
@@ -476,6 +440,8 @@ public class FunGame implements CardGame<FunGame> {
                 }
             }
         }
+
+        //If there aren't any edge cases, we check if the card is a wild card, or if it matches the current rank or suit.
         return card.getRank() == Rank.BLANK || card.getRank() == Rank.JOKER || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;
     }
 
@@ -488,5 +454,125 @@ public class FunGame implements CardGame<FunGame> {
     public boolean isGameOver() {
         return isGameOver;
     }
+
+    public void sayLast(CardPlayer current) {
+        //Someone said last! We need to check all the players to see if we can screw with someone.
+        for(int i = 0; i < players.size(); i++) {
+            CardPlayer player = players.get(i);
+            if(didntSayLast(player)) {
+                //Since player didn't say last yet, current is able to say it.
+                tablePlay(Component.literal(current.getName().getString()+" said Last!"));
+
+                if(player == current) {
+                    //Current is the player! So they can successfully say last to avoid drawing cards.
+                    player.playSound(SoundEvents.NOTE_BLOCK_PLING.value());
+                    //Set saidLast state to true, so you can't say last for this player again.
+                    saidLast[i] = true;
+                    lastCooldown[i] = 0;
+                }else if(lastCooldown[i] > LAST_COOLDOWN) {
+                    //Current is not the player! So we need to do a grace period.
+                    //If the grace period already ended, they will automatically draw two cards.
+
+                    int drawAmount = 2;
+                    //First we need to check if there are enough cards to draw.
+                    if(drawPile.size() < drawAmount) {
+                        //If there isn't. We shuffle the piles.
+                        shufflePiles();
+                    }
+                    //We check again if there are enough cards to draw.
+                    if(drawPile.size() >= drawAmount) {
+                        //If there is, we sent a totem animation to show someone forget to say last.
+                        //And add the cards to this player.
+                        players.forEach(p -> {
+                            LivingEntity entity = p.getEntity();
+                            if(entity instanceof ServerPlayer serverPlayer) {
+                                PacketDistributor.sendToPlayer(serverPlayer, new LastFunPayload(CardDeckItem.getDeck(cardDeck)));
+                            }
+                        });
+                        tablePlay(Component.literal(current.getName().getString()+" automatically drew "+drawAmount+" cards"));
+                        dealCards(drawPile, player, drawAmount);
+                    }else{
+                        //If there isn't, we end the game due to lack of cards.
+                        endGame();
+                    }
+
+                    //Set saidLast state to true, so you can't say last for this player again.
+                    saidLast[i] = true;
+                    lastCooldown[i] = 0;
+                }
+            }
+        }
+    }
+
+    public boolean canDoLast() {
+        //Checks if it's possible to say Last for all players!
+        return isGameReady && getPlayers().stream().anyMatch(this::didntSayLast);
+    }
+
+    private boolean didntSayLast(CardPlayer player) {
+        //Checks if it's possible to say Last for a player!
+        int index = this.getPlayers().indexOf(player);
+        if(this.saidLast[index]) {
+            //This player already said last, so you cant say it again
+            return false;
+        }else{
+            //This player didn't say last yet, so we need to check its hand size.
+            int size = player.getHand().size();
+            //We need to add the carried cards, otherwise the cooldown starts ticking before they made their play.
+            LivingEntity entity = player.getEntity();
+            if(entity instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof FunMenu menu) {
+                size += menu.getCarriedCards().size();
+            }
+            //Return true if size is equal to one.
+            return size == 1;
+        }
+    }
+
+    private CardPlayer getNextPlayer() {
+        if(currentPlayer == null) {
+            //If current player is null, just get the first one.
+            return getPlayers().getFirst();
+        }else{
+            //If current player is not null, we need to check who is the next player based on the order of the game.
+            int indexOf = getPlayers().indexOf(currentPlayer);
+            if(reversed) {
+                //If the game is reversed. We need to do index - 1.
+                if(indexOf - 1 >= 0) {
+                    //If index - 1 is positive, we just get the player using that.
+                    return getPlayers().get(indexOf - 1);
+                }else{
+                    //If index - 1 is negative, we get the last player in the list.
+                    return getPlayers().getLast();
+                }
+            }else{
+                //If the game is not reversed. We just get the next index.
+                return getPlayers().get((indexOf + 1) % players.size());
+            }
+        }
+    }
+
+    private Suit getMostFrequentSuit(CardPlayer player) {
+        Map<Suit, Integer> suitCountMap = new HashMap<>();
+
+        //Adds all suits to a map, and increases its value everytime it appears.
+        for (Card c : player.getHand()) {
+            Suit suit = c.getSuit();
+            suitCountMap.put(suit, suitCountMap.getOrDefault(suit, 0) + 1);
+        }
+
+        Suit mostFrequentSuit = null;
+        int maxCount = 0;
+
+        //Check what suit appears the most.
+        for (Map.Entry<Suit, Integer> entry : suitCountMap.entrySet()) {
+            if (entry.getValue() > maxCount) {
+                mostFrequentSuit = entry.getKey();
+                maxCount = entry.getValue();
+            }
+        }
+
+        return mostFrequentSuit;
+    }
+
 
 }

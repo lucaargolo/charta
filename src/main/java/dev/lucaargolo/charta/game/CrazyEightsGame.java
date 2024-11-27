@@ -11,8 +11,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -93,7 +95,10 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     }
 
     @Override
-    public TransparentLinkedList<Card> getCensoredHand(CardPlayer player) {
+    public TransparentLinkedList<Card> getCensoredHand(@Nullable CardPlayer viewer, CardPlayer player) {
+        if(viewer == player && player.getEntity() instanceof ServerPlayer) {
+            return player.getHand();
+        }
         return censoredHands.computeIfAbsent(player, p -> {
             TransparentLinkedList<Card> list = new TransparentLinkedList<>();
             p.getHand().stream().map(c -> Card.BLANK).forEach(list::add);
@@ -138,7 +143,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             for (CardPlayer player : players) {
                 scheduledActions.add(() -> {
                     player.playSound(ModSounds.CARD_DRAW.get());
-                    CardGame.dealCards(drawPile, player, getCensoredHand(player), 1);
+                    dealCards(drawPile, player, 1);
                 });
                 scheduledActions.add(() -> {});
             }
@@ -190,7 +195,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                 if(drawsLeft > 0) {
                     drawsLeft--;
                     if(currentPlayer.shouldCompute()) {
-                        CardGame.dealCards(drawPile, currentPlayer, getCensoredHand(currentPlayer), 1);
+                        dealCards(drawPile, currentPlayer, 1);
                     }
                     runGame();
                 }else{
