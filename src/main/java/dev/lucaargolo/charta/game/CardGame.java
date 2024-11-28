@@ -18,8 +18,10 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public interface CardGame<G extends CardGame<G>> {
@@ -72,6 +74,29 @@ public interface CardGame<G extends CardGame<G>> {
         }else{
             return player.getHand().stream();
         }
+    }
+
+    default Suit getMostFrequentSuit(CardPlayer player) {
+        Map<Suit, Integer> suitCountMap = new HashMap<>();
+
+        //Adds all suits to a map, and increases its value everytime it appears.
+        for (Card c : player.getHand()) {
+            Suit suit = c.getSuit();
+            suitCountMap.put(suit, suitCountMap.getOrDefault(suit, 0) + 1);
+        }
+
+        Suit mostFrequentSuit = null;
+        int maxCount = 0;
+
+        //Check what suit appears the most.
+        for (Map.Entry<Suit, Integer> entry : suitCountMap.entrySet()) {
+            if (entry.getValue() > maxCount) {
+                mostFrequentSuit = entry.getKey();
+                maxCount = entry.getValue();
+            }
+        }
+
+        return mostFrequentSuit;
     }
 
     default @Nullable Card getBestCard(CardPlayer player) {

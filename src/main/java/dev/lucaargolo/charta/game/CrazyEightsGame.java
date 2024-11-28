@@ -33,6 +33,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
     private final List<CardPlayer> players;
     private final List<Card> deck;
+    private final CardDeck cardDeck;
 
     private CardPlayer currentPlayer;
     private boolean isGameOver;
@@ -51,6 +52,8 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             .map(Card::copy)
             .collect(Collectors.toList());
         this.deck.forEach(Card::flip);
+
+        this.cardDeck = deck;
 
         GameSlot playPileSlot = new GameSlot(playPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f + 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
         GameSlot drawPileSlot = new GameSlot(drawPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f - 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
@@ -163,10 +166,14 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             currentSuit = startingCard.getSuit();
         });
 
-        currentPlayer = players.getFirst();
+        currentPlayer = getNextPlayer();
         isChoosingWild = false;
         isGameReady = false;
         isGameOver = false;
+
+        tablePlay(Component.literal("Game Started!"));
+        tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
+
     }
 
     @Override
@@ -175,6 +182,9 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             return;
         }
 
+        //We check if the drawPile is empty.
+        //If it is, we shuffle remove all cards except the last one from the play pile, add them to the draw pile, and shuffle them.
+        //If there are no cards in the play pile either, we end the game due to lack of cards.
         if(drawPile.isEmpty()) {
             if(playPile.size() > 1) {
                 Card lastCard = playPile.pollLast();
@@ -183,62 +193,66 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                 Collections.shuffle(drawPile);
                 playPile.clear();
                 playPile.add(lastCard);
+                tablePlay(Component.literal("Piles shuffled!"));
             }else{
                 endGame();
             }
         }
 
         currentPlayer.getPlay(this).thenAccept(card -> {
+            //Setup next play.
             currentPlayer.setPlay(new CompletableFuture<>());
+
             if(card == null) {
-                currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+                //Player tried drawing a card.
                 if(drawsLeft > 0) {
                     drawsLeft--;
+
+                    cardPlay(currentPlayer, Component.literal("Player drew a card."));
+
                     if(currentPlayer.shouldCompute()) {
                         dealCards(drawPile, currentPlayer, 1);
+                        currentPlayer.playSound(ModSounds.CARD_DRAW.get());
                     }
+
                     runGame();
                 }else{
-                    currentPlayer = getNextPlayer();
-                    drawsLeft = 3;
-                    runGame();
+                    nextPlayerAndRunGame();
                 }
-            }else if(canPlayCard(currentPlayer, card)) {
+            }else if(!currentPlayer.shouldCompute() || canPlayCard(currentPlayer, card)) {
                 currentPlayer.playSound(ModSounds.CARD_PLAY.get());
                 currentSuit = card.getSuit();
+
                 if(isChoosingWild) {
-                    playPile.removeLast();
+                    //Player was choosing the suit from a wild card.
+                    cardPlay(currentPlayer, Component.literal("Player chose "+cardDeck.getSuitTranslatableKey(currentSuit)));
+                    //If the player was not a bot, there will be an extra card in the play pile, so we need to remove it.
+                    if(!currentPlayer.shouldCompute()) {
+                        playPile.removeLast();
+                    }
                     isChoosingWild = false;
+                }else{
+                    cardPlay(currentPlayer, Component.literal("Player played a "+cardDeck.getCardTranslatableKey(card)));
                 }
+
+                //If the player is a bot, we need to manually remove the card from its hand and censored hand, and add it to the play pile.
                 if(currentPlayer.shouldCompute() && currentPlayer.getHand().remove(card)) {
                     getCensoredHand(currentPlayer).removeLast();
                     playPile.addLast(card);
                 }
+
                 if(getFullHand(currentPlayer).findAny().isEmpty()) {
+                    //If the player hand is empty, they win!
                     endGame();
                 }else if(card.getRank() == Rank.EIGHT) {
+                    //If they played a wild card (Eight) we need to set up the suit choosing logic.
                     if(currentPlayer.shouldCompute()) {
-                        Map<Suit, Integer> suitCountMap = new HashMap<>();
-
-                        for (Card C : currentPlayer.getHand()) {
-                            Suit suit = C.getSuit();
-                            suitCountMap.put(suit, suitCountMap.getOrDefault(suit, 0) + 1);
-                        }
-
-                        Suit mostFrequentSuit = null;
-
-                        int maxCount = 0;
-                        for (Map.Entry<Suit, Integer> entry : suitCountMap.entrySet()) {
-                            if (entry.getValue() > maxCount) {
-                                mostFrequentSuit = entry.getKey();
-                                maxCount = entry.getValue();
-                            }
-                        }
-                        currentSuit = mostFrequentSuit;
-                        currentPlayer = getNextPlayer();
-                        drawsLeft = 3;
-                        runGame();
+                        //If the player is a bot, we need to manually select the most frequent suit of that bot.
+                        currentSuit = getMostFrequentSuit(currentPlayer);
+                        cardPlay(currentPlayer, Component.literal("Player chose "+cardDeck.getSuitTranslatableKey(currentSuit)));
+                        nextPlayerAndRunGame();
                     }else{
+                        //If the player is not a bot, we need to set the game state as choosing wild, and set up the suits hand for the player.
                         isChoosingWild = true;
                         suits.clear();
                         suits.addAll(List.of(
@@ -247,16 +261,23 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                                 new Card(Suit.CLUBS, Rank.BLANK),
                                 new Card(Suit.DIAMONDS, Rank.BLANK)
                         ));
+                        //They also can't draw during the suit choosing phase, so that's important.
                         drawsLeft = 0;
                         runGame();
                     }
                 } else {
-                    currentPlayer = getNextPlayer();
-                    drawsLeft = 3;
-                    runGame();
+                    //If the player did a regular play.
+                    nextPlayerAndRunGame();
                 }
             }
         });
+    }
+
+    public void nextPlayerAndRunGame() {
+        drawsLeft = 3;
+        currentPlayer = getNextPlayer();
+        tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
+        runGame();
     }
 
     @Override

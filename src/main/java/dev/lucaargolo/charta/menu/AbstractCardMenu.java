@@ -141,7 +141,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         return this.remoteCardSlots.get(slotId);
     }
 
-    protected CardSlot<G> addCardSlot(CardSlot<G> slot) {
+    protected <C extends CardSlot<G>> C addCardSlot(C slot) {
         slot.index = this.cardSlots.size();
         this.cardSlots.add(slot);
         this.lastCardSlots.add(ImmutableList.of());
