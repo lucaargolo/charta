@@ -37,10 +37,14 @@ public record CardContainerSlotClickPayload(int containerId, int slotId, int car
                 CardSlot<?> slot = cardMenu.getCardSlot(payload.slotId);
                 ImmutableList<Card> carriedCards = cardMenu.getCarriedCards();
                 if(carriedCards.isEmpty() && slot.canRemoveCard(cardPlayer)) {
-                    Card lastCard = slot.removeCard(cardPlayer, payload.cardId);
+                    Card lastCard = slot.removeCard(payload.cardId);
                     cardMenu.setCarriedCards(ImmutableList.of(lastCard));
-                }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards) && slot.insertCards(cardPlayer, carriedCards, payload.cardId)) {
+                    slot.onRemove(cardPlayer, lastCard);
+                }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards) && slot.insertCards(carriedCards, payload.cardId)) {
                     cardMenu.setCarriedCards(ImmutableList.of());
+                    for(Card card : carriedCards) {
+                        slot.onInsert(cardPlayer, card);
+                    }
                 }
             }
         });

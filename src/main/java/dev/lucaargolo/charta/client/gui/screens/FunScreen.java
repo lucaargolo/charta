@@ -1,6 +1,8 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.FunGame;
@@ -11,17 +13,23 @@ import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
 import dev.lucaargolo.charta.network.LastFunPayload;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.Random;
 
 public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
 
@@ -29,6 +37,14 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
 
     private int lastCooldown = FunGame.LAST_COOLDOWN;
     private boolean drawAll = false;
+
+    @Nullable
+    private ItemStack itemActivationItem;
+    private int itemActivationTicks;
+    private float itemActivationOffX;
+    private float itemActivationOffY;
+
+    private final Random random = new Random();
 
     public FunScreen(FunMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -41,7 +57,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         super.containerTick();
         if(!menu.canDoLast()) {
             lastCooldown = FunGame.LAST_COOLDOWN;
-        }else if(menu.getCardPlayer().getHand().size() == 1){
+        }else if(menu.didntSayLast()){
             lastCooldown = 0;
         }else if(lastCooldown > 0) {
             lastCooldown--;
@@ -50,10 +66,16 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
             drawAll = false;
         }else if(drawAll) {
             if(menu.getCarriedCards().isEmpty()) {
-                PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size() - 3, -1));
-                PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-1, -1));
+                PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-3, -1));
             }else{
                 drawAll = false;
+            }
+            PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-1, -1));
+        }
+        if (this.itemActivationTicks > 0) {
+            this.itemActivationTicks--;
+            if (this.itemActivationTicks == 0) {
+                this.itemActivationItem = null;
             }
         }
     }
@@ -64,7 +86,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         Style style = Style.EMPTY.withFont(Charta.id("minercraftory"));
         int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2)/2 - 65/2;
         int y = height - ((int) CardSlot.getHeight(CardSlot.Type.INVENTORY))/2 - 14;
-        int color = menu.canDoLast() ? menu.getCardPlayer().getHand().size() == 1 ? 0x00FF00 : 0xFF0000 : 0x333333;
+        int color = menu.canDoLast() ? menu.didntSayLast() ? 0x00FF00 : 0xFF0000 : 0x333333;
         guiGraphics.fill(x+1, y+1, x+63, y+16, 0xFF000000 + color);
         Vec3 c = Vec3.fromRGB24(color);
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
@@ -78,7 +100,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         }
 
         x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2;
-        color = menu.isCurrentPlayer() && menu.getDrawStack() > 0 ? Color.HSBtoRGB(0.333f + ((menu.getDrawStack()/32f)*0.666f), 1f, 1f) : 0x333333;
+        color = menu.isCurrentPlayer() && menu.getDrawStack() > 0 && menu.canDraw() ? Color.HSBtoRGB(0.333f + ((menu.getDrawStack()/32f)*0.666f), 1f, 1f) : 0x333333;
         guiGraphics.fill(x+1, y+1, x+63, y+16, 0xFF000000 + color);
         c = Vec3.fromRGB24(color);
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
@@ -112,8 +134,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        Minecraft mc = Minecraft.getInstance();
-        mc.gameRenderer.renderItemActivationAnimation(guiGraphics, mc.getTimer().getGameTimeDeltaPartialTick(false));
+        renderItemActivationAnimation(guiGraphics, partialTick);
     }
 
     @Override
@@ -174,4 +195,53 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
             guiGraphics.drawString(font, text, imageWidth / 2 - font.width(text) / 2, 110, 0xFFFFFFFF);
         }
     }
+
+    public void displayItemActivation(ItemStack stack) {
+        this.itemActivationItem = stack;
+        this.itemActivationTicks = 40;
+        this.itemActivationOffX = this.random.nextFloat() * 2.0F - 1.0F;
+        this.itemActivationOffY = this.random.nextFloat() * 2.0F - 1.0F;
+    }
+
+    @SuppressWarnings("deprecation")
+    public void renderItemActivationAnimation(GuiGraphics guiGraphics, float partialTick) {
+        if (this.minecraft != null && this.itemActivationItem != null && this.itemActivationTicks > 0) {
+            int i = 40 - this.itemActivationTicks;
+            float f = ((float)i + partialTick) / 40.0F;
+            float f1 = f * f;
+            float f2 = f * f1;
+            float f3 = 10.25F * f2 * f1 - 24.95F * f1 * f1 + 25.5F * f2 - 13.8F * f1 + 4.0F * f;
+            float f4 = f3 * (float) Math.PI;
+            float f5 = this.itemActivationOffX * (float)(guiGraphics.guiWidth() / 4);
+            float f6 = this.itemActivationOffY * (float)(guiGraphics.guiHeight() / 4);
+            PoseStack posestack = new PoseStack();
+            posestack.pushPose();
+            posestack.translate(
+                    (float)(guiGraphics.guiWidth() / 2) + f5 * Mth.abs(Mth.sin(f4 * 2.0F)),
+                    (float)(guiGraphics.guiHeight() / 2) + f6 * Mth.abs(Mth.sin(f4 * 2.0F)),
+                    500.0F
+            );
+            float f7 = 50.0F + 175.0F * Mth.sin(f4);
+            posestack.scale(f7, -f7, f7);
+            posestack.mulPose(Axis.YP.rotationDegrees(900.0F * Mth.abs(Mth.sin(f4))));
+            posestack.mulPose(Axis.XP.rotationDegrees(6.0F * Mth.cos(f * 8.0F)));
+            posestack.mulPose(Axis.ZP.rotationDegrees(6.0F * Mth.cos(f * 8.0F)));
+            guiGraphics.drawManaged(
+                () -> this.minecraft
+                    .getItemRenderer()
+                    .renderStatic(
+                        this.itemActivationItem,
+                        ItemDisplayContext.FIXED,
+                        LightTexture.FULL_BRIGHT,
+                        OverlayTexture.NO_OVERLAY,
+                        posestack,
+                        guiGraphics.bufferSource(),
+                        this.minecraft.level,
+                        0
+                    )
+            );
+            posestack.popPose();
+        }
+    }
+
 }

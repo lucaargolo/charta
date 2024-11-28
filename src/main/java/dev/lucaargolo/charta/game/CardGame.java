@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.menu.FunMenu;
 import dev.lucaargolo.charta.network.CardPlayPayload;
 import dev.lucaargolo.charta.utils.GameSlot;
 import dev.lucaargolo.charta.utils.TransparentLinkedList;
@@ -19,10 +20,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface CardGame<G extends CardGame<G>> {
 
-    static CardPlayer TABLE = new AutoPlayer(0f) {
+    CardPlayer TABLE = new AutoPlayer(0f) {
         @Override
         public Component getName() {
             return Component.literal("Table");
@@ -51,16 +53,29 @@ public interface CardGame<G extends CardGame<G>> {
 
     boolean isGameReady();
 
+    void setGameReady(boolean ready);
+
     boolean isGameOver();
 
     AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck);
+
+    List<Runnable> getScheduledActions();
 
     default TransparentLinkedList<Card> getCensoredHand(CardPlayer player) {
         return getCensoredHand(null, player);
     }
 
+    default Stream<Card> getFullHand(CardPlayer player) {
+        LivingEntity entity = player.getEntity();
+        if(entity instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof FunMenu menu && !menu.getCarriedCards().isEmpty()) {
+            return Stream.concat(player.getHand().stream(), menu.getCarriedCards().stream());
+        }else{
+            return player.getHand().stream();
+        }
+    }
+
     default @Nullable Card getBestCard(CardPlayer player) {
-        return player.getHand().stream().filter(c -> canPlayCard(player, c)).findFirst().orElse(null);
+        return getFullHand(player).filter(c -> canPlayCard(player, c)).findFirst().orElse(null);
     }
 
     default void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, CardDeck deck) {
@@ -82,7 +97,16 @@ public interface CardGame<G extends CardGame<G>> {
     }
 
     default void tick() {
-        getPlayers().forEach(p -> p.tick(this));
+        if(!isGameReady()) {
+            if(!getScheduledActions().isEmpty()) {
+                getScheduledActions().removeFirst().run();
+            } else {
+                setGameReady(true);
+                runGame();
+            }
+        }else{
+            getPlayers().forEach(p -> p.tick(this));
+        }
     }
 
     default int getMinPlayers() {

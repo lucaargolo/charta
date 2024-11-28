@@ -35,152 +35,170 @@ public class TransparentLinkedList<E> extends LinkedList<E> {
 
     @Override
     public boolean add(E e) {
+        boolean result = super.add(e);
         this.change();
-        return super.add(e);
+        return result;
     }
 
     @Override
     public void add(int index, E element) {
-        this.change();
         super.add(index, element);
+        this.change();
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
+        boolean result = super.addAll(index, c);
         this.change();
-        return super.addAll(index, c);
+        return result;
     }
 
     @Override
     public void addFirst(E e) {
-        this.change();
         super.addFirst(e);
+        this.change();
     }
 
     @Override
     public void addLast(E e) {
-        this.change();
         super.addLast(e);
+        this.change();
     }
 
     @Override
     public boolean offer(E e) {
+        boolean result = super.offer(e);
         this.change();
-        return super.offer(e);
+        return result;
     }
 
     @Override
     public boolean offerFirst(E e) {
+        boolean result = super.offerFirst(e);
         this.change();
-        return super.offerFirst(e);
+        return result;
     }
 
     @Override
     public boolean offerLast(E e) {
+        boolean result = super.offerLast(e);
         this.change();
-        return super.offerLast(e);
+        return result;
     }
 
     @Override
     public void push(E e) {
-        this.change();
         super.push(e);
+        this.change();
     }
 
     @Override
     public E pop() {
+        E result = super.pop();
         this.change();
-        return super.pop();
+        return result;
     }
     
     @Override
     public E poll() {
+        E result = super.poll();
         this.change();
-        return super.poll();
+        return result;
     }
 
     @Override
     public E pollFirst() {
+        E result = super.pollFirst();
         this.change();
-        return super.pollFirst();
+        return result;
     }
 
     @Override
     public E pollLast() {
+        E result = super.pollLast();
         this.change();
-        return super.pollLast();
+        return result;
     }
 
     @Override
     public boolean remove(Object o) {
+        boolean result = super.remove(o);
         this.change();
-        return super.remove(o);
+        return result;
     }
 
     @Override
     public E remove() {
+        E result = super.remove();
         this.change();
-        return super.remove();
+        return result;
     }
 
     @Override
     public E remove(int index) {
+        E result = super.remove(index);
         this.change();
-        return super.remove(index);
+        return result;
     }
 
     @Override
     public E removeFirst() {
+        E result = super.removeFirst();
         this.change();
-        return super.removeFirst();
+        return result;
     }
 
     @Override
     public E removeLast() {
+        E result = super.removeLast();
         this.change();
-        return super.removeLast();
+        return result;
     }
 
     @Override
     protected void removeRange(int fromIndex, int toIndex) {
-        this.change();
         super.removeRange(fromIndex, toIndex);
+        this.change();
     }
 
     @Override
     public boolean removeAll(@NotNull Collection<?> c) {
+        boolean result = super.removeAll(c);
         this.change();
-        return super.removeAll(c);
+        return result;
     }
 
     @Override
     public boolean removeIf(Predicate<? super E> filter) {
+        boolean result = super.removeIf(filter);
         this.change();
-        return super.removeIf(filter);
+        return result;
     }
 
     @Override
     public boolean removeFirstOccurrence(Object o) {
+        boolean result = super.removeFirstOccurrence(o);
         this.change();
-        return super.removeFirstOccurrence(o);
+        return result;
     }
 
     @Override
     public boolean removeLastOccurrence(Object o) {
+        boolean result = super.removeLastOccurrence(o);
         this.change();
-        return super.removeLastOccurrence(o);
+        return result;
     }
 
     @Override
     public void replaceAll(UnaryOperator<E> operator) {
-        this.change();
         super.replaceAll(operator);
+        this.change();
     }
 
     @Override
     public void clear() {
-        this.change();
         super.clear();
+        this.change();
     }
 
     

@@ -214,7 +214,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                     getCensoredHand(currentPlayer).removeLast();
                     playPile.addLast(card);
                 }
-                if(currentPlayer.getHand().isEmpty()) {
+                if(getFullHand(currentPlayer).findAny().isEmpty()) {
                     endGame();
                 }else if(card.getRank() == Rank.EIGHT) {
                     if(currentPlayer.shouldCompute()) {
@@ -261,7 +261,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
     @Override
     public void endGame() {
-        if(currentPlayer.getHand().isEmpty()) {
+        if(getFullHand(currentPlayer).findAny().isEmpty()) {
             currentPlayer.sendTitle(Component.translatable("charta.message.you_won").withStyle(ChatFormatting.GREEN), Component.translatable("charta.message.congratulations"));
             getPlayers().stream().filter(player -> player != currentPlayer).forEach(player -> {
                 player.sendTitle(Component.translatable("charta.message.you_lost").withStyle(ChatFormatting.RED), Component.translatable("charta.message.won_the_match",currentPlayer.getName()));
@@ -276,19 +276,6 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     }
 
     @Override
-    public void tick() {
-        CardGame.super.tick();
-        if(!isGameReady) {
-            if(!scheduledActions.isEmpty()) {
-                scheduledActions.removeFirst().run();
-            } else {
-                isGameReady = true;
-                runGame();
-            }
-        }
-    }
-
-    @Override
     public boolean canPlayCard(CardPlayer player, Card card) {
         Card lastCard = playPile.peekLast();
         return isGameReady && lastCard != null && ((isChoosingWild && card.getRank() == Rank.BLANK) || card.getRank() == Rank.EIGHT || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit);
@@ -300,9 +287,17 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     }
 
     @Override
+    public void setGameReady(boolean gameReady) {
+        isGameReady = gameReady;
+    }
+
+    @Override
     public boolean isGameOver() {
         return isGameOver;
     }
 
-
+    @Override
+    public List<Runnable> getScheduledActions() {
+        return scheduledActions;
+    }
 }

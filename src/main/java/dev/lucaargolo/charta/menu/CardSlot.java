@@ -40,20 +40,14 @@ public class CardSlot<G extends CardGame<G>> {
         gameCards.addAll(cards);
     }
 
-    public final boolean insertCards(CardPlayer player, List<Card> collection, int index) {
+    public final boolean insertCards(List<Card> collection, int index) {
         List<Card> cards = getter.apply(game);
-        boolean result = index == -1 ? cards.addAll(collection) : cards.addAll(index % cards.size(), collection);
-        for(Card card : collection) {
-            onInsert(player, card);
-        }
-        return result;
+        return index == -1 ? cards.addAll(collection) : cards.addAll(!cards.isEmpty() ? index % cards.size() : 0, collection);
     }
 
-    public final Card removeCard(CardPlayer player, int index) {
+    public final Card removeCard(int index) {
         List<Card> cards = getter.apply(game);
-        Card card = index == -1 ? cards.removeLast() : cards.remove(index % cards.size());
-        onRemove(player, card);
-        return card;
+        return index == -1 ? cards.removeLast() : cards.remove(!cards.isEmpty() ? index % cards.size() : 0);
     }
 
     public void onInsert(CardPlayer player, Card card) {

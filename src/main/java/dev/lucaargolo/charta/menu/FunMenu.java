@@ -15,17 +15,21 @@ import java.util.List;
 public class FunMenu extends AbstractCardMenu<FunGame> {
 
     private final FunGame game;
+    private boolean draw = false;
 
     private int canDoLast = 0;
+    private int didntSayLast = 0;
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
-                case 1 -> game.currentSuit != null ? game.currentSuit.ordinal() : -1;
-                case 2 -> game.reversed ? 1 : 0;
-                case 3 -> game.drawStack;
-                case 4 -> game.rules;
                 case 0 -> game.canDoLast() ? 1 : canDoLast;
+                case 1 -> game.didntSayLast(cardPlayer) ? 1 : didntSayLast;
+                case 2 -> game.currentSuit != null ? game.currentSuit.ordinal() : -1;
+                case 3 -> game.reversed ? 1 : 0;
+                case 4 -> game.drawStack;
+                case 5 -> game.canDraw ? 1 : 0;
+                case 6 -> game.rules;
                 default -> 0;
             };
         }
@@ -33,17 +37,19 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
         @Override
         public void set(int index, int value) {
             switch (index) {
-                case 1 -> game.currentSuit = value >= 0 ? Suit.values()[value] : null;
-                case 2 -> game.reversed = value > 0;
-                case 3 -> game.drawStack = value;
-                case 4 -> game.rules = value;
                 case 0 -> canDoLast = value;
+                case 1 -> didntSayLast = value;
+                case 2 -> game.currentSuit = value >= 0 ? Suit.values()[value] : null;
+                case 3 -> game.reversed = value > 0;
+                case 4 -> game.drawStack = value;
+                case 5 -> game.canDraw = value > 0;
+                case 6 -> game.rules = value;
             }
         }
 
         @Override
         public int getCount() {
-            return 5;
+            return 7;
         }
     };
 
@@ -65,13 +71,14 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
 
             @Override
             public boolean canRemoveCard(CardPlayer player) {
-                return player == this.game.getCurrentPlayer() && this.game.canDraw;
+                return !draw && player == this.game.getCurrentPlayer() && this.game.canDraw;
             }
 
             @Override
             public void onRemove(CardPlayer player, Card card) {
+                player.playSound(ModSounds.CARD_DRAW.get());
                 card.flip();
-                player.getPlay(this.game).complete(null);
+                draw = true;
             }
         });
 
@@ -79,6 +86,10 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
         addCardSlot(new CardSlot<>(this.game, FunGame::getPlayPile, 84, 30) {
             @Override
             public boolean canInsertCard(CardPlayer player, List<Card> cards) {
+                if(draw) {
+                    player.getPlay(this.game).complete(null);
+                    draw = false;
+                }
                 return player == this.game.getCurrentPlayer() && cards.size() == 1 && this.game.canPlayCard(player, cards.getLast());
             }
 
@@ -96,6 +107,10 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
         addCardSlot(new CardSlot<>(this.game, g -> (cardPlayer == g.getCurrentPlayer() && g.isChoosingWild) ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
             @Override
             public void onInsert(CardPlayer player, Card card) {
+                if(draw) {
+                    player.getPlay(this.game).complete(null);
+                    draw = false;
+                }
                 player.playSound(ModSounds.CARD_PLAY.get());
                 if(!game.isChoosingWild)
                     game.getCensoredHand(player).add(Card.BLANK);
@@ -118,20 +133,28 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
         return canDoLast > 0;
     }
 
+    public boolean didntSayLast() {
+        return didntSayLast > 0;
+    }
+
     public Suit getCurrentSuit() {
-        return data.get(1) >= 0 ? Suit.values()[data.get(1)] : null;
+        return data.get(2) >= 0 ? Suit.values()[data.get(2)] : null;
     }
 
     public boolean isReversed() {
-        return data.get(2) > 0;
+        return data.get(3) > 0;
     }
 
     public int getDrawStack() {
-        return data.get(3);
+        return data.get(4);
+    }
+
+    public boolean canDraw() {
+        return data.get(5) > 0;
     }
 
     public boolean isRule(int rule) {
-        return (data.get(4) & (1 << rule)) != 0;
+        return (data.get(5) & (1 << rule)) != 0;
     }
 
     @Override

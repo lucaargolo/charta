@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.client.gui.screens.FunScreen;
 import dev.lucaargolo.charta.menu.FunMenu;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import io.netty.buffer.ByteBuf;
@@ -57,9 +58,9 @@ public record LastFunPayload(ItemStack deckStack) implements CustomPacketPayload
     @OnlyIn(Dist.CLIENT)
     public static void displayTotemEffect(ItemStack deckStack) {
         Minecraft mc = Minecraft.getInstance();
-        if(mc.level != null && mc.player != null) {
+        if(mc.level != null && mc.player != null && mc.screen instanceof FunScreen funScreen) {
             mc.level.playLocalSound(mc.player.getX(), mc.player.getY(), mc.player.getZ(), SoundEvents.TOTEM_USE, mc.player.getSoundSource(), 1.0F, 1.0F, false);
-            mc.gameRenderer.displayItemActivation(deckStack);
+            funScreen.displayItemActivation(deckStack);
         }
     }
 
