@@ -24,4 +24,7 @@ void main() {
     }
     fragColor = color * vertexColor * ColorModulator;
     fragColor.a *= step(max(abs(uv.x), abs(uv.y)), 0.5);
+    if (fragColor.a < 0.1) {
+        discard;
+    }
 }

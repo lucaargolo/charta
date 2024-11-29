@@ -13,9 +13,17 @@ out vec4 fragColor;
 
 void main() {
     vec4 color = paletteTexture(Sampler0, texCoord0) * vertexColor;
+    bool weird = false;
     if (color.a < 2.0) {
-        discard;
+        weird = true;
+        color.a = 1.0;
     }
     color.a = min(color.a, 1.0);
     fragColor = color * ColorModulator;
+    if(fragColor.a < 0.1) {
+        discard;
+    }
+    if(weird) {
+        fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
 }

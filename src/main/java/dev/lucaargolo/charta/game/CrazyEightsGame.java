@@ -215,7 +215,11 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                         currentPlayer.playSound(ModSounds.CARD_DRAW.get());
                     }
 
-                    runGame();
+                    if(drawsLeft == 0 && this.getBestCard(currentPlayer) == null) {
+                        nextPlayerAndRunGame();
+                    }else{
+                        runGame();
+                    }
                 }else{
                     nextPlayerAndRunGame();
                 }

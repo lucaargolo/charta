@@ -39,3 +39,48 @@ vec4 paletteTexture(sampler2D Sampler0, vec2 uv) {
 
     return vec4(color, alpha);
 }
+
+
+vec3 rgbToHsb(vec3 c) {
+    float r = c.r, g = c.g, b = c.b;
+    float maxVal = max(r, max(g, b));
+    float minVal = min(r, min(g, b));
+    float delta = maxVal - minVal;
+
+    float h = 0.0;
+    if (delta > 0.00001) {
+        if (maxVal == r) {
+            h = mod((g - b) / delta, 6.0);
+        } else if (maxVal == g) {
+            h = (b - r) / delta + 2.0;
+        } else {
+            h = (r - g) / delta + 4.0;
+        }
+        h /= 6.0;
+    }
+
+    float s = (maxVal > 0.00001) ? (delta / maxVal) : 0.0;
+    float v = maxVal;
+
+    return vec3(h, s, v);
+}
+
+// Function to convert HSB to RGB
+vec3 hsbToRgb(vec3 c) {
+    float h = c.x * 6.0;
+    float s = c.y;
+    float v = c.z;
+
+    int i = int(floor(h));
+    float f = h - float(i);
+    float p = v * (1.0 - s);
+    float q = v * (1.0 - s * f);
+    float t = v * (1.0 - s * (1.0 - f));
+
+    if (i == 0) return vec3(v, t, p);
+    if (i == 1) return vec3(q, v, p);
+    if (i == 2) return vec3(p, v, t);
+    if (i == 3) return vec3(p, q, v);
+    if (i == 4) return vec3(t, p, v);
+    return vec3(v, p, q);
+}

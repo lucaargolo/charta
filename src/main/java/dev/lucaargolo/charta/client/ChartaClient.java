@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.client;
 
 import com.google.gson.JsonSyntaxException;
-import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
@@ -173,7 +173,7 @@ public class ChartaClient {
         public static void onClientSetup(FMLClientSetupEvent event) {
             Minecraft minecraft = Minecraft.getInstance();
             minecraft.submit(() -> {
-                glowRenderTarget = new MainTarget(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
+                glowRenderTarget = new TextureTarget(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight(), false, Minecraft.ON_OSX);
                 glowRenderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
                 glowRenderTarget.clear(Minecraft.ON_OSX);
             });
