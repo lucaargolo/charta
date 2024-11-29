@@ -17,6 +17,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 import java.util.function.Function;
@@ -287,6 +288,18 @@ public class CardDeck {
 
     public int getSuitColor(Suit suit) {
         SuitImage image = Charta.CARD_SUITS.getImages().getOrDefault(suitsLocation.apply(suit), CardImageUtils.EMPTY_SUIT);
-        return image.getAverageColor();
+        int color = image.getAverageColor();
+        Vec3 col = Vec3.fromRGB24(color);
+        double brightness = 0.299 * col.x + 0.587 * col.y + 0.114 * col.z;
+        if (brightness < 0.5) {
+            double factor = 2.5 * 255;
+            int r = Math.min(255, (int)(col.x * factor));
+            int g = Math.min(255, (int)(col.y * factor));
+            int b = Math.min(255, (int)(col.z * factor));
+
+            return (r << 16) | (g << 8) | b;
+        }else{
+            return color;
+        }
     }
 }

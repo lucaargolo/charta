@@ -31,7 +31,7 @@ public class CardImage {
     private final int height;
     private final int totalPixels;
 
-    private int averageColor = 0;
+    private int averageColor;
 
     public CardImage() {
         this(new byte[WIDTH * HEIGHT], WIDTH, HEIGHT);

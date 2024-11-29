@@ -58,12 +58,6 @@ public class Charta {
 
     private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, ResourceLocation.withDefaultNamespace( "empty"));
 
-    /*
-    TODO:
-        Release Goals:
-            - Make some custom card decks spawn in dungeons
-     */
-
     public static final String MOD_ID = "charta";
     public static final Logger LOGGER = LogUtils.getLogger();
 

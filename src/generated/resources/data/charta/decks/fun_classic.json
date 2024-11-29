@@ -163,7 +163,7 @@
     "diamonds:joker": "charta:fun_classic/4_14"
   },
   "rarity": "rare",
-  "tradeable": true,
+  "tradeable": false,
   "cards": [
     "spades:blank",
     "spades:ace",
