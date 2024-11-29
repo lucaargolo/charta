@@ -42,13 +42,13 @@ public class WineGlassBlock extends Block {
 
     @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
-        if(!state.is(ModBlocks.EMPTY_WINE_GLASS)) {
-            if(!level.isClientSide()) {
-                player.eat(level, this.asItem().getDefaultInstance(), FOOD);
-                level.setBlockAndUpdate(pos, ModBlocks.EMPTY_WINE_GLASS.get().defaultBlockState());
-            }
-            return InteractionResult.SUCCESS;
-        }
+//        if(!state.is(ModBlocks.EMPTY_WINE_GLASS)) {
+//            if(!level.isClientSide()) {
+//                player.eat(level, this.asItem().getDefaultInstance(), FOOD);
+//                level.setBlockAndUpdate(pos, ModBlocks.EMPTY_WINE_GLASS.get().defaultBlockState());
+//            }
+//            return InteractionResult.SUCCESS;
+//        }
         return InteractionResult.PASS;
     }
 

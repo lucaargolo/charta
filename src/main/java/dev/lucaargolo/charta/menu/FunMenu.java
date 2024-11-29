@@ -10,6 +10,8 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class FunMenu extends AbstractCardMenu<FunGame> {
 
     private final FunGame game;
@@ -57,7 +59,8 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
 
     public FunMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players) {
         super(ModMenus.FUN.get(), containerId, inventory, access, deck, players);
-        this.game = CardGames.getGameForMenu(CardGames.FUN, access, deck, players);
+        //this.game = CardGames.getGameForMenu(CardGames.FUN, access, deck, players);
+        this.game = new FunGame(List.of(), deck);
 
         this.addTopPreview(players);
         //Draw pile

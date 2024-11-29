@@ -6,8 +6,6 @@ import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
-import dev.lucaargolo.charta.entity.ModPoiTypes;
-import dev.lucaargolo.charta.entity.ModVillagerProfessions;
 import dev.lucaargolo.charta.item.ModCreativeTabs;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.item.ModItems;
@@ -75,8 +73,6 @@ public class Charta {
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntityTypes.register(modEventBus);
-        ModPoiTypes.register(modEventBus);
-        ModVillagerProfessions.register(modEventBus);
         ModBlockEntityTypes.register(modEventBus);
         ModMenus.register(modEventBus);
         ModCreativeTabs.register(modEventBus);

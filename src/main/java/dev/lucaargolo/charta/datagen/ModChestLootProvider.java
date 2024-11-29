@@ -13,11 +13,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
 import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -41,35 +39,35 @@ public class ModChestLootProvider implements LootTableSubProvider {
 
     @Override
     public void generate(@NotNull BiConsumer<ResourceKey<LootTable>, LootTable.Builder> consumer) {
-        LootPool.Builder mineshaftPool = LootPool.lootPool()
-            .setRolls(ConstantValue.exactly(1))
-            .add(deck(CardDecks.FUN_INVERTED, 0.75))
-            .add(deck(CardDecks.FUN_CLASSIC, 0.75))
-            .add(EmptyLootItem.emptyItem().setWeight(50));
-        addGroup(mineshaftPool, "metals", 1.25);
-        addGroup(mineshaftPool, "gems", 1.0);
-        addGroup(mineshaftPool, "neon", 0.25);
-        consumer.accept(ABANDONED_MINESHAFT_DECKS, LootTable.lootTable().withPool(mineshaftPool));
-
-        LootPool.Builder pyramidPool = LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1))
-                .add(deck(CardDecks.FUN_INVERTED, 2.0))
-                .add(deck(CardDecks.FUN_CLASSIC, 2.0))
-                .add(EmptyLootItem.emptyItem().setWeight(50));
-        addGroup(pyramidPool, "metals", 0.25);
-        addGroup(pyramidPool, "neon", 0.5);
-        consumer.accept(DESERT_PYRAMID_DECKS, LootTable.lootTable().withPool(pyramidPool));
-
-        LootPool.Builder dungeonPool = LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1))
-                .add(deck(CardDecks.FUN_INVERTED, 0.5))
-                .add(deck(CardDecks.FUN_CLASSIC, 0.5))
-                .add(EmptyLootItem.emptyItem().setWeight(50));
-        addGroup(dungeonPool, "flags", 2.0);
-        addGroup(dungeonPool, "metals", 0.5);
-        addGroup(dungeonPool, "gems", 0.25);
-        addGroup(dungeonPool, "neon", 0.25);
-        consumer.accept(SIMPLE_DUNGEON_DECKS, LootTable.lootTable().withPool(dungeonPool));
+//        LootPool.Builder mineshaftPool = LootPool.lootPool()
+//            .setRolls(ConstantValue.exactly(1))
+//            .add(deck(CardDecks.FUN_INVERTED, 0.75))
+//            .add(deck(CardDecks.FUN_CLASSIC, 0.75))
+//            .add(EmptyLootItem.emptyItem().setWeight(50));
+//        addGroup(mineshaftPool, "metals", 1.25);
+//        addGroup(mineshaftPool, "gems", 1.0);
+//        addGroup(mineshaftPool, "neon", 0.25);
+//        consumer.accept(ABANDONED_MINESHAFT_DECKS, LootTable.lootTable().withPool(mineshaftPool));
+//
+//        LootPool.Builder pyramidPool = LootPool.lootPool()
+//                .setRolls(ConstantValue.exactly(1))
+//                .add(deck(CardDecks.FUN_INVERTED, 2.0))
+//                .add(deck(CardDecks.FUN_CLASSIC, 2.0))
+//                .add(EmptyLootItem.emptyItem().setWeight(50));
+//        addGroup(pyramidPool, "metals", 0.25);
+//        addGroup(pyramidPool, "neon", 0.5);
+//        consumer.accept(DESERT_PYRAMID_DECKS, LootTable.lootTable().withPool(pyramidPool));
+//
+//        LootPool.Builder dungeonPool = LootPool.lootPool()
+//                .setRolls(ConstantValue.exactly(1))
+//                .add(deck(CardDecks.FUN_INVERTED, 0.5))
+//                .add(deck(CardDecks.FUN_CLASSIC, 0.5))
+//                .add(EmptyLootItem.emptyItem().setWeight(50));
+//        addGroup(dungeonPool, "flags", 2.0);
+//        addGroup(dungeonPool, "metals", 0.5);
+//        addGroup(dungeonPool, "gems", 0.25);
+//        addGroup(dungeonPool, "neon", 0.25);
+//        consumer.accept(SIMPLE_DUNGEON_DECKS, LootTable.lootTable().withPool(dungeonPool));
     }
 
     private static void addGroup(LootPool.Builder pool, String group, double chanceMultiplier) {

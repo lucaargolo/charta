@@ -65,13 +65,13 @@ public class BeerGlassBlock extends TransparentBlock {
 
     @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
-        if(!state.is(ModBlocks.EMPTY_BEER_GLASS)) {
-            if(!level.isClientSide()) {
-                player.eat(level, this.asItem().getDefaultInstance(), FOOD);
-                level.setBlockAndUpdate(pos, ModBlocks.EMPTY_BEER_GLASS.get().defaultBlockState().setValue(FACING, state.getValue(FACING)));
-            }
-            return InteractionResult.SUCCESS;
-        }
+//        if(!state.is(ModBlocks.EMPTY_BEER_GLASS)) {
+//            if(!level.isClientSide()) {
+//                player.eat(level, this.asItem().getDefaultInstance(), FOOD);
+//                level.setBlockAndUpdate(pos, ModBlocks.EMPTY_BEER_GLASS.get().defaultBlockState().setValue(FACING, state.getValue(FACING)));
+//            }
+//            return InteractionResult.SUCCESS;
+//        }
         return InteractionResult.PASS;
     }
 
