@@ -7,7 +7,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.compat.IrisCompat;
+import dev.lucaargolo.charta.utils.CardImageUtils;
 import dev.lucaargolo.charta.utils.ExpandedStreamCodec;
+import dev.lucaargolo.charta.utils.SuitImage;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -279,4 +281,12 @@ public class CardDeck {
         };
     }
 
+    public int getCardColor(Card card) {
+        return getSuitColor(card.getSuit());
+    }
+
+    public int getSuitColor(Suit suit) {
+        SuitImage image = Charta.CARD_SUITS.getImages().getOrDefault(suitsLocation.apply(suit), CardImageUtils.EMPTY_SUIT);
+        return image.getAverageColor();
+    }
 }

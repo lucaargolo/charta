@@ -96,7 +96,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
-            scheduleTooltip(Component.literal("Last!"));
+            scheduleTooltip(Component.translatable("charta.message.say_last"));
         }
 
         x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2;
@@ -110,7 +110,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
-            scheduleTooltip(Component.literal("Draw all cards."));
+            scheduleTooltip(Component.translatable("charta.message.draw_all_cards"));
         }
 
     }

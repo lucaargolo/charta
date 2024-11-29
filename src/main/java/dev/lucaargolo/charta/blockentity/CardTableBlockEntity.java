@@ -108,6 +108,12 @@ public class CardTableBlockEntity extends BlockEntity {
                         if (players.size() >= game.getMinPlayers()) {
                             if (players.size() <= game.getMaxPlayers()) {
                                 PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), new GameSlotResetPayload(worldPosition));
+                                for(CardPlayer player : players) {
+                                    LivingEntity entity = player.getEntity();
+                                    if (entity instanceof ServerPlayer serverPlayer) {
+                                        PacketDistributor.sendToPlayer(serverPlayer, new GameStartPayload());
+                                    }
+                                }
                                 this.resetGameSlots();
                                 this.game = game;
                                 this.game.startGame();
@@ -148,9 +154,6 @@ public class CardTableBlockEntity extends BlockEntity {
                                             GameSlot slot = new GameSlot(game.getCensoredHand(player), x, y, 0f, angle, direction.getClockWise());
                                             slot.setup(this, index++);
                                             addGameSlot(slot);
-                                        }
-                                        if(entity instanceof ServerPlayer serverPlayer) {
-                                            PacketDistributor.sendToPlayer(serverPlayer, new GameStartPayload());
                                         }
                                     }
                                     player.openScreen(this.game, this.worldPosition, deck);

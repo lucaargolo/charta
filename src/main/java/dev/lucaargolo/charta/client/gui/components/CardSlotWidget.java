@@ -24,7 +24,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
     private CardSlotWidget<G> hoverable = null;
 
     public CardSlotWidget(CardMenuScreen<G, ?> parent, CardSlot<G> slot) {
-        super(parent, null, null, slot.x, slot.y, slot.isSmall() ? 0.333f : 1f);
+        super(parent, null, null, 0xFFFFFF, slot.x, slot.y, slot.isSmall() ? 0.333f : 1f);
         this.parent = parent;
         this.cardSlot = slot;
     }
@@ -130,6 +130,12 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
     public String getCardTranslatableKey() {
         Card card = cardSlot.getCards().getLast();
         return parent.getDeck().getCardTranslatableKey(card);
+    }
+
+    @Override
+    public int getCardColor() {
+        Card card = cardSlot.getCards().getLast();
+        return parent.getDeck().getCardColor(card);
     }
 
     @Override

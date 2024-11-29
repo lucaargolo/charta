@@ -16,7 +16,9 @@ import dev.lucaargolo.charta.utils.TickableWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -79,6 +81,9 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
         menu.cardSlots.forEach(slot -> {
             slotWidgets.add(new CardSlotWidget<>(this, slot));
         });
+        this.addRenderableWidget(new Button.Builder(Component.literal("H"), b -> {
+            Minecraft.getInstance().setScreen(new HistoryScreen(this));
+        }).bounds(width-25, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.open_game_history"))).build());
     }
 
     public void renderTopBar(@NotNull GuiGraphics guiGraphics) {

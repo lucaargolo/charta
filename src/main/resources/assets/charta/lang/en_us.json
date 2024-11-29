@@ -7,7 +7,10 @@
   "charta.suits": "Suits",
   "charta.suit": "Suit",
 
+  "charta.game_history": "Game History",
+
   "charta.crazy_eights": "Crazy Eights",
+  "charta.fun": "Fun",
 
   "entity.minecraft.villager.charta.dealer": "Dealer",
 
@@ -351,7 +354,7 @@
   "charta.message.need_to_be_sat": "You need to be sat in the table to start a game.",
   "charta.message.invalid_card_player": "You are not a valid Card Player.",
   "charta.message.put_chair_cloth": "You need to put a cloth on this chair.",
-  "charta.message.game_started": "Game successfully started",
+  "charta.message.game_started": "Game started",
   "charta.message.cant_play_deck": "You can't play this game with this deck.",
   "charta.message.try_finding_another": "Try finding another one.",
   "charta.message.table_unknown_game": "Table received an unknown game id.",
@@ -371,6 +374,20 @@
   "charta.message.your_turn": "It's your turn!",
   "charta.message.other_turn": "It's %s's turn",
   "charta.message.dealing_cards": "Dealing cards...",
-  "charta.message.next_player": "Next player is %s"
+  "charta.message.next_player": "Next player is %s",
+  "charta.message.go_back": "Go back.",
+  "charta.message.open_game_history": "Open game history",
+  "charta.message.drew_a_card": "Drew a card",
+  "charta.message.piles_shuffled": "Piles shuffled",
+  "charta.message.played_a_card": "Played a %s",
+  "charta.message.chose_a_suit": "Chose %s",
+  "charta.message.its_player_turn": "It's %s's turn",
+  "charta.message.game_reversed": "Game direction was reversed",
+  "charta.message.player_was_skipped": "%s was skipped",
+  "charta.message.its_player_turn_draw_stack": "Its %s's turn. They need to draw %s cards.",
+  "charta.message.player_said_last": "%s said last!",
+  "charta.message.player_automatically_drew_cards": "%s automatically drew %s card.",
+  "charta.message.say_last": "Say last!",
+  "charta.message.draw_all_cards": "Draw all cards."
 
 }

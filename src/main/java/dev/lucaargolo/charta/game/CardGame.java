@@ -1,10 +1,10 @@
 package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
-import dev.lucaargolo.charta.menu.FunMenu;
 import dev.lucaargolo.charta.network.CardPlayPayload;
 import dev.lucaargolo.charta.utils.GameSlot;
 import dev.lucaargolo.charta.utils.TransparentLinkedList;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -29,7 +29,7 @@ public interface CardGame<G extends CardGame<G>> {
     CardPlayer TABLE = new AutoPlayer(0f) {
         @Override
         public Component getName() {
-            return Component.literal("Table");
+            return Component.empty();
         }
     };
 
@@ -69,7 +69,7 @@ public interface CardGame<G extends CardGame<G>> {
 
     default Stream<Card> getFullHand(CardPlayer player) {
         LivingEntity entity = player.getEntity();
-        if(entity instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof FunMenu menu && !menu.getCarriedCards().isEmpty()) {
+        if(entity instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof AbstractCardMenu<?> menu && !menu.getCarriedCards().isEmpty()) {
             return Stream.concat(player.getHand().stream(), menu.getCarriedCards().stream());
         }else{
             return player.getHand().stream();
@@ -151,15 +151,15 @@ public interface CardGame<G extends CardGame<G>> {
         }
     }
 
-    default void tablePlay(Component play) {
-        cardPlay(TABLE, play);
+    default void table(Component play) {
+        play(TABLE, play.copy().withStyle(ChatFormatting.GRAY));
     }
 
-    default void cardPlay(CardPlayer player, Component play) {
+    default void play(CardPlayer player, Component play) {
         for(CardPlayer p : this.getPlayers()) {
             LivingEntity entity = p.getEntity();
             if(entity instanceof ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, new CardPlayPayload(player.getName(), player.getHand().size(), play));
+                PacketDistributor.sendToPlayer(serverPlayer, new CardPlayPayload(player.getName().equals(Component.empty()) ? Component.empty() : player.getColoredName(), player.getHand().size(), play));
             }
         }
     }

@@ -2,7 +2,9 @@ package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.client.gui.screens.HistoryScreen;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -37,11 +39,9 @@ public record CardPlayPayload(Component playerName, int playerCards, Component p
     @OnlyIn(Dist.CLIENT)
     private static void addToHistory(Component playerName, int playerCards, Component play) {
         ChartaClient.LOCAL_HISTORY.add(ImmutableTriple.of(playerName, playerCards, play));
-        //TODO: Remove this
-        if(playerName.getString().equals("Table")) {
-            System.out.println(play.getString());
-        }else{
-            System.out.println(playerName.getString() + " | "+playerCards+" cards | "+play.getString());
+        Minecraft mc = Minecraft.getInstance();
+        if(mc.screen instanceof HistoryScreen screen) {
+            screen.init(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
         }
     }
 

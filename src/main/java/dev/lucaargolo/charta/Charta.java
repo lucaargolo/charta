@@ -61,25 +61,7 @@ public class Charta {
     /*
     TODO:
         Release Goals:
-            - Improve game screen (sound effects and if possible animate plays) (hovered cards)
             - Make some custom card decks spawn in dungeons
-            - Add other card games:
-                - Solitaire
-                - ?
-        Future Goals:
-            - Add card painter so players can make new cards on the go. (They'll be stored in a PersistentData instead of the datapack)
-            - Add other games
-                - Add domino
-                - Add checkers
-                - Add chess
-                - Add tic tac toe
-            - Add fortune seer villager
-            - Add tarot packs that you can buy or find
-            - Add fortune system (kinda like enchantments for players)
-                - You get a fortune by opening a tarot pack
-                - If you want to remove a fortune you have to do a cleansing ritual
-            - Add cleansing ritual
-
      */
 
     public static final String MOD_ID = "charta";

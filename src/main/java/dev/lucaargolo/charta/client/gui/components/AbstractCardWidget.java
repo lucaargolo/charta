@@ -24,6 +24,7 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
     private final ResourceLocation cardId;
     @Nullable
     private final String cardTranslatableKey;
+    private final int cardColor;
 
     private float lastInset = 0f;
     private float inset = 0f;
@@ -34,17 +35,18 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
     private float lastYRot = 0f;
     private float yRot = 0f;
 
-    public AbstractCardWidget(@Nullable HoverableRenderable parent, @Nullable ResourceLocation cardId, @Nullable String cardTranslatableKey, float x, float y, float scale) {
+    public AbstractCardWidget(@Nullable HoverableRenderable parent, @Nullable ResourceLocation cardId, @Nullable String cardTranslatableKey, int cardColor, float x, float y, float scale) {
         super(x, y, CardImage.WIDTH * 1.5f * scale, CardImage.HEIGHT * 1.5f * scale, Component.empty());
         this.parent = parent;
         this.cardId = cardId;
         this.cardTranslatableKey = cardTranslatableKey;
+        this.cardColor = cardColor;
     }
 
     @Override
     protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if(isHovered && this.getCardTranslatableKey() != null) {
-            scheduleTooltip(Component.translatable(this.getCardTranslatableKey()));
+            scheduleTooltip(Component.translatable(this.getCardTranslatableKey()).withColor(this.getCardColor()));
         }
 
         float inset = Mth.lerp(partialTick, this.lastInset, this.inset);
@@ -108,6 +110,10 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
     @Nullable
     public String getCardTranslatableKey() {
         return cardTranslatableKey;
+    }
+
+    public int getCardColor() {
+        return cardColor;
     }
 
     @Override

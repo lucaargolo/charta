@@ -171,9 +171,8 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
         isGameReady = false;
         isGameOver = false;
 
-        tablePlay(Component.literal("Game Started!"));
-        tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
-
+        table(Component.translatable("charta.message.game_started"));
+        table(Component.translatable("charta.message.its_player_turn", currentPlayer.getColoredName()));
     }
 
     @Override
@@ -193,7 +192,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                 Collections.shuffle(drawPile);
                 playPile.clear();
                 playPile.add(lastCard);
-                tablePlay(Component.literal("Piles shuffled!"));
+                table(Component.translatable("charta.message.piles_shuffled"));
             }else{
                 endGame();
             }
@@ -208,7 +207,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                 if(drawsLeft > 0) {
                     drawsLeft--;
 
-                    cardPlay(currentPlayer, Component.literal("Player drew a card."));
+                    play(currentPlayer, Component.translatable("charta.message.drew_a_card"));
 
                     if(currentPlayer.shouldCompute()) {
                         dealCards(drawPile, currentPlayer, 1);
@@ -229,14 +228,14 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
                 if(isChoosingWild) {
                     //Player was choosing the suit from a wild card.
-                    cardPlay(currentPlayer, Component.literal("Player chose "+cardDeck.getSuitTranslatableKey(currentSuit)));
+                    play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(cardDeck.getSuitTranslatableKey(currentSuit)).withColor(cardDeck.getSuitColor(currentSuit))));
                     //If the player was not a bot, there will be an extra card in the play pile, so we need to remove it.
                     if(!currentPlayer.shouldCompute()) {
                         playPile.removeLast();
                     }
                     isChoosingWild = false;
                 }else{
-                    cardPlay(currentPlayer, Component.literal("Player played a "+cardDeck.getCardTranslatableKey(card)));
+                    play(currentPlayer, Component.translatable("charta.message.played_a_card", Component.translatable(cardDeck.getCardTranslatableKey(card)).withColor(cardDeck.getCardColor(card))));
                 }
 
                 //If the player is a bot, we need to manually remove the card from its hand and censored hand, and add it to the play pile.
@@ -253,7 +252,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                     if(currentPlayer.shouldCompute()) {
                         //If the player is a bot, we need to manually select the most frequent suit of that bot.
                         currentSuit = getMostFrequentSuit(currentPlayer);
-                        cardPlay(currentPlayer, Component.literal("Player chose "+cardDeck.getSuitTranslatableKey(currentSuit)));
+                        play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(cardDeck.getSuitTranslatableKey(currentSuit))));
                         nextPlayerAndRunGame();
                     }else{
                         //If the player is not a bot, we need to set the game state as choosing wild, and set up the suits hand for the player.
@@ -280,7 +279,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     public void nextPlayerAndRunGame() {
         drawsLeft = 3;
         currentPlayer = getNextPlayer();
-        tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
+        table(Component.translatable("charta.message.its_player_turn", currentPlayer.getColoredName()));
         runGame();
     }
 

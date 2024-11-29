@@ -15,7 +15,7 @@ public class CardWidget extends AbstractCardWidget {
     private final ResourceLocation glowTextureId;
 
     public CardWidget(@Nullable HoverableRenderable parent, Card card, CardDeck deck, float x, float y, float scale) {
-        super(parent, card.isFlipped() ? deck.getDeckTexture(false) : deck.getCardTexture(card, false), deck.getCardTranslatableKey(card), x, y, scale);
+        super(parent, card.isFlipped() ? deck.getDeckTexture(false) : deck.getCardTexture(card, false), deck.getCardTranslatableKey(card), deck.getCardColor(card), x, y, scale);
         this.glowTextureId = card.isFlipped() ? deck.getDeckTexture(true) : deck.getCardTexture(card, true);
     }
 

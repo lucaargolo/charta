@@ -90,11 +90,6 @@ public class FunGame implements CardGame<FunGame> {
         this.cardDeck = deck;
         this.rules = rules;
 
-        playPile.addConsumer(list -> {
-            if(!list.isEmpty())
-                tablePlay(Component.literal("Last card is "+cardDeck.getCardTranslatableKey(list.getLast())));
-        });
-
         GameSlot playPileSlot = new GameSlot(playPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f + 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
         GameSlot drawPileSlot = new GameSlot(drawPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f - 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
         gameSlots.add(playPileSlot);
@@ -209,8 +204,8 @@ public class FunGame implements CardGame<FunGame> {
         isGameReady = false;
         isGameOver = false;
 
-        tablePlay(Component.literal("Game Started!"));
-        tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
+        table(Component.translatable("charta.message.game_started"));
+        table(Component.translatable("charta.message.its_player_turn", currentPlayer.getColoredName()));
     }
 
     private void shufflePiles() {
@@ -220,7 +215,7 @@ public class FunGame implements CardGame<FunGame> {
         Collections.shuffle(drawPile);
         playPile.clear();
         playPile.add(lastCard);
-        tablePlay(Component.literal("Piles shuffled!"));
+        table(Component.translatable("charta.message.piles_shuffled"));
     }
 
     @Override
@@ -253,7 +248,7 @@ public class FunGame implements CardGame<FunGame> {
                     dealCards(drawPile, currentPlayer, 1);
                     currentPlayer.playSound(ModSounds.CARD_DRAW.get());
                 }
-                cardPlay(currentPlayer, Component.literal("Player drew a card."));
+                play(currentPlayer, Component.translatable("charta.message.drew_a_card"));
 
                 if(drawStack > 0) {
                     //They started drawing from a draw stack, so we need to block them from drawing.
@@ -287,14 +282,14 @@ public class FunGame implements CardGame<FunGame> {
 
                 if(isChoosingWild) {
                     //Player was choosing the suit from a wild card.
-                    cardPlay(currentPlayer, Component.literal("Player chose "+cardDeck.getSuitTranslatableKey(currentSuit)));
+                    play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(cardDeck.getSuitTranslatableKey(currentSuit)).withColor(cardDeck.getSuitColor(currentSuit))));
                     //If the player was not a bot, there will be an extra card in the play pile, so we need to remove it.
                     if(!currentPlayer.shouldCompute()) {
                         playPile.removeLast();
                     }
                     isChoosingWild = false;
                 }else{
-                    cardPlay(currentPlayer, Component.literal("Player played a "+cardDeck.getCardTranslatableKey(card)));
+                    play(currentPlayer, Component.translatable("charta.message.played_a_card", Component.translatable(cardDeck.getCardTranslatableKey(card)).withColor(cardDeck.getCardColor(card))));
                 }
 
                 //If the player is a bot, we need to manually remove the card from its hand and censored hand, and add it to the play pile.
@@ -317,7 +312,7 @@ public class FunGame implements CardGame<FunGame> {
                     if(currentPlayer.shouldCompute()) {
                         //If the player is a bot, we need to manually select the most frequent suit of that bot.
                         currentSuit = getMostFrequentSuit(currentPlayer);
-                        cardPlay(currentPlayer, Component.literal("Player chose "+cardDeck.getSuitTranslatableKey(currentSuit)));
+                        play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(cardDeck.getSuitTranslatableKey(currentSuit))));
                         nextPlayerAndRunGame();
                     }else{
                         //If the player is not a bot, we need to set the game state as choosing wild, and set up the suits hand for the player.
@@ -339,7 +334,7 @@ public class FunGame implements CardGame<FunGame> {
                     if(card.getRank() == Rank.JACK) {
                         //If the play was a block (Jack), we skip the player manually once, so it ends up happening twice.
                         currentPlayer = getNextPlayer();
-                        tablePlay(Component.literal(currentPlayer.getName().getString()+" was skipped."));
+                        table(Component.translatable("charta.message.player_was_skipped", currentPlayer.getColoredName()));
                     }else if(card.getRank() == Rank.QUEEN) {
                         //If the play was a reverse (Queen), we reverse the game order.
                         reversed = !reversed;
@@ -347,7 +342,7 @@ public class FunGame implements CardGame<FunGame> {
                             //If there are only two players, we need to skip the next one so the reverse actually does something (It acts as a block)
                             currentPlayer = getNextPlayer();
                         }
-                        tablePlay(Component.literal("Game direction was reversed."));
+                        table(Component.translatable("charta.message.game_reversed"));
                     }else if(card.getRank() == Rank.KING) {
                         //If the play was a plus 2 (King), we add 2 to the next player draw stack
                         drawStack += 2;
@@ -364,9 +359,9 @@ public class FunGame implements CardGame<FunGame> {
         canDraw = true;
         currentPlayer = getNextPlayer();
         if(drawStack > 0) {
-            tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn. They need to draw "+drawStack+" cards."));
+            table(Component.translatable("charta.message.its_player_turn_draw_stack", currentPlayer.getColoredName(), drawStack));
         }else{
-            tablePlay(Component.literal("Its "+currentPlayer.getName().getString()+"'s turn"));
+            table(Component.translatable("charta.message.its_player_turn", currentPlayer.getColoredName()));
         }
         runGame();
     }
@@ -472,7 +467,7 @@ public class FunGame implements CardGame<FunGame> {
             CardPlayer player = players.get(i);
             if(didntSayLast(player)) {
                 //Since player didn't say last yet, current is able to say it.
-                tablePlay(Component.literal(current.getName().getString()+" said Last!"));
+                table(Component.translatable("charta.message.player_said_last", current.getColoredName()));
 
                 if(player == current) {
                     //Current is the player! So they can successfully say last to avoid drawing cards.
@@ -500,7 +495,7 @@ public class FunGame implements CardGame<FunGame> {
                                 PacketDistributor.sendToPlayer(serverPlayer, new LastFunPayload(CardDeckItem.getDeck(cardDeck)));
                             }
                         });
-                        tablePlay(Component.literal(player.getName().getString()+" automatically drew "+drawAmount+" cards"));
+                        table(Component.translatable("charta.message.player_automatically_drew_cards", player.getColoredName(), drawAmount));
                         dealCards(drawPile, player, drawAmount);
                     }else{
                         //If there isn't, we end the game due to lack of cards.

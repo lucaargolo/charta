@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.utils;
 
 import dev.lucaargolo.charta.Charta;
+import net.minecraft.world.phys.Vec3;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -30,6 +31,8 @@ public class CardImage {
     private final int height;
     private final int totalPixels;
 
+    private int averageColor = 0;
+
     public CardImage() {
         this(new byte[WIDTH * HEIGHT], WIDTH, HEIGHT);
     }
@@ -43,6 +46,22 @@ public class CardImage {
         this.width = width;
         this.height = height;
         this.totalPixels = width * height;
+        double qnt = 0.0;
+        Vec3 sum = new Vec3(0, 0, 0);
+        for(int i = 0; i < totalPixels; i++) {
+            byte pixelByte = pixels[i];
+            int alphaIndex = (pixelByte >> 6) & 0x03;
+            int colorIndex = pixelByte & 0x3F;
+            if(colorIndex != 0 || alphaIndex != 0) {
+                sum = sum.add(Vec3.fromRGB24(COLOR_PALETTE[colorIndex]));
+                qnt++;
+            }
+        }
+        sum = sum.multiply(1.0/qnt, 1.0/qnt, 1.0/qnt);
+        int r = (int) (sum.x * 255) & 0xFF;
+        int g = (int) (sum.y * 255) & 0xFF;
+        int b = (int) (sum.z * 255) & 0xFF;
+        averageColor = (r << 16) | (g << 8) | b;
     }
 
     public int getWidth() {
@@ -56,6 +75,7 @@ public class CardImage {
     public CardImage copy() {
         CardImage copy = new CardImage();
         System.arraycopy(this.pixels, 0, copy.pixels, 0, totalPixels);
+        copy.averageColor = averageColor;
         return copy;
     }
 
@@ -281,4 +301,7 @@ public class CardImage {
     }
 
 
+    public int getAverageColor() {
+        return averageColor;
+    }
 }
