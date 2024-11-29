@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.editor;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.utils.CardImage;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -15,10 +16,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.Queue;
+import java.util.*;
 import java.util.prefs.Preferences;
-import javax.imageio.ImageIO;
 
 public class CardEditor extends JFrame {
 
@@ -180,9 +181,11 @@ public class CardEditor extends JFrame {
             }
             if (isValidButton(button) && x >= 0 && x < CardImage.WIDTH && y >= 0 && y < CardImage.HEIGHT) {
                 int colorIndex = button == MouseEvent.BUTTON1 ? toolPanel.getLeftIndex() : toolPanel.getRightIndex();
-                int alphaIndex = toolPanel.getAlphaIndex() - 1;
-                if(!toolPanel.isFilling()) {
+                int alphaIndex = toolPanel.getAlphaIndex();
+                if(!toolPanel.isFilling() && !toolPanel.isErasing()) {
                     currentImage.setPixel(x, y, colorIndex, alphaIndex);
+                }else if(toolPanel.isErasing()) {
+                    currentImage.setPixel(x, y, 0, 0);
                 }else{
                     byte targetPixel = (byte) ((alphaIndex << 6) | (colorIndex & 0x3F));
                     byte currentPixel = currentImage.getPixel(x, y);
@@ -330,7 +333,14 @@ public class CardEditor extends JFrame {
                 String fileName = selectedFile.getName();
                 String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
                 File outputFile = new File(selectedFile.toPath().getParent() + File.separator + cardName);
-                CardImage.saveCards(ImageIO.read(selectedFile), outputFile);
+                CardImage.saveCards(ImageIO.read(selectedFile), outputFile, (fileToSave, cardImage) -> {
+                    try {
+                        Charta.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
+                        cardImage.saveToFile(fileToSave.getAbsolutePath());
+                    } catch (IOException e) {
+                        Charta.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
+                    }
+                });
                 JOptionPane.showMessageDialog(this, "Finalized atlas conversion.");
             } catch (IOException e) {
                 Charta.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);

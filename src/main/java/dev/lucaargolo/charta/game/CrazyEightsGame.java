@@ -1,11 +1,17 @@
 package dev.lucaargolo.charta.game;
 
+import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CrazyEightsMenu;
+import dev.lucaargolo.charta.sound.ModSounds;
+import dev.lucaargolo.charta.utils.CardImage;
+import dev.lucaargolo.charta.utils.GameSlot;
+import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import org.jetbrains.annotations.Nullable;
@@ -16,20 +22,25 @@ import java.util.stream.Collectors;
 
 public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
-    private final Map<CardPlayer, List<Card>> censoredHands = new HashMap<>();
+    private final Map<CardPlayer, TransparentLinkedList<Card>> censoredHands = new HashMap<>();
 
-    private final List<Card> deck;
+    private final TransparentLinkedList<Card> playPile = new TransparentLinkedList<>();
+    private final TransparentLinkedList<Card> drawPile = new TransparentLinkedList<>();
+    private final List<GameSlot> gameSlots = new ArrayList<>();
+
+    private final List<Runnable> scheduledActions = new ArrayList<>();
+    private boolean isGameReady;
+
     private final List<CardPlayer> players;
-
-    private final LinkedList<Card> playPile;
-    private final LinkedList<Card> drawPile;
+    private final List<Card> deck;
+    private final CardDeck cardDeck;
 
     private CardPlayer currentPlayer;
     private boolean isGameOver;
 
-    public final LinkedList<Card> suits;
+    public final LinkedList<Card> suits = new LinkedList<>();
     public boolean isChoosingWild;
-    public Card.Suit currentSuit;
+    public Suit currentSuit;
     public int drawsLeft = 3;
 
     public CrazyEightsGame(List<CardPlayer> players, CardDeck deck) {
@@ -37,14 +48,17 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
 
         this.deck = deck.getCards()
             .stream()
-            .filter(c -> c.getSuit() != Card.Suit.BLANK && c.getRank() != Card.Rank.BLANK && c.getRank() != Card.Rank.JOKER)
+            .filter(c -> c.getSuit() != Suit.BLANK && c.getRank() != Rank.BLANK && c.getRank() != Rank.JOKER)
             .map(Card::copy)
             .collect(Collectors.toList());
         this.deck.forEach(Card::flip);
 
-        this.drawPile = new LinkedList<>();
-        this.playPile = new LinkedList<>();
-        this.suits = new LinkedList<>();
+        this.cardDeck = deck;
+
+        GameSlot playPileSlot = new GameSlot(playPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f + 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
+        GameSlot drawPileSlot = new GameSlot(drawPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f - 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
+        gameSlots.add(playPileSlot);
+        gameSlots.add(drawPileSlot);
     }
 
     @Override
@@ -53,11 +67,16 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     }
 
     @Override
+    public List<GameSlot> getGameSlots() {
+        return gameSlots;
+    }
+
+    @Override
     public List<Card> getValidDeck() {
         List<Card> necessaryCards = new ArrayList<>();
-        for(Card.Suit suit : Card.Suit.values()) {
-            for(Card.Rank rank : Card.Rank.values()) {
-                if(suit != Card.Suit.BLANK && rank != Card.Rank.BLANK && rank != Card.Rank.JOKER) {
+        for(Suit suit : Suit.values()) {
+            for(Rank rank : Rank.values()) {
+                if(suit != Suit.BLANK && rank != Rank.BLANK && rank != Rank.JOKER) {
                     necessaryCards.add(new Card(suit, rank));
                 }
             }
@@ -79,8 +98,15 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     }
 
     @Override
-    public List<Card> getCensoredHand(CardPlayer player) {
-        return censoredHands.computeIfAbsent(player, p -> p.getHand().stream().map(c -> Card.BLANK).collect(Collectors.toList()));
+    public TransparentLinkedList<Card> getCensoredHand(@Nullable CardPlayer viewer, CardPlayer player) {
+        if(viewer == player && player.getEntity() instanceof ServerPlayer) {
+            return player.getHand();
+        }
+        return censoredHands.computeIfAbsent(player, p -> {
+            TransparentLinkedList<Card> list = new TransparentLinkedList<>();
+            p.getHand().stream().map(c -> Card.BLANK).forEach(list::add);
+            return list;
+        });
     }
 
     @Override
@@ -93,8 +119,7 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
         this.currentPlayer = getPlayers().get(index);
     }
 
-    @Override
-    public CardPlayer getNextPlayer() {
+    private CardPlayer getNextPlayer() {
         if(currentPlayer == null) {
             return getPlayers().getFirst();
         }else{
@@ -115,28 +140,50 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
             player.setPlay(new CompletableFuture<>());
             player.getHand().clear();
             getCensoredHand(player).clear();
-            CardGame.dealCards(drawPile, player, getCensoredHand(player), 5);
-            player.handUpdated();
+        }
+
+        for(int i = 0; i < 5; i++) {
+            for (CardPlayer player : players) {
+                scheduledActions.add(() -> {
+                    player.playSound(ModSounds.CARD_DRAW.get());
+                    dealCards(drawPile, player, 1);
+                });
+                scheduledActions.add(() -> {});
+            }
         }
 
         Card last = drawPile.pollLast();
-        while (last.getRank() == Card.Rank.EIGHT) {
+        while (last != null && last.getRank() == Rank.EIGHT) {
             drawPile.add(last);
             Collections.shuffle(drawPile);
             last = drawPile.pollLast();
         }
+        assert last != null;
         last.flip();
-        playPile.addLast(last);
-        currentSuit = last.getSuit();
+        Card startingCard = last;
+        scheduledActions.add(() -> {
+            playPile.addLast(startingCard);
+            currentSuit = startingCard.getSuit();
+        });
 
-        currentPlayer = players.getFirst();
-
+        currentPlayer = getNextPlayer();
         isChoosingWild = false;
+        isGameReady = false;
         isGameOver = false;
+
+        table(Component.translatable("charta.message.game_started"));
+        table(Component.translatable("charta.message.its_player_turn", currentPlayer.getColoredName()));
     }
 
     @Override
     public void runGame() {
+        if(!isGameReady) {
+            return;
+        }
+
+        //We check if the drawPile is empty.
+        //If it is, we shuffle remove all cards except the last one from the play pile, add them to the draw pile, and shuffle them.
+        //If there are no cards in the play pile either, we end the game due to lack of cards.
         if(drawPile.isEmpty()) {
             if(playPile.size() > 1) {
                 Card lastCard = playPile.pollLast();
@@ -145,92 +192,108 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
                 Collections.shuffle(drawPile);
                 playPile.clear();
                 playPile.add(lastCard);
+                table(Component.translatable("charta.message.piles_shuffled"));
             }else{
                 endGame();
             }
         }
 
         currentPlayer.getPlay(this).thenAccept(card -> {
+            //Setup next play.
             currentPlayer.setPlay(new CompletableFuture<>());
+
             if(card == null) {
+                //Player tried drawing a card.
                 if(drawsLeft > 0) {
                     drawsLeft--;
+
+                    play(currentPlayer, Component.translatable("charta.message.drew_a_card"));
+
                     if(currentPlayer.shouldCompute()) {
-                        CardGame.dealCards(drawPile, currentPlayer, getCensoredHand(currentPlayer), 1);
-                        currentPlayer.handUpdated();
+                        dealCards(drawPile, currentPlayer, 1);
+                        currentPlayer.playSound(ModSounds.CARD_DRAW.get());
                     }
-                    runGame();
+
+                    if(drawsLeft == 0 && this.getBestCard(currentPlayer) == null) {
+                        nextPlayerAndRunGame();
+                    }else{
+                        runGame();
+                    }
                 }else{
-                    currentPlayer = getNextPlayer();
-                    drawsLeft = 3;
-                    runGame();
+                    nextPlayerAndRunGame();
                 }
-            }else if(canPlayCard(currentPlayer, card)) {
+            }else if(!currentPlayer.shouldCompute() || canPlayCard(currentPlayer, card)) {
+                currentPlayer.playSound(ModSounds.CARD_PLAY.get());
                 currentSuit = card.getSuit();
+
                 if(isChoosingWild) {
-                    playPile.removeLast();
+                    //Player was choosing the suit from a wild card.
+                    play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(cardDeck.getSuitTranslatableKey(currentSuit)).withColor(cardDeck.getSuitColor(currentSuit))));
+                    //If the player was not a bot, there will be an extra card in the play pile, so we need to remove it.
+                    if(!currentPlayer.shouldCompute()) {
+                        playPile.removeLast();
+                    }
                     isChoosingWild = false;
+                }else{
+                    play(currentPlayer, Component.translatable("charta.message.played_a_card", Component.translatable(cardDeck.getCardTranslatableKey(card)).withColor(cardDeck.getCardColor(card))));
                 }
+
+                //If the player is a bot, we need to manually remove the card from its hand and censored hand, and add it to the play pile.
                 if(currentPlayer.shouldCompute() && currentPlayer.getHand().remove(card)) {
                     getCensoredHand(currentPlayer).removeLast();
                     playPile.addLast(card);
-                    currentPlayer.handUpdated();
                 }
-                if(currentPlayer.getHand().isEmpty()) {
+
+                if(getFullHand(currentPlayer).findAny().isEmpty()) {
+                    //If the player hand is empty, they win!
                     endGame();
-                }else if(card.getRank() == Card.Rank.EIGHT) {
+                }else if(card.getRank() == Rank.EIGHT) {
+                    //If they played a wild card (Eight) we need to set up the suit choosing logic.
                     if(currentPlayer.shouldCompute()) {
-                        Map<Card.Suit, Integer> suitCountMap = new HashMap<>();
-
-                        for (Card C : currentPlayer.getHand()) {
-                            Card.Suit suit = C.getSuit();
-                            suitCountMap.put(suit, suitCountMap.getOrDefault(suit, 0) + 1);
-                        }
-
-                        Card.Suit mostFrequentSuit = null;
-
-                        int maxCount = 0;
-                        for (Map.Entry<Card.Suit, Integer> entry : suitCountMap.entrySet()) {
-                            if (entry.getValue() > maxCount) {
-                                mostFrequentSuit = entry.getKey();
-                                maxCount = entry.getValue();
-                            }
-                        }
-                        currentSuit = mostFrequentSuit;
-                        currentPlayer = getNextPlayer();
-                        drawsLeft = 3;
-                        runGame();
+                        //If the player is a bot, we need to manually select the most frequent suit of that bot.
+                        currentSuit = getMostFrequentSuit(currentPlayer);
+                        play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(cardDeck.getSuitTranslatableKey(currentSuit))));
+                        nextPlayerAndRunGame();
                     }else{
+                        //If the player is not a bot, we need to set the game state as choosing wild, and set up the suits hand for the player.
                         isChoosingWild = true;
                         suits.clear();
                         suits.addAll(List.of(
-                                new Card(Card.Suit.SPADES, Card.Rank.BLANK),
-                                new Card(Card.Suit.HEARTS, Card.Rank.BLANK),
-                                new Card(Card.Suit.CLUBS, Card.Rank.BLANK),
-                                new Card(Card.Suit.DIAMONDS, Card.Rank.BLANK)
+                                new Card(Suit.SPADES, Rank.BLANK),
+                                new Card(Suit.HEARTS, Rank.BLANK),
+                                new Card(Suit.CLUBS, Rank.BLANK),
+                                new Card(Suit.DIAMONDS, Rank.BLANK)
                         ));
+                        //They also can't draw during the suit choosing phase, so that's important.
                         drawsLeft = 0;
                         runGame();
                     }
                 } else {
-                    currentPlayer = getNextPlayer();
-                    drawsLeft = 3;
-                    runGame();
+                    //If the player did a regular play.
+                    nextPlayerAndRunGame();
                 }
             }
         });
     }
 
+    public void nextPlayerAndRunGame() {
+        drawsLeft = 3;
+        currentPlayer = getNextPlayer();
+        table(Component.translatable("charta.message.its_player_turn", currentPlayer.getColoredName()));
+        runGame();
+    }
+
     @Override
     public void endGame() {
-        if(currentPlayer.getHand().isEmpty()) {
-            currentPlayer.sendTitle(Component.literal("You won!").withStyle(ChatFormatting.GREEN), Component.literal("Congratulations!"));
+        if(getFullHand(currentPlayer).findAny().isEmpty()) {
+            currentPlayer.sendTitle(Component.translatable("charta.message.you_won").withStyle(ChatFormatting.GREEN), Component.translatable("charta.message.congratulations"));
             getPlayers().stream().filter(player -> player != currentPlayer).forEach(player -> {
-                player.sendTitle(Component.literal("You lost!").withStyle(ChatFormatting.RED), currentPlayer.getName().copy().append(" won the match."));
+                player.sendTitle(Component.translatable("charta.message.you_lost").withStyle(ChatFormatting.RED), Component.translatable("charta.message.won_the_match",currentPlayer.getName()));
             });
         }else{
             getPlayers().forEach(player -> {
-                player.sendMessage(Component.literal("<Charta> Crazy Eights match was unable to continue, either from lack of players or lack of cards."));
+                currentPlayer.sendTitle(Component.translatable("charta.message.draw").withStyle(ChatFormatting.YELLOW), Component.translatable("charta.message.no_winner"));
+                player.sendMessage(Component.translatable("charta.message.match_unable").withStyle(ChatFormatting.GOLD));
             });
         }
         isGameOver = true;
@@ -239,14 +302,17 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
     @Override
     public boolean canPlayCard(CardPlayer player, Card card) {
         Card lastCard = playPile.peekLast();
-        assert lastCard != null;
-        return (isChoosingWild && card.getRank() == Card.Rank.BLANK) || card.getRank() == Card.Rank.EIGHT || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;
+        return isGameReady && lastCard != null && ((isChoosingWild && card.getRank() == Rank.BLANK) || card.getRank() == Rank.EIGHT || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit);
     }
 
-    @Nullable
     @Override
-    public Card getBestCard(CardPlayer player) {
-        return player.getHand().stream().filter(c -> canPlayCard(player, c)).findFirst().orElse(null);
+    public boolean isGameReady() {
+        return isGameReady;
+    }
+
+    @Override
+    public void setGameReady(boolean gameReady) {
+        isGameReady = gameReady;
     }
 
     @Override
@@ -254,5 +320,8 @@ public class CrazyEightsGame implements CardGame<CrazyEightsGame> {
         return isGameOver;
     }
 
-
+    @Override
+    public List<Runnable> getScheduledActions() {
+        return scheduledActions;
+    }
 }

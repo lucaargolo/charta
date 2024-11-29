@@ -4,16 +4,14 @@ import com.google.common.collect.ImmutableList;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardPlayer;
-import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
+import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,10 +37,14 @@ public record CardContainerSlotClickPayload(int containerId, int slotId, int car
                 CardSlot<?> slot = cardMenu.getCardSlot(payload.slotId);
                 ImmutableList<Card> carriedCards = cardMenu.getCarriedCards();
                 if(carriedCards.isEmpty() && slot.canRemoveCard(cardPlayer)) {
-                    Card lastCard = slot.removeCard(cardPlayer, payload.cardId);
+                    Card lastCard = slot.removeCard(payload.cardId);
                     cardMenu.setCarriedCards(ImmutableList.of(lastCard));
-                }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards) && slot.insertCards(cardPlayer, carriedCards, payload.cardId)) {
+                    slot.onRemove(cardPlayer, lastCard);
+                }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards) && slot.insertCards(carriedCards, payload.cardId)) {
                     cardMenu.setCarriedCards(ImmutableList.of());
+                    for(Card card : carriedCards) {
+                        slot.onInsert(cardPlayer, card);
+                    }
                 }
             }
         });

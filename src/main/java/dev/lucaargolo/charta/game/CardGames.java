@@ -8,13 +8,17 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CardGames {
 
     private static final Map<ResourceLocation, CardGameFactory<?>> factories = new HashMap<>();
 
     public static final CardGameFactory<CrazyEightsGame> CRAZY_EIGHTS = register(Charta.id("crazy_eights"), CrazyEightsGame::new);
+    public static final CardGameFactory<FunGame> FUN = register(Charta.id("fun"), FunGame::new);
 
     public static <G extends CardGame<G>> CardGameFactory<G> register(ResourceLocation location, CardGameFactory<G> factory) {
         if(factories.containsKey(location)) {

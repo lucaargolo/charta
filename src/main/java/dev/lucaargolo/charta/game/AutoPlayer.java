@@ -1,21 +1,20 @@
 package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.utils.CardPlayerHead;
+import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 public class AutoPlayer implements CardPlayer {
 
     private final Random random = new Random();
-    private final List<Card> hand = new ArrayList<>();
+    private final TransparentLinkedList<Card> hand = new TransparentLinkedList<>();
     private CompletableFuture<Card> play = new CompletableFuture<>();
     private int playAge = 0;
 
@@ -26,7 +25,7 @@ public class AutoPlayer implements CardPlayer {
     }
 
     @Override
-    public List<Card> getHand() {
+    public TransparentLinkedList<Card> getHand() {
         return hand;
     }
 
@@ -53,11 +52,6 @@ public class AutoPlayer implements CardPlayer {
                 playAge++;
             }
         }
-
-    }
-
-    @Override
-    public void handUpdated() {
 
     }
 

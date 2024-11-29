@@ -1,0 +1,9 @@
+{
+	"parent": "charta:block/beer_glass",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "block/white_stained_glass",
+		"1": "block/hay_block_side",
+		"particle": "block/white_stained_glass"
+	}
+}

@@ -12,7 +12,7 @@ public class ModRenderType extends RenderType {
         super(name, format, mode, bufferSize, affectsCrumbling, sortOnUpload, setupState, clearState);
     }
 
-    private static final RenderStateShard.ShaderStateShard CARD_SHADER = new RenderStateShard.ShaderStateShard(() -> ChartaClient.CARD_SHADER);
+    private static final RenderStateShard.ShaderStateShard ENTITY_CARD_SHADER = new RenderStateShard.ShaderStateShard(() -> ChartaClient.ENTITY_CARD_SHADER);
     private static final RenderStateShard.ShaderStateShard IRON_LEASH_SHADER = new RenderStateShard.ShaderStateShard(() -> ChartaClient.IRON_LEASH_SHADER);
 
     private static final RenderType IRON_LEASH = create(
@@ -28,13 +28,15 @@ public class ModRenderType extends RenderType {
                     .createCompositeState(false)
     );
 
-    public static RenderType cardType(ResourceLocation id) {
-        return create("card", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 2097152, true, true,
+    public static RenderType entityCard(ResourceLocation id) {
+        return create("entity_translucent", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536, true, true,
             RenderType.CompositeState.builder()
-                .setLightmapState(LIGHTMAP)
-                .setShaderState(CARD_SHADER)
+                .setShaderState(ENTITY_CARD_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(id, false, false))
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setCullState(NO_CULL)
+                .setLightmapState(LIGHTMAP)
+                .setOverlayState(OVERLAY)
                 .createCompositeState(true)
         );
     }

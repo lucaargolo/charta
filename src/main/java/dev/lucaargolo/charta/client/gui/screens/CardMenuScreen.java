@@ -2,7 +2,10 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.client.gui.components.CardSlotWidget;
 import dev.lucaargolo.charta.client.gui.components.CardWidget;
-import dev.lucaargolo.charta.game.*;
+import dev.lucaargolo.charta.game.Card;
+import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.CardGame;
+import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
@@ -13,7 +16,9 @@ import dev.lucaargolo.charta.utils.TickableWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -76,6 +81,9 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
         menu.cardSlots.forEach(slot -> {
             slotWidgets.add(new CardSlotWidget<>(this, slot));
         });
+        this.addRenderableWidget(new Button.Builder(Component.literal("H"), b -> {
+            Minecraft.getInstance().setScreen(new HistoryScreen(this));
+        }).bounds(width-25, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.open_game_history"))).build());
     }
 
     public void renderTopBar(@NotNull GuiGraphics guiGraphics) {
@@ -197,13 +205,15 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
         List<Card> cards = this.menu.getCarriedCards();
         if (!cards.isEmpty()) {
             Card card = cards.getLast();
-            if(card.isFlipped()) {
-                CardWidget.renderCard(this.getDeck().getDeckTexture(), guiGraphics, mouseX- CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
-            }else{
-                CardWidget.renderCard(this.getDeck().getCardTexture(card), guiGraphics, mouseX-CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
-            }
+            CardWidget.renderCard(card, this.getDeck(), guiGraphics, mouseX- CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
         }
+        CardScreen.renderGlowBlur(this, guiGraphics, partialTick);
         guiGraphics.pose().popPose();
+    }
+
+    @Override
+    public void scheduleTooltip(Component component) {
+        setTooltipForNextRenderPass(component);
     }
 
     public boolean isHoveredCardSlot(CardSlot<G> slot) {

@@ -1,18 +1,18 @@
 package dev.lucaargolo.charta.datagen;
 
 import dev.lucaargolo.charta.Charta;
-import net.minecraft.core.HolderLookup;
+import dev.lucaargolo.charta.block.ModBannerPatterns;
+import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
-import net.minecraft.world.flag.FeatureFlags;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class DataGenerators {
@@ -21,13 +21,23 @@ public class DataGenerators {
     public static void onGatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
-        CompletableFuture<HolderLookup.Provider> registries = event.getLookupProvider();
         ExistingFileHelper exFileHelper = event.getExistingFileHelper();
+        DatapackBuiltinEntriesProvider builtinProvider = new DatapackBuiltinEntriesProvider(output, event.getLookupProvider(), bootstrapRegistries(), Set.of(Charta.MOD_ID));
+        generator.addProvider(true, builtinProvider);
         generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, exFileHelper));
+        generator.addProvider(event.includeServer(), new SuitImageProvider(output));
         generator.addProvider(event.includeServer(), new CardImageProvider(output));
         generator.addProvider(event.includeServer(), new DeckImageProvider(output));
         generator.addProvider(event.includeServer(), new CardDeckProvider(output));
-        generator.addProvider(event.includeServer(), new ModLootProvider(output, registries));
+        generator.addProvider(event.includeServer(), new ModLootProvider(output, builtinProvider.getRegistryProvider()));
+        generator.addProvider(event.includeServer(), new ModBannerPatternTagsProvider(output, builtinProvider.getRegistryProvider(), exFileHelper));
+        generator.addProvider(event.includeServer(), new ModBlockTagsProvider(output, builtinProvider.getRegistryProvider(), exFileHelper));
+        generator.addProvider(event.includeServer(), new ModRecipeProvider(output, builtinProvider.getRegistryProvider()));
+    }
+
+    public static RegistrySetBuilder bootstrapRegistries() {
+        return new RegistrySetBuilder()
+            .add(Registries.BANNER_PATTERN, ModBannerPatterns::bootstrap);
     }
 
 }

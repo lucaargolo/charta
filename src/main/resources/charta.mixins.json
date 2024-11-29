@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "charta.refmap.json",
   "mixins": [
+    "ChunkHolderMixin",
     "ContainerListenerMixin",
     "ContainerSynchronizerMixin",
     "EntityMixin",
@@ -16,7 +17,8 @@
     "ServerPlayerMixin"
   ],
   "client": [
-    "EntityRendererMixin"
+    "EntityRendererMixin",
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

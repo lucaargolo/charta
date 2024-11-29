@@ -114,26 +114,4 @@ public class Card implements Comparable<Card>, StringRepresentable {
         return new Card(suit, rank, flipped);
     }
 
-    public enum Suit implements StringRepresentable {
-        BLANK, SPADES, HEARTS, CLUBS, DIAMONDS;
-
-        public static final StreamCodec<ByteBuf, Suit> STREAM_CODEC = ByteBufCodecs.idMapper(i -> Suit.values()[i], Suit::ordinal);
-
-        @Override
-        public @NotNull String getSerializedName() {
-            return name().toLowerCase();
-        }
-    }
-
-    public enum Rank implements StringRepresentable {
-        BLANK, ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, JOKER;
-
-        public static final StreamCodec<ByteBuf, Rank> STREAM_CODEC = ByteBufCodecs.idMapper(i -> Rank.values()[i], Rank::ordinal);
-
-        @Override
-        public @NotNull String getSerializedName() {
-            return name().toLowerCase();
-        }
-    }
-
 }

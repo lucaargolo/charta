@@ -2,7 +2,6 @@ package dev.lucaargolo.charta.mixin;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.mixed.LeashableMixed;
-import dev.lucaargolo.charta.utils.ModEntityDataSerializers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;

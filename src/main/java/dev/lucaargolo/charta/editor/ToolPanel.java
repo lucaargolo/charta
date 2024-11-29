@@ -16,7 +16,9 @@ public class ToolPanel extends JPanel {
     private final JSlider alphaSlider;
     private final JLabel leftColorLabel;
     private final JLabel rightColorLabel;
+    private final JCheckBox glowCheckbox;
     private final JCheckBox pencilCheckbox;
+    private final JCheckBox eraserCheckbox;
     private final JCheckBox fillCheckbox;
 
     public ToolPanel() {
@@ -32,15 +34,22 @@ public class ToolPanel extends JPanel {
 
         // Create transparency slider
         JPanel transparencyPanel = new JPanel(new BorderLayout());
-        alphaSlider = new JSlider(1, 4);
+        alphaSlider = new JSlider(1, 3);
         alphaSlider.setMajorTickSpacing(1);
         alphaSlider.setPaintTicks(true);
         alphaSlider.setPaintLabels(true);
         alphaSlider.setSnapToTicks(true);
         alphaSlider.setLabelTable(alphaSlider.createStandardLabels(1));
         alphaSlider.setValue(4);
-        transparencyPanel.add(new JLabel("Alpha Value"), BorderLayout.NORTH);
-        transparencyPanel.add(alphaSlider, BorderLayout.SOUTH);
+        transparencyPanel.add(new JLabel("Alpha Level"), BorderLayout.NORTH);
+        transparencyPanel.add(alphaSlider, BorderLayout.CENTER);
+        glowCheckbox = new JCheckBox("Glow");
+        glowCheckbox.setSelected(false);
+        transparencyPanel.add(glowCheckbox, BorderLayout.SOUTH);
+
+        glowCheckbox.addChangeListener(e -> {
+            alphaSlider.setEnabled(!glowCheckbox.isSelected());
+        });
 
         // Label panels for selected colors
         leftColorLabel = new JLabel();
@@ -62,6 +71,11 @@ public class ToolPanel extends JPanel {
         pencilCheckbox.setSelected(true);
         leftVisualizingPanel.add(pencilCheckbox, BorderLayout.SOUTH);
 
+        JPanel centerVisualizingPanel = new JPanel(new BorderLayout());
+        eraserCheckbox = new JCheckBox("Eraser");
+        eraserCheckbox.setSelected(false);
+        centerVisualizingPanel.add(eraserCheckbox, BorderLayout.SOUTH);
+
         JPanel rightVisualizingPanel = new JPanel(new BorderLayout());
         rightVisualizingPanel.add(leftColorLabel, BorderLayout.NORTH);
         rightVisualizingPanel.add(rightColorLabel, BorderLayout.CENTER);
@@ -71,17 +85,26 @@ public class ToolPanel extends JPanel {
 
         pencilCheckbox.addChangeListener(e -> {
             if(pencilCheckbox.isSelected()) {
+                eraserCheckbox.setSelected(false);
+                fillCheckbox.setSelected(false);
+            }
+        });
+        eraserCheckbox.addChangeListener(e -> {
+            if(eraserCheckbox.isSelected()) {
+                pencilCheckbox.setSelected(false);
                 fillCheckbox.setSelected(false);
             }
         });
         fillCheckbox.addChangeListener(e -> {
             if(fillCheckbox.isSelected()) {
                 pencilCheckbox.setSelected(false);
+                eraserCheckbox.setSelected(false);
             }
         });
 
         JPanel visualizingPanel = new JPanel(new BorderLayout());
         visualizingPanel.add(leftVisualizingPanel, BorderLayout.WEST);
+        visualizingPanel.add(centerVisualizingPanel, BorderLayout.CENTER);
         visualizingPanel.add(rightVisualizingPanel, BorderLayout.EAST);
 
         add(colorPanel, BorderLayout.CENTER);
@@ -98,13 +121,13 @@ public class ToolPanel extends JPanel {
         colorButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e)) {
-                    selectedLeftIndex = i;
-                    leftColorLabel.setBackground(new Color(CardImage.COLOR_PALETTE[selectedLeftIndex]));
-                } else if (SwingUtilities.isRightMouseButton(e)) {
-                    selectedRightIndex = i;
-                    rightColorLabel.setBackground(new Color(CardImage.COLOR_PALETTE[selectedRightIndex]));
-                }
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                selectedLeftIndex = i;
+                leftColorLabel.setBackground(new Color(CardImage.COLOR_PALETTE[selectedLeftIndex]));
+            } else if (SwingUtilities.isRightMouseButton(e)) {
+                selectedRightIndex = i;
+                rightColorLabel.setBackground(new Color(CardImage.COLOR_PALETTE[selectedRightIndex]));
+            }
             }
         });
         return colorButton;
@@ -119,7 +142,11 @@ public class ToolPanel extends JPanel {
     }
 
     public int getAlphaIndex() {
-        return alphaSlider.getValue();
+        return glowCheckbox.isSelected() ? 0 : alphaSlider.getValue();
+    }
+
+    public boolean isErasing() {
+        return eraserCheckbox.isSelected();
     }
 
     public boolean isFilling() {

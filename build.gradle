@@ -139,6 +139,7 @@ tasks.withType(Jar).configureEach {
     }
     exclude("cards/**")
     exclude("decks/**")
+    exclude("suits/**")
 }
 
 idea {

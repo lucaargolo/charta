@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.datagen;
 
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -33,20 +34,23 @@ public class DeckImageProvider implements DataProvider {
     public @NotNull CompletableFuture<?> run(@NotNull CachedOutput cachedOutput) {
         return CompletableFuture.runAsync(() -> {
             Path outputPath = this.output.getOutputFolder();
-            String decksOutputPath = outputPath + File.separator + "data" + File.separator + Charta.MOD_ID + File.separator + "deck";
+            String decksOutputPath = outputPath + File.separator + "data" + File.separator + Charta.MOD_ID + File.separator + "images" + File.separator + "deck";
             try {
                 URL resource = Charta.class.getClassLoader().getResource("decks");
                 URI uri = Objects.requireNonNull(resource).toURI();
 
-                try (Stream<Path> paths = Files.walk(Paths.get(uri), 1)) {
+                try (Stream<Path> paths = Files.walk(Paths.get(uri))) {
                     paths.filter(Files::isRegularFile).forEach(path -> {
                         String fileName = path.getFileName().toString();
                         String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
+                        String subFolder = path.getParent().toString().replace("decks", "");
                         File cardOutputFolder = new File(decksOutputPath);
                         cardOutputFolder.mkdirs();
-                        File cardOutputFile = new File(cardOutputFolder + File.separator + cardName);
+                        File cardOutputFile = new File(cardOutputFolder + File.separator + subFolder + File.separator + cardName);
                         try (InputStream stream = Files.newInputStream(path)) {
-                            CardImageUtils.saveCards(ImageIO.read(stream), cardOutputFile, cachedOutput);
+                            CardImage.saveCards(ImageIO.read(stream), cardOutputFile, (fileToSave, cardImage) -> {
+                                CardImageUtils.saveImage(cardImage, fileToSave, cachedOutput);
+                            });
                         }catch (Exception e) {
                             Charta.LOGGER.error("Error loading image: {}", path, e);
                         }

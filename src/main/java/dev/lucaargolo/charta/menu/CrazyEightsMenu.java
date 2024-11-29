@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.menu;
 
 import dev.lucaargolo.charta.game.*;
-import dev.lucaargolo.charta.mixed.LivingEntityMixed;
+import dev.lucaargolo.charta.sound.ModSounds;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -10,18 +10,17 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
     private final CrazyEightsGame game;
+    private final DrawSlot<CrazyEightsGame> drawSlot;
 
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
                 case 0 -> game.drawsLeft;
-                case 1 -> game.currentSuit.ordinal();
+                case 1 -> game.currentSuit != null ? game.currentSuit.ordinal() : -1;
                 default -> 0;
             };
         }
@@ -30,7 +29,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         public void set(int index, int value) {
             switch (index) {
                 case 0 -> game.drawsLeft = value;
-                case 1 -> game.currentSuit = Card.Suit.values()[value];
+                case 1 -> game.currentSuit = value >= 0 ? Suit.values()[value] : null;
             }
         }
 
@@ -50,54 +49,25 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
         this.addTopPreview(players);
         //Draw pile
-        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getDrawPile, 19, 30) {
-            @Override
-            public boolean canInsertCard(CardPlayer player, List<Card> cards) {
-                return false;
-            }
-
-            @Override
-            public boolean canRemoveCard(CardPlayer player) {
-                return player == this.game.getCurrentPlayer() && this.game.drawsLeft > 0;
-            }
-
-            @Override
-            public void onRemove(CardPlayer player, Card card) {
-                card.flip();
-                player.getPlay(this.game).complete(null);
-            }
-        });
-
+        this.drawSlot = addCardSlot(new DrawSlot<>(this.game, CrazyEightsGame::getDrawPile, 19, 30, () -> this.game.drawsLeft > 0));
         //Play pile
-        addCardSlot(new CardSlot<>(this.game, CrazyEightsGame::getPlayPile, 84, 30) {
-            @Override
-            public boolean canInsertCard(CardPlayer player, List<Card> cards) {
-                return player == this.game.getCurrentPlayer() && cards.size() == 1 && this.game.canPlayCard(player, cards.getLast());
-            }
+        addCardSlot(new PlaySlot<>(this.game, CrazyEightsGame::getPlayPile, 84, 30, drawSlot));
 
-            @Override
-            public boolean canRemoveCard(CardPlayer player) {
-                return false;
-            }
-
+        addCardSlot(new CardSlot<>(this.game, g -> (cardPlayer == g.getCurrentPlayer() && g.isChoosingWild) ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
             @Override
             public void onInsert(CardPlayer player, Card card) {
-                player.getPlay(this.game).complete(card);
-            }
-        });
-
-        addCardSlot(new CardSlot<>(this.game, g -> g.isChoosingWild ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
-            @Override
-            public void onInsert(CardPlayer player, Card card) {
+                if(drawSlot.isDraw()) {
+                    player.getPlay(this.game).complete(null);
+                    drawSlot.setDraw(false);
+                }
+                player.playSound(ModSounds.CARD_PLAY.get());
                 if(!game.isChoosingWild)
                     game.getCensoredHand(player).add(Card.BLANK);
-                if (player == this.game.getCurrentPlayer() && this.game.drawsLeft == 0 && this.game.getBestCard(player) == null) {
-                    player.getPlay(this.game).complete(null);
-                }
             }
 
             @Override
             public void onRemove(CardPlayer player, Card card) {
+                player.playSound(ModSounds.CARD_DRAW.get());
                 if(!game.isChoosingWild)
                     game.getCensoredHand(player).removeLast();
                 super.onRemove(player, card);
@@ -112,8 +82,8 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         return data.get(0);
     }
 
-    public Card.Suit getCurrentSuit() {
-        return Card.Suit.values()[data.get(1)];
+    public Suit getCurrentSuit() {
+        return data.get(1) >= 0 ? Suit.values()[data.get(1)] : null;
     }
 
     @Override

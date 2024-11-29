@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
     private CardSlotWidget<G> hoverable = null;
 
     public CardSlotWidget(CardMenuScreen<G, ?> parent, CardSlot<G> slot) {
-        super(parent, null, slot.x, slot.y, slot.isSmall() ? 0.333f : 1f);
+        super(parent, null, null, 0xFFFFFF, slot.x, slot.y, slot.isSmall() ? 0.333f : 1f);
         this.parent = parent;
         this.cardSlot = slot;
     }
@@ -34,6 +35,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
         if(cardSlot.isExtended()) {
             this.setPreciseWidth(CardSlot.getWidth(cardSlot));
             if(renderables.size() != cards.size() || renderablesDirty) {
+                this.hoverable = null;
                 renderables.clear();
                 int i = 0;
                 float childWidth = cardSlot.isSmall() ? CardSlot.getWidth(CardSlot.Type.SMALL) : CardSlot.getWidth(CardSlot.Type.DEFAULT);
@@ -115,13 +117,25 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
     }
 
     @Override
-    public ResourceLocation getCardTexture(ResourceLocation cardId) {
+    public @NotNull ResourceLocation getCardTexture(@Nullable ResourceLocation cardId, boolean glow) {
         Card card = cardSlot.getCards().getLast();
         if(card.isFlipped()) {
-            return parent.getDeck().getDeckTexture();
+            return parent.getDeck().getDeckTexture(glow);
         }else{
-            return parent.getDeck().getCardTexture(card);
+            return parent.getDeck().getCardTexture(card, glow);
         }
+    }
+
+    @Override
+    public String getCardTranslatableKey() {
+        Card card = cardSlot.getCards().getLast();
+        return parent.getDeck().getCardTranslatableKey(card);
+    }
+
+    @Override
+    public int getCardColor() {
+        Card card = cardSlot.getCards().getLast();
+        return parent.getDeck().getCardColor(card);
     }
 
     @Override

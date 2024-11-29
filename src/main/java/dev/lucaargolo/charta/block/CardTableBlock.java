@@ -1,15 +1,17 @@
 package dev.lucaargolo.charta.block;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
-import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.item.CardDeckItem;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.network.OpenCardTableScreenPayload;
 import dev.lucaargolo.charta.utils.DyeColorHelper;
+import dev.lucaargolo.charta.utils.VoxelShapeUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
@@ -19,17 +21,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.WoolCarpetBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -39,19 +40,45 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2f;
 import org.joml.Vector2i;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class CardTableBlock extends BaseEntityBlock {
 
     public static final MapCodec<CardTableBlock> CODEC = simpleCodec(CardTableBlock::new);
 
+    private static final VoxelShape CENTER = Block.box(0, 10, 0, 16, 13, 16);
+
+    private static final VoxelShape FEET_NORTH_EAST = Block.box(10, 0, 3, 13, 10, 6);
+    private static final VoxelShape FEET_SOUTH_EAST = VoxelShapeUtils.rotate(FEET_NORTH_EAST, Direction.EAST);
+    private static final VoxelShape FEET_SOUTH_WEST = VoxelShapeUtils.rotate(FEET_NORTH_EAST, Direction.SOUTH);
+    private static final VoxelShape FEET_NORTH_WEST = VoxelShapeUtils.rotate(FEET_NORTH_EAST, Direction.WEST);
+
+    private static final VoxelShape CORNER_NORTH_WEST = Stream.of(
+            Block.box(0, 13, 0, 6, 15, 6),
+            Block.box(0, 13, 6, 6, 15, 16),
+            Block.box(6, 13, 0, 16, 15, 6)
+    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+    private static final VoxelShape CORNER_NORTH_EAST = VoxelShapeUtils.rotate(CORNER_NORTH_WEST, Direction.EAST);
+    private static final VoxelShape CORNER_SOUTH_EAST = VoxelShapeUtils.rotate(CORNER_NORTH_WEST, Direction.SOUTH);
+    private static final VoxelShape CORNER_SOUTH_WEST = VoxelShapeUtils.rotate(CORNER_NORTH_WEST, Direction.WEST);
+
+    private static final VoxelShape SIDE_WEST = Block.box(0, 13, 0, 6, 15, 16);
+    private static final VoxelShape SIDE_NORTH = VoxelShapeUtils.rotate(SIDE_WEST, Direction.EAST);
+    private static final VoxelShape SIDE_EAST = VoxelShapeUtils.rotate(SIDE_WEST, Direction.SOUTH);
+    private static final VoxelShape SIDE_SOUTH = VoxelShapeUtils.rotate(SIDE_WEST, Direction.WEST);
+
+    private static final Map<Combination, VoxelShape> SHAPES = new HashMap<>();
     private static final List<Vector2i> VALID_DIMENSIONS = List.of(new Vector2i(3, 3), new Vector2i(4, 3), new Vector2i(5, 3));
     private static final int MAX_SIZE;
 
@@ -66,6 +93,47 @@ public class CardTableBlock extends BaseEntityBlock {
     static {
         Vector2i last = VALID_DIMENSIONS.getLast();
         MAX_SIZE = last.x * last.y;
+
+        for (int i = 0; i < 32; i++) {
+            boolean[] combination = new boolean[5];
+            for (int j = 0; j < 5; j++) {
+                combination[j] = ((i & (1 << j)) != 0);
+            }
+            boolean valid = combination[0];
+            boolean north = combination[1];
+            boolean east = combination[2];
+            boolean south = combination[3];
+            boolean west = combination[4];
+            VoxelShape combinedShape = CENTER;
+            if(!north && !east)
+                combinedShape = Shapes.join(combinedShape, FEET_NORTH_EAST, BooleanOp.OR);
+            if(!south && !east)
+                combinedShape = Shapes.join(combinedShape, FEET_SOUTH_EAST, BooleanOp.OR);
+            if(!south && !west)
+                combinedShape = Shapes.join(combinedShape, FEET_SOUTH_WEST, BooleanOp.OR);
+            if(!north && !west)
+                combinedShape = Shapes.join(combinedShape, FEET_NORTH_WEST, BooleanOp.OR);
+            if(valid) {
+                if(!north && east && south && !west)
+                    combinedShape = Shapes.join(combinedShape, CORNER_NORTH_WEST, BooleanOp.OR);
+                if(!north && !east && south && west)
+                    combinedShape = Shapes.join(combinedShape, CORNER_NORTH_EAST, BooleanOp.OR);
+                if(north && !east && !south && west)
+                    combinedShape = Shapes.join(combinedShape, CORNER_SOUTH_EAST, BooleanOp.OR);
+                if(north && east && !south && !west)
+                    combinedShape = Shapes.join(combinedShape, CORNER_SOUTH_WEST, BooleanOp.OR);
+                if(north && east && south && !west)
+                    combinedShape = Shapes.join(combinedShape, SIDE_WEST, BooleanOp.OR);
+                if(!north && east && south && west)
+                    combinedShape = Shapes.join(combinedShape, SIDE_NORTH, BooleanOp.OR);
+                if(north && !east && south && west)
+                    combinedShape = Shapes.join(combinedShape, SIDE_EAST, BooleanOp.OR);
+                if(north && east && !south && west)
+                    combinedShape = Shapes.join(combinedShape, SIDE_SOUTH, BooleanOp.OR);
+            }
+            SHAPES.put(new Combination(valid, north, east, south, west), combinedShape);
+        }
+
     }
 
     public CardTableBlock(Properties properties) {
@@ -101,9 +169,15 @@ public class CardTableBlock extends BaseEntityBlock {
         if(player instanceof ServerPlayer serverPlayer) {
             if(serverPlayer.isShiftKeyDown()) {
                 if (state.getValue(CLOTH)) {
-                    BlockPos center = getCenterPos(level, pos);
+                    Pair<BlockPos, Vector2f> pair = getCenterAndOffset(level, pos);
+                    BlockPos center = pair.getFirst();
+                    Vector2f offset = pair.getSecond();
                     level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
                         Vec3 c = pos.getCenter();
+                        if(!cardTable.centerOffset.equals(offset)) {
+                            cardTable.centerOffset = offset;
+                            level.sendBlockUpdated(center, state, state, 3);
+                        }
                         if(!cardTable.getDeckStack().isEmpty()) {
                             Containers.dropItemStack(level, c.x, c.y, c.z, cardTable.getDeckStack());
                             cardTable.setDeckStack(ItemStack.EMPTY);
@@ -129,11 +203,17 @@ public class CardTableBlock extends BaseEntityBlock {
                                 level.setBlockAndUpdate(p, s.setValue(CLOTH, true).setValue(COLOR, color));
                             });
                         } else {
-                            player.displayClientMessage(Component.literal("You need to put a cloth on this table.").withStyle(ChatFormatting.RED), true);
+                            player.displayClientMessage(Component.translatable("charta.message.put_table_cloth").withStyle(ChatFormatting.RED), true);
                         }
                     } else if (player instanceof LivingEntityMixed mixed) {
-                        BlockPos center = getCenterPos(level, pos);
+                        Pair<BlockPos, Vector2f> pair = getCenterAndOffset(level, pos);
+                        BlockPos center = pair.getFirst();
+                        Vector2f offset = pair.getSecond();
                         level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
+                            if(!cardTable.centerOffset.equals(offset)) {
+                                cardTable.centerOffset = offset;
+                                level.sendBlockUpdated(center, state, state, 3);
+                            }
                             if (stack.getItem() instanceof CardDeckItem && stack.has(ModDataComponentTypes.CARD_DECK)) {
                                 if(!cardTable.getDeckStack().isEmpty()) {
                                     Vec3 c = center.getCenter();
@@ -145,23 +225,28 @@ public class CardTableBlock extends BaseEntityBlock {
                                 }
                                 level.sendBlockUpdated(center, state, state, 3);
                             } else {
-                                List<CardPlayer> satPlayers = cardTable.getPlayers();
-                                if (satPlayers.contains(mixed.charta_getCardPlayer())){
-                                    CardGame<?> game = cardTable.getGame();
-                                    if (game == null || game.isGameOver()) {
-                                        PacketDistributor.sendToPlayer(serverPlayer, new OpenCardTableScreenPayload(center, cardTable.getDeck(), satPlayers.stream().mapToInt(CardPlayer::getId).toArray()));
-                                    }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
-                                        game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
-                                    }else{
-                                        player.displayClientMessage(Component.literal("You're not playing the current game.").withStyle(ChatFormatting.RED), true);
+                                CardDeck deck = cardTable.getDeck();
+                                if(deck != null) {
+                                    List<LivingEntity> satPlayers = cardTable.getPlayers();
+                                    if (satPlayers.contains(player)){
+                                        CardGame<?> game = cardTable.getGame();
+                                        if (game == null || game.isGameOver()) {
+                                            PacketDistributor.sendToPlayer(serverPlayer, new OpenCardTableScreenPayload(center, deck, satPlayers.stream().mapToInt(LivingEntity::getId).toArray()));
+                                        }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
+                                            game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
+                                        }else{
+                                            player.displayClientMessage(Component.translatable("charta.message.not_playing_current").withStyle(ChatFormatting.RED), true);
+                                        }
+                                    } else{
+                                        player.displayClientMessage(Component.translatable("charta.message.need_to_be_sat").withStyle(ChatFormatting.RED), true);
                                     }
-                                } else{
-                                    player.displayClientMessage(Component.literal("You need to be sat in the table to start a game.").withStyle(ChatFormatting.RED), true);
+                                }else{
+                                    player.displayClientMessage(Component.translatable("charta.message.table_no_deck").withStyle(ChatFormatting.RED), true);
                                 }
                             }
                         });
                     } else {
-                        player.displayClientMessage(Component.literal("You are not a valid Card Player.").withStyle(ChatFormatting.RED), true);
+                        player.displayClientMessage(Component.translatable("charta.message.invalid_card_player").withStyle(ChatFormatting.RED), true);
                     }
                 }
             }
@@ -171,10 +256,16 @@ public class CardTableBlock extends BaseEntityBlock {
 
     @Override
     protected void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
-        if(!state.is(newState.getBlock()) && state.getValue(CLOTH)) {
-            Vec3 c = pos.getCenter();
-            ItemStack carpetStack = DyeColorHelper.getCarpet(state.getValue(COLOR)).asItem().getDefaultInstance();
-            Containers.dropItemStack(level, c.x, c.y, c.z, carpetStack);
+        if(!state.is(newState.getBlock())) {
+            if(state.getValue(CLOTH)) {
+                Vec3 c = pos.getCenter();
+                ItemStack carpetStack = DyeColorHelper.getCarpet(state.getValue(COLOR)).asItem().getDefaultInstance();
+                Containers.dropItemStack(level, c.x, c.y, c.z, carpetStack);
+            }
+            level.getBlockEntity(pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(entity -> {
+                Vec3 c = pos.getCenter();
+                Containers.dropItemStack(level, c.x, c.y, c.z, entity.getDeckStack());
+            });
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
@@ -193,6 +284,65 @@ public class CardTableBlock extends BaseEntityBlock {
     }
 
     @Override
+    protected @NotNull BlockState rotate(BlockState state, @NotNull Rotation rot) {
+        boolean north = state.getValue(NORTH);
+        boolean east = state.getValue(EAST);
+        boolean south = state.getValue(SOUTH);
+        boolean west = state.getValue(WEST);
+        state = state.setValue(NORTH, false);
+        state = state.setValue(EAST, false);
+        state = state.setValue(SOUTH, false);
+        state = state.setValue(WEST, false);
+        if(north) {
+            switch (rot.rotate(Direction.NORTH)) {
+                case NORTH -> state = state.setValue(NORTH, true);
+                case EAST -> state = state.setValue(EAST, true);
+                case SOUTH -> state = state.setValue(SOUTH, true);
+                case WEST -> state = state.setValue(WEST, true);
+            }
+        }
+        if(east) {
+            switch (rot.rotate(Direction.EAST)) {
+                case NORTH -> state = state.setValue(NORTH, true);
+                case EAST -> state = state.setValue(EAST, true);
+                case SOUTH -> state = state.setValue(SOUTH, true);
+                case WEST -> state = state.setValue(WEST, true);
+            }
+        }
+        if(south) {
+            switch (rot.rotate(Direction.SOUTH)) {
+                case NORTH -> state = state.setValue(NORTH, true);
+                case EAST -> state = state.setValue(EAST, true);
+                case SOUTH -> state = state.setValue(SOUTH, true);
+                case WEST -> state = state.setValue(WEST, true);
+            }
+        }
+        if(west) {
+            switch (rot.rotate(Direction.WEST)) {
+                case NORTH -> state = state.setValue(NORTH, true);
+                case EAST -> state = state.setValue(EAST, true);
+                case SOUTH -> state = state.setValue(SOUTH, true);
+                case WEST -> state = state.setValue(WEST, true);
+            }
+        }
+        return state;
+    }
+
+    @Override
+    protected @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
+        if(mirror == Mirror.FRONT_BACK) {
+            boolean east = state.getValue(EAST);
+            boolean west = state.getValue(WEST);
+            state = state.setValue(EAST, west).setValue(WEST, east);
+        }else if(mirror == Mirror.LEFT_RIGHT) {
+            boolean north = state.getValue(NORTH);
+            boolean south = state.getValue(SOUTH);
+            state = state.setValue(NORTH, south).setValue(SOUTH, north);
+        }
+        return state;
+    }
+
+    @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         boolean valid = isValidMultiblock(context.getLevel(), context.getClickedPos());
         return this.defaultBlockState().setValue(VALID, valid)
@@ -200,6 +350,18 @@ public class CardTableBlock extends BaseEntityBlock {
                 .setValue(EAST, context.getLevel().getBlockState(context.getClickedPos().east()).is(this))
                 .setValue(SOUTH, context.getLevel().getBlockState(context.getClickedPos().south()).is(this))
                 .setValue(WEST, context.getLevel().getBlockState(context.getClickedPos().west()).is(this));
+    }
+
+    @Override
+    protected @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+        Combination combination = new Combination(
+            state.getValue(VALID),
+            state.getValue(NORTH),
+            state.getValue(EAST),
+            state.getValue(SOUTH),
+            state.getValue(WEST)
+        );
+        return SHAPES.getOrDefault(combination, Shapes.empty());
     }
 
     @Override
@@ -218,12 +380,22 @@ public class CardTableBlock extends BaseEntityBlock {
         return multiblock;
     }
 
-    public BlockPos getCenterPos(LevelAccessor level, BlockPos pos) {
+    public Pair<BlockPos, Vector2f> getCenterAndOffset(LevelAccessor level, BlockPos pos) {
         Set<BlockPos> multiblock = getMultiblock(level, pos);
+        Vector2f offset = new Vector2f();
+        int width = getWidth(multiblock);
+        if(width % 2 == 0) {
+            offset.x = 0.5f;
+        }
+        int height = getHeight(multiblock);
+        if(height % 2 == 0) {
+            offset.y = -0.5f;
+        }
         BlockBox box = getBoundingBox(multiblock);
         BlockPos min = box.min();
         BlockPos max = box.max();
-        return new BlockPos(min.getX() + Mth.floor((max.getX() - min.getX())/2.0), min.getY() + Mth.floor((max.getY() - min.getY())/2.0), min.getZ() + Mth.floor((max.getZ() - min.getZ())/2.0));
+        BlockPos center = new BlockPos(min.getX() + Mth.floor((max.getX() - min.getX())/2.0), min.getY() + Mth.floor((max.getY() - min.getY())/2.0), min.getZ() + Mth.floor((max.getZ() - min.getZ())/2.0));
+        return Pair.of(center, offset);
     }
 
     public boolean isValidMultiblock(LevelAccessor level, BlockPos pos) {
@@ -293,6 +465,10 @@ public class CardTableBlock extends BaseEntityBlock {
             maxZ = Math.max(maxZ, pos.getZ());
         }
         return maxZ - minZ + 1;
+    }
+
+    private record Combination(boolean valid, boolean north, boolean east, boolean south, boolean west) {
+
     }
 
 }

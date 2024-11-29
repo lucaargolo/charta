@@ -1,16 +1,18 @@
 package dev.lucaargolo.charta.utils;
 
 import dev.lucaargolo.charta.Charta;
+import net.minecraft.world.phys.Vec3;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Arrays;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class CardImage {
 
     public static final int WIDTH = 25;
     public static final int HEIGHT = 35;
-    private static final int TOTAL_PIXELS = WIDTH * HEIGHT;
 
     public static final int[] COLOR_PALETTE = {
         0x000000, 0x252525, 0x494949, 0x6e6e6e, 0x929292, 0xb7b7b7, 0xdcdcdc, 0xffffff,
@@ -25,26 +27,134 @@ public class CardImage {
     public static final int[] ALPHA_PALETTE = {0, 85, 170, 255};
 
     private final byte[] pixels;
+    private final int width;
+    private final int height;
+    private final int totalPixels;
 
-    public CardImage(byte[] pixels) {
-        this.pixels = pixels;
-    }
+    private int averageColor;
 
     public CardImage() {
-        this(new byte[TOTAL_PIXELS]);
+        this(new byte[WIDTH * HEIGHT], WIDTH, HEIGHT);
     }
 
-    public static CardImage decompress(byte[] data) {
-        try {
-            byte[] pixels = ZIPCompression.decompress(data);
-            if (pixels.length != TOTAL_PIXELS) {
-                throw new IOException("Invalid file size, expected "+TOTAL_PIXELS+" bytes.");
+    private CardImage(byte[] pixels) {
+        this(pixels, WIDTH, HEIGHT);
+    }
+
+    protected CardImage(byte[] pixels, int width, int height) {
+        this.pixels = pixels;
+        this.width = width;
+        this.height = height;
+        this.totalPixels = width * height;
+        double qnt = 0.0;
+        Vec3 sum = new Vec3(0, 0, 0);
+        for(int i = 0; i < totalPixels; i++) {
+            byte pixelByte = pixels[i];
+            int alphaIndex = (pixelByte >> 6) & 0x03;
+            int colorIndex = pixelByte & 0x3F;
+            if(colorIndex != 0 || alphaIndex != 0) {
+                sum = sum.add(Vec3.fromRGB24(COLOR_PALETTE[colorIndex]));
+                qnt++;
             }
-            return new CardImage(pixels);
-        } catch (IOException exception) {
-            Charta.LOGGER.error("Error decompressing card image: ", exception);
-            return new CardImage();
         }
+        sum = sum.multiply(1.0/qnt, 1.0/qnt, 1.0/qnt);
+        int r = (int) (sum.x * 255) & 0xFF;
+        int g = (int) (sum.y * 255) & 0xFF;
+        int b = (int) (sum.z * 255) & 0xFF;
+        averageColor = (r << 16) | (g << 8) | b;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public CardImage copy() {
+        CardImage copy = new CardImage();
+        System.arraycopy(this.pixels, 0, copy.pixels, 0, totalPixels);
+        copy.averageColor = averageColor;
+        return copy;
+    }
+
+    public boolean isEmpty() {
+        for (int i = 0; i < totalPixels; i++) {
+            byte pixelByte = pixels[i];
+            int alphaIndex = (pixelByte >> 6) & 0x03;
+            int colorIndex = pixelByte & 0x3F;
+            if(alphaIndex != 0 || colorIndex != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void setARGBPixel(int x, int y, int argb) {
+        int rgb = argb & 0x00FFFFFF;
+        int alpha = (argb >> 24) & 0xFF;
+
+        this.setPixel(x, y, findClosestColorIndex(rgb), findClosestAlphaIndex(alpha));
+    }
+
+    public void setPixel(int x, int y, int colorIndex, int alphaIndex) {
+        if (x < 0 || x >= width || y < 0 || y >= height)
+            throw new IllegalArgumentException("Invalid pixel coordinates.");
+        if (colorIndex < 0 || colorIndex >= 64)
+            throw new IllegalArgumentException("Color index out of range.");
+        if (alphaIndex < 0 || alphaIndex >= 4)
+            throw new IllegalArgumentException("Alpha index out of range.");
+
+        byte pixelByte = (byte)((alphaIndex << 6) | (colorIndex & 0x3F));
+        pixels[y * width + x] = pixelByte;
+    }
+
+    public int getARGBGlowPixel(int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height)
+            throw new IllegalArgumentException("Invalid pixel coordinates.");
+
+        byte pixelByte = pixels[y * width + x];
+        int alphaIndex = (pixelByte >> 6) & 0x03;
+        int colorIndex = pixelByte & 0x3F;
+
+        int rgb = COLOR_PALETTE[colorIndex];
+        if(colorIndex != 0 && alphaIndex == 0) {
+            return (255 << 24) | (rgb & 0x00FFFFFF);
+        }else{
+            return 0x00000000;
+        }
+    }
+
+    public int getARGBPixel(int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height)
+            throw new IllegalArgumentException("Invalid pixel coordinates.");
+
+        byte pixelByte = pixels[y * width + x];
+        int alphaIndex = (pixelByte >> 6) & 0x03;
+        int colorIndex = pixelByte & 0x3F;
+
+        int rgb = COLOR_PALETTE[colorIndex];
+        int alpha = (colorIndex != 0 && alphaIndex == 0) ? 255 : ALPHA_PALETTE[alphaIndex];
+
+        return (alpha << 24) | (rgb & 0x00FFFFFF);
+    }
+
+    public byte getPixel(int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height)
+            throw new IllegalArgumentException("Invalid pixel coordinates.");
+
+        return pixels[y * width + x];
+    }
+
+    public void saveToFile(String fileName) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(fileName)) {
+            saveToStream(fos);
+        }
+    }
+
+    public void saveToStream(OutputStream stream) throws IOException {
+        stream.write(compress());
     }
 
     public byte[] compress()  {
@@ -56,50 +166,87 @@ public class CardImage {
         }
     }
 
-    public CardImage copy() {
-        CardImage copy = new CardImage();
-        System.arraycopy(this.pixels, 0, copy.pixels, 0, TOTAL_PIXELS);
-        return copy;
+    public static CardImage loadFromFile(File file) throws IOException {
+        return loadFromFile(file, CardImage.WIDTH, CardImage.HEIGHT, CardImage::new);
     }
 
-    public void setARGBPixel(int x, int y, int argb) {
-        int rgb = argb & 0x00FFFFFF;
-        int alpha = (argb >> 24) & 0xFF;
-
-        this.setPixel(x, y, findClosestColorIndex(rgb), findClosestAlphaIndex(alpha));
+    public static CardImage decompress(byte[] data) {
+        return decompress(data, CardImage.WIDTH, CardImage.HEIGHT, CardImage::new);
     }
 
-    public void setPixel(int x, int y, int colorIndex, int alphaIndex) {
-        if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
-            throw new IllegalArgumentException("Invalid pixel coordinates.");
-        if (colorIndex < 0 || colorIndex >= 64)
-            throw new IllegalArgumentException("Color index out of range.");
-        if (alphaIndex < 0 || alphaIndex >= 4)
-            throw new IllegalArgumentException("Alpha index out of range.");
-
-        byte pixelByte = (byte)((alphaIndex << 6) | (colorIndex & 0x3F));
-        pixels[y * WIDTH + x] = pixelByte;
+    public static void saveCards(BufferedImage image, File outputFile, BiConsumer<File, CardImage> saveConsumer) {
+        saveImages(image, CardImage.WIDTH, CardImage.HEIGHT, outputFile, "mccard", saveConsumer);
     }
 
-    public int getARGBPixel(int x, int y) {
-        if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
-            throw new IllegalArgumentException("Invalid pixel coordinates.");
-
-        byte pixelByte = pixels[y * WIDTH + x];
-        int alphaIndex = (pixelByte >> 6) & 0x03;
-        int colorIndex = pixelByte & 0x3F;
-
-        int rgb = COLOR_PALETTE[colorIndex];
-        int alpha = ALPHA_PALETTE[alphaIndex];
-
-        return (alpha << 24) | (rgb & 0x00FFFFFF);
+    protected static <I extends CardImage> I loadFromFile(File file, int width, int height, Function<byte[], I> function) throws IOException {
+        I image;
+        try (FileInputStream fis = new FileInputStream(file)) {
+            image = decompress(fis.readAllBytes(), width, height, function);
+        }
+        return image;
     }
 
-    public byte getPixel(int x, int y) {
-        if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
-            throw new IllegalArgumentException("Invalid pixel coordinates.");
+    protected static <I extends CardImage> I decompress(byte[] data, int width, int height, Function<byte[], I> function) {
+        try {
+            byte[] pixels = ZIPCompression.decompress(data);
+            if (pixels.length != width * height) {
+                throw new IOException("Invalid file size, expected "+(width*height)+" bytes.");
+            }
+            return function.apply(pixels);
+        } catch (IOException exception) {
+            Charta.LOGGER.error("Error decompressing card image: ", exception);
+            return function.apply(null);
+        }
+    }
 
-        return pixels[y * WIDTH + x];
+    protected static void saveImages(BufferedImage image, int width, int height, File outputFile, String extension, BiConsumer<File, CardImage> saveConsumer) {
+        CardImage[] cards = generateImages(image, width, height);
+        int rows = image.getWidth() / width;
+        int cols = image.getHeight() / height;
+        if(rows == cols && cols == 1) {
+            CardImage cardImage = cards[0];
+            File fileToSave = new File(outputFile.getAbsolutePath() + "." + extension);
+            saveConsumer.accept(fileToSave, cardImage);
+        }else {
+            for (int col = 0; col < cols; col++) {
+                for (int row = 0; row < rows; row++) {
+                    CardImage cardImage = cards[col * rows + row];
+                    if (!cardImage.isEmpty()) {
+                        File folderToSave = new File(outputFile.getAbsolutePath());
+                        folderToSave.mkdirs();
+                        File fileToSave = new File(outputFile.getAbsolutePath() + File.separator + (cols == 1 ? row : col + "_" + row) + "." + extension);
+                        saveConsumer.accept(fileToSave, cardImage);
+                    }
+                }
+            }
+        }
+    }
+
+    protected static CardImage[] generateImages(BufferedImage image, int width, int height) {
+        int rows = image.getWidth() / width;
+        int cols = image.getHeight() / height;
+
+        CardImage[] cards = new CardImage[rows*cols];
+        for (int col = 0; col < cols; col++) {
+            for (int row = 0; row < rows; row++) {
+                CardImage cardImage = new CardImage(new byte[width*height], width, height);
+
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) {
+                        int argb;
+                        try {
+                            argb = image.getRGB(x + (row*width), y + (col*height));
+                        }catch (ArrayIndexOutOfBoundsException e) {
+                            argb = 0xFFFFFFFF;
+                        }
+                        cardImage.setARGBPixel(x, y, argb);
+                    }
+                }
+
+                cards[col * rows + row] = cardImage;
+            }
+        }
+        return cards;
     }
 
     public static int findClosestColorIndex(int rgb) {
@@ -140,68 +287,6 @@ public class CardImage {
         return closestIndex;
     }
 
-    public void saveToFile(String fileName) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(fileName)) {
-            saveToStream(fos);
-        }
-    }
-
-    public void saveToStream(OutputStream stream) throws IOException {
-        stream.write(compress());
-    }
-
-    public static CardImage loadFromFile(File file) throws IOException {
-        CardImage image;
-        try (FileInputStream fis = new FileInputStream(file)) {
-            image = decompress(fis.readAllBytes());
-        }
-        return image;
-    }
-
-    public static void saveCards(BufferedImage image, File outputFile) {
-        CardImage[] cards = generateCards(image);
-        int rows = image.getWidth() / CardImage.WIDTH;
-        int cols = image.getHeight() / CardImage.HEIGHT;
-        for (int col = 0; col < cols; col++) {
-            for (int row = 0; row < rows; row++) {
-                CardImage cardImage = cards[col * rows + row];
-                File fileToSave = new File(outputFile.getAbsolutePath() + "_" + (col+1) + "_" + row + ".mccard");
-                try {
-                    Charta.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
-                    cardImage.saveToFile(fileToSave.getAbsolutePath());
-                } catch (IOException e) {
-                    Charta.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
-                }
-            }
-        }
-    }
-
-    public static CardImage[] generateCards(BufferedImage image) {
-        int rows = image.getWidth() / CardImage.WIDTH;
-        int cols = image.getHeight() / CardImage.HEIGHT;
-
-        CardImage[] cards = new CardImage[rows*cols];
-        for (int col = 0; col < cols; col++) {
-            for (int row = 0; row < rows; row++) {
-                CardImage cardImage = new CardImage();
-
-                for (int x = 0; x < CardImage.WIDTH; x++) {
-                    for (int y = 0; y < CardImage.HEIGHT; y++) {
-                        int argb;
-                        try {
-                            argb = image.getRGB(x + (row*CardImage.WIDTH), y + (col*CardImage.HEIGHT));
-                        }catch (ArrayIndexOutOfBoundsException e) {
-                            argb = 0xFFFFFFFF;
-                        }
-                        cardImage.setARGBPixel(x, y, argb);
-                    }
-                }
-
-                cards[col * rows + row] = cardImage;
-            }
-        }
-        return cards;
-    }
 
     @Override
     public boolean equals(Object obj) {
@@ -216,4 +301,7 @@ public class CardImage {
     }
 
 
+    public int getAverageColor() {
+        return averageColor;
+    }
 }

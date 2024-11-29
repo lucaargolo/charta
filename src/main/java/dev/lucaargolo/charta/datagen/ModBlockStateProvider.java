@@ -1,9 +1,7 @@
 package dev.lucaargolo.charta.datagen;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.block.CardTableBlock;
-import dev.lucaargolo.charta.block.ModBlocks;
-import dev.lucaargolo.charta.block.GameChairBlock;
+import dev.lucaargolo.charta.block.*;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -12,7 +10,10 @@ import net.minecraft.world.item.DyeColor;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+
+import java.util.List;
 
 public class ModBlockStateProvider extends BlockStateProvider {
 
@@ -27,6 +28,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
             String cornerClothPath = "block/"+color+"_card_table_corner_cloth";
             String sideClothPath = "block/"+color+"_card_table_side_cloth";
             String chairClothPath = "block/"+color+"_game_chair_cloth";
+            String stoolClothPath = "block/"+color+"_bar_stool_cloth";
 
             this.models().getBuilder(centerClothPath)
                     .parent(this.models().getExistingFile(this.modLoc("block/card_table_center_cloth")))
@@ -42,6 +44,10 @@ public class ModBlockStateProvider extends BlockStateProvider {
                     .texture("cloth", this.mcLoc("block/"+color+"_wool"));
             this.models().getBuilder(chairClothPath)
                     .parent(this.models().getExistingFile(this.modLoc("block/game_chair_cloth")))
+                    .texture("particle", this.mcLoc("block/"+color+"_wool"))
+                    .texture("cloth", this.mcLoc("block/"+color+"_wool"));
+            this.models().getBuilder(stoolClothPath)
+                    .parent(this.models().getExistingFile(this.modLoc("block/bar_stool_cloth")))
                     .texture("particle", this.mcLoc("block/"+color+"_wool"))
                     .texture("cloth", this.mcLoc("block/"+color+"_wool"));
         }
@@ -152,6 +158,93 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 rot += 90;
             }
 
+        });
+        ModBlocks.BAR_STOOL_MAP.forEach((woodType, barStool) -> {
+            MultiPartBlockStateBuilder barStoolBuilder = this.getMultipartBuilder(barStool.get());
+
+            String wood = woodType.name();
+
+            String stoolPath = "block/"+wood+"_bar_stool";
+            String itemPath = "item/"+wood+"_bar_stool";
+
+            ResourceLocation logResource = getLogResource(wood);
+
+            this.models().getBuilder(stoolPath)
+                .parent(this.models().getExistingFile(this.modLoc("block/bar_stool")))
+                .texture("particle", this.mcLoc("block/"+wood+"_planks"))
+                .texture("planks", this.mcLoc("block/"+wood+"_planks"))
+                .texture("log", logResource);
+            this.models().getBuilder(itemPath).parent(this.models().getExistingFile(this.modLoc(stoolPath)));
+
+            barStoolBuilder.part()
+                    .modelFile(this.models().getExistingFile(this.modLoc(stoolPath)))
+                    .addModel();
+            for(DyeColor color : DyeColor.values()) {
+                String stoolClothPath = "block/" + color + "_bar_stool_cloth";
+                barStoolBuilder.part()
+                        .modelFile(this.models().getExistingFile(this.modLoc(stoolClothPath)))
+                        .addModel()
+                        .condition(GameChairBlock.CLOTH, true)
+                        .condition(GameChairBlock.COLOR, color);
+            }
+        });
+        ModBlocks.BAR_SHELF_MAP.forEach((woodType, barShelf) -> {
+            MultiPartBlockStateBuilder barShelfBuilder = this.getMultipartBuilder(barShelf.get());
+
+            String wood = woodType.name();
+
+            String shelfPath = "block/"+wood+"_bar_shelf";
+            String shelfUpPath = "block/"+wood+"_bar_shelf_up";
+            String itemPath = "item/"+wood+"_bar_shelf";
+
+            ResourceLocation logResource = getLogResource(wood);
+
+            this.models().getBuilder(shelfPath)
+                    .parent(this.models().getExistingFile(this.modLoc("block/bar_shelf")))
+                    .texture("particle", this.mcLoc("block/"+wood+"_planks"))
+                    .texture("planks", this.mcLoc("block/"+wood+"_planks"))
+                    .texture("log", logResource);
+            this.models().getBuilder(shelfUpPath)
+                    .parent(this.models().getExistingFile(this.modLoc("block/bar_shelf_up")))
+                    .texture("particle", this.mcLoc("block/"+wood+"_planks"))
+                    .texture("planks", this.mcLoc("block/"+wood+"_planks"));
+            this.models().getBuilder(itemPath).parent(this.models().getExistingFile(this.modLoc(shelfPath)));
+
+            int i = 0;
+            for(Direction d : Direction.Plane.HORIZONTAL) {
+                barShelfBuilder.part()
+                        .modelFile(this.models().getExistingFile(this.modLoc(shelfPath)))
+                        .rotationY(i * 90)
+                        .addModel()
+                        .condition(BarShelfBlock.FACING, d);
+
+                barShelfBuilder.part()
+                        .modelFile(this.models().getExistingFile(this.modLoc(shelfUpPath)))
+                        .rotationY(i * 90)
+                        .addModel()
+                        .condition(BarShelfBlock.FACING, d)
+                        .condition(BarShelfBlock.UP, false);
+                i++;
+            }
+        });
+        ModBlocks.BLOCKS.getEntries().stream().filter(b -> b.get() instanceof BeerGlassBlock).forEach(block -> {
+            VariantBlockStateBuilder beerGlassBuilder = this.getVariantBuilder(block.get());
+            int i = 0;
+            for(Direction d : List.of(Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH)) {
+                beerGlassBuilder.partialState()
+                    .with(BeerGlassBlock.FACING, d)
+                    .modelForState()
+                    .modelFile(this.models().getExistingFile(this.modLoc("block/"+block.getId().getPath())))
+                    .rotationY((i++) * 90)
+                    .addModel();
+            }
+        });
+        ModBlocks.BLOCKS.getEntries().stream().filter(b -> b.get() instanceof WineGlassBlock).forEach(block -> {
+            VariantBlockStateBuilder wineGlassBuilder = this.getVariantBuilder(block.get());
+            wineGlassBuilder.partialState()
+                .modelForState()
+                .modelFile(this.models().getExistingFile(this.modLoc("block/"+block.getId().getPath())))
+                .addModel();
         });
     }
 

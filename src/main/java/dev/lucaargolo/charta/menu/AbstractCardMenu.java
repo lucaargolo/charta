@@ -14,7 +14,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -35,6 +34,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
     protected final CardPlayer cardPlayer;
 
     private int currentPlayer = 0;
+    private int gameReady = 0;
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int index) {
@@ -42,6 +42,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
             return switch (index) {
                 case 0 -> game.getCurrentPlayer() == cardPlayer ? 1 : currentPlayer;
                 case 1 -> game.getPlayers().indexOf(game.getCurrentPlayer());
+                case 2 -> game.isGameReady() ? 1 : gameReady;
                 default -> throw new IllegalStateException("Unexpected value: " + index);
             };
         }
@@ -52,12 +53,13 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
             switch (index) {
                 case 0 -> currentPlayer = value;
                 case 1 -> game.setCurrentPlayer(value);
+                case 2 -> gameReady = value;
             }
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
     };
 
@@ -77,7 +79,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         for (int i = 0; i < players.length; i++) {
             G game = this.getGame();
             CardPlayer p = game.getPlayers().get(i);
-            addCardSlot(new CardSlot<>(game, g -> g.getCensoredHand(p), 26 + (140 / 2f - playersWidth / 2f) + (i * (totalWidth + totalWidth / 10f)), 7, CardSlot.Type.PREVIEW) {
+            addCardSlot(new CardSlot<>(game, g -> g.getCensoredHand(cardPlayer, p), 26 + (140 / 2f - playersWidth / 2f) + (i * (totalWidth + totalWidth / 10f)), 7, CardSlot.Type.PREVIEW) {
                 @Override
                 public boolean canInsertCard(CardPlayer player, List<Card> cards) {
                     return false;
@@ -101,6 +103,10 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
 
     public CardPlayer getCurrentPlayer() {
         return this.getGame().getPlayers().get(data.get(1));
+    }
+
+    public boolean isGameReady() {
+        return data.get(2) == 1;
     }
 
     public CardDeck getDeck() {
@@ -135,7 +141,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         return this.remoteCardSlots.get(slotId);
     }
 
-    protected CardSlot<G> addCardSlot(CardSlot<G> slot) {
+    protected <C extends CardSlot<G>> C addCardSlot(C slot) {
         slot.index = this.cardSlots.size();
         this.cardSlots.add(slot);
         this.lastCardSlots.add(ImmutableList.of());
@@ -229,4 +235,17 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         }
     }
 
+    @Override
+    public void removed(@NotNull Player player) {
+        super.removed(player);
+        List<Card> carriedCards = this.getCarriedCards();
+        if (!carriedCards.isEmpty()) {
+            for(Card carriedCard : carriedCards) {
+                this.cardPlayer.getHand().add(carriedCard);
+                this.getGame().getCensoredHand(this.cardPlayer).add(Card.BLANK);
+            }
+            this.setCarriedCards(ImmutableList.of());
+        }
+
+    }
 }

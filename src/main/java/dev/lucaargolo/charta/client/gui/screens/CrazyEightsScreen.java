@@ -1,11 +1,12 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.CrazyEightsGame;
+import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.CrazyEightsMenu;
+import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -31,30 +32,34 @@ public class CrazyEightsScreen extends CardMenuScreen<CrazyEightsGame, CrazyEigh
     @Override
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         Component text;
-        Card.Suit suit = menu.getCurrentSuit();
-        text = Component.literal("Suit");
-        guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 40, 0xFFFFFFFF);
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(imageWidth/2f - 8f, 50f, 0f);
-        guiGraphics.pose().scale(1.5f, 1.5f, 1.5f);
-        guiGraphics.pose().translate(0.666f, 0.666f, 0.0f);
-        RenderSystem.setShaderColor(0.3f, 0.3f, 0.3f, 1.0f);
-        guiGraphics.blit(TEXTURE, 0, 0, imageWidth+(suit.ordinal()-1)*11, 0, 11, 12);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        guiGraphics.pose().translate(-0.666f, -0.666f, 0.0f);
-        guiGraphics.blit(TEXTURE, 0, 0, imageWidth+(suit.ordinal()-1)*11, 0, 11, 12);
-        guiGraphics.pose().popPose();
+
+        Suit suit = menu.getCurrentSuit();
+        if(suit != null) {
+            text = Component.translatable("charta.suit");
+            guiGraphics.drawString(font, text, imageWidth / 2 - font.width(text) / 2, 40, 0xFFFFFFFF);
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(imageWidth / 2f - 10f, 50f, 0f);
+            guiGraphics.pose().translate(0.5f, 0f, 0f);
+            guiGraphics.pose().scale(1.5f, 1.5f, 1.5f);
+            ChartaGuiGraphics.blitImageAndGlow(guiGraphics, this.getDeck().getSuitTexture(suit), 0, 0, 0, 0, 13, 13, 13, 13);
+            guiGraphics.pose().popPose();
+        }
 
         CardPlayer player = menu.getCurrentPlayer();
         DyeColor color = player.getColor();
-        if(menu.isCurrentPlayer()) {
-            text = Component.literal("It's your turn!").withStyle(s -> s.withColor(color.getTextureDiffuseColor()));
+        if(menu.isGameReady()) {
+            if (menu.isCurrentPlayer()) {
+                text = Component.translatable("charta.message.your_turn").withStyle(s -> s.withColor(color.getTextureDiffuseColor()));
+            } else {
+                text = Component.translatable("charta.message.other_turn", player.getName()).withStyle(s -> s.withColor(color.getTextureDiffuseColor()));
+            }
+            guiGraphics.drawString(font, text, imageWidth / 2 - font.width(text) / 2, 105, 0xFFFFFFFF);
+            text = Component.translatable("charta.message.draws_left", menu.getDrawsLeft());
+            guiGraphics.drawString(font, text, imageWidth / 2 - font.width(text) / 2, 115, 0xFFFFFFFF);
         }else{
-            text = Component.literal("It's ").append(player.getName()).append("'s turn").withStyle(s -> s.withColor(color.getTextureDiffuseColor()));;
+            text = Component.translatable("charta.message.dealing_cards").withStyle(ChatFormatting.GOLD);
+            guiGraphics.drawString(font, text, imageWidth / 2 - font.width(text) / 2, 110, 0xFFFFFFFF);
         }
-        guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 105, 0xFFFFFFFF);
-        text = Component.literal("Draws left: "+menu.getDrawsLeft());
-        guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 115, 0xFFFFFFFF);
 
     }
 }
