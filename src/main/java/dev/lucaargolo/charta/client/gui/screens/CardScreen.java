@@ -27,12 +27,13 @@ public abstract class CardScreen extends Screen implements HoverableRenderable {
         super(title);
     }
 
-    protected abstract void renderFg(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY);
+    protected void renderFg(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawCenteredString(font, title, width/2, 20, 0xFFFFFFFF);
+    }
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.drawCenteredString(font, title, width/2, 20, 0xFFFFFFFF);
         for (Renderable renderable : this.renderables) {
             if(renderable != this.hoverable) {
                 /*

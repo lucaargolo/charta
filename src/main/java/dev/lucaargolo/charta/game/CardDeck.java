@@ -47,19 +47,17 @@ public class CardDeck {
         CardDeck::new
     );
 
-    public static final Codec<CardDeck> CODEC = RecordCodecBuilder.create(instance -> {
-        return instance.group(
-            Rarity.CODEC.fieldOf("rarity").forGetter(CardDeck::getRarity),
-            Codec.BOOL.fieldOf("tradeable").forGetter(CardDeck::isTradeable),
-            Card.CODEC.listOf().fieldOf("cards").forGetter(CardDeck::getCards),
-            Codec.simpleMap(Suit.CODEC, ResourceLocation.CODEC, StringRepresentable.keys(Suit.values())).fieldOf("suits_images").forGetter(CardDeck::getSuitsLocation),
-            Codec.simpleMap(Suit.CODEC, Codec.STRING, StringRepresentable.keys(Suit.values())).fieldOf("suits_keys").forGetter(CardDeck::getSuitsTranslatableKeys),
-            Codec.simpleMap(Card.CODEC, ResourceLocation.CODEC, StringRepresentable.keys(Card.values())).fieldOf("cards_images").forGetter(CardDeck::getCardsLocation),
-            Codec.simpleMap(Card.CODEC, Codec.STRING, StringRepresentable.keys(Suit.values())).fieldOf("cards_keys").forGetter(CardDeck::getCardsTranslatableKeys),
-            ResourceLocation.CODEC.fieldOf("deck_image").forGetter(CardDeck::getDeckLocation),
-            Codec.STRING.fieldOf("deck_key").forGetter(CardDeck::getDeckTranslatableKey)
-        ).apply(instance, CardDeck::new);
-    });
+    public static final Codec<CardDeck> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        Rarity.CODEC.fieldOf("rarity").forGetter(CardDeck::getRarity),
+        Codec.BOOL.fieldOf("tradeable").forGetter(CardDeck::isTradeable),
+        Card.CODEC.listOf().fieldOf("cards").forGetter(CardDeck::getCards),
+        Codec.simpleMap(Suit.CODEC, ResourceLocation.CODEC, StringRepresentable.keys(Suit.values())).fieldOf("suits_images").forGetter(CardDeck::getSuitsLocation),
+        Codec.simpleMap(Suit.CODEC, Codec.STRING, StringRepresentable.keys(Suit.values())).fieldOf("suits_keys").forGetter(CardDeck::getSuitsTranslatableKeys),
+        Codec.simpleMap(Card.CODEC, ResourceLocation.CODEC, StringRepresentable.keys(Card.values())).fieldOf("cards_images").forGetter(CardDeck::getCardsLocation),
+        Codec.simpleMap(Card.CODEC, Codec.STRING, StringRepresentable.keys(Suit.values())).fieldOf("cards_keys").forGetter(CardDeck::getCardsTranslatableKeys),
+        ResourceLocation.CODEC.fieldOf("deck_image").forGetter(CardDeck::getDeckLocation),
+        Codec.STRING.fieldOf("deck_key").forGetter(CardDeck::getDeckTranslatableKey)
+    ).apply(instance, CardDeck::new));
 
     private final Rarity rarity;
     private final boolean tradeable;
@@ -209,15 +207,7 @@ public class CardDeck {
             translatableKey =  "deck." + deckLocation.getNamespace() + "." + deckLocation.getPath().replace("/", ".");
         }
         String deckTranslatableKey = translatableKey;
-        return new CardDeck(rarity, canBeTraded, deck, (suit) -> {
-            return suitLocation.withSuffix("/" + suit.ordinal());
-        }, (suit) -> {
-            return "suit.charta."+(suit == Suit.BLANK ? "unknown" : suit.getSerializedName());
-        }, (card) -> {
-            return cardLocation.withSuffix( "/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal());
-        }, (card) -> {
-            return card.getRank() == Rank.BLANK ? "suit.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getSuit().getSerializedName()) : "card.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getSuit().getSerializedName()+"."+card.getRank().getSerializedName());
-        }, () -> deckLocation, () -> deckTranslatableKey);
+        return new CardDeck(rarity, canBeTraded, deck, (suit) -> suitLocation.withSuffix("/" + suit.ordinal()), (suit) -> "suit.charta."+(suit == Suit.BLANK ? "unknown" : suit.getSerializedName()), (card) -> cardLocation.withSuffix( "/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal()), (card) -> card.getRank() == Rank.BLANK ? "suit.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getSuit().getSerializedName()) : "card.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getSuit().getSerializedName()+"."+card.getRank().getSerializedName()), () -> deckLocation, () -> deckTranslatableKey);
     }
 
     public static CardDeck fun(Rarity rarity, boolean canBeTraded, ResourceLocation cardLocation, ResourceLocation deckLocation) {
@@ -241,15 +231,7 @@ public class CardDeck {
             translatableKey =  "deck." + deckLocation.getNamespace() + "." + deckLocation.getPath().replace("/", ".");
         }
         String deckTranslatableKey = translatableKey;
-        return new CardDeck(rarity, canBeTraded, deck, (suit) -> {
-            return suitLocation.withSuffix("/" + suit.ordinal());
-        }, (suit) -> {
-            return "suit.charta."+getFunSuit(suit);
-        }, (card) -> {
-            return cardLocation.withSuffix( "/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal());
-        }, (card) -> {
-            return "card.charta."+getFunCardKey(card);
-        }, () -> deckLocation, () -> deckTranslatableKey);
+        return new CardDeck(rarity, canBeTraded, deck, (suit) -> suitLocation.withSuffix("/" + suit.ordinal()), (suit) -> "suit.charta."+getFunSuit(suit), (card) -> cardLocation.withSuffix( "/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal()), (card) -> "card.charta."+getFunCardKey(card), () -> deckLocation, () -> deckTranslatableKey);
     }
 
     private static String getFunSuit(Suit suit) {
@@ -288,6 +270,9 @@ public class CardDeck {
 
     public int getSuitColor(Suit suit) {
         SuitImage image = Charta.CARD_SUITS.getImages().getOrDefault(suitsLocation.apply(suit), CardImageUtils.EMPTY_SUIT);
+        if(image == CardImageUtils.EMPTY_SUIT) {
+            return 0xFFFFFF;
+        }
         int color = image.getAverageColor();
         Vec3 col = Vec3.fromRGB24(color);
         double brightness = 0.299 * col.x + 0.587 * col.y + 0.114 * col.z;

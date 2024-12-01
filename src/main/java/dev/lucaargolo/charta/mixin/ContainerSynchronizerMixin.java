@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.mixin;
 
-import dev.lucaargolo.charta.game.Card;
+import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.UpdateCardContainerCarriedPayload;
 import dev.lucaargolo.charta.network.UpdateCardContainerSlotPayload;
@@ -17,8 +17,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
-
 @Mixin(targets = {"net/minecraft/server/level/ServerPlayer$1"})
 public abstract class ContainerSynchronizerMixin implements CardContainerSynchronizerMixed {
 
@@ -26,13 +24,13 @@ public abstract class ContainerSynchronizerMixin implements CardContainerSynchro
     ServerPlayer this$0;
 
     @Override
-    public void charta_sendCardSlotChange(AbstractContainerMenu container, int slot, List<Card> cards) {
-        PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerSlotPayload(container.containerId, container.incrementStateId(), slot, cards));
+    public void charta_sendCardSlotChange(AbstractContainerMenu container, int slot, GameSlot cards) {
+        PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerSlotPayload(container.containerId, container.incrementStateId(), slot, cards.stream().toList()));
     }
 
     @Override
-    public void charta_sendCarriedCardsChange(AbstractContainerMenu container, List<Card> cards) {
-        PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerCarriedPayload(container.containerId, container.incrementStateId(), cards));
+    public void charta_sendCarriedCardsChange(AbstractContainerMenu container, GameSlot cards) {
+        PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerCarriedPayload(container.containerId, container.incrementStateId(), cards.stream().toList()));
     }
 
     @Inject(at = @At("TAIL"), method = "sendInitialData")
@@ -40,9 +38,9 @@ public abstract class ContainerSynchronizerMixin implements CardContainerSynchro
         if(container instanceof AbstractCardMenu<?> menu) {
             int i = 0;
             for(int j = menu.cardSlots.size(); i < j; i++) {
-                PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerSlotPayload(container.containerId, container.stateId, i, menu.getRemoteCards(i)));
+                PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerSlotPayload(container.containerId, container.stateId, i, menu.getRemoteCards(i).stream().toList()));
             }
-            PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerCarriedPayload(container.containerId, container.stateId, menu.getRemoteCarriedCards()));
+            PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerCarriedPayload(container.containerId, container.stateId, menu.getRemoteCarriedCards().stream().toList()));
 
         }
 

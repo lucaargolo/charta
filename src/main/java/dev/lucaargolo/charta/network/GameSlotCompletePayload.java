@@ -3,9 +3,8 @@ package dev.lucaargolo.charta.network;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.Card;
+import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.utils.ExpandedStreamCodec;
-import dev.lucaargolo.charta.utils.GameSlot;
-import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -20,12 +19,13 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public record GameSlotCompletePayload(BlockPos pos, int index, List<Card> cards, float x, float y, float z, float angle, Direction stackDirection, float maxStack) implements CustomPacketPayload  {
 
     public GameSlotCompletePayload(BlockPos pos, int index, GameSlot slot) {
-        this(pos, index, new ArrayList<>(slot.getCards()), slot.getX(), slot.getY(), slot.getZ(), slot.getAngle(), slot.getStackDirection(), slot.getMaxStack());
+        this(pos, index, slot.stream().toList(), slot.getX(), slot.getY(), slot.getZ(), slot.getAngle(), slot.getStackDirection(), slot.getMaxStack());
     }
 
     public static final CustomPacketPayload.Type<GameSlotCompletePayload> TYPE = new CustomPacketPayload.Type<>(Charta.id("game_slot_complete"));
@@ -58,9 +58,7 @@ public record GameSlotCompletePayload(BlockPos pos, int index, List<Card> cards,
     }
 
     public static void handleClient(GameSlotCompletePayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            updateGameSlot(payload);
-        });
+        context.enqueueWork(() -> updateGameSlot(payload));
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -69,13 +67,12 @@ public record GameSlotCompletePayload(BlockPos pos, int index, List<Card> cards,
         Level level = minecraft.level;
         if(level != null) {
             level.getBlockEntity(payload.pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
-                TransparentLinkedList<Card> linkedList = new TransparentLinkedList<>();
-                linkedList.addAll(payload.cards);
-                if(payload.index == cardTable.getGameSlotCount()) {
-                    cardTable.addGameSlot(new GameSlot(linkedList, payload.x, payload.y, payload.z, payload.angle, payload.stackDirection, payload.maxStack));
+                List<Card> list = new LinkedList<>(payload.cards);
+                if(payload.index == cardTable.getSlotCount()) {
+                    cardTable.addSlot(new GameSlot(list, payload.x, payload.y, payload.z, payload.angle, payload.stackDirection, payload.maxStack));
                 }else{
-                    GameSlot tracked = cardTable.getGameSlot(payload.index);
-                    tracked.setCards(linkedList);
+                    GameSlot tracked = cardTable.getSlot(payload.index);
+                    tracked.setCards(list);
                     tracked.setX(payload.x);
                     tracked.setY(payload.y);
                     tracked.setZ(payload.z);

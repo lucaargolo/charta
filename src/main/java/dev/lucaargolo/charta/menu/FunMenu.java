@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public class FunMenu extends AbstractCardMenu<FunGame> {
 
     private final FunGame game;
-    private DrawSlot<FunGame> drawSlot;
+    private final DrawSlot<FunGame> drawSlot;
 
     private int canDoLast = 0;
     private int didntSayLast = 0;
@@ -27,7 +27,6 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
                 case 3 -> game.reversed ? 1 : 0;
                 case 4 -> game.drawStack;
                 case 5 -> game.canDraw ? 1 : 0;
-                case 6 -> game.rules;
                 default -> 0;
             };
         }
@@ -41,29 +40,28 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
                 case 3 -> game.reversed = value > 0;
                 case 4 -> game.drawStack = value;
                 case 5 -> game.canDraw = value > 0;
-                case 6 -> game.rules = value;
             }
         }
 
         @Override
         public int getCount() {
-            return 7;
+            return 6;
         }
     };
 
     protected FunMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buf) {
-        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), CardDeck.STREAM_CODEC.decode(buf), buf.readVarIntArray());
+        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), CardDeck.STREAM_CODEC.decode(buf), buf.readVarIntArray(), buf.readByteArray());
     }
 
-    public FunMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players) {
-        super(ModMenus.FUN.get(), containerId, inventory, access, deck, players);
-        this.game = CardGames.getGameForMenu(CardGames.FUN, access, deck, players);
+    public FunMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
+        super(ModMenus.FUN.get(), containerId, inventory, access, deck);
+        this.game = CardGames.getGameForMenu(CardGames.FUN, access, deck, players, options);
 
         this.addTopPreview(players);
         //Draw pile
-        this.drawSlot = addCardSlot(new DrawSlot<>(this.game, FunGame::getDrawPile, 19, 30, () -> this.game.canDraw));
+        this.drawSlot = addCardSlot(new DrawSlot<>(this.game, g -> g.getSlot(0), 19, 30, () -> this.game.canDraw));
         //Play pile
-        addCardSlot(new PlaySlot<>(this.game, FunGame::getPlayPile, 84, 30, drawSlot));
+        addCardSlot(new PlaySlot<>(this.game, g -> g.getSlot(1), 84, 30, drawSlot));
 
         addCardSlot(new CardSlot<>(this.game, g -> (cardPlayer == g.getCurrentPlayer() && g.isChoosingWild) ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
             @Override
@@ -112,10 +110,6 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
 
     public boolean canDraw() {
         return data.get(5) > 0;
-    }
-
-    public boolean isRule(int rule) {
-        return (data.get(5) & (1 << rule)) != 0;
     }
 
     @Override

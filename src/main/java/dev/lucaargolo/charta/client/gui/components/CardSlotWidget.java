@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.client.gui.components;
 import dev.lucaargolo.charta.client.gui.screens.CardMenuScreen;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardGame;
+import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.CardSlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -31,32 +32,32 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
 
     @Override
     protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        List<Card> cards = cardSlot.getCards();
+        GameSlot slot = cardSlot.getSlot();
         if(cardSlot.isExtended()) {
             this.setPreciseWidth(CardSlot.getWidth(cardSlot));
-            if(renderables.size() != cards.size() || renderablesDirty) {
+            if(renderables.size() != slot.size() || renderablesDirty) {
                 this.hoverable = null;
                 renderables.clear();
                 int i = 0;
                 float childWidth = cardSlot.isSmall() ? CardSlot.getWidth(CardSlot.Type.SMALL) : CardSlot.getWidth(CardSlot.Type.DEFAULT);
                 float maxOffset = childWidth + childWidth/10f;
-                float offset = childWidth + Math.max(0f, this.getPreciseWidth() - (cards.size() * childWidth)/(float) cards.size());
-                float totalWidth = childWidth + (offset * (cards.size() - 1f));
+                float offset = childWidth + Math.max(0f, this.getPreciseWidth() - (slot.size() * childWidth)/(float) slot.size());
+                float totalWidth = childWidth + (offset * (slot.size() - 1f));
                 float excess = totalWidth - this.getPreciseWidth();
                 if(excess > 0) {
-                    offset -= excess / (cards.size() - 1f);
+                    offset -= excess / (slot.size() - 1f);
                 }
-                totalWidth = childWidth + (maxOffset * (cards.size() - 1f));
+                totalWidth = childWidth + (maxOffset * (slot.size() - 1f));
                 float left = 0;
                 if(offset > maxOffset) {
                     left = Math.max(offset - maxOffset, (this.getPreciseWidth() - totalWidth));
                     offset = maxOffset;
                 }
-                for (Card card : cards) {
+                for (Card card : slot.getCards()) {
                     int index = i;
                     CardSlot<G> childCardSlot = new CardSlot<>(
                         this.parent.getGame(),
-                        game -> List.of(card),
+                        g -> new GameSlot(List.of(card)),
                         cardSlot.x + offset * i,
                         cardSlot.y,
                         cardSlot.isSmall() ? CardSlot.Type.SMALL : CardSlot.Type.DEFAULT
@@ -108,8 +109,8 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
         super.tick(mouseX, mouseY);
         int i = 0;
         for(CardSlotWidget<G> renderable : renderables) {
-            List<Card> cards = cardSlot.getCards();
-            if(i >= cards.size() || !renderable.cardSlot.getCards().contains(cards.get(i)))
+            GameSlot slot = cardSlot.getSlot();
+            if(i >= slot.size() || !renderable.cardSlot.getSlot().contains(slot.get(i)))
                 renderablesDirty = true;
             renderable.tick(mouseX, mouseY);
             i++;
@@ -118,7 +119,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
 
     @Override
     public @NotNull ResourceLocation getCardTexture(@Nullable ResourceLocation cardId, boolean glow) {
-        Card card = cardSlot.getCards().getLast();
+        Card card = cardSlot.getSlot().getLast();
         if(card.isFlipped()) {
             return parent.getDeck().getDeckTexture(glow);
         }else{
@@ -128,13 +129,13 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
 
     @Override
     public String getCardTranslatableKey() {
-        Card card = cardSlot.getCards().getLast();
+        Card card = cardSlot.getSlot().getLast();
         return parent.getDeck().getCardTranslatableKey(card);
     }
 
     @Override
     public int getCardColor() {
-        Card card = cardSlot.getCards().getLast();
+        Card card = cardSlot.getSlot().getLast();
         return parent.getDeck().getCardColor(card);
     }
 
@@ -163,7 +164,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
             super.render(guiGraphics, mouseX, mouseY, partialTick);
             if (this.visible) {
                 float actualWidth = this.getPreciseWidth();
-                if(!this.isHovered() && this.index < (CardSlotWidget.this.cardSlot.getCards().size() - 1)) {
+                if(!this.isHovered() && this.index < (CardSlotWidget.this.cardSlot.getSlot().size() - 1)) {
                     actualWidth = this.offset;
                 }
                 this.isHovered = guiGraphics.containsPointInScissor(mouseX, mouseY)

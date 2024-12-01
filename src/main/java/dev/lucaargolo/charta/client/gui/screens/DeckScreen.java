@@ -9,7 +9,9 @@ import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import dev.lucaargolo.charta.utils.HoverableRenderable;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -20,6 +22,9 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
     private final CardDeck deck;
     private final Set<Suit> suits;
 
+    private int headerOffset = 10;
+    private int footerOffset = 10;
+
     public DeckScreen(CardDeck deck) {
         super(deck.getName());
         this.deck = deck;
@@ -28,8 +33,8 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
 
     @Override
     protected void init() {
-        float maxWidth = width - 50f;
         float cardWidth = CardSlot.getWidth(CardSlot.Type.DEFAULT);
+        float maxWidth = width - 60f - cardWidth;
         float maxLeftOffset = cardWidth + cardWidth/10f;
 
         float maxHeight = height - 80f;
@@ -50,6 +55,9 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
             topOffset = maxTopOffset;
         }
 
+        headerOffset = Math.max(0, Mth.floor(top/2 + 15));
+        footerOffset = Math.max(0, Mth.floor(top/2 + 27));
+
         int i = 0;
         for(Suit suit : suits) {
             List<Card> cards = deck.getCards().stream().filter(c -> c.getSuit().equals(suit)).sorted().toList();
@@ -68,9 +76,15 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
                 leftOffset = maxLeftOffset;
             }
 
+            this.addRenderableWidget(new CardWidget(this, Card.BLANK, deck, 25 + left/2, 45+(topOffset*i) + top/2, 1f) {
+                @Override
+                public @Nullable String getCardTranslatableKey() {
+                    return deck.getDeckTranslatableKey();
+                }
+            });
             int j = 0;
             for(Card card : cards) {
-                CardWidget cardWidget = new CardWidget(this, card, deck, 25+(leftOffset*j) + left/2, 45+(topOffset*i) + top/2, 1f);
+                CardWidget cardWidget = new CardWidget(this, card, deck, cardWidth+35+(leftOffset*j) + left/2, 45+(topOffset*i) + top/2, 1f);
                 this.addRenderableWidget(cardWidget);
                 j++;
             }
@@ -80,13 +94,14 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
 
     @Override
     protected void renderFg(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawCenteredString(font, title, width/2, headerOffset, 0xFFFFFFFF);
         int i = 0;
         int totalWidth = suits.size()*16 - 3;
         for(Suit suit : suits) {
-            ChartaGuiGraphics.blitImageAndGlow(guiGraphics, deck.getSuitTexture(suit), width/2f - totalWidth/2f + (i*16), 30, 0, 0, 13, 13, 13, 13);
+            ChartaGuiGraphics.blitImageAndGlow(guiGraphics, deck.getSuitTexture(suit), width/2f - totalWidth/2f + (i*16), headerOffset+10, 0, 0, 13, 13, 13, 13);
             i++;
         }
-        guiGraphics.drawCenteredString(font, Component.literal(deck.getCards().size() + " ").append(Component.translatable("charta.cards")).append(" | "+suits.size()+" ").append(Component.translatable("charta.suits")), width/2, height-30, 0xFFFFFFFF);
+        guiGraphics.drawCenteredString(font, Component.literal(deck.getCards().size() + " ").append(Component.translatable("charta.cards")).append(" | "+suits.size()+" ").append(Component.translatable("charta.suits")), width/2, height-footerOffset, 0xFFFFFFFF);
     }
 
     @Override

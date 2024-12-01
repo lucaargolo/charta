@@ -30,9 +30,7 @@ public record GameSlotResetPayload(BlockPos pos) implements CustomPacketPayload 
     }
 
     public static void handleClient(GameSlotResetPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            resetGameSlots(payload);
-        });
+        context.enqueueWork(() -> resetGameSlots(payload));
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -40,7 +38,7 @@ public record GameSlotResetPayload(BlockPos pos) implements CustomPacketPayload 
         Minecraft minecraft = Minecraft.getInstance();
         Level level = minecraft.level;
         if(level != null) {
-            level.getBlockEntity(payload.pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(CardTableBlockEntity::resetGameSlots);
+            level.getBlockEntity(payload.pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(CardTableBlockEntity::resetSlots);
         }
     }
 

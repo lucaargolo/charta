@@ -8,6 +8,7 @@ import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.entity.ModPoiTypes;
 import dev.lucaargolo.charta.entity.ModVillagerProfessions;
+import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.item.ModCreativeTabs;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.item.ModItems;
@@ -17,7 +18,6 @@ import dev.lucaargolo.charta.resources.CardDeckResource;
 import dev.lucaargolo.charta.resources.CardImageResource;
 import dev.lucaargolo.charta.resources.CardSuitResource;
 import dev.lucaargolo.charta.sound.ModSounds;
-import dev.lucaargolo.charta.utils.GameSlot;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -54,6 +54,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 @Mod(Charta.MOD_ID)
+@SuppressWarnings("unused")
 public class Charta {
 
     private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, ResourceLocation.withDefaultNamespace( "empty"));
@@ -134,11 +135,11 @@ public class Charta {
 
             addBuildingToPool(templatePoolRegistry, processorListRegistry,
                     ResourceLocation.tryParse("minecraft:village/taiga/houses"),
-                    "charta:taiga_card_bar", 50);
+                    "charta:taiga_card_bar", 40);
 
             addBuildingToPool(templatePoolRegistry, processorListRegistry,
                     ResourceLocation.tryParse("minecraft:village/savanna/houses"),
-                    "charta:savanna_card_bar", 50);
+                    "charta:savanna_card_bar", 60);
         }
 
         @SubscribeEvent
@@ -154,9 +155,9 @@ public class Charta {
             LevelChunk chunk = event.getChunk();
             chunk.getBlockEntities().forEach((pos, blockEntity) -> {
                 if(blockEntity instanceof CardTableBlockEntity cardTable) {
-                    int count = cardTable.getGameSlotCount();
+                    int count = cardTable.getSlotCount();
                     for(int i = 0; i < count; i++) {
-                        GameSlot slot = cardTable.getGameSlot(i);
+                        GameSlot slot = cardTable.getSlot(i);
                         GameSlotCompletePayload payload = new GameSlotCompletePayload(pos, i, slot);
                         PacketDistributor.sendToPlayer(event.getPlayer(), payload);
                     }

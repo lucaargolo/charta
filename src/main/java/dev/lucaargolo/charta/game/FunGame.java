@@ -7,8 +7,6 @@ import dev.lucaargolo.charta.menu.FunMenu;
 import dev.lucaargolo.charta.network.LastFunPayload;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
-import dev.lucaargolo.charta.utils.GameSlot;
-import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -19,41 +17,29 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
-public class FunGame implements CardGame<FunGame> {
+public class FunGame extends CardGame<FunGame> {
 
     public static final int LAST_COOLDOWN = 30;
 
-    //Rules
-    public static final int STACK_ANY_PLUS2_ON_PLUS2 = 0;
-    public static final int STACK_SAME_COLOR_PLUS2_ON_PLUS2 = 1;
-    public static final int STACK_PLUS4_ON_PLUS2 = 2;
-    public static final int STACK_PLUS4_ON_PLUS4 = 3;
-    public static final int STACK_SAME_COLOR_PLUS2_ON_PLUS4 = 4;
-    public static final int STACK_ANY_PLUS2_ON_PLUS4 = 5;
+    private final GameOption.Number LAST_DRAW_AMOUNT = new GameOption.Number(2, 0, 6, Component.empty(), Component.empty());
+    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.empty(), Component.empty());
+    private final GameOption.Bool STACK_SAME_COLOR_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.empty(), Component.empty());
+    private final GameOption.Bool STACK_PLUS4_ON_PLUS2 = new GameOption.Bool(true, Component.empty(), Component.empty());
+    private final GameOption.Bool STACK_PLUS4_ON_PLUS4 = new GameOption.Bool(true, Component.empty(), Component.empty());
+    private final GameOption.Bool STACK_SAME_COLOR_PLUS2_ON_PLUS4 = new GameOption.Bool(true, Component.empty(), Component.empty());
+    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS4 = new GameOption.Bool(true, Component.empty(), Component.empty());
 
-    private final Map<CardPlayer, TransparentLinkedList<Card>> censoredHands = new HashMap<>();
+    private final GameSlot playPile;
+    private final GameSlot drawPile;
 
-    private final TransparentLinkedList<Card> playPile = new TransparentLinkedList<>();
-    private final TransparentLinkedList<Card> drawPile = new TransparentLinkedList<>();
-    private final List<GameSlot> gameSlots = new ArrayList<>();
-
-    private final List<Runnable> scheduledActions = new ArrayList<>();
-    private boolean isGameReady;
-
-    private final List<CardPlayer> players;
-    private final List<Card> deck;
-    private final CardDeck cardDeck;
-
-    private CardPlayer currentPlayer;
-    private boolean isGameOver;
-
-    public final LinkedList<Card> suits = new LinkedList<>();
+    public final GameSlot suits = new GameSlot();
     public boolean isChoosingWild;
     public Suit currentSuit;
 
@@ -64,16 +50,12 @@ public class FunGame implements CardGame<FunGame> {
     public int drawStack = 0;
     public boolean startedDraw = false;
     public boolean reversed = false;
-    public int rules;
 
     private final Random random = new Random();
 
     public FunGame(List<CardPlayer> players, CardDeck deck) {
-        this(players, deck, 0b000111);
-    }
+        super(players, deck);
 
-    public FunGame(List<CardPlayer> players, CardDeck deck, int rules) {
-        this.players = players;
         this.saidLast = new boolean[players.size()];
         this.lastCooldown = new int[players.size()];
         for (int i = 0; i < players.size(); i++) {
@@ -81,84 +63,43 @@ public class FunGame implements CardGame<FunGame> {
             this.lastCooldown[i] = 0;
         }
 
-        this.deck = deck.getCards()
-            .stream()
-            .map(Card::copy)
-            .collect(Collectors.toList());
-        this.deck.forEach(Card::flip);
-
-        this.cardDeck = deck;
-        this.rules = rules;
-
-        GameSlot playPileSlot = new GameSlot(playPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f + 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
-        GameSlot drawPileSlot = new GameSlot(drawPile, CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f - 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0);
-        gameSlots.add(playPileSlot);
-        gameSlots.add(drawPileSlot);
+        this.drawPile = addSlot(new GameSlot(new LinkedList<>(), CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f - 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0));
+        this.playPile = addSlot(new GameSlot(new LinkedList<>(), CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f + 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0));
     }
 
-    public boolean isRule(int rule) {
-        return (rules & (1 << rule)) != 0;
+    @Override
+    public List<GameOption<?>> getOptions() {
+        return List.of(
+            LAST_DRAW_AMOUNT,
+            STACK_ANY_PLUS2_ON_PLUS2,
+            STACK_SAME_COLOR_PLUS2_ON_PLUS2,
+            STACK_PLUS4_ON_PLUS2,
+            STACK_PLUS4_ON_PLUS4,
+            STACK_SAME_COLOR_PLUS2_ON_PLUS4,
+            STACK_ANY_PLUS2_ON_PLUS4
+        );
     }
 
     @Override
     public AbstractCardMenu<FunGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck) {
-        return new FunMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray());
+        return new FunMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray(), this.getRawOptions());
     }
 
     @Override
-    public List<GameSlot> getGameSlots() {
-        return gameSlots;
+    public Predicate<CardDeck> getDeckPredicate() {
+        return (deck) -> {
+            boolean noEmpty = deck.getCards().stream().filter(c -> c.getSuit() == Suit.BLANK).findAny().isEmpty();
+            boolean red = deck.getSuitTranslatableKey(Suit.SPADES).contains("red");
+            boolean yellow = deck.getSuitTranslatableKey(Suit.HEARTS).contains("yellow");
+            boolean green = deck.getSuitTranslatableKey(Suit.CLUBS).contains("green");
+            boolean blue = deck.getSuitTranslatableKey(Suit.DIAMONDS).contains("blue");
+            return noEmpty && (red || yellow || green || blue);
+        };
     }
 
     @Override
-    public List<Card> getValidDeck() {
-        List<Card> necessaryCards = new ArrayList<>();
-        for (Suit suit : Suit.values()) {
-            if(suit != Suit.BLANK) {
-                for (Rank rank : Rank.values()) {
-                    necessaryCards.add(new Card(suit, rank));
-                    if(rank != Rank.BLANK && rank != Rank.JOKER && rank != Rank.TEN) {
-                        necessaryCards.add(new Card(suit, rank));
-                    }
-                }
-            }
-        }
-        return necessaryCards;
-    }
-
-    public LinkedList<Card> getPlayPile() {
-        return playPile;
-    }
-
-    public LinkedList<Card> getDrawPile() {
-        return drawPile;
-    }
-
-    @Override
-    public List<CardPlayer> getPlayers() {
-        return players;
-    }
-
-    @Override
-    public TransparentLinkedList<Card> getCensoredHand(@Nullable CardPlayer viewer, CardPlayer player) {
-        if(viewer == player && player.getEntity() instanceof ServerPlayer) {
-            return player.getHand();
-        }
-        return censoredHands.computeIfAbsent(player, p -> {
-            TransparentLinkedList<Card> list = new TransparentLinkedList<>();
-            p.getHand().stream().map(c -> Card.BLANK).forEach(list::add);
-            return list;
-        });
-    }
-
-    @Override
-    public CardPlayer getCurrentPlayer() {
-        return currentPlayer;
-    }
-
-    @Override
-    public void setCurrentPlayer(int index) {
-        this.currentPlayer = getPlayers().get(index);
+    public Predicate<Card> getCardPredicate() {
+        return (card) -> true;
     }
 
     @Override
@@ -166,8 +107,8 @@ public class FunGame implements CardGame<FunGame> {
         drawPile.clear();
         playPile.clear();
 
-        drawPile.addAll(deck);
-        Collections.shuffle(drawPile);
+        drawPile.addAll(gameDeck);
+        drawPile.shuffle();
 
         for (CardPlayer player : players) {
             player.setPlay(new CompletableFuture<>());
@@ -185,11 +126,11 @@ public class FunGame implements CardGame<FunGame> {
             }
         }
 
-        Card last = drawPile.pollLast();
+        Card last = drawPile.removeLast();
         while (last != null && (last.getRank() == Rank.BLANK || last.getRank() == Rank.JACK || last.getRank() == Rank.QUEEN || last.getRank() == Rank.KING || last.getRank() == Rank.JOKER)) {
             drawPile.add(last);
-            Collections.shuffle(drawPile, random);
-            last = drawPile.pollLast();
+            drawPile.shuffle();
+            last = drawPile.removeLast();
         }
         assert last != null;
         last.flip();
@@ -209,10 +150,10 @@ public class FunGame implements CardGame<FunGame> {
     }
 
     private void shufflePiles() {
-        Card lastCard = playPile.pollLast();
+        Card lastCard = playPile.removeLast();
         playPile.forEach(Card::flip);
         drawPile.addAll(playPile);
-        Collections.shuffle(drawPile);
+        drawPile.shuffle();
         playPile.clear();
         playPile.add(lastCard);
         table(Component.translatable("charta.message.piles_shuffled"));
@@ -235,11 +176,11 @@ public class FunGame implements CardGame<FunGame> {
             }
         }
 
-        currentPlayer.getPlay(this).thenAccept(card -> {
+        currentPlayer.getPlay(this).thenAccept(play -> {
             //Setup next play.
             currentPlayer.setPlay(new CompletableFuture<>());
 
-            if(card == null) {
+            if(play == null) {
                 //Player tried drawing a card.
 
                 boolean canPlay = false;
@@ -262,7 +203,7 @@ public class FunGame implements CardGame<FunGame> {
                 }
                 //The player drew but not from a stack, so if they're able to, they should play.
                 if(!startedDraw) {
-                    canPlay = this.getBestCard(currentPlayer) != null;
+                    canPlay = this.getBestPlay(currentPlayer) != null;
                 }
                 //Since they drew a card, we reset their saidLast
                 saidLast[getPlayers().indexOf(currentPlayer)] = false;
@@ -275,21 +216,22 @@ public class FunGame implements CardGame<FunGame> {
                     //Continue game.
                     runGame();
                 }
-            }else if(!currentPlayer.shouldCompute() || canPlayCard(currentPlayer, card)) {
-                //Player played a card (Since we already checked in the menu, we don't need to check again if the player is pre computed).
+            }else if(!currentPlayer.shouldCompute() || canPlay(currentPlayer, play)) {
+                //Player played a card (Since we already checked in the menu, we don't need to check again if the player is pre computed).]
+                Card card = play.card();
                 currentPlayer.playSound(ModSounds.CARD_PLAY.get());
                 currentSuit = card.getSuit();
 
                 if(isChoosingWild) {
                     //Player was choosing the suit from a wild card.
-                    play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(cardDeck.getSuitTranslatableKey(currentSuit)).withColor(cardDeck.getSuitColor(currentSuit))));
+                    play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(deck.getSuitTranslatableKey(currentSuit)).withColor(deck.getSuitColor(currentSuit))));
                     //If the player was not a bot, there will be an extra card in the play pile, so we need to remove it.
                     if(!currentPlayer.shouldCompute()) {
                         playPile.removeLast();
                     }
                     isChoosingWild = false;
                 }else{
-                    play(currentPlayer, Component.translatable("charta.message.played_a_card", Component.translatable(cardDeck.getCardTranslatableKey(card)).withColor(cardDeck.getCardColor(card))));
+                    play(currentPlayer, Component.translatable("charta.message.played_a_card", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))));
                 }
 
                 //If the player is a bot, we need to manually remove the card from its hand and censored hand, and add it to the play pile.
@@ -312,18 +254,13 @@ public class FunGame implements CardGame<FunGame> {
                     if(currentPlayer.shouldCompute()) {
                         //If the player is a bot, we need to manually select the most frequent suit of that bot.
                         currentSuit = getMostFrequentSuit(currentPlayer);
-                        play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(cardDeck.getSuitTranslatableKey(currentSuit))));
+                        play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(deck.getSuitTranslatableKey(currentSuit))));
                         nextPlayerAndRunGame();
                     }else{
                         //If the player is not a bot, we need to set the game state as choosing wild, and set up the suits hand for the player.
                         isChoosingWild = true;
                         suits.clear();
-                        suits.addAll(List.of(
-                                new Card(Suit.SPADES, Rank.ACE),
-                                new Card(Suit.HEARTS, Rank.TWO),
-                                new Card(Suit.CLUBS, Rank.THREE),
-                                new Card(Suit.DIAMONDS, Rank.FOUR)
-                        ));
+                        suits.addAll(gameSuits.stream().map(s -> new Card(s, Rank.TEN)).toList());
                         //They also can't draw during the suit choosing phase, so that's important.
                         canDraw = false;
                         runGame();
@@ -370,9 +307,7 @@ public class FunGame implements CardGame<FunGame> {
     public void endGame() {
         if(getFullHand(currentPlayer).findAny().isEmpty()) {
             currentPlayer.sendTitle(Component.translatable("charta.message.you_won").withStyle(ChatFormatting.GREEN), Component.translatable("charta.message.congratulations"));
-            getPlayers().stream().filter(player -> player != currentPlayer).forEach(player -> {
-                player.sendTitle(Component.translatable("charta.message.you_lost").withStyle(ChatFormatting.RED), Component.translatable("charta.message.won_the_match",currentPlayer.getName()));
-            });
+            getPlayers().stream().filter(player -> player != currentPlayer).forEach(player -> player.sendTitle(Component.translatable("charta.message.you_lost").withStyle(ChatFormatting.RED), Component.translatable("charta.message.won_the_match",currentPlayer.getName())));
         }else{
             getPlayers().forEach(player -> {
                 currentPlayer.sendTitle(Component.translatable("charta.message.draw").withStyle(ChatFormatting.YELLOW), Component.translatable("charta.message.no_winner"));
@@ -384,7 +319,7 @@ public class FunGame implements CardGame<FunGame> {
 
     @Override
     public void tick() {
-        CardGame.super.tick();
+        super.tick();
         if(isGameReady) {
             //Here we do the logic to increase the grace period if the player can say last. Enable bots to say last for themselves and for other players.
             for(int i = 0; i < this.getPlayers().size(); i++) {
@@ -409,8 +344,9 @@ public class FunGame implements CardGame<FunGame> {
     }
 
     @Override
-    public boolean canPlayCard(CardPlayer player, Card card) {
-        Card lastCard = playPile.peekLast();
+    public boolean canPlay(CardPlayer player, CardPlay play) {
+        Card card = play.card();
+        Card lastCard = playPile.getLast();
 
         if(!isGameReady || lastCard == null) {
             //Check if game is ready.
@@ -430,35 +366,15 @@ public class FunGame implements CardGame<FunGame> {
                 //If the player didn't start drawing, they can stack another plus card if the rules allow it.
                 boolean isPlus4 = lastCard.getRank() == Rank.JOKER;
                 if (isPlus4) {
-                    return (isRule(STACK_PLUS4_ON_PLUS4) && card.getRank() == Rank.JOKER) || (isRule(STACK_ANY_PLUS2_ON_PLUS4) && card.getRank() == Rank.KING) || (isRule(STACK_SAME_COLOR_PLUS2_ON_PLUS4) && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
+                    return (STACK_PLUS4_ON_PLUS4.get() && card.getRank() == Rank.JOKER) || (STACK_ANY_PLUS2_ON_PLUS4.get() && card.getRank() == Rank.KING) || (STACK_SAME_COLOR_PLUS2_ON_PLUS4.get() && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
                 } else {
-                    return (isRule(STACK_PLUS4_ON_PLUS2) && card.getRank() == Rank.JOKER) || (isRule(STACK_ANY_PLUS2_ON_PLUS2) && card.getRank() == Rank.KING) || (isRule(STACK_SAME_COLOR_PLUS2_ON_PLUS2) && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
+                    return (STACK_PLUS4_ON_PLUS2.get() && card.getRank() == Rank.JOKER) || (STACK_ANY_PLUS2_ON_PLUS2.get() && card.getRank() == Rank.KING) || (STACK_SAME_COLOR_PLUS2_ON_PLUS2.get() && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
                 }
             }
         }
 
         //If there aren't any edge cases, we check if the card is a wild card, or if it matches the current rank or suit.
         return card.getRank() == Rank.BLANK || card.getRank() == Rank.JOKER || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;
-    }
-
-    @Override
-    public boolean isGameReady() {
-        return isGameReady;
-    }
-
-    @Override
-    public void setGameReady(boolean gameReady) {
-        isGameReady = gameReady;
-    }
-
-    @Override
-    public boolean isGameOver() {
-        return isGameOver;
-    }
-
-    @Override
-    public List<Runnable> getScheduledActions() {
-        return scheduledActions;
     }
 
     public void sayLast(CardPlayer current) {
@@ -479,7 +395,7 @@ public class FunGame implements CardGame<FunGame> {
                     //Current is not the player! So we need to do a grace period.
                     //If the grace period already ended, they will automatically draw two cards.
 
-                    int drawAmount = 2;
+                    int drawAmount = LAST_DRAW_AMOUNT.get();
                     //First we need to check if there are enough cards to draw.
                     if(drawPile.size() < drawAmount) {
                         //If there isn't. We shuffle the piles.
@@ -492,7 +408,7 @@ public class FunGame implements CardGame<FunGame> {
                         players.forEach(p -> {
                             LivingEntity entity = p.getEntity();
                             if(entity instanceof ServerPlayer serverPlayer) {
-                                PacketDistributor.sendToPlayer(serverPlayer, new LastFunPayload(CardDeckItem.getDeck(cardDeck)));
+                                PacketDistributor.sendToPlayer(serverPlayer, new LastFunPayload(CardDeckItem.getDeck(deck)));
                             }
                         });
                         table(Component.translatable("charta.message.player_automatically_drew_cards", player.getColoredName(), drawAmount));

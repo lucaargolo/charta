@@ -15,7 +15,7 @@
             }
           ],
           "name": "charta:deck",
-          "weight": 15
+          "weight": 30
         },
         {
           "type": "minecraft:item",
@@ -28,7 +28,33 @@
             }
           ],
           "name": "charta:deck",
-          "weight": 15
+          "weight": 30
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:fun_neon"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:fun_minimal_neon"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
         },
         {
           "type": "minecraft:empty",

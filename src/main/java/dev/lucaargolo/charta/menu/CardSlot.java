@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.menu;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.utils.CardImage;
 
 import java.util.List;
@@ -10,19 +11,21 @@ import java.util.function.Function;
 
 public class CardSlot<G extends CardGame<G>> {
 
-    public final G game;
-
     public int index = -1;
+
+    protected final G game;
+    protected final Function<G, GameSlot> getter;
+
     public final float x;
     public final float y;
-    private final Function<G, List<Card>> getter;
+
     private final Type type;
 
-    public CardSlot(G game, Function<G, List<Card>> getter, float x, float y) {
+    public CardSlot(G game, Function<G, GameSlot> getter, float x, float y) {
         this(game, getter, x, y, Type.DEFAULT);
     }
 
-    public CardSlot(G game, Function<G, List<Card>> getter, float x, float y, Type type) {
+    public CardSlot(G game, Function<G, GameSlot> getter, float x, float y, Type type) {
         this.game = game;
         this.x = x;
         this.y = y;
@@ -30,24 +33,24 @@ public class CardSlot<G extends CardGame<G>> {
         this.type = type;
     }
 
-    public final List<Card> getCards() {
+    public final GameSlot getSlot() {
         return getter.apply(game);
     }
 
     public final void setCards(List<Card> cards) {
-        List<Card> gameCards = getter.apply(game);
-        gameCards.clear();
-        gameCards.addAll(cards);
+        GameSlot slot = getter.apply(game);
+        slot.clear();
+        slot.addAll(cards);
     }
 
-    public final boolean insertCards(List<Card> collection, int index) {
-        List<Card> cards = getter.apply(game);
-        return index == -1 ? cards.addAll(collection) : cards.addAll(!cards.isEmpty() ? index % cards.size() : 0, collection);
+    public final boolean insertCards(GameSlot collection, int index) {
+        GameSlot slot = getter.apply(game);
+        return index == -1 ? slot.addAll(collection) : slot.addAll(!slot.isEmpty() ? index % slot.size() : 0, collection);
     }
 
     public final Card removeCard(int index) {
-        List<Card> cards = getter.apply(game);
-        return index == -1 ? cards.removeLast() : cards.remove(!cards.isEmpty() ? index % cards.size() : 0);
+        GameSlot slot = getter.apply(game);
+        return index == -1 ? slot.removeLast() : slot.remove(!slot.isEmpty() ? index % slot.size() : 0);
     }
 
     public void onInsert(CardPlayer player, Card card) {
@@ -58,17 +61,17 @@ public class CardSlot<G extends CardGame<G>> {
 
     }
 
-    public boolean canInsertCard(CardPlayer player, List<Card> cards) {
+    public boolean canInsertCard(CardPlayer player, Iterable<Card> cards) {
         return true;
     }
 
     public boolean canRemoveCard(CardPlayer player) {
-        List<Card> cards = getter.apply(game);
-        return !cards.isEmpty();
+        GameSlot slot = getter.apply(game);
+        return !slot.isEmpty();
     }
 
     public boolean isEmpty() {
-        return getCards().isEmpty();
+        return getSlot().isEmpty();
     }
 
     public Type getType() {

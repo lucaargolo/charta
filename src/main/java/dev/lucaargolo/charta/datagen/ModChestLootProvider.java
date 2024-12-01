@@ -35,6 +35,7 @@ public class ModChestLootProvider implements LootTableSubProvider {
     public static final ResourceKey<LootTable> SIMPLE_DUNGEON_DECKS =
             ResourceKey.create(Registries.LOOT_TABLE, Charta.id("chests/simple_dungeon_decks"));
 
+    @SuppressWarnings("unused")
     public ModChestLootProvider(HolderLookup.Provider provider) {
 
     }
@@ -45,6 +46,8 @@ public class ModChestLootProvider implements LootTableSubProvider {
             .setRolls(ConstantValue.exactly(1))
             .add(deck(CardDecks.FUN_INVERTED, 0.75))
             .add(deck(CardDecks.FUN_CLASSIC, 0.75))
+            .add(deck(CardDecks.FUN_NEON, 0.25))
+            .add(deck(CardDecks.FUN_MINIMAL_NEON, 0.25))
             .add(EmptyLootItem.emptyItem().setWeight(50));
         addGroup(mineshaftPool, "metals", 1.25);
         addGroup(mineshaftPool, "gems", 1.0);
@@ -55,6 +58,8 @@ public class ModChestLootProvider implements LootTableSubProvider {
                 .setRolls(ConstantValue.exactly(1))
                 .add(deck(CardDecks.FUN_INVERTED, 2.0))
                 .add(deck(CardDecks.FUN_CLASSIC, 2.0))
+                .add(deck(CardDecks.FUN_NEON, 0.75))
+                .add(deck(CardDecks.FUN_MINIMAL_NEON, 0.75))
                 .add(EmptyLootItem.emptyItem().setWeight(50));
         addGroup(pyramidPool, "metals", 0.25);
         addGroup(pyramidPool, "neon", 0.5);
@@ -64,6 +69,8 @@ public class ModChestLootProvider implements LootTableSubProvider {
                 .setRolls(ConstantValue.exactly(1))
                 .add(deck(CardDecks.FUN_INVERTED, 0.5))
                 .add(deck(CardDecks.FUN_CLASSIC, 0.5))
+                .add(deck(CardDecks.FUN_NEON, 0.125))
+                .add(deck(CardDecks.FUN_MINIMAL_NEON, 0.125))
                 .add(EmptyLootItem.emptyItem().setWeight(50));
         addGroup(dungeonPool, "flags", 2.0);
         addGroup(dungeonPool, "metals", 0.5);
@@ -73,11 +80,7 @@ public class ModChestLootProvider implements LootTableSubProvider {
     }
 
     private static void addGroup(LootPool.Builder pool, String group, double chanceMultiplier) {
-        CardDecks.GROUPS.getOrDefault(group, List.of()).forEach(key -> {
-            Optional.ofNullable(CardDecks.DECKS.get(key)).ifPresent(deck -> {
-                pool.add(deck(deck, chanceMultiplier));
-            });
-        });
+        CardDecks.GROUPS.getOrDefault(group, List.of()).forEach(key -> Optional.ofNullable(CardDecks.DECKS.get(key)).ifPresent(deck -> pool.add(deck(deck, chanceMultiplier))));
     }
 
     private static LootPoolSingletonContainer.Builder<?> deck(CardDeck deck, double chanceMultiplier) {

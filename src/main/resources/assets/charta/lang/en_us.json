@@ -177,6 +177,8 @@
   "deck.charta.fun_minimal": "Fun Minimal Deck",
   "deck.charta.fun_classic": "Fun Classic Deck",
   "deck.charta.fun_inverted": "Fun Inverted Deck",
+  "deck.charta.fun_neon": "Neon Fun Deck",
+  "deck.charta.fun_minimal_neon": "Neon Fun Minimal Deck",
 
   "deck.charta.flags.argentina": "Argentina Deck",
   "deck.charta.flags.australia": "Australia Deck",
@@ -290,8 +292,8 @@
   "card.charta.diamonds.king": "King of Diamonds",
   "card.charta.diamonds.joker": "Joker of Diamonds",
 
-  "card.charta.wild": "Wild Card",
-  "card.charta.wild_plus_four": "Wild +4",
+  "card.charta.wild": "§fWild Card",
+  "card.charta.wild_plus_four": "§fWild +4",
 
   "card.charta.red.zero": "Red Zero",
   "card.charta.red.one": "Red One",

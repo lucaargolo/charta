@@ -28,7 +28,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         @Override
         public void set(int index, int value) {
             switch (index) {
-                case 0 -> game.drawsLeft = value;
+                case 0 -> game.drawsLeft = (byte) value;
                 case 1 -> game.currentSuit = value >= 0 ? Suit.values()[value] : null;
             }
         }
@@ -40,18 +40,18 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     };
 
     protected CrazyEightsMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buf) {
-        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), CardDeck.STREAM_CODEC.decode(buf), buf.readVarIntArray());
+        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), CardDeck.STREAM_CODEC.decode(buf), buf.readVarIntArray(), buf.readByteArray());
     }
 
-    public CrazyEightsMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players) {
-        super(ModMenus.CRAZY_EIGHTS.get(), containerId, inventory, access, deck, players);
-        this.game = CardGames.getGameForMenu(CardGames.CRAZY_EIGHTS, access, deck, players);
+    public CrazyEightsMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
+        super(ModMenus.CRAZY_EIGHTS.get(), containerId, inventory, access, deck);
+        this.game = CardGames.getGameForMenu(CardGames.CRAZY_EIGHTS, access, deck, players, options);
 
         this.addTopPreview(players);
         //Draw pile
-        this.drawSlot = addCardSlot(new DrawSlot<>(this.game, CrazyEightsGame::getDrawPile, 19, 30, () -> this.game.drawsLeft > 0));
+        this.drawSlot = addCardSlot(new DrawSlot<>(this.game, g -> this.game.getSlot(0), 19, 30, () -> this.game.drawsLeft > 0));
         //Play pile
-        addCardSlot(new PlaySlot<>(this.game, CrazyEightsGame::getPlayPile, 84, 30, drawSlot));
+        addCardSlot(new PlaySlot<>(this.game, g -> this.game.getSlot(1), 84, 30, drawSlot));
 
         addCardSlot(new CardSlot<>(this.game, g -> (cardPlayer == g.getCurrentPlayer() && g.isChoosingWild) ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
             @Override

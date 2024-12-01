@@ -1,11 +1,8 @@
 package dev.lucaargolo.charta.menu;
 
-import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardGame;
-import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.game.*;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.function.Function;
 
 public class PlaySlot<G extends CardGame<G>> extends CardSlot<G> {
@@ -13,18 +10,24 @@ public class PlaySlot<G extends CardGame<G>> extends CardSlot<G> {
     @Nullable
     private final DrawSlot<G> drawSlot;
 
-    public PlaySlot(G game, Function<G, List<Card>> getter, float x, float y, @Nullable DrawSlot<G> drawSlot) {
+    public PlaySlot(G game, Function<G, GameSlot> getter, float x, float y, @Nullable DrawSlot<G> drawSlot) {
         super(game, getter, x, y);
         this.drawSlot = drawSlot;
     }
 
     @Override
-    public boolean canInsertCard(CardPlayer player, List<Card> cards) {
+    public boolean canInsertCard(CardPlayer player, Iterable<Card> cards) {
+        int size = 0;
+        Card lastCard = null;
+        for(Card card : cards) {
+            size++;
+            lastCard = card;
+        }
         if(drawSlot != null && drawSlot.isDraw()) {
             player.getPlay(this.game).complete(null);
             drawSlot.setDraw(false);
         }
-        return player == this.game.getCurrentPlayer() && cards.size() == 1 && this.game.canPlayCard(player, cards.getLast());
+        return player == this.game.getCurrentPlayer() && size == 1 && this.game.canPlay(player, new CardPlay(lastCard, getter.apply(this.game).getIndex()));
     }
 
     @Override
@@ -34,7 +37,7 @@ public class PlaySlot<G extends CardGame<G>> extends CardSlot<G> {
 
     @Override
     public void onInsert(CardPlayer player, Card card) {
-        player.getPlay(this.game).complete(card);
+        player.getPlay(this.game).complete(new CardPlay(card, getter.apply(this.game).getIndex()));
     }
 
 }

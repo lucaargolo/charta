@@ -1,7 +1,6 @@
 package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.utils.CardPlayerHead;
-import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
@@ -14,11 +13,11 @@ import java.util.concurrent.CompletableFuture;
 
 public interface CardPlayer {
 
-    TransparentLinkedList<Card> getHand();
+    GameSlot getHand();
 
-    CompletableFuture<Card> getPlay(CardGame<?> game);
+    CompletableFuture<CardPlay> getPlay(CardGame<?> game);
 
-    void setPlay(CompletableFuture<Card> play);
+    void setPlay(CompletableFuture<CardPlay> play);
 
     void tick(CardGame<?> game);
 

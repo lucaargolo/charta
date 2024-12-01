@@ -2,10 +2,7 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.client.gui.components.CardSlotWidget;
 import dev.lucaargolo.charta.client.gui.components.CardWidget;
-import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardDeck;
-import dev.lucaargolo.charta.game.CardGame;
-import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
@@ -78,12 +75,8 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
     protected void init() {
         super.init();
         slotWidgets.clear();
-        menu.cardSlots.forEach(slot -> {
-            slotWidgets.add(new CardSlotWidget<>(this, slot));
-        });
-        this.addRenderableWidget(new Button.Builder(Component.literal("H"), b -> {
-            Minecraft.getInstance().setScreen(new HistoryScreen(this));
-        }).bounds(width-25, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.open_game_history"))).build());
+        menu.cardSlots.forEach(slot -> slotWidgets.add(new CardSlotWidget<>(this, slot)));
+        this.addRenderableWidget(new Button.Builder(Component.literal("H"), b -> Minecraft.getInstance().setScreen(new HistoryScreen(this))).bounds(width-25, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.open_game_history"))).build());
     }
 
     public void renderTopBar(@NotNull GuiGraphics guiGraphics) {
@@ -202,7 +195,7 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0f, 0f, 100f);
-        List<Card> cards = this.menu.getCarriedCards();
+        GameSlot cards = this.menu.getCarriedCards();
         if (!cards.isEmpty()) {
             Card card = cards.getLast();
             CardWidget.renderCard(card, this.getDeck(), guiGraphics, mouseX- CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);

@@ -5,13 +5,14 @@ import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
-public record CardTableSelectGamePayload(BlockPos pos, ResourceLocation gameId) implements CustomPacketPayload {
+public record CardTableSelectGamePayload(BlockPos pos, ResourceLocation gameId, byte[] options) implements CustomPacketPayload {
 
     public static final Type<CardTableSelectGamePayload> TYPE = new Type<>(Charta.id("card_table_select_game"));
 
@@ -20,18 +21,18 @@ public record CardTableSelectGamePayload(BlockPos pos, ResourceLocation gameId) 
             CardTableSelectGamePayload::pos,
             ResourceLocation.STREAM_CODEC,
             CardTableSelectGamePayload::gameId,
+            ByteBufCodecs.BYTE_ARRAY,
+            CardTableSelectGamePayload::options,
             CardTableSelectGamePayload::new
     );
 
     public static void handleServer(CardTableSelectGamePayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            context.player().level().getBlockEntity(payload.pos(), ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(table -> {
-                if(table.getGame() == null || table.getGame().isGameOver()) {
-                    Component result = table.startGame(payload.gameId());
-                    context.player().displayClientMessage(result, true);
-                }
-            });
-        });
+        context.enqueueWork(() -> context.player().level().getBlockEntity(payload.pos(), ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(table -> {
+            if(table.getGame() == null || table.getGame().isGameOver()) {
+                Component result = table.startGame(payload.gameId(), payload.options());
+                context.player().displayClientMessage(result, true);
+            }
+        }));
     }
 
     @Override

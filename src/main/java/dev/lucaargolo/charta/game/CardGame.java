@@ -2,8 +2,6 @@ package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.CardPlayPayload;
-import dev.lucaargolo.charta.utils.GameSlot;
-import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -18,56 +16,124 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public interface CardGame<G extends CardGame<G>> {
+public abstract class CardGame<G extends CardGame<G>> {
 
-    CardPlayer TABLE = new AutoPlayer(0f) {
+    public static CardPlayer TABLE = new AutoPlayer(0f) {
         @Override
         public Component getName() {
             return Component.empty();
         }
     };
 
-    List<GameSlot> getGameSlots();
+    protected final Map<CardPlayer, GameSlot> censoredHands = new HashMap<>();
+    protected final List<Runnable> scheduledActions = new ArrayList<>();
 
-    List<Card> getValidDeck();
+    private final List<GameSlot> gameSlots = new ArrayList<>();
 
-    List<CardPlayer> getPlayers();
+    protected final List<CardPlayer> players;
+    protected final CardDeck deck;
 
-    TransparentLinkedList<Card> getCensoredHand(CardPlayer viewer, CardPlayer player);
+    protected final List<Card> gameDeck;
+    protected final Set<Suit> gameSuits;
 
-    CardPlayer getCurrentPlayer();
+    protected CardPlayer currentPlayer;
+    protected boolean isGameReady;
+    protected boolean isGameOver;
 
-    void setCurrentPlayer(int index);
+    public CardGame(List<CardPlayer> players, CardDeck deck) {
+        this.players = players;
+        this.deck = deck;
 
-    void startGame();
+        this.gameDeck = deck.getCards()
+                .stream()
+                .filter(c -> this.getCardPredicate().test(c))
+                .map(Card::copy)
+                .collect(Collectors.toList());
+        this.gameDeck.forEach(Card::flip);
+        this.gameSuits = this.gameDeck.stream().map(Card::getSuit).collect(Collectors.toSet());
+    }
 
-    void runGame();
+    public abstract AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck);
 
-    void endGame();
+    public abstract Predicate<CardDeck> getDeckPredicate();
 
-    boolean canPlayCard(CardPlayer player, Card card);
+    public abstract Predicate<Card> getCardPredicate();
 
-    boolean isGameReady();
+    public abstract boolean canPlay(CardPlayer player, CardPlay play);
 
-    void setGameReady(boolean ready);
+    public abstract void startGame();
 
-    boolean isGameOver();
+    public abstract void runGame();
 
-    AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck);
+    public abstract void endGame();
 
-    List<Runnable> getScheduledActions();
+    public abstract List<GameOption<?>> getOptions();
 
-    default TransparentLinkedList<Card> getCensoredHand(CardPlayer player) {
+    public void setOptions(byte[] options) {
+        List<GameOption<?>> o = this.getOptions();
+        for(int i = 0; i < o.size(); i++) {
+            if(i < options.length) {
+                o.get(i).setValue(options[i]);
+            }
+        }
+    }
+
+    public List<CardPlayer> getPlayers() {
+        return players;
+    }
+
+    public List<GameSlot> getSlots() {
+        return gameSlots;
+    }
+
+
+    public GameSlot getSlot(int index) {
+        return gameSlots.get(index);
+    }
+
+    protected GameSlot addSlot(GameSlot slot) {
+        slot.setIndex(gameSlots.size());
+        gameSlots.add(slot);
+        return slot;
+    }
+
+    public boolean isGameReady() {
+        return isGameReady;
+    }
+
+    public boolean isGameOver() {
+        return isGameOver;
+    }
+
+    public GameSlot getCensoredHand(CardPlayer player) {
         return getCensoredHand(null, player);
     }
 
-    default Stream<Card> getFullHand(CardPlayer player) {
+    public GameSlot getCensoredHand(@Nullable CardPlayer viewer, CardPlayer player) {
+        if(viewer == player && player.getEntity() instanceof ServerPlayer) {
+            return player.getHand();
+        }
+        return censoredHands.computeIfAbsent(player, p -> {
+            LinkedList<Card> list = new LinkedList<>();
+            p.getHand().stream().map(c -> Card.BLANK).forEach(list::add);
+            return new GameSlot(list);
+        });
+    }
+
+    public CardPlayer getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public void setCurrentPlayer(int index) {
+        this.currentPlayer = getPlayers().get(index);
+    }
+
+    protected Stream<Card> getFullHand(CardPlayer player) {
         LivingEntity entity = player.getEntity();
         if(entity instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof AbstractCardMenu<?> menu && !menu.getCarriedCards().isEmpty()) {
             return Stream.concat(player.getHand().stream(), menu.getCarriedCards().stream());
@@ -76,11 +142,11 @@ public interface CardGame<G extends CardGame<G>> {
         }
     }
 
-    default Suit getMostFrequentSuit(CardPlayer player) {
+    protected Suit getMostFrequentSuit(CardPlayer player) {
         Map<Suit, Integer> suitCountMap = new HashMap<>();
 
         //Adds all suits to a map, and increases its value everytime it appears.
-        for (Card c : player.getHand()) {
+        for (Card c : player.getHand().getCards()) {
             Suit suit = c.getSuit();
             suitCountMap.put(suit, suitCountMap.getOrDefault(suit, 0) + 1);
         }
@@ -99,11 +165,18 @@ public interface CardGame<G extends CardGame<G>> {
         return mostFrequentSuit;
     }
 
-    default @Nullable Card getBestCard(CardPlayer player) {
-        return getFullHand(player).filter(c -> canPlayCard(player, c)).findFirst().orElse(null);
+    public @Nullable CardPlay getBestPlay(CardPlayer player) {
+        for(int i = 0; i < gameSlots.size(); i++) {
+            int slot = i;
+            Optional<Card> card = getFullHand(player).filter(c -> canPlay(player, new CardPlay(c, slot))).findFirst();
+            if(card.isPresent()) {
+                return new CardPlay(card.get(), slot);
+            }
+        }
+        return null;
     }
 
-    default void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, CardDeck deck) {
+    public void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, CardDeck deck) {
         serverPlayer.openMenu(new MenuProvider() {
             @Override
             public @NotNull Component getDisplayName() {
@@ -118,15 +191,16 @@ public interface CardGame<G extends CardGame<G>> {
             buf.writeBlockPos(pos);
             CardDeck.STREAM_CODEC.encode(buf, deck);
             buf.writeVarIntArray(getPlayers().stream().mapToInt(CardPlayer::getId).toArray());
+            buf.writeByteArray(this.getRawOptions());
         });
     }
 
-    default void tick() {
-        if(!isGameReady()) {
-            if(!getScheduledActions().isEmpty()) {
-                getScheduledActions().removeFirst().run();
+    public void tick() {
+        if(!this.isGameReady) {
+            if(!this.scheduledActions.isEmpty()) {
+                this.scheduledActions.removeFirst().run();
             } else {
-                setGameReady(true);
+                this.isGameReady = true;
                 runGame();
             }
         }else{
@@ -134,28 +208,28 @@ public interface CardGame<G extends CardGame<G>> {
         }
     }
 
-    default int getMinPlayers() {
+    public int getMinPlayers() {
         return 2;
     }
 
-    default int getMaxPlayers() {
+    public int getMaxPlayers() {
         return 8;
     }
 
-    default void dealCards(LinkedList<Card> drawPile, CardPlayer player, int count) {
+    protected void dealCards(GameSlot drawSlot, CardPlayer player, int count) {
         for (int i = 0; i < count; i++) {
-            Card card = drawPile.pollLast();
+            Card card = drawSlot.removeLast();
             card.flip();
             player.getHand().add(card);
             getCensoredHand(player).add(Card.BLANK);
         }
     }
 
-    default void table(Component play) {
+    protected void table(Component play) {
         play(TABLE, play.copy().withStyle(ChatFormatting.GRAY));
     }
 
-    default void play(CardPlayer player, Component play) {
+    protected void play(CardPlayer player, Component play) {
         for(CardPlayer p : this.getPlayers()) {
             LivingEntity entity = p.getEntity();
             if(entity instanceof ServerPlayer serverPlayer) {
@@ -164,15 +238,18 @@ public interface CardGame<G extends CardGame<G>> {
         }
     }
 
-    static boolean canPlayGame(CardGame<?> cardGame, CardDeck cardDeck) {
-        List<Card> necessaryCards = cardGame.getValidDeck();
-        for(Card card : cardDeck.getCards()) {
-            if(!necessaryCards.remove(card)) {
-                necessaryCards.add(card);
-                break;
-            }
-        }
-        return necessaryCards.isEmpty();
+    public static boolean canPlayGame(CardGame<?> cardGame, CardDeck cardDeck) {
+        return cardGame.getDeckPredicate().test(cardDeck);
     }
 
+    protected final byte[] getRawOptions() {
+        List<GameOption<?>> options = this.getOptions();
+        byte[] byteArray = new byte[options.size()];
+
+        for (int i = 0; i < options.size(); i++) {
+            byteArray[i] = options.get(i).getValue();
+        }
+
+        return byteArray;
+    }
 }

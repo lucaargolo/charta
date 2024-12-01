@@ -8,8 +8,8 @@ import dev.lucaargolo.charta.client.ModRenderType;
 import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.utils.CardImage;
-import dev.lucaargolo.charta.utils.GameSlot;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -37,17 +37,17 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
         poseStack.pushPose();
         poseStack.translate(0.0, 0.85, 1.0);
         poseStack.mulPose(Axis.XN.rotationDegrees(90f));
-        int gameSlots = blockEntity.getGameSlotCount();
+        int gameSlots = blockEntity.getSlotCount();
         if(deck != null && gameSlots > 0) {
             for(int i = 0; i < gameSlots; i++) {
-                GameSlot slot = blockEntity.getGameSlot(i);
+                GameSlot slot = blockEntity.getSlot(i);
                 float x = slot.lerpX(partialTick);
                 float y = slot.lerpY(partialTick);
                 float z = slot.lerpZ(partialTick);
                 float angle = slot.lerpAngle(partialTick);
                 Direction stackDirection = slot.getStackDirection();
 
-                int cards = slot.getCards().size();
+                int cards = slot.size();
 
                 float maxWidth = stackDirection.getAxis().isVertical() ? 0 : angle % 180 == 0 && stackDirection.getAxis() == Direction.Axis.Z ? 0 : slot.getMaxStack();
                 float cardWidth = stackDirection.getAxis().isVertical() ? 0 : angle % 180 == 0 && stackDirection.getAxis() == Direction.Axis.Z ? 0 : CardImage.WIDTH;
@@ -95,7 +95,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
                     poseStack.scale(1/160f, 1/160f, 1/160f);
                     poseStack.translate(x, y, z + (o*0.01f));
                     if(stackDirection.getAxis().isVertical()) {
-                        poseStack.translate(0, 0, (o*0.5f)*stackDirection.getNormal().getY());
+                        poseStack.translate(0, 0, (o*0.25f)*stackDirection.getNormal().getY());
                     }
                     poseStack.mulPose(Axis.ZN.rotationDegrees(angle));
                     poseStack.translate(o*leftOffset, o*topOffset, 0.0);

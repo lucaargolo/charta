@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class CardDecks {
 
     public static final Map<ResourceLocation, CardDeck> DECKS = new HashMap<>();
@@ -76,8 +77,11 @@ public class CardDecks {
     public static final CardDeck NEON_RED = register(Charta.id("neon/red"), CardDeck.simple(Rarity.UNCOMMON, false, Charta.id("neon"), Charta.id("neon/red")));
     public static final CardDeck NEON_YELLOW = register(Charta.id("neon/yellow"), CardDeck.simple(Rarity.UNCOMMON, false, Charta.id("neon"), Charta.id("neon/yellow")));
 
-    public static final CardDeck FUN_INVERTED = register(Charta.id("fun_inverted"), CardDeck.fun(Rarity.RARE, false, Charta.id("fun_inverted"), Charta.id("fun_inverted")));
-    public static final CardDeck FUN_CLASSIC = register(Charta.id("fun_classic"), CardDeck.fun(Rarity.RARE, false, Charta.id("fun_classic"), Charta.id("fun_classic")));
+    public static final CardDeck FUN_INVERTED = register(Charta.id("fun_inverted"), CardDeck.fun(Rarity.UNCOMMON, false, Charta.id("fun_inverted"), Charta.id("fun_inverted")));
+    public static final CardDeck FUN_CLASSIC = register(Charta.id("fun_classic"), CardDeck.fun(Rarity.UNCOMMON, false, Charta.id("fun_classic"), Charta.id("fun_classic")));
+
+    public static final CardDeck FUN_NEON = register(Charta.id("fun_neon"), CardDeck.fun(Rarity.RARE, false, Charta.id("fun_neon"), Charta.id("fun_neon")));
+    public static final CardDeck FUN_MINIMAL_NEON = register(Charta.id("fun_minimal_neon"), CardDeck.fun(Rarity.RARE, false, Charta.id("fun_neon"), Charta.id("fun_minimal_neon"), Charta.id("fun_minimal_neon")));
 
     public static final CardDeck METALS_COPPER = register(Charta.id("metals/copper"), CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("metals/copper"), Charta.id("metals/copper")));
     public static final CardDeck METALS_IRON = register(Charta.id("metals/iron"), CardDeck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("metals/iron"), Charta.id("metals/iron")));

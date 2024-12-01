@@ -1,7 +1,6 @@
 package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.utils.CardPlayerHead;
-import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -14,8 +13,8 @@ import java.util.concurrent.CompletableFuture;
 public class AutoPlayer implements CardPlayer {
 
     private final Random random = new Random();
-    private final TransparentLinkedList<Card> hand = new TransparentLinkedList<>();
-    private CompletableFuture<Card> play = new CompletableFuture<>();
+    private final GameSlot hand = new GameSlot();
+    private CompletableFuture<CardPlay> play = new CompletableFuture<>();
     private int playAge = 0;
 
     protected final float intelligence;
@@ -25,17 +24,17 @@ public class AutoPlayer implements CardPlayer {
     }
 
     @Override
-    public TransparentLinkedList<Card> getHand() {
+    public GameSlot getHand() {
         return hand;
     }
 
     @Override
-    public CompletableFuture<Card> getPlay(CardGame<?> game) {
+    public CompletableFuture<CardPlay> getPlay(CardGame<?> game) {
         return play;
     }
 
     @Override
-    public void setPlay(CompletableFuture<Card> play) {
+    public void setPlay(CompletableFuture<CardPlay> play) {
         this.play = play;
         this.playAge = 0;
     }
@@ -46,8 +45,8 @@ public class AutoPlayer implements CardPlayer {
             int threshold = (int) Mth.lerp(intelligence, 50, 20);
             threshold += random.nextInt(-5, 40);
             if(playAge > threshold) {
-                Card card = game.getBestCard(this);
-                play.complete(card);
+                CardPlay cardPlay = game.getBestPlay(this);
+                play.complete(cardPlay);
             }else{
                 playAge++;
             }

@@ -5,10 +5,7 @@ import dev.lucaargolo.charta.block.CardTableBlock;
 import dev.lucaargolo.charta.block.GameChairBlock;
 import dev.lucaargolo.charta.block.SeatBlock;
 import dev.lucaargolo.charta.entity.SeatEntity;
-import dev.lucaargolo.charta.game.CardDeck;
-import dev.lucaargolo.charta.game.CardGame;
-import dev.lucaargolo.charta.game.CardGames;
-import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.item.CardDeckItem;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.network.GameSlotCompletePayload;
@@ -16,7 +13,6 @@ import dev.lucaargolo.charta.network.GameSlotPositionPayload;
 import dev.lucaargolo.charta.network.GameSlotResetPayload;
 import dev.lucaargolo.charta.network.GameStartPayload;
 import dev.lucaargolo.charta.utils.CardImage;
-import dev.lucaargolo.charta.utils.GameSlot;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -70,7 +66,7 @@ public class CardTableBlockEntity extends BlockEntity {
         PY, PX_PY, PX, PX_NY, NY, NX_XY, NX, NX_PY
     };
 
-    private final List<GameSlot> trackedGameSlots = new ArrayList<>();
+    private final List<GameSlot> trackedSlots = new ArrayList<>();
     private final Set<Integer> dirtySlotCards = new HashSet<>();
     private final Set<Integer> dirtySlotPositions = new HashSet<>();
 
@@ -96,7 +92,7 @@ public class CardTableBlockEntity extends BlockEntity {
         return game;
     }
 
-    public Component startGame(@Nullable ResourceLocation gameId) {
+    public Component startGame(@Nullable ResourceLocation gameId, byte[] options) {
         CardDeck deck = getDeck();
         if(deck != null) {
             if(gameId != null) {
@@ -104,6 +100,7 @@ public class CardTableBlockEntity extends BlockEntity {
                 CardGames.CardGameFactory<?> factory = CardGames.getGame(gameId);
                 if(factory != null) {
                     CardGame<?> game = factory.create(players, this.getDeck());
+                    game.setOptions(options);
                     if(CardGame.canPlayGame(game, this.getDeck())) {
                         if (players.size() >= game.getMinPlayers()) {
                             if (players.size() <= game.getMaxPlayers()) {
@@ -114,16 +111,15 @@ public class CardTableBlockEntity extends BlockEntity {
                                         PacketDistributor.sendToPlayer(serverPlayer, new GameStartPayload());
                                     }
                                 }
-                                this.resetGameSlots();
+                                this.resetSlots();
                                 this.game = game;
                                 this.game.startGame();
                                 this.game.runGame();
-                                int index = 0;
-                                for(GameSlot slot : this.game.getGameSlots()) {
+                                for(GameSlot slot : this.game.getSlots()) {
                                     slot.setX(slot.getX() + centerOffset.x * 160f);
                                     slot.setY(slot.getY() + centerOffset.y * 160f);
-                                    slot.setup(this, index++);
-                                    addGameSlot(slot);
+                                    slot.setParent(this);
+                                    addSlot(slot);
                                 }
                                 for(CardPlayer player : players) {
                                     LivingEntity entity = player.getEntity();
@@ -151,9 +147,14 @@ public class CardTableBlockEntity extends BlockEntity {
                                                 case WEST -> 160f - 147.5f - (160f * offset.z) + (CardImage.WIDTH + CardImage.WIDTH/10f);
                                                 default -> 0;
                                             };
-                                            GameSlot slot = new GameSlot(game.getCensoredHand(player), x, y, 0f, angle, direction.getClockWise());
-                                            slot.setup(this, index++);
-                                            addGameSlot(slot);
+                                            GameSlot slot = game.getCensoredHand(player);
+                                            slot.setX(x);
+                                            slot.setY(y);
+                                            slot.setAngle(angle);
+                                            slot.setStackDirection(direction.getClockWise());
+                                            slot.setParent(this);
+                                            slot.setIndex(this.getSlotCount());
+                                            addSlot(slot);
                                         }
                                     }
                                     player.openScreen(this.game, this.worldPosition, deck);
@@ -215,7 +216,7 @@ public class CardTableBlockEntity extends BlockEntity {
 
     @Override
     public void handleUpdateTag(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider lookupProvider) {
-        this.resetGameSlots();
+        this.resetSlots();
         super.handleUpdateTag(tag, lookupProvider);
     }
 
@@ -240,34 +241,29 @@ public class CardTableBlockEntity extends BlockEntity {
         setChanged();
     }
 
-    public GameSlot getGameSlot(int index) {
-        return this.trackedGameSlots.get(index);
+    public GameSlot getSlot(int index) {
+        return this.trackedSlots.get(index);
     }
 
-    public void addGameSlot(GameSlot slot) {
-        this.dirtySlotCards.add(this.getGameSlotCount());
-        this.trackedGameSlots.add(slot);
+    public void addSlot(GameSlot slot) {
+        this.dirtySlotCards.add(this.getSlotCount());
+        this.trackedSlots.add(slot);
     }
 
-    public void setGameSlot(int index, GameSlot slot) {
-        this.trackedGameSlots.set(index, slot);
-        this.dirtySlotCards.add(index);
-    }
-
-    public void setGameSlotDirty(int index, boolean cards) {
+    public void setSlotDirty(int index, boolean cards) {
         if (cards)
             this.dirtySlotCards.add(index);
         else
             this.dirtySlotPositions.add(index);
     }
 
-    public int getGameSlotCount() {
-        return this.trackedGameSlots.size();
+    public int getSlotCount() {
+        return this.trackedSlots.size();
     }
 
-    public void resetGameSlots() {
-        this.trackedGameSlots.forEach(GameSlot::clear);
-        this.trackedGameSlots.clear();
+    public void resetSlots() {
+        this.trackedSlots.forEach(GameSlot::clear);
+        this.trackedSlots.clear();
         this.dirtySlotCards.clear();
         this.dirtySlotPositions.clear();
     }
@@ -357,7 +353,7 @@ public class CardTableBlockEntity extends BlockEntity {
         Iterator<Integer> updateIterator = blockEntity.dirtySlotCards.iterator();
         while (updateIterator.hasNext()) {
             int index = updateIterator.next();
-            GameSlot slot = blockEntity.trackedGameSlots.get(index);
+            GameSlot slot = blockEntity.trackedSlots.get(index);
             PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotCompletePayload(pos, index, slot));
             blockEntity.dirtySlotPositions.remove(index);
             updateIterator.remove();
@@ -365,7 +361,7 @@ public class CardTableBlockEntity extends BlockEntity {
         updateIterator = blockEntity.dirtySlotPositions.iterator();
         while (updateIterator.hasNext()) {
             int index = updateIterator.next();
-            GameSlot slot = blockEntity.trackedGameSlots.get(index);
+            GameSlot slot = blockEntity.trackedSlots.get(index);
             PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotPositionPayload(pos, index, slot.getX(), slot.getY(), slot.getZ(), slot.getAngle()));
             updateIterator.remove();
         }
@@ -388,7 +384,7 @@ public class CardTableBlockEntity extends BlockEntity {
                 game.tick();
             }else{
                 PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotResetPayload(pos));
-                blockEntity.resetGameSlots();
+                blockEntity.resetSlots();
                 blockEntity.game = null;
             }
         }

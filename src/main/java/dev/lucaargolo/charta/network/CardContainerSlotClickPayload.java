@@ -1,9 +1,9 @@
 package dev.lucaargolo.charta.network;
 
-import com.google.common.collect.ImmutableList;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
@@ -35,14 +35,14 @@ public record CardContainerSlotClickPayload(int containerId, int slotId, int car
             if(player instanceof LivingEntityMixed mixed && player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
                 CardPlayer cardPlayer = mixed.charta_getCardPlayer();
                 CardSlot<?> slot = cardMenu.getCardSlot(payload.slotId);
-                ImmutableList<Card> carriedCards = cardMenu.getCarriedCards();
+                GameSlot carriedCards = cardMenu.getCarriedCards();
                 if(carriedCards.isEmpty() && slot.canRemoveCard(cardPlayer)) {
                     Card lastCard = slot.removeCard(payload.cardId);
-                    cardMenu.setCarriedCards(ImmutableList.of(lastCard));
+                    cardMenu.setCarriedCards(GameSlot.of(lastCard));
                     slot.onRemove(cardPlayer, lastCard);
-                }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards) && slot.insertCards(carriedCards, payload.cardId)) {
-                    cardMenu.setCarriedCards(ImmutableList.of());
-                    for(Card card : carriedCards) {
+                }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards.getCards()) && slot.insertCards(carriedCards, payload.cardId)) {
+                    cardMenu.setCarriedCards(new GameSlot());
+                    for(Card card : carriedCards.getCards()) {
                         slot.onInsert(cardPlayer, card);
                     }
                 }

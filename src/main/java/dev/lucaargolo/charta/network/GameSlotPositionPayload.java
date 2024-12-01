@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
-import dev.lucaargolo.charta.utils.GameSlot;
+import dev.lucaargolo.charta.game.GameSlot;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -41,9 +41,7 @@ public record GameSlotPositionPayload(BlockPos pos, int index, float x, float y,
     }
 
     public static void handleClient(GameSlotPositionPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            updateGameSlot(payload);
-        });
+        context.enqueueWork(() -> updateGameSlot(payload));
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -52,7 +50,7 @@ public record GameSlotPositionPayload(BlockPos pos, int index, float x, float y,
         Level level = minecraft.level;
         if(level != null) {
             level.getBlockEntity(payload.pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
-                GameSlot slot = cardTable.getGameSlot(payload.index);
+                GameSlot slot = cardTable.getSlot(payload.index);
                 slot.setX(payload.x);
                 slot.setY(payload.y);
                 slot.setZ(payload.z);

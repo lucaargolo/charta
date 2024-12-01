@@ -1,12 +1,8 @@
 package dev.lucaargolo.charta.mixin;
 
 import com.mojang.authlib.GameProfile;
-import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardDeck;
-import dev.lucaargolo.charta.game.CardGame;
-import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
-import dev.lucaargolo.charta.utils.TransparentLinkedList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
@@ -26,24 +22,24 @@ import java.util.concurrent.CompletableFuture;
 public abstract class ServerPlayerMixin extends Player implements LivingEntityMixed {
 
     @Unique
-    private final TransparentLinkedList<Card> charta_hand = new TransparentLinkedList<>();
+    private final GameSlot charta_hand = new GameSlot();
     @Unique
-    private CompletableFuture<Card> charta_play = new CompletableFuture<>();
+    private CompletableFuture<CardPlay> charta_play = new CompletableFuture<>();
     @Unique
     private final CardPlayer charta_cardPlayer = new CardPlayer() {
 
         @Override
-        public TransparentLinkedList<Card> getHand() {
+        public GameSlot getHand() {
             return charta_hand;
         }
 
         @Override
-        public CompletableFuture<Card> getPlay(CardGame<?> game) {
+        public CompletableFuture<CardPlay> getPlay(CardGame<?> game) {
             return charta_play;
         }
 
         @Override
-        public void setPlay(CompletableFuture<Card> play) {
+        public void setPlay(CompletableFuture<CardPlay> play) {
             charta_play = play;
         }
 

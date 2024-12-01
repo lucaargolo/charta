@@ -40,7 +40,8 @@ public class CardTableScreen extends Screen {
             boolean tooManyPlayers = players.length > game.getMaxPlayers();
             Component name = Component.translatable(gameId.toLanguageKey());
             Button widget = Button.builder(name, button -> {
-                PacketDistributor.sendToServer(new CardTableSelectGamePayload(pos, gameId));
+                //TODO: Option config system.
+                PacketDistributor.sendToServer(new CardTableSelectGamePayload(pos, gameId, new byte[] {}));
                 onClose();
             }).bounds(width/2 - 80, height/2 - 80 +counter.get()*25, 160, 20).build();
             widget.active = !(invalidDeck || notEnoughPlayers || tooManyPlayers);
