@@ -1,8 +1,8 @@
-package dev.lucaargolo.charta.game;
+package dev.lucaargolo.charta.game.crazyeights;
 
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
+import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
-import dev.lucaargolo.charta.menu.CrazyEightsMenu;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.ChatFormatting;

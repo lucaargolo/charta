@@ -1,14 +1,13 @@
-package dev.lucaargolo.charta.client.gui.screens;
+package dev.lucaargolo.charta.game.fun;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.client.gui.screens.CardMenuScreen;
 import dev.lucaargolo.charta.game.CardPlayer;
-import dev.lucaargolo.charta.game.FunGame;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.CardSlot;
-import dev.lucaargolo.charta.menu.FunMenu;
 import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
 import dev.lucaargolo.charta.network.LastFunPayload;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;

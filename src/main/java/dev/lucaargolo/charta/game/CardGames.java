@@ -2,6 +2,8 @@ package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.game.crazyeights.CrazyEightsGame;
+import dev.lucaargolo.charta.game.fun.FunGame;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;

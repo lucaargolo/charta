@@ -1,10 +1,9 @@
-package dev.lucaargolo.charta.client.gui.screens;
+package dev.lucaargolo.charta.game.crazyeights;
 
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.client.gui.screens.CardMenuScreen;
 import dev.lucaargolo.charta.game.CardPlayer;
-import dev.lucaargolo.charta.game.CrazyEightsGame;
 import dev.lucaargolo.charta.game.Suit;
-import dev.lucaargolo.charta.menu.CrazyEightsMenu;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;

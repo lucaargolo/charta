@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.client.gui.screens.FunScreen;
-import dev.lucaargolo.charta.menu.FunMenu;
+import dev.lucaargolo.charta.game.fun.FunMenu;
+import dev.lucaargolo.charta.game.fun.FunScreen;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;

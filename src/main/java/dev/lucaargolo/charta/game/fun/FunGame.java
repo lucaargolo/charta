@@ -1,9 +1,9 @@
-package dev.lucaargolo.charta.game;
+package dev.lucaargolo.charta.game.fun;
 
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
+import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.item.CardDeckItem;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
-import dev.lucaargolo.charta.menu.FunMenu;
 import dev.lucaargolo.charta.network.LastFunPayload;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
@@ -32,9 +32,9 @@ public class FunGame extends CardGame<FunGame> {
     private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.empty(), Component.empty());
     private final GameOption.Bool STACK_SAME_COLOR_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.empty(), Component.empty());
     private final GameOption.Bool STACK_PLUS4_ON_PLUS2 = new GameOption.Bool(true, Component.empty(), Component.empty());
-    private final GameOption.Bool STACK_PLUS4_ON_PLUS4 = new GameOption.Bool(true, Component.empty(), Component.empty());
-    private final GameOption.Bool STACK_SAME_COLOR_PLUS2_ON_PLUS4 = new GameOption.Bool(true, Component.empty(), Component.empty());
-    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS4 = new GameOption.Bool(true, Component.empty(), Component.empty());
+    private final GameOption.Bool STACK_PLUS4_ON_PLUS4 = new GameOption.Bool(false, Component.empty(), Component.empty());
+    private final GameOption.Bool STACK_SAME_COLOR_PLUS2_ON_PLUS4 = new GameOption.Bool(false, Component.empty(), Component.empty());
+    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS4 = new GameOption.Bool(false, Component.empty(), Component.empty());
 
     private final GameSlot playPile;
     private final GameSlot drawPile;

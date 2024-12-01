@@ -1,6 +1,8 @@
 package dev.lucaargolo.charta.menu;
 
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.game.crazyeights.CrazyEightsMenu;
+import dev.lucaargolo.charta.game.fun.FunMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;

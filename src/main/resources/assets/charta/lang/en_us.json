@@ -218,7 +218,7 @@
   "deck.charta.gems.amethyst": "Amethyst Deck",
   "deck.charta.gems.sapphire": "Sapphire Deck",
 
-  "suit.charta.unknown": "????",
+  "suit.charta.unknown": "§f????",
 
   "suit.charta.spades": "Spades",
   "suit.charta.hearts": "Hearts",
@@ -230,7 +230,7 @@
   "suit.charta.green": "Green",
   "suit.charta.blue": "Blue",
 
-  "card.charta.unknown": "????",
+  "card.charta.unknown": "§f????",
 
   "card.charta.spades.ace": "Ace of Spades",
   "card.charta.spades.two": "Two of Spades",
