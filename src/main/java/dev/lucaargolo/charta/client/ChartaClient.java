@@ -40,16 +40,14 @@ import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
 public class ChartaClient {
 
     public static final LinkedList<Triple<Component, Integer, Component>> LOCAL_HISTORY = new LinkedList<>();
+    public static final HashMap<ResourceLocation, byte[]> LOCAL_OPTIONS = new HashMap<>();
     private static final ResourceLocation BLUR_LOCATION = Charta.id("shaders/post/blur.json");
 
     private static RenderTarget glowRenderTarget;

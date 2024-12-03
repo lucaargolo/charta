@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class FunMenu extends AbstractCardMenu<FunGame> {
 
-    private final FunGame game;
     private final DrawSlot<FunGame> drawSlot;
 
     private int canDoLast = 0;
@@ -55,8 +54,7 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
     }
 
     public FunMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
-        super(ModMenus.FUN.get(), containerId, inventory, access, deck);
-        this.game = CardGames.getGameForMenu(CardGames.FUN, access, deck, players, options);
+        super(ModMenus.FUN.get(), containerId, inventory, access, deck, players, options);
 
         this.addTopPreview(players);
         //Draw pile
@@ -114,8 +112,8 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
     }
 
     @Override
-    public FunGame getGame() {
-        return this.game;
+    public CardGames.Factory<FunGame> getGameFactory() {
+        return CardGames.FUN;
     }
 
     @Override

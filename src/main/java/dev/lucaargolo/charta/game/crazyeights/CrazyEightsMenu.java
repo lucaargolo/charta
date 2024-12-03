@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
-    private final CrazyEightsGame game;
     private final DrawSlot<CrazyEightsGame> drawSlot;
 
     private final ContainerData data = new ContainerData() {
@@ -45,8 +44,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     }
 
     public CrazyEightsMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
-        super(ModMenus.CRAZY_EIGHTS.get(), containerId, inventory, access, deck);
-        this.game = CardGames.getGameForMenu(CardGames.CRAZY_EIGHTS, access, deck, players, options);
+        super(ModMenus.CRAZY_EIGHTS.get(), containerId, inventory, access, deck, players, options);
 
         this.addTopPreview(players);
         //Draw pile
@@ -88,8 +86,8 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     }
 
     @Override
-    public CrazyEightsGame getGame() {
-        return this.game;
+    public CardGames.Factory<CrazyEightsGame> getGameFactory() {
+        return CardGames.CRAZY_EIGHTS;
     }
 
     @Override

@@ -56,7 +56,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
                 for (Card card : slot.getCards()) {
                     int index = i;
                     CardSlot<G> childCardSlot = new CardSlot<>(
-                        this.parent.getGame(),
+                        this.parent.getMenu().getGame(),
                         g -> new GameSlot(List.of(card)),
                         cardSlot.x + offset * i,
                         cardSlot.y,

@@ -28,13 +28,13 @@ public class FunGame extends CardGame<FunGame> {
 
     public static final int LAST_COOLDOWN = 30;
 
-    private final GameOption.Number LAST_DRAW_AMOUNT = new GameOption.Number(2, 0, 6, Component.empty(), Component.empty());
-    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.empty(), Component.empty());
-    private final GameOption.Bool STACK_SAME_COLOR_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.empty(), Component.empty());
-    private final GameOption.Bool STACK_PLUS4_ON_PLUS2 = new GameOption.Bool(true, Component.empty(), Component.empty());
-    private final GameOption.Bool STACK_PLUS4_ON_PLUS4 = new GameOption.Bool(false, Component.empty(), Component.empty());
-    private final GameOption.Bool STACK_SAME_COLOR_PLUS2_ON_PLUS4 = new GameOption.Bool(false, Component.empty(), Component.empty());
-    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS4 = new GameOption.Bool(false, Component.empty(), Component.empty());
+    private final GameOption.Number LAST_DRAW_AMOUNT = new GameOption.Number(2, 0, 6, Component.translatable("charta.rules.last_draw_amount"), Component.translatable("charta.rules.last_draw_amount.description"));
+    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("charta.rules.stack_any_plus2_on_plus2"), Component.translatable("charta.rules.stack_any_plus2_on_plus2.description"));
+    private final GameOption.Bool STACK_SAME_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("charta.rules.stack_same_plus2_on_plus2"), Component.translatable("charta.rules.stack_same_plus2_on_plus2.description"));
+    private final GameOption.Bool STACK_PLUS4_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("charta.rules.stack_plus4_on_plus2"), Component.translatable("charta.rules.stack_plus4_on_plus2.description"));
+    private final GameOption.Bool STACK_PLUS4_ON_PLUS4 = new GameOption.Bool(false, Component.translatable("charta.rules.stack_plus4_on_plus4"), Component.translatable("charta.rules.stack_plus4_on_plus4.description"));
+    private final GameOption.Bool STACK_SAME_PLUS2_ON_PLUS4 = new GameOption.Bool(false, Component.translatable("charta.rules.stack_same_plus2_on_plus4"), Component.translatable("charta.rules.stack_same_plus2_on_plus4.description"));
+    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS4 = new GameOption.Bool(false, Component.translatable("charta.rules.stack_any_plus2_on_plus4"), Component.translatable("charta.rules.stack_any_plus2_on_plus4.description"));
 
     private final GameSlot playPile;
     private final GameSlot drawPile;
@@ -72,10 +72,10 @@ public class FunGame extends CardGame<FunGame> {
         return List.of(
             LAST_DRAW_AMOUNT,
             STACK_ANY_PLUS2_ON_PLUS2,
-            STACK_SAME_COLOR_PLUS2_ON_PLUS2,
+            STACK_SAME_PLUS2_ON_PLUS2,
             STACK_PLUS4_ON_PLUS2,
             STACK_PLUS4_ON_PLUS4,
-            STACK_SAME_COLOR_PLUS2_ON_PLUS4,
+            STACK_SAME_PLUS2_ON_PLUS4,
             STACK_ANY_PLUS2_ON_PLUS4
         );
     }
@@ -366,9 +366,9 @@ public class FunGame extends CardGame<FunGame> {
                 //If the player didn't start drawing, they can stack another plus card if the rules allow it.
                 boolean isPlus4 = lastCard.getRank() == Rank.JOKER;
                 if (isPlus4) {
-                    return (STACK_PLUS4_ON_PLUS4.get() && card.getRank() == Rank.JOKER) || (STACK_ANY_PLUS2_ON_PLUS4.get() && card.getRank() == Rank.KING) || (STACK_SAME_COLOR_PLUS2_ON_PLUS4.get() && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
+                    return (STACK_PLUS4_ON_PLUS4.get() && card.getRank() == Rank.JOKER) || (STACK_ANY_PLUS2_ON_PLUS4.get() && card.getRank() == Rank.KING) || (STACK_SAME_PLUS2_ON_PLUS4.get() && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
                 } else {
-                    return (STACK_PLUS4_ON_PLUS2.get() && card.getRank() == Rank.JOKER) || (STACK_ANY_PLUS2_ON_PLUS2.get() && card.getRank() == Rank.KING) || (STACK_SAME_COLOR_PLUS2_ON_PLUS2.get() && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
+                    return (STACK_PLUS4_ON_PLUS2.get() && card.getRank() == Rank.JOKER) || (STACK_ANY_PLUS2_ON_PLUS2.get() && card.getRank() == Rank.KING) || (STACK_SAME_PLUS2_ON_PLUS2.get() && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
                 }
             }
         }

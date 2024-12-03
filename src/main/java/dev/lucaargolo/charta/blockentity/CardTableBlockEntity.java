@@ -97,10 +97,10 @@ public class CardTableBlockEntity extends BlockEntity {
         if(deck != null) {
             if(gameId != null) {
                 List<CardPlayer> players = this.getOrderedPlayers();
-                CardGames.CardGameFactory<?> factory = CardGames.getGame(gameId);
+                CardGames.Factory<?> factory = CardGames.getGame(gameId);
                 if(factory != null) {
                     CardGame<?> game = factory.create(players, this.getDeck());
-                    game.setOptions(options);
+                    game.setRawOptions(options);
                     if(CardGame.canPlayGame(game, this.getDeck())) {
                         if (players.size() >= game.getMinPlayers()) {
                             if (players.size() <= game.getMaxPlayers()) {

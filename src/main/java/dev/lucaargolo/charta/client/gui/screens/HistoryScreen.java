@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
+import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -32,9 +33,8 @@ public class HistoryScreen extends Screen {
         widget = this.addRenderableWidget(new HistoryWidget(minecraft, width, height-60, 30));
         ChartaClient.LOCAL_HISTORY.forEach(triple -> widget.addEntry(new Play(triple)));
         widget.setClampedScrollAmount(Double.MAX_VALUE);
-        this.addRenderableWidget(new Button.Builder(Component.literal("X"), b -> {
-            this.onClose();
-        }).bounds(5, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.go_back"))).build());
+        Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
+        this.addRenderableWidget(new Button.Builder(back, b -> this.onClose()).bounds(5, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.go_back"))).build());
     }
 
     @Override

@@ -49,7 +49,7 @@ public class CardDeckItem extends Item {
     @OnlyIn(Dist.CLIENT)
     private static void openScreen(CardDeck deck) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.setScreen(new DeckScreen(deck));
+        minecraft.setScreen(new DeckScreen(null, deck));
     }
 
     @Override

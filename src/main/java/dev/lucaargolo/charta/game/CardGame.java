@@ -74,7 +74,18 @@ public abstract class CardGame<G extends CardGame<G>> {
 
     public abstract List<GameOption<?>> getOptions();
 
-    public void setOptions(byte[] options) {
+    public final byte[] getRawOptions() {
+        List<GameOption<?>> options = this.getOptions();
+        byte[] byteArray = new byte[options.size()];
+
+        for (int i = 0; i < options.size(); i++) {
+            byteArray[i] = options.get(i).getValue();
+        }
+
+        return byteArray;
+    }
+
+    public void setRawOptions(byte[] options) {
         List<GameOption<?>> o = this.getOptions();
         for(int i = 0; i < o.size(); i++) {
             if(i < options.length) {
@@ -242,14 +253,4 @@ public abstract class CardGame<G extends CardGame<G>> {
         return cardGame.getDeckPredicate().test(cardDeck);
     }
 
-    protected final byte[] getRawOptions() {
-        List<GameOption<?>> options = this.getOptions();
-        byte[] byteArray = new byte[options.size()];
-
-        for (int i = 0; i < options.size(); i++) {
-            byteArray[i] = options.get(i).getValue();
-        }
-
-        return byteArray;
-    }
 }

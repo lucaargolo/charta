@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 
 public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
 
-    private final GameOption.Number AVAILABLE_DRAW_AMOUNT = new GameOption.Number(3, 1, 5, Component.empty(), Component.empty());
+    private final GameOption.Number AVAILABLE_DRAWS = new GameOption.Number(3, 1, 5, Component.translatable("charta.rules.available_draws"), Component.translatable("charta.rules.available_draws.description"));
 
     private final GameSlot playPile;
     private final GameSlot drawPile;
@@ -31,7 +31,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
 
     public CrazyEightsGame(List<CardPlayer> players, CardDeck deck) {
         super(players, deck);
-        this.drawsLeft = AVAILABLE_DRAW_AMOUNT.get();
+        this.drawsLeft = AVAILABLE_DRAWS.get();
 
         this.drawPile = addSlot(new GameSlot(new LinkedList<>(), CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f - 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0));
         this.playPile = addSlot(new GameSlot(new LinkedList<>(), CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f + 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0));
@@ -39,7 +39,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
 
     @Override
     public List<GameOption<?>> getOptions() {
-        return List.of(AVAILABLE_DRAW_AMOUNT);
+        return List.of(AVAILABLE_DRAWS);
     }
 
     @Override
@@ -211,7 +211,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
     }
 
     public void nextPlayerAndRunGame() {
-        drawsLeft = AVAILABLE_DRAW_AMOUNT.get();
+        drawsLeft = AVAILABLE_DRAWS.get();
         currentPlayer = getNextPlayer();
         table(Component.translatable("charta.message.its_player_turn", currentPlayer.getColoredName()));
         runGame();

@@ -25,6 +25,8 @@ import java.util.function.Supplier;
 
 public class CardDeck {
 
+    public static final CardDeck EMPTY = new CardDeck(Rarity.COMMON, false, List.of(), s -> Charta.MISSING_SUIT, s -> "suit.charta.unknown", c -> Charta.MISSING_CARD, c -> "card.charta.unknown", () -> Charta.MISSING_DECK, () -> "deck.charta.unknown");
+
     public static final StreamCodec<ByteBuf, CardDeck> STREAM_CODEC = ExpandedStreamCodec.composite(
         Rarity.STREAM_CODEC,
         CardDeck::getRarity,

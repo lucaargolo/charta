@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
+import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.gui.components.CardWidget;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardDeck;
@@ -8,6 +9,9 @@ import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import dev.lucaargolo.charta.utils.HoverableRenderable;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -19,20 +23,28 @@ import java.util.stream.Collectors;
 
 public class DeckScreen extends CardScreen implements HoverableRenderable {
 
+    private final Screen parent;
+
     private final CardDeck deck;
     private final Set<Suit> suits;
 
     private int headerOffset = 10;
     private int footerOffset = 10;
 
-    public DeckScreen(CardDeck deck) {
+    public DeckScreen(@Nullable Screen parent, CardDeck deck) {
         super(deck.getName());
+        this.parent = parent;
         this.deck = deck;
         this.suits = this.deck.getCards().stream().map(Card::getSuit).collect(Collectors.toSet());
     }
 
     @Override
     protected void init() {
+        if(parent != null) {
+            Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
+            this.addRenderableWidget(new Button.Builder(back, b -> this.onClose()).bounds(5, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.go_back"))).build());
+        }
+
         float cardWidth = CardSlot.getWidth(CardSlot.Type.DEFAULT);
         float maxWidth = width - 60f - cardWidth;
         float maxLeftOffset = cardWidth + cardWidth/10f;
@@ -107,6 +119,13 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
     @Override
     public void scheduleTooltip(Component component) {
         this.setTooltipForNextRenderPass(component);
+    }
+
+    @Override
+    public void onClose() {
+        if(this.minecraft != null) {
+            this.minecraft.setScreen(this.parent);
+        }
     }
 
 }

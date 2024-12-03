@@ -17,12 +17,12 @@ import java.util.Map;
 
 public class CardGames {
 
-    private static final Map<ResourceLocation, CardGameFactory<?>> factories = new HashMap<>();
+    private static final Map<ResourceLocation, Factory<?>> factories = new HashMap<>();
 
-    public static final CardGameFactory<CrazyEightsGame> CRAZY_EIGHTS = register(Charta.id("crazy_eights"), CrazyEightsGame::new);
-    public static final CardGameFactory<FunGame> FUN = register(Charta.id("fun"), FunGame::new);
+    public static final Factory<CrazyEightsGame> CRAZY_EIGHTS = register(Charta.id("crazy_eights"), CrazyEightsGame::new);
+    public static final Factory<FunGame> FUN = register(Charta.id("fun"), FunGame::new);
 
-    public static <G extends CardGame<G>> CardGameFactory<G> register(ResourceLocation location, CardGameFactory<G> factory) {
+    public static <G extends CardGame<G>> Factory<G> register(ResourceLocation location, Factory<G> factory) {
         if(factories.containsKey(location)) {
             throw new IllegalArgumentException("Duplicate key: " + location);
         }else{
@@ -31,17 +31,21 @@ public class CardGames {
         }
     }
 
-    public static Map<ResourceLocation, CardGameFactory<?>> getGames() {
+    public static Map<ResourceLocation, Factory<?>> getGames() {
         return factories;
     }
 
     @Nullable
-    public static CardGameFactory<?> getGame(ResourceLocation gameId) {
+    public static CardGames.Factory<?> getGame(ResourceLocation gameId) {
         return factories.get(gameId);
     }
 
+    public static ResourceLocation getGameId(CardGames.Factory<?> factory) {
+        return factories.entrySet().stream().filter(entry -> entry.getValue() == factory).map(Map.Entry::getKey).findFirst().orElse(Charta.MISSING_GAME);
+    }
+
     @SuppressWarnings({"OptionalGetWithoutIsPresent", "unchecked"})
-    public static <G extends CardGame<G>> G getGameForMenu(CardGameFactory<G> factory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
+    public static <G extends CardGame<G>> G getGameForMenu(Factory<G> factory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
         try{
             return access.evaluate((level, pos) -> level.getBlockEntity(pos, ModBlockEntityTypes.CARD_TABLE.get()).get()).map(table -> (G) table.getGame()).get();
         }catch (Exception e) {
@@ -59,13 +63,25 @@ public class CardGames {
                 cardPlayers.add(player);
             }
             G game = factory.create(cardPlayers, deck);
-            game.setOptions(options);
+            game.setRawOptions(options);
             return game;
         }
     }
 
+    public static <G extends CardGame<G>> boolean areOptionsChanged(Factory<G> factory, G game) {
+        G defaultGame = factory.create(List.of(), CardDeck.EMPTY);
+        for(int i = 0; i < defaultGame.getOptions().size(); i++) {
+            GameOption<?> defaultOption = defaultGame.getOptions().get(i);
+            GameOption<?> modifiedOption = game.getOptions().get(i);
+            if(modifiedOption.getValue() != defaultOption.getValue()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @FunctionalInterface
-    public interface CardGameFactory<G extends CardGame<G>> {
+    public interface Factory<G extends CardGame<G>> {
 
         G create(List<CardPlayer> players, CardDeck deck);
 

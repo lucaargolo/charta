@@ -16,7 +16,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -82,7 +81,6 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
     @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
-        Style style = Style.EMPTY.withFont(Charta.id("minercraftory"));
         int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2)/2 - 65/2;
         int y = height - ((int) CardSlot.getHeight(CardSlot.Type.INVENTORY))/2 - 14;
         int color = menu.canDoLast() ? menu.didntSayLast() ? 0x00FF00 : 0xFF0000 : 0x333333;
@@ -91,7 +89,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
         guiGraphics.blit(TEXTURE, x, y, 161, 0, 65, 18);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        Component text = Component.literal(menu.canDoLast() && lastCooldown > 0 ? Integer.toString(lastCooldown) : "Last!").withStyle(style);
+        Component text = Component.literal(menu.canDoLast() && lastCooldown > 0 ? Integer.toString(lastCooldown) : "Last!").withStyle(Charta.MINERCRAFTORY);
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
@@ -105,7 +103,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
         guiGraphics.blit(TEXTURE, x, y, 161, 0, 65, 18);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        text = Component.literal(menu.getDrawStack() > 0 ? "Draw "+menu.getDrawStack() : "Draw").withStyle(style);
+        text = Component.literal(menu.getDrawStack() > 0 ? "Draw "+menu.getDrawStack() : "Draw").withStyle(Charta.MINERCRAFTORY);
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
@@ -138,16 +136,14 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
 
     @Override
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        Style style = Style.EMPTY.withFont(Charta.id("minercraftory"));
-
-        Component text = Component.literal("Fun").withStyle(style);
+        Component text = Component.literal("Fun").withStyle(Charta.MINERCRAFTORY);
         guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 16, 0xFFFFFFFF);
-        text = Component.literal("Draw").withStyle(style);
+        text = Component.literal("Draw").withStyle(Charta.MINERCRAFTORY);
         guiGraphics.drawString(font, text, imageWidth/4 + 2 - font.width(text)/2, 92, 0xFFFFFFFF);
-        text = Component.literal("Play").withStyle(style);
+        text = Component.literal("Play").withStyle(Charta.MINERCRAFTORY);
         guiGraphics.drawString(font, text, (3*imageWidth)/4 - 2 - font.width(text)/2, 92, 0xFFFFFFFF);
 
-        FunGame game = this.getGame();
+        FunGame game = this.menu.getGame();
         int index = game.getPlayers().indexOf(menu.getCurrentPlayer());
         if(menu.isReversed()) {
             index--;

@@ -142,6 +142,8 @@
   "item.charta.deck": "Deck",
   "item.charta.iron_lead": "Iron Lead",
 
+  "deck.charta.unknown": "§f????",
+
   "deck.charta.standard.black": "Standard Black Deck",
   "deck.charta.standard.red": "Standard Red Deck",
   "deck.charta.standard.blue": "Standard Blue Deck",
@@ -351,6 +353,27 @@
   "card.charta.blue.reverse": "Blue Reverse",
   "card.charta.blue.plus_two": "Blue +2",
 
+  "charta.button.reset": "Reset",
+  "charta.button.save": "Save",
+  "charta.button.start": "Start",
+
+  "charta.rules.available_draws": "Last draw amount",
+  "charta.rules.available_draws.description": "The amount of cards you are able to draw during your round.",
+  "charta.rules.last_draw_amount": "Last draw amount",
+  "charta.rules.last_draw_amount.description": "The amount of cards you have to draw if you're on your last card and someone presses the last button before you.",
+  "charta.rules.stack_any_plus2_on_plus2": "Stack Any +2 on +2",
+  "charta.rules.stack_any_plus2_on_plus2.description": "Controls if players are allowed to stack +2 cards on top of each other, independent of their colors.",
+  "charta.rules.stack_same_plus2_on_plus2": "Stack Same +2 on +2",
+  "charta.rules.stack_same_plus2_on_plus2.description": "Controls if players are allowed to stack +2 cards on top of each other, if they're the same color.",
+  "charta.rules.stack_plus4_on_plus2": "Stack +4 on +2",
+  "charta.rules.stack_plus4_on_plus2.description": "Controls if players are allowed to stack +4 cards on top of +2 cards.",
+  "charta.rules.stack_plus4_on_plus4": "Stack +4 on +4",
+  "charta.rules.stack_plus4_on_plus4.description": "Controls if players are allowed to stack +4 cards on top of other +4 cards.",
+  "charta.rules.stack_same_plus2_on_plus4": "Stack Same +2 on +4",
+  "charta.rules.stack_same_plus2_on_plus4.description": "Controls if players are allowed to stack +2 cards on top of +4 cards, if they're the same color as the one chose by the +4 player.",
+  "charta.rules.stack_any_plus2_on_plus4": "Stack Any +2 on +4",
+  "charta.rules.stack_any_plus2_on_plus4.description": "Controls if players are allowed to stack +2 cards on top of +4 cards, independent of its color.",
+
   "charta.message.put_table_cloth": "You need to put a cloth on this table.",
   "charta.message.not_playing_current": "You're not playing the current game.",
   "charta.message.need_to_be_sat": "You need to be sat in the table to start a game.",
@@ -378,7 +401,6 @@
   "charta.message.dealing_cards": "Dealing cards...",
   "charta.message.next_player": "Next player is %s",
   "charta.message.go_back": "Go back.",
-  "charta.message.open_game_history": "Open game history",
   "charta.message.drew_a_card": "Drew a card",
   "charta.message.piles_shuffled": "Piles shuffled",
   "charta.message.played_a_card": "Played a %s",
@@ -390,6 +412,17 @@
   "charta.message.player_said_last": "%s said last!",
   "charta.message.player_automatically_drew_cards": "%s automatically drew %s card.",
   "charta.message.say_last": "Say last!",
-  "charta.message.draw_all_cards": "Draw all cards."
-
+  "charta.message.draw_all_cards": "Draw all cards.",
+  "charta.message.configure_game": "Configure game options",
+  "charta.message.this_game_options": "%s Options",
+  "charta.message.reset_options": "Reset all options to default",
+  "charta.message.save_options": "Save all options.",
+  "charta.message.start_options": "Start the game with the current options.",
+  "charta.message.original": "Original: %s",
+  "charta.message.current": "Current: %s",
+  "charta.message.custom_options": "This game has custom options!",
+  "charta.message.game_history": "History",
+  "charta.message.game_options": "Options",
+  "charta.message.game_deck": "Card Deck",
+  "charta.message.how_to_play": "How to play"
 }

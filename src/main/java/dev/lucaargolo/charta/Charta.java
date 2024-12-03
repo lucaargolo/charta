@@ -18,10 +18,12 @@ import dev.lucaargolo.charta.resources.CardDeckResource;
 import dev.lucaargolo.charta.resources.CardImageResource;
 import dev.lucaargolo.charta.resources.CardSuitResource;
 import dev.lucaargolo.charta.sound.ModSounds;
+import dev.lucaargolo.charta.utils.PlayerOptionData;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -62,8 +64,13 @@ public class Charta {
     public static final String MOD_ID = "charta";
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    public static final Style SYMBOLS = Style.EMPTY.withFont(Charta.id("symbols"));
+    public static final Style MINERCRAFTORY = Style.EMPTY.withFont(Charta.id("minercraftory"));
+
+    public static final ResourceLocation MISSING_DECK = Charta.id("missing_deck");
     public static final ResourceLocation MISSING_SUIT = Charta.id("missing_suit");
     public static final ResourceLocation MISSING_CARD = Charta.id("missing_card");
+    public static final ResourceLocation MISSING_GAME = Charta.id("missing_game");
 
     public static final CardSuitResource CARD_SUITS = new CardSuitResource();
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
@@ -100,7 +107,7 @@ public class Charta {
             registrar.playToClient(CardDecksPayload.TYPE, CardDecksPayload.STREAM_CODEC, CardDecksPayload::handleClient);
             registrar.playToClient(UpdateCardContainerSlotPayload.TYPE, UpdateCardContainerSlotPayload.STREAM_CODEC, UpdateCardContainerSlotPayload::handleClient);
             registrar.playToClient(UpdateCardContainerCarriedPayload.TYPE, UpdateCardContainerCarriedPayload.STREAM_CODEC, UpdateCardContainerCarriedPayload::handleClient);
-            registrar.playToClient(OpenCardTableScreenPayload.TYPE, OpenCardTableScreenPayload.STREAM_CODEC, OpenCardTableScreenPayload::handleClient);
+            registrar.playToClient(TableScreenPayload.TYPE, TableScreenPayload.STREAM_CODEC, TableScreenPayload::handleClient);
             registrar.playToClient(GameSlotCompletePayload.TYPE, GameSlotCompletePayload.STREAM_CODEC, GameSlotCompletePayload::handleClient);
             registrar.playToClient(GameSlotPositionPayload.TYPE, GameSlotPositionPayload.STREAM_CODEC, GameSlotPositionPayload::handleClient);
             registrar.playToClient(GameSlotResetPayload.TYPE, GameSlotResetPayload.STREAM_CODEC, GameSlotResetPayload::handleClient);
@@ -111,6 +118,7 @@ public class Charta {
             registrar.playToServer(CardTableSelectGamePayload.TYPE, CardTableSelectGamePayload.STREAM_CODEC, CardTableSelectGamePayload::handleServer);
 
             registrar.playBidirectional(LastFunPayload.TYPE, LastFunPayload.STREAM_CODEC, LastFunPayload::handleBoth);
+            registrar.playBidirectional(PlayerOptionsPayload.TYPE, PlayerOptionsPayload.STREAM_CODEC, PlayerOptionsPayload::handleBoth);
         }
 
     }
@@ -176,6 +184,8 @@ public class Charta {
                     new HashMap<>(Charta.DECK_IMAGES.getImages())
                 ));
                 PacketDistributor.sendToPlayer(serverPlayer, new CardDecksPayload(new LinkedHashMap<>(Charta.CARD_DECKS.getDecks())));
+                PlayerOptionData data = serverPlayer.server.overworld().getDataStorage().computeIfAbsent(PlayerOptionData.factory(), "charta_player_options");
+                PacketDistributor.sendToPlayer(serverPlayer, new PlayerOptionsPayload(data.getPlayerOptions(serverPlayer)));
             }
         }
 

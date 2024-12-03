@@ -16,6 +16,8 @@ import java.util.function.Supplier;
 
 public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractContainerMenu {
 
+    protected final G game;
+
     public final NonNullList<CardSlot<G>> cardSlots = NonNullList.create();
     private final NonNullList<GameSlot> lastCardSlots = NonNullList.create();
     private final NonNullList<GameSlot> remoteCardSlots = NonNullList.create();
@@ -59,8 +61,9 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         }
     };
 
-    public AbstractCardMenu(MenuType<?> menuType, int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck) {
+    public AbstractCardMenu(MenuType<?> menuType, int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
         super(menuType, containerId);
+        this.game = CardGames.getGameForMenu(this.getGameFactory(), access, deck, players, options);
         this.inventory = inventory;
         this.player = inventory.player;
         this.access = access;
@@ -109,7 +112,11 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         return deck;
     }
 
-    public abstract G getGame();
+    public abstract CardGames.Factory<G> getGameFactory();
+
+    public G getGame() {
+        return game;
+    }
 
     public GameSlot getCarriedCards() {
         return this.carriedCards;

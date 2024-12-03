@@ -6,12 +6,15 @@ import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class GameOption<T> {
@@ -19,10 +22,11 @@ public abstract class GameOption<T> {
     private final Component title;
     private final Component description;
 
+    @Nullable Consumer<T> consumer;
     private byte value;
 
-    public GameOption(T defaultValue, Component title, Component description) {
-        this.value = toByte(defaultValue);
+    public GameOption(T value, Component title, Component description) {
+        this.value = toByte(value);
         this.title = title;
         this.description = description;
     }
@@ -44,6 +48,8 @@ public abstract class GameOption<T> {
 
     public void set(T value) {
         this.value = toByte(value);
+        if(consumer != null)
+            consumer.accept(value);
     }
 
     public byte getValue() {
@@ -52,10 +58,12 @@ public abstract class GameOption<T> {
 
     public void setValue(byte value) {
         this.value = value;
+        if(consumer != null)
+            consumer.accept(this.get());
     }
 
     @OnlyIn(Dist.CLIENT)
-    public abstract Widget getWidget(Font font, int width, int height);
+    public abstract Widget getWidget(Consumer<T> consumer, Font font, int width, int height, boolean showcase);
 
     @OnlyIn(Dist.CLIENT)
     public static class Widget extends ContainerObjectSelectionList.Entry<Widget> {
@@ -83,6 +91,15 @@ public abstract class GameOption<T> {
             widget.render(guiGraphics, mouseX, mouseY, partialTick);
         }
 
+        @Nullable
+        public Tooltip getTooltip() {
+            return this.widget.getTooltip();
+        }
+
+        public void setTooltip(@Nullable Tooltip tooltip) {
+            this.widget.setTooltip(tooltip);
+        }
+
     }
 
     public static class Bool extends GameOption<Boolean> {
@@ -102,13 +119,19 @@ public abstract class GameOption<T> {
         }
 
         @OnlyIn(Dist.CLIENT)
-        public Widget getWidget(Font font, int width, int height) {
+        public Widget getWidget(Consumer<Boolean> consumer, Font font, int width, int height, boolean showcase) {
             Checkbox.Builder builder = Checkbox.builder(this.getTitle(), font);
             builder.tooltip(Tooltip.create(this.getDescription()));
             builder.maxWidth(width);
             builder.selected(this.get());
             builder.onValueChange((checkbox, value) -> this.set(value));
-            return new Widget(builder.build());
+            Checkbox checkbox = builder.build();
+            this.consumer = b -> {
+                if(b != checkbox.selected()) checkbox.onPress();
+                consumer.accept(this.get());
+            };
+            checkbox.active = !showcase;
+            return new Widget(checkbox);
         }
 
     }
@@ -135,9 +158,15 @@ public abstract class GameOption<T> {
         }
 
         @OnlyIn(Dist.CLIENT)
-        public Widget getWidget(Font font, int width, int height) {
+        public Widget getWidget(Consumer<Integer> consumer, Font font, int width, int height, boolean showcase) {
             Function<Integer, Component> message = (i) -> this.getTitle().copy().append(": ").append(Integer.toString(i));
-            AbstractSliderButton slider = new AbstractSliderButton(0, 0, width, height, message.apply(this.get()), this.get()) {
+            AbstractSliderButton slider = new AbstractSliderButton(0, 0, width, height, message.apply(this.get()), this.get() * (1.0/(max - min))) {
+                private static final ResourceLocation SLIDER_HANDLE_SPRITE = ResourceLocation.withDefaultNamespace("widget/slider_handle");
+
+                @Override
+                protected @NotNull ResourceLocation getHandleSprite() {
+                    return showcase ? SLIDER_HANDLE_SPRITE : super.getHandleSprite();
+                }
 
                 @Override
                 protected void updateMessage() {
@@ -149,7 +178,17 @@ public abstract class GameOption<T> {
                     Number.this.set(Mth.floor(Mth.lerp(this.value, min, max)));
                 }
 
+                @Override
+                protected void renderScrollingString(@NotNull GuiGraphics guiGraphics, @NotNull Font font, int width, int color) {
+                    super.renderScrollingString(guiGraphics, font, width, 16777215 | Mth.ceil(this.alpha * 255.0F) << 24);
+                }
             };
+            slider.setTooltip(Tooltip.create(this.getDescription()));
+            this.consumer = i -> {
+                slider.setValue(i * (1.0/(max - min)));
+                consumer.accept(i);
+            };
+            slider.active = !showcase;
             return new Widget(slider);
         }
 

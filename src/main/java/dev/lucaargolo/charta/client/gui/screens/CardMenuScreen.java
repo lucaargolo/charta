@@ -1,15 +1,15 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
+import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.gui.components.CardSlotWidget;
 import dev.lucaargolo.charta.client.gui.components.CardWidget;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
-import dev.lucaargolo.charta.utils.CardImage;
-import dev.lucaargolo.charta.utils.CardPlayerHead;
-import dev.lucaargolo.charta.utils.HoverableRenderable;
-import dev.lucaargolo.charta.utils.TickableWidget;
+import dev.lucaargolo.charta.utils.*;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -17,8 +17,10 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -28,6 +30,7 @@ import net.minecraft.world.item.DyeColor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,18 +42,23 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
     private HoverableRenderable hoverable = null;
     private CardSlot<G> hoveredCardSlot = null;
     private int hoveredCardId = -1;
+    private final boolean areOptionsChanged;
+
+    private final ChatScreen chatScreen = new ChatScreen("");
+    private boolean prevChatFocused = false;
+    private boolean chatFocused = false;
+
+    private Button optionsButton;
 
     public CardMenuScreen(T menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+        this.areOptionsChanged = CardGames.areOptionsChanged(menu.getGameFactory(), menu.getGame());
     }
 
     public CardDeck getDeck() {
         return menu.getDeck();
     }
 
-    public G getGame() {
-        return menu.getGame();
-    }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -58,7 +66,53 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
             PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, hoveredCardSlot.index, hoveredCardId));
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        if(super.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        return this.chatScreen.mouseClicked(mouseX, chatFocused ? mouseY : mouseY + 25, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if(chatFocused && chatScreen.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
+            return true;
+        }else {
+            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if(this.minecraft != null && this.chatFocused && this.chatScreen.keyPressed(keyCode, scanCode, modifiers)) {
+            if(keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                this.minecraft.setScreen(this);
+                this.chatFocused = false;
+            }
+            if(keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+                this.chatFocused = false;
+            }
+            return true;
+        }else {
+            if(!this.chatFocused) {
+                if (keyCode == GLFW.GLFW_KEY_T) {
+                    this.chatFocused = true;
+                    this.chatScreen.input.setValue("");
+                    return false;
+                } else {
+                    return super.keyPressed(keyCode, scanCode, modifiers);
+                }
+            }else{
+                return false;
+            }
+        }
+    }
+
+    @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        if(this.minecraft != null && this.prevChatFocused && this.chatFocused && this.chatScreen.charTyped(codePoint, modifiers)) {
+            return true;
+        }
+        return super.charTyped(codePoint, modifiers);
     }
 
     @Override
@@ -74,9 +128,33 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
     @Override
     protected void init() {
         super.init();
+        assert minecraft != null;
+        chatScreen.init(minecraft, width, height);
         slotWidgets.clear();
         menu.cardSlots.forEach(slot -> slotWidgets.add(new CardSlotWidget<>(this, slot)));
-        this.addRenderableWidget(new Button.Builder(Component.literal("H"), b -> Minecraft.getInstance().setScreen(new HistoryScreen(this))).bounds(width-25, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.open_game_history"))).build());
+
+        Component rules = Component.literal("\ue90e").withStyle(Charta.SYMBOLS);
+        this.addRenderableWidget(new Button.Builder(rules, b -> {
+
+        }).bounds(5, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.how_to_play"))).build());
+
+        Tooltip tooltip = areOptionsChanged ? new MultiLineTooltip(Component.translatable("charta.message.game_options"), Component.empty(), Component.translatable("charta.message.custom_options").withStyle(ChatFormatting.RED)) : Tooltip.create(Component.translatable("charta.message.game_options"));
+        Component config = Component.literal("\uE8B8").withStyle(Charta.SYMBOLS);
+        optionsButton = this.addRenderableWidget(new Button.Builder(config, b -> {
+            Minecraft.getInstance().setScreen(new OptionsScreen<>(this, BlockPos.ZERO, this.menu.getGame(), CardGames.getGameId(this.menu.getGameFactory()), this.menu.getGameFactory(), true));
+        }).bounds(width-25, 35, 20, 20).tooltip(tooltip).build());
+
+        Component cards = Component.literal("\ue41d").withStyle(Charta.SYMBOLS);
+        this.addRenderableWidget(new Button.Builder(cards, b -> {
+            Minecraft.getInstance().setScreen(new DeckScreen(this, this.getDeck()));
+        }).bounds(width-47, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.game_deck"))).build());
+
+        Component history = Component.literal("\uE889").withStyle(Charta.SYMBOLS);
+        this.addRenderableWidget(new Button.Builder(history, b -> {
+            Minecraft.getInstance().setScreen(new HistoryScreen(this));
+        }).bounds(width-69, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.game_history"))).build());
+
+
     }
 
     public void renderTopBar(@NotNull GuiGraphics guiGraphics) {
@@ -180,6 +258,22 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
 
         this.renderables.clear();
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        if(this.minecraft != null) {
+            if(!chatFocused) {
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0f, -25f, 0f);
+                double chatWidth = this.minecraft.options.chatWidth().get();
+                this.minecraft.options.chatWidth().set(Math.min(chatWidth * 280.0, (width / 2.0) - (imageWidth / 2.0) - 50.0) / 280.0);
+                this.minecraft.gui.getChat().render(guiGraphics, this.minecraft.gui.getGuiTicks(), mouseX, mouseY + 25, false);
+                this.minecraft.options.chatWidth().set(chatWidth);
+                guiGraphics.pose().popPose();
+            }else{
+                this.minecraft.gui.getChat().render(guiGraphics, this.minecraft.gui.getGuiTicks(), mouseX, mouseY, true);
+            }
+        }
+        if(areOptionsChanged && optionsButton != null) {
+            guiGraphics.drawString(font, "!", optionsButton.getX() + 16, optionsButton.getY() + 2, (Util.getMillis() / 1000) % 2 == 0 ? 0xFF0000 : 0xFFFF00);
+        }
         this.renderables.addAll(renderablesBackup);
 
         if(this.hoverable != null) {
@@ -202,6 +296,11 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
         }
         CardScreen.renderGlowBlur(this, guiGraphics, partialTick);
         guiGraphics.pose().popPose();
+
+        if(chatFocused) {
+            this.renderBlurredBackground(partialTick);
+            this.chatScreen.render(guiGraphics, mouseX, mouseY, partialTick);
+        }
     }
 
     @Override
@@ -232,6 +331,7 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
     @Override
     public void containerTick() {
         super.containerTick();
+        this.prevChatFocused = this.chatFocused;
         if(this.minecraft != null) {
             int mouseX = (int) (this.minecraft.mouseHandler.xpos() * (double) this.minecraft.getWindow().getGuiScaledWidth() / (double) this.minecraft.getWindow().getScreenWidth());
             int mouseY = (int) (this.minecraft.mouseHandler.ypos() * (double) this.minecraft.getWindow().getGuiScaledHeight() / (double) this.minecraft.getWindow().getScreenHeight());
