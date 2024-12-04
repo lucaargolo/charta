@@ -6,6 +6,7 @@
   "charta.card": "Card",
   "charta.suits": "Suits",
   "charta.suit": "Suit",
+  "charta.color": "Color",
 
   "charta.game_history": "Game History",
 
@@ -424,8 +425,9 @@
   "message.charta.game_history": "History",
   "message.charta.game_options": "Options",
   "message.charta.game_deck": "Card Deck",
-  "message.charta.how_to_play": "How to play %s",
+  "message.charta.how_to_play": "How to play",
 
   "charta_md:charta.how_to_play_fun": "charta:en_us/how_to_play_fun",
   "charta_md:charta.how_to_play_crazy_eights": "charta:en_us/how_to_play_crazy_eights"
+
 }

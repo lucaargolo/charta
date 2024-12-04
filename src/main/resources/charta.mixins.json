@@ -17,6 +17,7 @@
     "ServerPlayerMixin"
   ],
   "client": [
+    "ChatComponentMixin",
     "EntityRendererMixin",
     "MinecraftMixin"
   ],

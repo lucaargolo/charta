@@ -48,9 +48,9 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
 
         this.addTopPreview(players);
         //Draw pile
-        this.drawSlot = addCardSlot(new DrawSlot<>(this.game, g -> this.game.getSlot(0), 19, 30, () -> this.game.drawsLeft > 0));
+        this.drawSlot = addCardSlot(new DrawSlot<>(this.game, g -> this.game.getSlot(0), 16, 30, () -> this.game.drawsLeft > 0));
         //Play pile
-        addCardSlot(new PlaySlot<>(this.game, g -> this.game.getSlot(1), 84, 30, drawSlot));
+        addCardSlot(new PlaySlot<>(this.game, g -> this.game.getSlot(1), 87, 30, drawSlot));
 
         addCardSlot(new CardSlot<>(this.game, g -> (cardPlayer == g.getCurrentPlayer() && g.isChoosingWild) ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
             @Override

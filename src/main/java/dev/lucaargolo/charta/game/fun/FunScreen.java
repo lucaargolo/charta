@@ -16,7 +16,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -30,8 +29,6 @@ import java.awt.*;
 import java.util.Random;
 
 public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
-
-    private static final ResourceLocation TEXTURE = Charta.id("textures/gui/fun.png");
 
     private int lastCooldown = FunGame.LAST_COOLDOWN;
     private boolean drawAll = false;
@@ -80,14 +77,13 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
 
     @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
         int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2)/2 - 65/2;
         int y = height - ((int) CardSlot.getHeight(CardSlot.Type.INVENTORY))/2 - 14;
         int color = menu.canDoLast() ? menu.didntSayLast() ? 0x00FF00 : 0xFF0000 : 0x333333;
         guiGraphics.fill(x+1, y+1, x+63, y+16, 0xFF000000 + color);
         Vec3 c = Vec3.fromRGB24(color);
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
-        guiGraphics.blit(TEXTURE, x, y, 161, 0, 65, 18);
+        guiGraphics.blit(WIDGETS, x, y, 59, 0, 65, 18);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         Component text = Component.literal(menu.canDoLast() && lastCooldown > 0 ? Integer.toString(lastCooldown) : "Last!").withStyle(Charta.MINERCRAFTORY);
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
@@ -101,7 +97,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         guiGraphics.fill(x+1, y+1, x+63, y+16, 0xFF000000 + color);
         c = Vec3.fromRGB24(color);
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
-        guiGraphics.blit(TEXTURE, x, y, 161, 0, 65, 18);
+        guiGraphics.blit(WIDGETS, x, y, 59, 0, 65, 18);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         text = Component.literal(menu.getDrawStack() > 0 ? "Draw "+menu.getDrawStack() : "Draw").withStyle(Charta.MINERCRAFTORY);
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
@@ -137,11 +133,11 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
     @Override
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         Component text = Component.literal("Fun").withStyle(Charta.MINERCRAFTORY);
-        guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 16, 0xFFFFFFFF);
+        guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 18, 0xFFFFFFFF);
         text = Component.literal("Draw").withStyle(Charta.MINERCRAFTORY);
-        guiGraphics.drawString(font, text, imageWidth/4 + 2 - font.width(text)/2, 92, 0xFFFFFFFF);
+        guiGraphics.drawString(font, text, imageWidth/4 - 1 - font.width(text)/2, 92, 0xFFFFFFFF);
         text = Component.literal("Play").withStyle(Charta.MINERCRAFTORY);
-        guiGraphics.drawString(font, text, (3*imageWidth)/4 - 2 - font.width(text)/2, 92, 0xFFFFFFFF);
+        guiGraphics.drawString(font, text, (3*imageWidth)/4 + 1 - font.width(text)/2, 92, 0xFFFFFFFF);
 
         FunGame game = this.menu.getGame();
         int index = game.getPlayers().indexOf(menu.getCurrentPlayer());
@@ -162,12 +158,12 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 132, 0xFFFFFFFF);
         Vec3 c = Vec3.fromRGB24(color);
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
-        guiGraphics.blit(TEXTURE, imageWidth/2 - 11, 120, 140, menu.isReversed() ? 12 : 0, 21, 12);
+        guiGraphics.blit(WIDGETS, imageWidth/2 - 11, 120, 38, menu.isReversed() ? 12 : 0, 21, 12);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
         Suit suit = menu.getCurrentSuit();
         if(suit != null) {
-            text = Component.translatable("charta.suit");
+            text = Component.translatable("charta.color");
             guiGraphics.drawString(font, text, imageWidth / 2 - font.width(text) / 2, 40, 0xFFFFFFFF);
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(imageWidth / 2f - 10f, 50f, 0f);

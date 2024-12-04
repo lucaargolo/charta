@@ -38,6 +38,8 @@ import java.util.function.Function;
 
 public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCardMenu<G>> extends AbstractContainerScreen<T> implements HoverableRenderable {
 
+    public static final ResourceLocation WIDGETS = Charta.id("textures/gui/widgets.png");
+
     private final List<CardSlotWidget<G>> slotWidgets = new ArrayList<>();
     private HoverableRenderable hoverable = null;
     private CardSlot<G> hoveredCardSlot = null;
@@ -136,7 +138,7 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
         Component rules = Component.literal("\ue90e").withStyle(Charta.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(rules, b -> {
             ResourceLocation gameId = CardGames.getGameId(this.menu.getGameFactory());
-            Minecraft.getInstance().setScreen(new MarkdownScreen(Component.translatable("message.charta.how_to_play", Component.translatable(gameId.toLanguageKey())), this, gameId.getNamespace()+".how_to_play_"+gameId.getPath()));
+            Minecraft.getInstance().setScreen(new MarkdownScreen(Component.translatable("message.charta.how_to_play").append(" ").append(Component.translatable(gameId.toLanguageKey())), this, gameId.getNamespace()+".how_to_play_"+gameId.getPath()));
         }).bounds(5, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.how_to_play"))).build());
 
         Tooltip tooltip = areOptionsChanged ? new MultiLineTooltip(Component.translatable("message.charta.game_options"), Component.empty(), Component.translatable("message.charta.custom_options").withStyle(ChatFormatting.RED)) : Tooltip.create(Component.translatable("message.charta.game_options"));
@@ -155,8 +157,6 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
         this.addRenderableWidget(new Button.Builder(history, b -> {
             Minecraft.getInstance().setScreen(new HistoryScreen(this));
         }).bounds(width-69, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_history"))).build());
-
-
     }
 
     public void renderTopBar(@NotNull GuiGraphics guiGraphics) {
@@ -221,6 +221,10 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
                 this.hoveredCardSlot = slot;
             }
 
+            if(!slot.isExtended() && !slot.isSmall()) {
+                guiGraphics.blit(CardMenuScreen.WIDGETS, leftPos + (int) slot.x, topPos + (int) slot.y, 0, 0, 38, 53);
+            }
+
             if(!slot.isEmpty()) {
                 CardSlotWidget<G> slotWidget = this.slotWidgets.get(k);
                 slotWidget.setPreciseX(slot.x + this.leftPos);
@@ -269,8 +273,6 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
                 this.minecraft.gui.getChat().render(guiGraphics, this.minecraft.gui.getGuiTicks(), mouseX, mouseY + 25, false);
                 this.minecraft.options.chatWidth().set(chatWidth);
                 guiGraphics.pose().popPose();
-            }else{
-                this.minecraft.gui.getChat().render(guiGraphics, this.minecraft.gui.getGuiTicks(), mouseX, mouseY, true);
             }
         }
         if(areOptionsChanged && optionsButton != null) {
