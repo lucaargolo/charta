@@ -28,7 +28,7 @@ public class FunGame extends CardGame<FunGame> {
 
     public static final int LAST_COOLDOWN = 30;
 
-    private final GameOption.Number LAST_DRAW_AMOUNT = new GameOption.Number(2, 0, 6, Component.translatable("button.charta.last_draw_amount"), Component.translatable("rule.charta.last_draw_amount.description"));
+    private final GameOption.Number LAST_DRAW_AMOUNT = new GameOption.Number(2, 0, 6, Component.translatable("rule.charta.last_draw_amount"), Component.translatable("rule.charta.last_draw_amount.description"));
     private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("rule.charta.stack_any_plus2_on_plus2"), Component.translatable("rule.charta.stack_any_plus2_on_plus2.description"));
     private final GameOption.Bool STACK_SAME_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("rule.charta.stack_same_plus2_on_plus2"), Component.translatable("rule.charta.stack_same_plus2_on_plus2.description"));
     private final GameOption.Bool STACK_PLUS4_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("rule.charta.stack_plus4_on_plus2"), Component.translatable("rule.charta.stack_plus4_on_plus2.description"));
@@ -218,7 +218,7 @@ public class FunGame extends CardGame<FunGame> {
                 }
             }else if(!currentPlayer.shouldCompute() || canPlay(currentPlayer, play)) {
                 //Player played a card (Since we already checked in the menu, we don't need to check again if the player is pre computed).]
-                Card card = play.card();
+                Card card = play.cards().getLast();
                 currentPlayer.playSound(ModSounds.CARD_PLAY.get());
                 currentSuit = card.getSuit();
 
@@ -345,7 +345,11 @@ public class FunGame extends CardGame<FunGame> {
 
     @Override
     public boolean canPlay(CardPlayer player, CardPlay play) {
-        Card card = play.card();
+        List<Card> cards = play.cards();
+        if(cards.size() != 1) {
+            return false;
+        }
+        Card card = cards.getLast();
         Card lastCard = playPile.getLast();
 
         if(!isGameReady || lastCard == null) {

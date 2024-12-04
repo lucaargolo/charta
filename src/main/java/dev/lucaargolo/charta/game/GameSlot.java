@@ -64,10 +64,6 @@ public class GameSlot {
         return new GameSlot(new LinkedList<>(slot.cards), slot.x, slot.y, slot.z, slot.angle, slot.stackDirection, slot.maxStack);
     }
 
-    public static GameSlot of(Card card) {
-        return new GameSlot(new LinkedList<>(List.of(card)));
-    }
-
     public void setParent(CardTableBlockEntity parent) {
         this.parent = parent;
     }

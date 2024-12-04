@@ -6,6 +6,7 @@ import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.utils.CardImage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -48,20 +49,40 @@ public class CardSlot<G extends CardGame<G>> {
         return index == -1 ? slot.addAll(collection) : slot.addAll(!slot.isEmpty() ? index % slot.size() : 0, collection);
     }
 
-    public final Card removeCard(int index) {
+    public final List<Card> removeCards(int index) {
         GameSlot slot = getter.apply(game);
-        return index == -1 ? slot.removeLast() : slot.remove(!slot.isEmpty() ? index % slot.size() : 0);
+        if(this.removeAll()) {
+            if (index == -1) {
+                List<Card> cards = slot.stream().toList();
+                slot.clear();
+                return cards;
+            } else {
+                int i = !slot.isEmpty() ? index % slot.size() : 0;
+                List<Card> cards = new ArrayList<>();
+                while (i < slot.size()) {
+                    cards.add(slot.remove(i));
+                }
+                return cards;
+            }
+        }else{
+            Card card = index == -1 ? slot.removeLast() : slot.remove(!slot.isEmpty() ? index % slot.size() : 0);
+            return List.of(card);
+        }
+    }
+    
+    public boolean removeAll() {
+        return true;
     }
 
-    public void onInsert(CardPlayer player, Card card) {
+    public void onInsert(CardPlayer player, List<Card> cards) {
 
     }
 
-    public void onRemove(CardPlayer player, Card card) {
+    public void onRemove(CardPlayer player, List<Card> cards) {
 
     }
 
-    public boolean canInsertCard(CardPlayer player, Iterable<Card> cards) {
+    public boolean canInsertCard(CardPlayer player, List<Card> cards) {
         return true;
     }
 

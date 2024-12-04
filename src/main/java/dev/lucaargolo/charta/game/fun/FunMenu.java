@@ -11,6 +11,8 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class FunMenu extends AbstractCardMenu<FunGame> {
 
     private final DrawSlot<FunGame> drawSlot;
@@ -64,7 +66,7 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
 
         addCardSlot(new CardSlot<>(this.game, g -> (cardPlayer == g.getCurrentPlayer() && g.isChoosingWild) ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
             @Override
-            public void onInsert(CardPlayer player, Card card) {
+            public void onInsert(CardPlayer player, List<Card> cards) {
                 if(drawSlot.isDraw()) {
                     player.getPlay(this.game).complete(null);
                     drawSlot.setDraw(false);
@@ -75,11 +77,16 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
             }
 
             @Override
-            public void onRemove(CardPlayer player, Card card) {
+            public void onRemove(CardPlayer player, List<Card> cards) {
                 player.playSound(ModSounds.CARD_DRAW.get());
                 if(!game.isChoosingWild)
                     game.getCensoredHand(player).removeLast();
-                super.onRemove(player, card);
+                super.onRemove(player, cards);
+            }
+
+            @Override
+            public boolean removeAll() {
+                return false;
             }
         });
 

@@ -15,6 +15,8 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public record CardContainerSlotClickPayload(int containerId, int slotId, int cardId) implements CustomPacketPayload {
 
     public static final Type<CardContainerSlotClickPayload> TYPE = new Type<>(Charta.id("card_container_slot_click"));
@@ -37,14 +39,12 @@ public record CardContainerSlotClickPayload(int containerId, int slotId, int car
                 CardSlot<?> slot = cardMenu.getCardSlot(payload.slotId);
                 GameSlot carriedCards = cardMenu.getCarriedCards();
                 if(carriedCards.isEmpty() && slot.canRemoveCard(cardPlayer)) {
-                    Card lastCard = slot.removeCard(payload.cardId);
-                    cardMenu.setCarriedCards(GameSlot.of(lastCard));
-                    slot.onRemove(cardPlayer, lastCard);
-                }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards.getCards()) && slot.insertCards(carriedCards, payload.cardId)) {
+                    List<Card> cards = slot.removeCards(payload.cardId);
+                    cardMenu.setCarriedCards(new GameSlot(cards));
+                    slot.onRemove(cardPlayer, cards);
+                }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards.stream().toList()) && slot.insertCards(carriedCards, payload.cardId)) {
                     cardMenu.setCarriedCards(new GameSlot());
-                    for(Card card : carriedCards.getCards()) {
-                        slot.onInsert(cardPlayer, card);
-                    }
+                    slot.onInsert(cardPlayer, carriedCards.stream().toList());
                 }
             }
         });

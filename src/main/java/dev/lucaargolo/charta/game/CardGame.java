@@ -179,9 +179,9 @@ public abstract class CardGame<G extends CardGame<G>> {
     public @Nullable CardPlay getBestPlay(CardPlayer player) {
         for(int i = 0; i < gameSlots.size(); i++) {
             int slot = i;
-            Optional<Card> card = getFullHand(player).filter(c -> canPlay(player, new CardPlay(c, slot))).findFirst();
+            Optional<Card> card = getFullHand(player).filter(c -> canPlay(player, new CardPlay(List.of(c), slot))).findFirst();
             if(card.isPresent()) {
-                return new CardPlay(card.get(), slot);
+                return new CardPlay(List.of(card.get()), slot);
             }
         }
         return null;

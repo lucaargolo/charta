@@ -1,4 +1,6 @@
 package dev.lucaargolo.charta.game;
 
-public record CardPlay(Card card, int slot) {
+import java.util.List;
+
+public record CardPlay(List<Card> cards, int slot) {
 }

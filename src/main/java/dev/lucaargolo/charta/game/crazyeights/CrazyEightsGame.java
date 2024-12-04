@@ -161,7 +161,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
                     nextPlayerAndRunGame();
                 }
             }else if(!currentPlayer.shouldCompute() || canPlay(currentPlayer, play)) {
-                Card card = play.card();
+                Card card = play.cards().getLast();
                 currentPlayer.playSound(ModSounds.CARD_PLAY.get());
                 currentSuit = card.getSuit();
 
@@ -233,7 +233,11 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
 
     @Override
     public boolean canPlay(CardPlayer player, CardPlay play) {
-        Card card = play.card();
+        List<Card> cards = play.cards();
+        if(cards.size() != 1) {
+            return false;
+        }
+        Card card = cards.getLast();
         Card lastCard = playPile.getLast();
         return isGameReady && lastCard != null && ((isChoosingWild && card.getRank() == Rank.BLANK) || card.getRank() == Rank.EIGHT || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit);
     }
