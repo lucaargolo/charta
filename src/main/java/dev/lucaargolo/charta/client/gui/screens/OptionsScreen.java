@@ -58,19 +58,19 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
 
     @Override
     protected void init() {
-        Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
-        this.addRenderableWidget(Button.builder(back, b -> this.onClose())
-            .bounds(5, 5, 20, 20)
-            .tooltip(Tooltip.create(Component.translatable("message.charta.go_back")))
-            .build()
-        );
-
         this.widget = this.addRenderableWidget(new OptionsWidget(minecraft, width, height - 60, 30));
 
         for(int i = 0; i < this.game.getOptions().size(); i++) {
             GameOption<?> option = this.game.getOptions().get(i);
             widget.addEntry(option.getWidget(o -> updateButtons(false), font, widget.getRowWidth(), 20, showcase));
         }
+
+        Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
+        this.addRenderableWidget(Button.builder(back, b -> this.onClose())
+                .bounds(5, 5, 20, 20)
+                .tooltip(Tooltip.create(Component.translatable("message.charta.go_back")))
+                .build()
+        );
 
         if(!showcase) {
             this.resetButton = this.addRenderableWidget(Button.builder(Component.translatable("button.charta.reset"), b -> {

@@ -2,11 +2,14 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
+import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
@@ -52,31 +55,31 @@ public class MarkdownScreen extends Screen {
         AtomicInteger space = new AtomicInteger();
         AtomicBoolean started = new AtomicBoolean(false);
         MutableComponent text = Component.empty();
-        for(Either<String, String> either : markdown) {
+        for (Either<String, String> either : markdown) {
             either.ifLeft(t -> {
                 boolean isCancel = t.startsWith("/");
                 MarkdownTag tag = MarkdownTag.get(t.replace("/", ""));
 
-                if(isCancel) {
-                    if(tag == MarkdownTag.OL) {
+                if (isCancel) {
+                    if (tag == MarkdownTag.OL) {
                         countStack.removeLast();
                     }
-                    if(tag.start) {
+                    if (tag.start) {
                         started.set(false);
                         this.widget.addEntry(new MarkdownLine(font, List.copyOf(stack), text.copy(), space.get(), false));
                         text.getSiblings().clear();
                     }
                     stack.removeLastOccurrence(tag);
-                }else{
-                    if(tag == MarkdownTag.OL) {
+                } else {
+                    if (tag == MarkdownTag.OL) {
                         countStack.add(0);
                     }
-                    if(tag.start) {
-                        if(started.get()) {
+                    if (tag.start) {
+                        if (started.get()) {
                             this.widget.addEntry(new MarkdownLine(font, List.copyOf(stack), text.copy(), space.get(), false));
                             text.getSiblings().clear();
                         }
-                        if(!this.widget.children().isEmpty() && tag.line) {
+                        if (!this.widget.children().isEmpty() && tag.line) {
                             this.widget.addEmptyEntry(font);
                         }
                         started.set(true);
@@ -86,7 +89,7 @@ public class MarkdownScreen extends Screen {
             }).ifRight(t -> {
                 boolean bold = false;
                 boolean italic = false;
-                if(text.getString().isEmpty()) {
+                if (text.getString().isEmpty()) {
                     int listTabs = 0;
                     int numberedTabs = 0;
                     boolean numbered = false;
@@ -106,20 +109,20 @@ public class MarkdownScreen extends Screen {
 
                     space.set(0);
 
-                    for(int i = 0; i < listTabs; i++) {
+                    for (int i = 0; i < listTabs; i++) {
                         text.append("  ");
                         space.addAndGet(font.width("  "));
                     }
-                    for(int i = 0; i < numberedTabs - 1; i++) {
+                    for (int i = 0; i < numberedTabs - 1; i++) {
                         text.append("  ");
                         space.addAndGet(font.width("  "));
                     }
 
-                    if(numbered) {
+                    if (numbered) {
                         countStack.addLast(countStack.removeLast() + 1);
                         text.append(countStack.getLast() + ". ");
                         space.addAndGet(font.width(countStack.getLast() + ". "));
-                    }else if(listTabs + numberedTabs > 0){
+                    } else if (listTabs + numberedTabs > 0) {
                         text.append(" - ");
                         space.addAndGet(font.width(" - "));
                     }
@@ -136,7 +139,10 @@ public class MarkdownScreen extends Screen {
             });
         }
 
-
+        if (parent != null) {
+            Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
+            this.addRenderableWidget(new Button.Builder(back, b -> this.onClose()).bounds(5, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.go_back"))).build());
+        }
     }
 
 

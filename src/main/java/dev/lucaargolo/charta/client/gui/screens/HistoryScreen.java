@@ -71,13 +71,13 @@ public class HistoryScreen extends Screen {
 
         @Override
         public void render(@NotNull GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            guiGraphics.fill(left+101, top - 4, left +102, top + height, 0x33FFFFFF);
-            guiGraphics.fill(left+width-108, top - 4, left+width-107, top + height, 0x33FFFFFF);
+            guiGraphics.fill(left-12+101, top - 4, left-12+102, top + height, 0x33FFFFFF);
+            guiGraphics.fill(left-12+width-108, top - 4, left-12+width-107, top + height, 0x33FFFFFF);
             if (!player.equals(Component.empty())) {
-                guiGraphics.drawString(font, player, left, top, 0xFFFFFFFF);
-                guiGraphics.drawString(font, Component.literal(Integer.toString(cards)).append(" ").append(cards > 1 ? Component.translatable("charta.cards") : Component.translatable("charta.card")), left + width - 101, top, 0xFFFFFFFF);
+                guiGraphics.drawString(font, player, left-12, top, 0xFFFFFFFF);
+                guiGraphics.drawString(font, Component.literal(Integer.toString(cards)).append(" ").append(cards > 1 ? Component.translatable("charta.cards") : Component.translatable("charta.card")), left-12 + width - 101, top, 0xFFFFFFFF);
             }
-            guiGraphics.drawScrollingString(font, play, left + 108, left+width-108, top, 0xFFFFFFFF);
+            guiGraphics.drawScrollingString(font, play, left-12 + 108, left-12+width-108, top, 0xFFFFFFFF);
 
         }
 
@@ -105,7 +105,7 @@ public class HistoryScreen extends Screen {
 
         @Override
         public int getRowWidth() {
-            return Math.min(600, minecraft.getWindow().getGuiScaledWidth()-8);
+            return Math.min(600, minecraft.getWindow().getGuiScaledWidth()-32);
         }
     }
 
