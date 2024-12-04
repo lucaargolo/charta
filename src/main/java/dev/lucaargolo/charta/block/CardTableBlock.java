@@ -203,7 +203,7 @@ public class CardTableBlock extends BaseEntityBlock {
                                 level.setBlockAndUpdate(p, s.setValue(CLOTH, true).setValue(COLOR, color));
                             });
                         } else {
-                            player.displayClientMessage(Component.translatable("charta.message.put_table_cloth").withStyle(ChatFormatting.RED), true);
+                            player.displayClientMessage(Component.translatable("message.charta.put_table_cloth").withStyle(ChatFormatting.RED), true);
                         }
                     } else if (player instanceof LivingEntityMixed mixed) {
                         Pair<BlockPos, Vector2f> pair = getCenterAndOffset(level, pos);
@@ -235,18 +235,18 @@ public class CardTableBlock extends BaseEntityBlock {
                                         }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
                                             game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
                                         }else{
-                                            player.displayClientMessage(Component.translatable("charta.message.not_playing_current").withStyle(ChatFormatting.RED), true);
+                                            player.displayClientMessage(Component.translatable("message.charta.not_playing_current").withStyle(ChatFormatting.RED), true);
                                         }
                                     } else{
-                                        player.displayClientMessage(Component.translatable("charta.message.need_to_be_sat").withStyle(ChatFormatting.RED), true);
+                                        player.displayClientMessage(Component.translatable("message.charta.need_to_be_sat").withStyle(ChatFormatting.RED), true);
                                     }
                                 }else{
-                                    player.displayClientMessage(Component.translatable("charta.message.table_no_deck").withStyle(ChatFormatting.RED), true);
+                                    player.displayClientMessage(Component.translatable("message.charta.table_no_deck").withStyle(ChatFormatting.RED), true);
                                 }
                             }
                         });
                     } else {
-                        player.displayClientMessage(Component.translatable("charta.message.invalid_card_player").withStyle(ChatFormatting.RED), true);
+                        player.displayClientMessage(Component.translatable("message.charta.invalid_card_player").withStyle(ChatFormatting.RED), true);
                     }
                 }
             }

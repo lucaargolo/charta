@@ -135,24 +135,26 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
 
         Component rules = Component.literal("\ue90e").withStyle(Charta.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(rules, b -> {
+            ResourceLocation gameId = CardGames.getGameId(this.menu.getGameFactory());
+            Minecraft.getInstance().setScreen(new MarkdownScreen(Component.translatable("message.charta.how_to_play", Component.translatable(gameId.toLanguageKey())), this, gameId.getNamespace()+".how_to_play_"+gameId.getPath()));
+        }).bounds(5, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.how_to_play"))).build());
 
-        }).bounds(5, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.how_to_play"))).build());
-
-        Tooltip tooltip = areOptionsChanged ? new MultiLineTooltip(Component.translatable("charta.message.game_options"), Component.empty(), Component.translatable("charta.message.custom_options").withStyle(ChatFormatting.RED)) : Tooltip.create(Component.translatable("charta.message.game_options"));
+        Tooltip tooltip = areOptionsChanged ? new MultiLineTooltip(Component.translatable("message.charta.game_options"), Component.empty(), Component.translatable("message.charta.custom_options").withStyle(ChatFormatting.RED)) : Tooltip.create(Component.translatable("message.charta.game_options"));
         Component config = Component.literal("\uE8B8").withStyle(Charta.SYMBOLS);
         optionsButton = this.addRenderableWidget(new Button.Builder(config, b -> {
-            Minecraft.getInstance().setScreen(new OptionsScreen<>(this, BlockPos.ZERO, this.menu.getGame(), CardGames.getGameId(this.menu.getGameFactory()), this.menu.getGameFactory(), true));
+            ResourceLocation gameId = CardGames.getGameId(this.menu.getGameFactory());
+            Minecraft.getInstance().setScreen(new OptionsScreen<>(this, BlockPos.ZERO, this.menu.getGame(), gameId, this.menu.getGameFactory(), true));
         }).bounds(width-25, 35, 20, 20).tooltip(tooltip).build());
 
         Component cards = Component.literal("\ue41d").withStyle(Charta.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(cards, b -> {
             Minecraft.getInstance().setScreen(new DeckScreen(this, this.getDeck()));
-        }).bounds(width-47, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.game_deck"))).build());
+        }).bounds(width-47, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_deck"))).build());
 
         Component history = Component.literal("\uE889").withStyle(Charta.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(history, b -> {
             Minecraft.getInstance().setScreen(new HistoryScreen(this));
-        }).bounds(width-69, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.game_history"))).build());
+        }).bounds(width-69, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_history"))).build());
 
 
     }

@@ -159,30 +159,30 @@ public class CardTableBlockEntity extends BlockEntity {
                                     }
                                     player.openScreen(this.game, this.worldPosition, deck);
                                 }
-                                return Component.translatable("charta.message.game_started").withStyle(ChatFormatting.GREEN);
+                                return Component.translatable("message.charta.game_started").withStyle(ChatFormatting.GREEN);
                             } else {
                                 this.game = null;
-                                return Component.translatable("charta.message.too_many_players", game.getMaxPlayers()).withStyle(ChatFormatting.RED);
+                                return Component.translatable("message.charta.too_many_players", game.getMaxPlayers()).withStyle(ChatFormatting.RED);
                             }
                         } else {
                             this.game = null;
-                            return Component.translatable("charta.message.not_enough_players", game.getMinPlayers()).withStyle(ChatFormatting.RED);
+                            return Component.translatable("message.charta.not_enough_players", game.getMinPlayers()).withStyle(ChatFormatting.RED);
                         }
                     }else{
                         this.game = null;
-                        return Component.translatable("charta.message.cant_play_deck").withStyle(ChatFormatting.RED);
+                        return Component.translatable("message.charta.cant_play_deck").withStyle(ChatFormatting.RED);
                     }
                 }else{
                     this.game = null;
-                    return Component.translatable("charta.message.table_unknown_game").withStyle(ChatFormatting.RED);
+                    return Component.translatable("message.charta.table_unknown_game").withStyle(ChatFormatting.RED);
                 }
             }else{
                 this.game = null;
-                return Component.translatable("charta.message.table_no_game").withStyle(ChatFormatting.RED);
+                return Component.translatable("message.charta.table_no_game").withStyle(ChatFormatting.RED);
             }
         }else{
             this.game = null;
-            return Component.translatable("charta.message.table_no_deck").withStyle(ChatFormatting.RED);
+            return Component.translatable("message.charta.table_no_deck").withStyle(ChatFormatting.RED);
         }
 
     }

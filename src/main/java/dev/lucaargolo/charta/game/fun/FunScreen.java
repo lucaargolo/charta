@@ -93,7 +93,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
-            scheduleTooltip(Component.translatable("charta.message.say_last"));
+            scheduleTooltip(Component.translatable("message.charta.say_last"));
         }
 
         x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2;
@@ -107,7 +107,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
-            scheduleTooltip(Component.translatable("charta.message.draw_all_cards"));
+            scheduleTooltip(Component.translatable("message.charta.draw_all_cards"));
         }
 
     }
@@ -158,7 +158,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         }
         CardPlayer nextPlayer = game.getPlayers().get(index);
         int color = nextPlayer.getColor().getTextureDiffuseColor();
-        text = Component.translatable("charta.message.next_player", nextPlayer.getName()).withStyle(s -> s.withColor(nextPlayer.getColor().getTextureDiffuseColor()));
+        text = Component.translatable("message.charta.next_player", nextPlayer.getName()).withStyle(s -> s.withColor(nextPlayer.getColor().getTextureDiffuseColor()));
         guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 132, 0xFFFFFFFF);
         Vec3 c = Vec3.fromRGB24(color);
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
@@ -180,13 +180,13 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
         CardPlayer player = menu.getCurrentPlayer();
         if(menu.isGameReady()) {
             if (menu.isCurrentPlayer()) {
-                text = Component.translatable("charta.message.your_turn").withStyle(s -> s.withColor(player.getColor().getTextureDiffuseColor()));
+                text = Component.translatable("message.charta.your_turn").withStyle(s -> s.withColor(player.getColor().getTextureDiffuseColor()));
             } else {
-                text = Component.translatable("charta.message.other_turn", player.getName()).withStyle(s -> s.withColor(player.getColor().getTextureDiffuseColor()));
+                text = Component.translatable("message.charta.other_turn", player.getName()).withStyle(s -> s.withColor(player.getColor().getTextureDiffuseColor()));
             }
             guiGraphics.drawString(font, text, imageWidth / 2 - font.width(text) / 2, 110, 0xFFFFFFFF);
         }else{
-            text = Component.translatable("charta.message.dealing_cards").withStyle(ChatFormatting.GOLD);
+            text = Component.translatable("message.charta.dealing_cards").withStyle(ChatFormatting.GOLD);
             guiGraphics.drawString(font, text, imageWidth / 2 - font.width(text) / 2, 110, 0xFFFFFFFF);
         }
     }

@@ -40,8 +40,8 @@ public class CustomOptionTooltip extends Tooltip {
             if (this.cachedTooltip == null || language != this.splitWithLanguage) {
                 List<FormattedCharSequence> tooltip = new ArrayList<>(splitTooltip(minecraft, this.message));
                 tooltip.add(Component.empty().getVisualOrderText());
-                tooltip.add(Component.translatable("charta.message.original", Component.literal(original).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.RED).getVisualOrderText());
-                tooltip.add(Component.translatable("charta.message.current", Component.literal(current).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.RED).getVisualOrderText());
+                tooltip.add(Component.translatable("message.charta.original", Component.literal(original).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.RED).getVisualOrderText());
+                tooltip.add(Component.translatable("message.charta.current", Component.literal(current).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.RED).getVisualOrderText());
                 this.cachedTooltip = tooltip;
                 this.splitWithLanguage = language;
             }

@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 
 public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
 
-    private final GameOption.Number AVAILABLE_DRAWS = new GameOption.Number(3, 1, 5, Component.translatable("charta.rules.available_draws"), Component.translatable("charta.rules.available_draws.description"));
+    private final GameOption.Number AVAILABLE_DRAWS = new GameOption.Number(3, 1, 5, Component.translatable("rule.charta.available_draws"), Component.translatable("rule.charta.available_draws.description"));
 
     private final GameSlot playPile;
     private final GameSlot drawPile;
@@ -109,8 +109,8 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
         isGameReady = false;
         isGameOver = false;
 
-        table(Component.translatable("charta.message.game_started"));
-        table(Component.translatable("charta.message.its_player_turn", currentPlayer.getColoredName()));
+        table(Component.translatable("message.charta.game_started"));
+        table(Component.translatable("message.charta.its_player_turn", currentPlayer.getColoredName()));
     }
 
     @Override
@@ -130,7 +130,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
                 drawPile.shuffle();
                 playPile.clear();
                 playPile.add(lastCard);
-                table(Component.translatable("charta.message.piles_shuffled"));
+                table(Component.translatable("message.charta.piles_shuffled"));
             }else{
                 endGame();
             }
@@ -145,7 +145,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
                 if(drawsLeft > 0) {
                     drawsLeft--;
 
-                    play(currentPlayer, Component.translatable("charta.message.drew_a_card"));
+                    play(currentPlayer, Component.translatable("message.charta.drew_a_card"));
 
                     if(currentPlayer.shouldCompute()) {
                         dealCards(drawPile, currentPlayer, 1);
@@ -167,14 +167,14 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
 
                 if(isChoosingWild) {
                     //Player was choosing the suit from a wild card.
-                    play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(deck.getSuitTranslatableKey(currentSuit)).withColor(deck.getSuitColor(currentSuit))));
+                    play(currentPlayer, Component.translatable("message.charta.chose_a_suit", Component.translatable(deck.getSuitTranslatableKey(currentSuit)).withColor(deck.getSuitColor(currentSuit))));
                     //If the player was not a bot, there will be an extra card in the play pile, so we need to remove it.
                     if(!currentPlayer.shouldCompute()) {
                         playPile.removeLast();
                     }
                     isChoosingWild = false;
                 }else{
-                    play(currentPlayer, Component.translatable("charta.message.played_a_card", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))));
+                    play(currentPlayer, Component.translatable("message.charta.played_a_card", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))));
                 }
 
                 //If the player is a bot, we need to manually remove the card from its hand and censored hand, and add it to the play pile.
@@ -191,7 +191,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
                     if(currentPlayer.shouldCompute()) {
                         //If the player is a bot, we need to manually select the most frequent suit of that bot.
                         currentSuit = getMostFrequentSuit(currentPlayer);
-                        play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(deck.getSuitTranslatableKey(currentSuit))));
+                        play(currentPlayer, Component.translatable("message.charta.chose_a_suit", Component.translatable(deck.getSuitTranslatableKey(currentSuit))));
                         nextPlayerAndRunGame();
                     }else{
                         //If the player is not a bot, we need to set the game state as choosing wild, and set up the suits hand for the player.
@@ -213,19 +213,19 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
     public void nextPlayerAndRunGame() {
         drawsLeft = AVAILABLE_DRAWS.get();
         currentPlayer = getNextPlayer();
-        table(Component.translatable("charta.message.its_player_turn", currentPlayer.getColoredName()));
+        table(Component.translatable("message.charta.its_player_turn", currentPlayer.getColoredName()));
         runGame();
     }
 
     @Override
     public void endGame() {
         if(getFullHand(currentPlayer).findAny().isEmpty()) {
-            currentPlayer.sendTitle(Component.translatable("charta.message.you_won").withStyle(ChatFormatting.GREEN), Component.translatable("charta.message.congratulations"));
-            getPlayers().stream().filter(player -> player != currentPlayer).forEach(player -> player.sendTitle(Component.translatable("charta.message.you_lost").withStyle(ChatFormatting.RED), Component.translatable("charta.message.won_the_match",currentPlayer.getName())));
+            currentPlayer.sendTitle(Component.translatable("message.charta.you_won").withStyle(ChatFormatting.GREEN), Component.translatable("message.charta.congratulations"));
+            getPlayers().stream().filter(player -> player != currentPlayer).forEach(player -> player.sendTitle(Component.translatable("message.charta.you_lost").withStyle(ChatFormatting.RED), Component.translatable("message.charta.won_the_match",currentPlayer.getName())));
         }else{
             getPlayers().forEach(player -> {
-                currentPlayer.sendTitle(Component.translatable("charta.message.draw").withStyle(ChatFormatting.YELLOW), Component.translatable("charta.message.no_winner"));
-                player.sendMessage(Component.translatable("charta.message.match_unable").withStyle(ChatFormatting.GOLD));
+                currentPlayer.sendTitle(Component.translatable("message.charta.draw").withStyle(ChatFormatting.YELLOW), Component.translatable("message.charta.no_winner"));
+                player.sendMessage(Component.translatable("message.charta.match_unable").withStyle(ChatFormatting.GOLD));
             });
         }
         isGameOver = true;

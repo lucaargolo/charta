@@ -33,7 +33,7 @@ public class TableScreen extends Screen {
     private GameWidget<?> widget;
 
     public TableScreen(BlockPos pos, CardDeck deck, int[] players) {
-        super(Component.translatable("charta.message.choose_game"));
+        super(Component.translatable("message.charta.choose_game"));
         this.pos = pos;
         this.deck = deck;
         this.players = players;
@@ -80,11 +80,11 @@ public class TableScreen extends Screen {
             this.gameWidget.active = !(invalidDeck || notEnoughPlayers || tooManyPlayers);
             Tooltip tooltip;
             if(invalidDeck) {
-                tooltip = Tooltip.create(Component.translatable("charta.message.cant_play_deck").append(" ").append(Component.translatable("charta.message.try_finding_another")));
+                tooltip = Tooltip.create(Component.translatable("message.charta.cant_play_deck").append(" ").append(Component.translatable("message.charta.try_finding_another")));
             }else if(notEnoughPlayers) {
-                tooltip = Tooltip.create(Component.translatable("charta.message.not_enough_players", game.getMinPlayers()));
+                tooltip = Tooltip.create(Component.translatable("message.charta.not_enough_players", game.getMinPlayers()));
             }else if(tooManyPlayers) {
-                tooltip = Tooltip.create(Component.translatable("charta.message.too_many_players", game.getMaxPlayers()));
+                tooltip = Tooltip.create(Component.translatable("message.charta.too_many_players", game.getMaxPlayers()));
             }else{
                 tooltip = null;
             }
@@ -97,7 +97,7 @@ public class TableScreen extends Screen {
                 }
             }).bounds(0, 0, 20, 20).build();
             this.configWidget.active = !game.getOptions().isEmpty();
-            this.configWidget.setTooltip(Tooltip.create(Component.translatable("charta.message.configure_game")));
+            this.configWidget.setTooltip(Tooltip.create(Component.translatable("message.charta.configure_game")));
         }
 
         @Override

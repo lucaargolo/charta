@@ -16,6 +16,7 @@ import dev.lucaargolo.charta.game.crazyeights.CrazyEightsScreen;
 import dev.lucaargolo.charta.game.fun.FunScreen;
 import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.ModMenus;
+import dev.lucaargolo.charta.resources.MarkdownResource;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
@@ -31,10 +32,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.client.event.RegisterShadersEvent;
+import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -71,6 +69,8 @@ public class ChartaClient {
 
     public static ShaderInstance ENTITY_CARD_SHADER;
     public static ShaderInstance IRON_LEASH_SHADER;
+
+    public static final MarkdownResource MARKDOWN = new MarkdownResource();
 
     public static void generateImages() {
         Minecraft client = Minecraft.getInstance();
@@ -193,6 +193,11 @@ public class ChartaClient {
             event.registerEntityRenderer(ModEntityTypes.IRON_LEASH_KNOT.get(), IronLeashKnotRenderer::new);
             event.registerBlockEntityRenderer(ModBlockEntityTypes.CARD_TABLE.get(), CardTableBlockEntityRenderer::new);
             event.registerBlockEntityRenderer(ModBlockEntityTypes.BAR_SHELF.get(), BarShelfBlockEntityRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void addReloadListeners(RegisterClientReloadListenersEvent event) {
+            event.registerReloadListener(MARKDOWN);
         }
 
         @SubscribeEvent

@@ -34,7 +34,7 @@ public class HistoryScreen extends Screen {
         ChartaClient.LOCAL_HISTORY.forEach(triple -> widget.addEntry(new Play(triple)));
         widget.setClampedScrollAmount(Double.MAX_VALUE);
         Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
-        this.addRenderableWidget(new Button.Builder(back, b -> this.onClose()).bounds(5, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.go_back"))).build());
+        this.addRenderableWidget(new Button.Builder(back, b -> this.onClose()).bounds(5, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.go_back"))).build());
     }
 
     @Override

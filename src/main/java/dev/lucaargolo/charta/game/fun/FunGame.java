@@ -28,13 +28,13 @@ public class FunGame extends CardGame<FunGame> {
 
     public static final int LAST_COOLDOWN = 30;
 
-    private final GameOption.Number LAST_DRAW_AMOUNT = new GameOption.Number(2, 0, 6, Component.translatable("charta.rules.last_draw_amount"), Component.translatable("charta.rules.last_draw_amount.description"));
-    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("charta.rules.stack_any_plus2_on_plus2"), Component.translatable("charta.rules.stack_any_plus2_on_plus2.description"));
-    private final GameOption.Bool STACK_SAME_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("charta.rules.stack_same_plus2_on_plus2"), Component.translatable("charta.rules.stack_same_plus2_on_plus2.description"));
-    private final GameOption.Bool STACK_PLUS4_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("charta.rules.stack_plus4_on_plus2"), Component.translatable("charta.rules.stack_plus4_on_plus2.description"));
-    private final GameOption.Bool STACK_PLUS4_ON_PLUS4 = new GameOption.Bool(false, Component.translatable("charta.rules.stack_plus4_on_plus4"), Component.translatable("charta.rules.stack_plus4_on_plus4.description"));
-    private final GameOption.Bool STACK_SAME_PLUS2_ON_PLUS4 = new GameOption.Bool(false, Component.translatable("charta.rules.stack_same_plus2_on_plus4"), Component.translatable("charta.rules.stack_same_plus2_on_plus4.description"));
-    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS4 = new GameOption.Bool(false, Component.translatable("charta.rules.stack_any_plus2_on_plus4"), Component.translatable("charta.rules.stack_any_plus2_on_plus4.description"));
+    private final GameOption.Number LAST_DRAW_AMOUNT = new GameOption.Number(2, 0, 6, Component.translatable("button.charta.last_draw_amount"), Component.translatable("rule.charta.last_draw_amount.description"));
+    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("rule.charta.stack_any_plus2_on_plus2"), Component.translatable("rule.charta.stack_any_plus2_on_plus2.description"));
+    private final GameOption.Bool STACK_SAME_PLUS2_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("rule.charta.stack_same_plus2_on_plus2"), Component.translatable("rule.charta.stack_same_plus2_on_plus2.description"));
+    private final GameOption.Bool STACK_PLUS4_ON_PLUS2 = new GameOption.Bool(true, Component.translatable("rule.charta.stack_plus4_on_plus2"), Component.translatable("rule.charta.stack_plus4_on_plus2.description"));
+    private final GameOption.Bool STACK_PLUS4_ON_PLUS4 = new GameOption.Bool(false, Component.translatable("rule.charta.stack_plus4_on_plus4"), Component.translatable("rule.charta.stack_plus4_on_plus4.description"));
+    private final GameOption.Bool STACK_SAME_PLUS2_ON_PLUS4 = new GameOption.Bool(false, Component.translatable("rule.charta.stack_same_plus2_on_plus4"), Component.translatable("rule.charta.stack_same_plus2_on_plus4.description"));
+    private final GameOption.Bool STACK_ANY_PLUS2_ON_PLUS4 = new GameOption.Bool(false, Component.translatable("rule.charta.stack_any_plus2_on_plus4"), Component.translatable("rule.charta.stack_any_plus2_on_plus4.description"));
 
     private final GameSlot playPile;
     private final GameSlot drawPile;
@@ -145,8 +145,8 @@ public class FunGame extends CardGame<FunGame> {
         isGameReady = false;
         isGameOver = false;
 
-        table(Component.translatable("charta.message.game_started"));
-        table(Component.translatable("charta.message.its_player_turn", currentPlayer.getColoredName()));
+        table(Component.translatable("message.charta.game_started"));
+        table(Component.translatable("message.charta.its_player_turn", currentPlayer.getColoredName()));
     }
 
     private void shufflePiles() {
@@ -156,7 +156,7 @@ public class FunGame extends CardGame<FunGame> {
         drawPile.shuffle();
         playPile.clear();
         playPile.add(lastCard);
-        table(Component.translatable("charta.message.piles_shuffled"));
+        table(Component.translatable("message.charta.piles_shuffled"));
     }
 
     @Override
@@ -189,7 +189,7 @@ public class FunGame extends CardGame<FunGame> {
                     dealCards(drawPile, currentPlayer, 1);
                     currentPlayer.playSound(ModSounds.CARD_DRAW.get());
                 }
-                play(currentPlayer, Component.translatable("charta.message.drew_a_card"));
+                play(currentPlayer, Component.translatable("message.charta.drew_a_card"));
 
                 if(drawStack > 0) {
                     //They started drawing from a draw stack, so we need to block them from drawing.
@@ -224,14 +224,14 @@ public class FunGame extends CardGame<FunGame> {
 
                 if(isChoosingWild) {
                     //Player was choosing the suit from a wild card.
-                    play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(deck.getSuitTranslatableKey(currentSuit)).withColor(deck.getSuitColor(currentSuit))));
+                    play(currentPlayer, Component.translatable("message.charta.chose_a_suit", Component.translatable(deck.getSuitTranslatableKey(currentSuit)).withColor(deck.getSuitColor(currentSuit))));
                     //If the player was not a bot, there will be an extra card in the play pile, so we need to remove it.
                     if(!currentPlayer.shouldCompute()) {
                         playPile.removeLast();
                     }
                     isChoosingWild = false;
                 }else{
-                    play(currentPlayer, Component.translatable("charta.message.played_a_card", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))));
+                    play(currentPlayer, Component.translatable("message.charta.played_a_card", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))));
                 }
 
                 //If the player is a bot, we need to manually remove the card from its hand and censored hand, and add it to the play pile.
@@ -254,7 +254,7 @@ public class FunGame extends CardGame<FunGame> {
                     if(currentPlayer.shouldCompute()) {
                         //If the player is a bot, we need to manually select the most frequent suit of that bot.
                         currentSuit = getMostFrequentSuit(currentPlayer);
-                        play(currentPlayer, Component.translatable("charta.message.chose_a_suit", Component.translatable(deck.getSuitTranslatableKey(currentSuit))));
+                        play(currentPlayer, Component.translatable("message.charta.chose_a_suit", Component.translatable(deck.getSuitTranslatableKey(currentSuit))));
                         nextPlayerAndRunGame();
                     }else{
                         //If the player is not a bot, we need to set the game state as choosing wild, and set up the suits hand for the player.
@@ -271,7 +271,7 @@ public class FunGame extends CardGame<FunGame> {
                     if(card.getRank() == Rank.JACK) {
                         //If the play was a block (Jack), we skip the player manually once, so it ends up happening twice.
                         currentPlayer = getNextPlayer();
-                        table(Component.translatable("charta.message.player_was_skipped", currentPlayer.getColoredName()));
+                        table(Component.translatable("message.charta.player_was_skipped", currentPlayer.getColoredName()));
                     }else if(card.getRank() == Rank.QUEEN) {
                         //If the play was a reverse (Queen), we reverse the game order.
                         reversed = !reversed;
@@ -279,7 +279,7 @@ public class FunGame extends CardGame<FunGame> {
                             //If there are only two players, we need to skip the next one so the reverse actually does something (It acts as a block)
                             currentPlayer = getNextPlayer();
                         }
-                        table(Component.translatable("charta.message.game_reversed"));
+                        table(Component.translatable("message.charta.game_reversed"));
                     }else if(card.getRank() == Rank.KING) {
                         //If the play was a plus 2 (King), we add 2 to the next player draw stack
                         drawStack += 2;
@@ -296,9 +296,9 @@ public class FunGame extends CardGame<FunGame> {
         canDraw = true;
         currentPlayer = getNextPlayer();
         if(drawStack > 0) {
-            table(Component.translatable("charta.message.its_player_turn_draw_stack", currentPlayer.getColoredName(), drawStack));
+            table(Component.translatable("message.charta.its_player_turn_draw_stack", currentPlayer.getColoredName(), drawStack));
         }else{
-            table(Component.translatable("charta.message.its_player_turn", currentPlayer.getColoredName()));
+            table(Component.translatable("message.charta.its_player_turn", currentPlayer.getColoredName()));
         }
         runGame();
     }
@@ -306,12 +306,12 @@ public class FunGame extends CardGame<FunGame> {
     @Override
     public void endGame() {
         if(getFullHand(currentPlayer).findAny().isEmpty()) {
-            currentPlayer.sendTitle(Component.translatable("charta.message.you_won").withStyle(ChatFormatting.GREEN), Component.translatable("charta.message.congratulations"));
-            getPlayers().stream().filter(player -> player != currentPlayer).forEach(player -> player.sendTitle(Component.translatable("charta.message.you_lost").withStyle(ChatFormatting.RED), Component.translatable("charta.message.won_the_match",currentPlayer.getName())));
+            currentPlayer.sendTitle(Component.translatable("message.charta.you_won").withStyle(ChatFormatting.GREEN), Component.translatable("message.charta.congratulations"));
+            getPlayers().stream().filter(player -> player != currentPlayer).forEach(player -> player.sendTitle(Component.translatable("message.charta.you_lost").withStyle(ChatFormatting.RED), Component.translatable("message.charta.won_the_match",currentPlayer.getName())));
         }else{
             getPlayers().forEach(player -> {
-                currentPlayer.sendTitle(Component.translatable("charta.message.draw").withStyle(ChatFormatting.YELLOW), Component.translatable("charta.message.no_winner"));
-                player.sendMessage(Component.translatable("charta.message.match_unable").withStyle(ChatFormatting.GOLD));
+                currentPlayer.sendTitle(Component.translatable("message.charta.draw").withStyle(ChatFormatting.YELLOW), Component.translatable("message.charta.no_winner"));
+                player.sendMessage(Component.translatable("message.charta.match_unable").withStyle(ChatFormatting.GOLD));
             });
         }
         isGameOver = true;
@@ -383,7 +383,7 @@ public class FunGame extends CardGame<FunGame> {
             CardPlayer player = players.get(i);
             if(didntSayLast(player)) {
                 //Since player didn't say last yet, current is able to say it.
-                table(Component.translatable("charta.message.player_said_last", current.getColoredName()));
+                table(Component.translatable("message.charta.player_said_last", current.getColoredName()));
 
                 if(player == current) {
                     //Current is the player! So they can successfully say last to avoid drawing cards.
@@ -411,7 +411,7 @@ public class FunGame extends CardGame<FunGame> {
                                 PacketDistributor.sendToPlayer(serverPlayer, new LastFunPayload(CardDeckItem.getDeck(deck)));
                             }
                         });
-                        table(Component.translatable("charta.message.player_automatically_drew_cards", player.getColoredName(), drawAmount));
+                        table(Component.translatable("message.charta.player_automatically_drew_cards", player.getColoredName(), drawAmount));
                         dealCards(drawPile, player, drawAmount);
                     }else{
                         //If there isn't, we end the game due to lack of cards.

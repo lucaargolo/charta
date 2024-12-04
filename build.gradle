@@ -90,6 +90,13 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    jarJar(implementation "org.commonmark:commonmark") {
+        version {
+            strictly '[0.1, 1.0)'
+            prefer '0.24.0'
+        }
+    }
+    additionalRuntimeClasspath "org.commonmark:commonmark:0.24.0"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

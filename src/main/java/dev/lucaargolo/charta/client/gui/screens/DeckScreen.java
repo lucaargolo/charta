@@ -42,7 +42,7 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
     protected void init() {
         if(parent != null) {
             Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
-            this.addRenderableWidget(new Button.Builder(back, b -> this.onClose()).bounds(5, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("charta.message.go_back"))).build());
+            this.addRenderableWidget(new Button.Builder(back, b -> this.onClose()).bounds(5, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.go_back"))).build());
         }
 
         float cardWidth = CardSlot.getWidth(CardSlot.Type.DEFAULT);

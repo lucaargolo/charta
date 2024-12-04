@@ -42,7 +42,7 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
     private Button saveButton;
 
     public OptionsScreen(Screen parent, BlockPos pos, G game, ResourceLocation gameId, CardGames.Factory<G> gameFactory, boolean showcase) {
-        super(Component.translatable("charta.message.this_game_options", Component.translatable(gameId.toLanguageKey())));
+        super(Component.translatable("message.charta.this_game_options", Component.translatable(gameId.toLanguageKey())));
         this.parent = parent;
         this.pos = pos;
         this.game = game;
@@ -61,7 +61,7 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
         Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
         this.addRenderableWidget(Button.builder(back, b -> this.onClose())
             .bounds(5, 5, 20, 20)
-            .tooltip(Tooltip.create(Component.translatable("charta.message.go_back")))
+            .tooltip(Tooltip.create(Component.translatable("message.charta.go_back")))
             .build()
         );
 
@@ -73,27 +73,27 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
         }
 
         if(!showcase) {
-            this.resetButton = this.addRenderableWidget(Button.builder(Component.translatable("charta.button.reset"), b -> {
+            this.resetButton = this.addRenderableWidget(Button.builder(Component.translatable("button.charta.reset"), b -> {
                 boolean reset = CardGames.areOptionsChanged(gameFactory, game);
                 if(reset) {
                     G defaultGame = gameFactory.create(List.of(), CardDeck.EMPTY);
                     this.game.setRawOptions(defaultGame.getRawOptions());
                 }
                 this.updateButtons(false);
-            }).bounds(width/2 - 108, height-25, 68, 20).tooltip(Tooltip.create(Component.translatable("charta.message.reset_options"))).build());
+            }).bounds(width/2 - 108, height-25, 68, 20).tooltip(Tooltip.create(Component.translatable("message.charta.reset_options"))).build());
             this.resetButton.active = CardGames.areOptionsChanged(gameFactory, game);
 
-            this.saveButton = this.addRenderableWidget(Button.builder(Component.translatable("charta.button.save"), b -> {
+            this.saveButton = this.addRenderableWidget(Button.builder(Component.translatable("button.charta.save"), b -> {
                 this.updateButtons(true);
                 ChartaClient.LOCAL_OPTIONS.put(gameId, this.game.getRawOptions());
                 PacketDistributor.sendToServer(new PlayerOptionsPayload(ChartaClient.LOCAL_OPTIONS));
-            }).bounds(width/2 - 32, height-25, 68, 20).tooltip(Tooltip.create(Component.translatable("charta.message.save_options"))).build());
+            }).bounds(width/2 - 32, height-25, 68, 20).tooltip(Tooltip.create(Component.translatable("message.charta.save_options"))).build());
             this.saveButton.active = false;
 
-            this.addRenderableWidget(Button.builder(Component.translatable("charta.button.start"), b -> {
+            this.addRenderableWidget(Button.builder(Component.translatable("button.charta.start"), b -> {
                 PacketDistributor.sendToServer(new CardTableSelectGamePayload(pos, gameId, this.game.getRawOptions()));
                 onClose();
-            }).bounds(width/2 + 44, height-25, 68, 20).tooltip(Tooltip.create(Component.translatable("charta.message.start_options"))).build());
+            }).bounds(width/2 + 44, height-25, 68, 20).tooltip(Tooltip.create(Component.translatable("message.charta.start_options"))).build());
         }
 
         updateButtons(true);
