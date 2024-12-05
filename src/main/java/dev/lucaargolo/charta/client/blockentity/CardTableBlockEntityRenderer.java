@@ -51,38 +51,52 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
 
                 float maxWidth = stackDirection.getAxis().isVertical() ? 0 : angle % 180 == 0 && stackDirection.getAxis() == Direction.Axis.Z ? 0 : slot.getMaxStack();
                 float cardWidth = stackDirection.getAxis().isVertical() ? 0 : angle % 180 == 0 && stackDirection.getAxis() == Direction.Axis.Z ? 0 : CardImage.WIDTH;
-                float maxLeftOffset = cardWidth + cardWidth/10f;
-
-                float leftOffset = cardWidth + Math.max(0f, maxWidth - (cards * cardWidth)/(float) cards);
-                float totalWidth = cardWidth + (leftOffset * (cards - 1f));
-                float leftExcess = totalWidth - maxWidth;
-                if(leftExcess > 0) {
-                    leftOffset -= leftExcess / (cards - 1f);
-                }
-
-                totalWidth = cardWidth + (maxLeftOffset * (cards - 1f));
-                float left = 0;
-                if(leftOffset > maxLeftOffset) {
-                    left = Math.max(leftOffset - maxLeftOffset, (maxWidth - totalWidth));
-                    leftOffset = maxLeftOffset;
-                }
+                float maxLeftOffset = cardWidth + cardWidth / 10f;
 
                 float maxHeight = stackDirection.getAxis().isVertical() ? 0 : angle % 180 == 0 && stackDirection.getAxis() == Direction.Axis.Z ? slot.getMaxStack() : 0;
                 float cardHeight = stackDirection.getAxis().isVertical() ? 0 : angle % 180 == 0 && stackDirection.getAxis() == Direction.Axis.Z ? CardImage.HEIGHT : 0;
-                float maxTopOffset = cardHeight + cardHeight/10f;
+                float maxTopOffset = cardHeight + cardHeight / 10f;
 
-                float topOffset = cardHeight + Math.max(0f, maxHeight - (cards * cardHeight)/(float) cards);
-                float totalHeight = cardHeight + (topOffset * (cards - 1f));
-                float topExcess = totalHeight - maxHeight;
-                if(topExcess > 0) {
-                    topOffset -= topExcess / (cards - 1f);
-                }
+                float left = 0f, leftOffset;
+                float top = 0f, topOffset;
 
-                totalHeight = cardHeight + (maxTopOffset * (cards - 1f));
-                float top = 0;
-                if(topOffset > maxTopOffset) {
-                    top = Math.max(topOffset - maxTopOffset, (maxHeight - totalHeight));
-                    topOffset = maxTopOffset;
+                if(slot.isCentered()) {
+                    leftOffset = cardWidth + Math.max(0f, maxWidth - (cards * cardWidth) / (float) cards);
+                    float totalWidth = cardWidth + (leftOffset * (cards - 1f));
+                    float leftExcess = totalWidth - maxWidth;
+                    if (leftExcess > 0) {
+                        leftOffset -= leftExcess / (cards - 1f);
+                    }
+
+                    totalWidth = cardWidth + (maxLeftOffset * (cards - 1f));
+                    left = 0;
+                    if (leftOffset > maxLeftOffset) {
+                        left = Math.max(leftOffset - maxLeftOffset, (maxWidth - totalWidth));
+                        leftOffset = maxLeftOffset;
+                    }
+
+                    topOffset = cardHeight + Math.max(0f, maxHeight - (cards * cardHeight) / (float) cards);
+                    float totalHeight = cardHeight + (topOffset * (cards - 1f));
+                    float topExcess = totalHeight - maxHeight;
+                    if (topExcess > 0) {
+                        topOffset -= topExcess / (cards - 1f);
+                    }
+
+                    totalHeight = cardHeight + (maxTopOffset * (cards - 1f));
+                    top = 0;
+                    if (topOffset > maxTopOffset) {
+                        top = Math.max(topOffset - maxTopOffset, (maxHeight - totalHeight));
+                        topOffset = maxTopOffset;
+                    }
+                }else{
+                    leftOffset = stackDirection.getAxis().isVertical() ? 0 : angle % 180 == 0 && stackDirection.getAxis() == Direction.Axis.Z ? 0f : 5f;
+                    if(leftOffset * (slot.size() - 1) + cardWidth > maxWidth) {
+                        leftOffset = (maxWidth - cardWidth) / (slot.size() - 1);
+                    }
+                    topOffset = stackDirection.getAxis().isVertical() ? 0 : angle % 180 == 0 && stackDirection.getAxis() == Direction.Axis.Z ? 7.5f : 0f;
+                    if(topOffset * (slot.size() - 1) + cardHeight > maxHeight) {
+                        topOffset = (maxHeight - cardHeight) / (slot.size() - 1);
+                    }
                 }
 
                 Vector3f normal = new Vector3f(0f, -1f, 0f);
@@ -100,7 +114,11 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
                     poseStack.mulPose(Axis.ZN.rotationDegrees(angle));
                     poseStack.translate(o*leftOffset, o*topOffset, 0.0);
                     poseStack.scale(160f, 160f, 160f);
-                    drawCard(deck, card, packedLight, packedOverlay, poseStack, bufferSource, left/2, top/2, normal);
+                    if(slot.isCentered()) {
+                        drawCard(deck, card, packedLight, packedOverlay, poseStack, bufferSource, left / 2, top / 2, normal);
+                    }else{
+                        drawCard(deck, card, packedLight, packedOverlay, poseStack, bufferSource, 0f, 0f, normal);
+                    }
                     poseStack.popPose();
                     o++;
                 }

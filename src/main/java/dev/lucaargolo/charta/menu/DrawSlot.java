@@ -21,12 +21,12 @@ public class DrawSlot<G extends CardGame<G>> extends CardSlot<G> {
     }
 
     @Override
-    public boolean canInsertCard(CardPlayer player, List<Card> cards) {
+    public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
         return false;
     }
 
     @Override
-    public boolean canRemoveCard(CardPlayer player) {
+    public boolean canRemoveCard(CardPlayer player, int index) {
         return !draw && player == this.game.getCurrentPlayer() && canDraw.get();
     }
 

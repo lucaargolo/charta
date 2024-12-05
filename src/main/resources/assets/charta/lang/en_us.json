@@ -12,6 +12,7 @@
 
   "charta.crazy_eights": "Crazy Eights",
   "charta.fun": "Fun",
+  "charta.solitaire": "Solitaire",
 
   "entity.minecraft.villager.charta.dealer": "Dealer",
 
@@ -428,6 +429,8 @@
   "message.charta.how_to_play": "How to play",
 
   "charta_md:charta.how_to_play_fun": "charta:en_us/how_to_play_fun",
-  "charta_md:charta.how_to_play_crazy_eights": "charta:en_us/how_to_play_crazy_eights"
+  "charta_md:charta.how_to_play_crazy_eights": "charta:en_us/how_to_play_crazy_eights",
+  "charta_md:charta.how_to_play_solitaire": "charta:en_us/how_to_play_solitaire"
+
 
 }

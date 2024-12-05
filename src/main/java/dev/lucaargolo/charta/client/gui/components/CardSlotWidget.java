@@ -35,66 +35,85 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
         GameSlot slot = cardSlot.getSlot();
         if(cardSlot.isExtended()) {
             this.setPreciseWidth(CardSlot.getWidth(cardSlot));
+            this.setPreciseHeight(CardSlot.getHeight(cardSlot));
             if(renderables.size() != slot.size() || renderablesDirty) {
                 this.hoverable = null;
                 renderables.clear();
-                int i = 0;
+
+                float left = 0f, leftOffset = 0f;
+                float topOffset = 0f;
+
                 float childWidth = cardSlot.isSmall() ? CardSlot.getWidth(CardSlot.Type.SMALL) : CardSlot.getWidth(CardSlot.Type.DEFAULT);
-                float maxOffset = childWidth + childWidth/10f;
-                float offset = childWidth + Math.max(0f, this.getPreciseWidth() - (slot.size() * childWidth)/(float) slot.size());
-                float totalWidth = childWidth + (offset * (slot.size() - 1f));
-                float excess = totalWidth - this.getPreciseWidth();
-                if(excess > 0) {
-                    offset -= excess / (slot.size() - 1f);
+                float maxLeftOffset = childWidth + childWidth/10f;
+
+                if(cardSlot.getType() != CardSlot.Type.VERTICAL) {
+                    leftOffset = childWidth + Math.max(0f, this.getPreciseWidth() - (slot.size() * childWidth) / (float) slot.size());
+                    float totalWidth = childWidth + (leftOffset * (slot.size() - 1f));
+                    float leftExcess = totalWidth - this.getPreciseWidth();
+                    if (leftExcess > 0) {
+                        leftOffset -= leftExcess / (slot.size() - 1f);
+                    }
+                    totalWidth = childWidth + (maxLeftOffset * (slot.size() - 1f));
+                    left = 0;
+                    if (leftOffset > maxLeftOffset) {
+                        left = Math.max(leftOffset - maxLeftOffset, (this.getPreciseWidth() - totalWidth));
+                        leftOffset = maxLeftOffset;
+                    }
+                }else{
+                    topOffset = 10f;
+                    if(topOffset * (slot.size() - 1) + CardSlot.getHeight(CardSlot.Type.DEFAULT) > this.getPreciseHeight()) {
+                        topOffset = (this.getPreciseHeight() - CardSlot.getHeight(CardSlot.Type.DEFAULT)) / (slot.size() - 1);
+                    }
                 }
-                totalWidth = childWidth + (maxOffset * (slot.size() - 1f));
-                float left = 0;
-                if(offset > maxOffset) {
-                    left = Math.max(offset - maxOffset, (this.getPreciseWidth() - totalWidth));
-                    offset = maxOffset;
-                }
+
+                int i = 0;
                 for (Card card : slot.getCards()) {
                     int index = i;
                     CardSlot<G> childCardSlot = new CardSlot<>(
                         this.parent.getMenu().getGame(),
                         g -> new GameSlot(List.of(card)),
-                        cardSlot.x + offset * i,
-                        cardSlot.y,
+                        cardSlot.x + leftOffset * i,
+                        cardSlot.y + topOffset * i,
                         cardSlot.isSmall() ? CardSlot.Type.SMALL : CardSlot.Type.DEFAULT
                     );
-                    CardSlotWidget<G> child = new ChildCardSlotWidget(this.parent, childCardSlot, index, Mth.floor(offset));
+                    CardSlotWidget<G> child = new ChildCardSlotWidget(this.parent, childCardSlot, index, Mth.floor(leftOffset), Mth.floor(topOffset));
+
                     child.setPreciseX(childCardSlot.x + parent.getGuiLeft() + left/2f);
-                    if(cardSlot.getType() == CardSlot.Type.INVENTORY) {
+                    if(cardSlot.getType() == CardSlot.Type.HORIZONTAL) {
                         child.setPreciseY(childCardSlot.y + parent.height - child.getPreciseHeight());
                     }else if(cardSlot.getType() == CardSlot.Type.PREVIEW) {
                         child.setPreciseY(childCardSlot.y);
                     }else{
                         child.setPreciseY(childCardSlot.y + parent.getGuiTop());
                     }
+
                     renderables.add(child);
                     i++;
                 }
                 renderablesDirty = false;
             }
+
             for (CardSlotWidget<G> renderable : renderables) {
-                if (renderable != this.hoverable) {
+                if (renderable != this.hoverable || cardSlot.getType() == CardSlot.Type.VERTICAL) {
                     /*
                     This method call might seem weird at first, but by rendering the
                     current hoverable before each other possible hoverable, we stop
                     the cards from flashing weirdly on certain changing cases.
                      */
-                    if (this.hoverable != null) {
+                    if (this.hoverable != null && cardSlot.getType() != CardSlot.Type.VERTICAL) {
                         this.hoverable.render(guiGraphics, mouseX, mouseY, partialTick);
                     }
                     renderable.render(guiGraphics, mouseX, mouseY, partialTick);
-                    if (renderable.isHovered && (this.hoverable == null || !this.hoverable.isHovered)) {
+                    if (renderable.isHovered && (cardSlot.getType() == CardSlot.Type.VERTICAL || this.hoverable == null || !this.hoverable.isHovered)) {
                         this.hoverable = renderable;
                     }
                 }
             }
 
             if (this.hoverable != null) {
-                this.hoverable.render(guiGraphics, mouseX, mouseY, partialTick);
+                if(cardSlot.getType() != CardSlot.Type.VERTICAL) {
+                    this.hoverable.render(guiGraphics, mouseX, mouseY, partialTick);
+                }
                 if (!this.hoverable.isHovered) {
                     this.hoverable = null;
                 }
@@ -112,7 +131,10 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
             GameSlot slot = cardSlot.getSlot();
             if(i >= slot.size() || !renderable.cardSlot.getSlot().contains(slot.get(i)))
                 renderablesDirty = true;
-            renderable.tick(mouseX, mouseY);
+            if(cardSlot.getType() != CardSlot.Type.VERTICAL || i == renderables.size() - 1)
+                renderable.tick(mouseX, mouseY);
+            else
+                renderable.tick(mouseX, mouseY+20);
             i++;
         }
     }
@@ -151,12 +173,14 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
     private class ChildCardSlotWidget extends CardSlotWidget<G> {
 
         private final int index;
-        private final float offset;
+        private final float leftOffset;
+        private final float topOffset;
 
-        public ChildCardSlotWidget(CardMenuScreen<G, ?> parent, CardSlot<G> slot, int index, float offset) {
+        public ChildCardSlotWidget(CardMenuScreen<G, ?> parent, CardSlot<G> slot, int index, float leftOffset, float topOffset) {
             super(parent, slot);
             this.index = index;
-            this.offset = offset;
+            this.leftOffset = leftOffset;
+            this.topOffset = topOffset;
         }
 
         @Override
@@ -164,14 +188,18 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
             super.render(guiGraphics, mouseX, mouseY, partialTick);
             if (this.visible) {
                 float actualWidth = this.getPreciseWidth();
-                if(!this.isHovered() && this.index < (CardSlotWidget.this.cardSlot.getSlot().size() - 1)) {
-                    actualWidth = this.offset;
+                if(CardSlotWidget.this.cardSlot.getType() != CardSlot.Type.VERTICAL && !this.isHovered() && this.index < (CardSlotWidget.this.cardSlot.getSlot().size() - 1)) {
+                    actualWidth = this.leftOffset;
+                }
+                float actualHeight = this.getPreciseHeight();
+                if(CardSlotWidget.this.cardSlot.getType() == CardSlot.Type.VERTICAL && !this.isHovered() && this.index < (CardSlotWidget.this.cardSlot.getSlot().size() - 1)) {
+                    actualHeight = this.topOffset;
                 }
                 this.isHovered = guiGraphics.containsPointInScissor(mouseX, mouseY)
                         && mouseX >= this.getX()
                         && mouseY >= this.getY()
                         && mouseX < this.getX() + actualWidth
-                        && mouseY < this.getY() + this.height;
+                        && mouseY < this.getY() + actualHeight;
             }
         }
 

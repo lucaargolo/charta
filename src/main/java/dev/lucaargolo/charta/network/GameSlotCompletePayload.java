@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public record GameSlotCompletePayload(BlockPos pos, int index, List<Card> cards, float x, float y, float z, float angle, Direction stackDirection, float maxStack) implements CustomPacketPayload  {
+public record GameSlotCompletePayload(BlockPos pos, int index, List<Card> cards, float x, float y, float z, float angle, Direction stackDirection, float maxStack, boolean centered) implements CustomPacketPayload  {
 
     public GameSlotCompletePayload(BlockPos pos, int index, GameSlot slot) {
-        this(pos, index, slot.stream().toList(), slot.getX(), slot.getY(), slot.getZ(), slot.getAngle(), slot.getStackDirection(), slot.getMaxStack());
+        this(pos, index, slot.stream().toList(), slot.getX(), slot.getY(), slot.getZ(), slot.getAngle(), slot.getStackDirection(), slot.getMaxStack(), slot.isCentered());
     }
 
     public static final CustomPacketPayload.Type<GameSlotCompletePayload> TYPE = new CustomPacketPayload.Type<>(Charta.id("game_slot_complete"));
@@ -49,6 +49,8 @@ public record GameSlotCompletePayload(BlockPos pos, int index, List<Card> cards,
             GameSlotCompletePayload::stackDirection,
             ByteBufCodecs.FLOAT,
             GameSlotCompletePayload::maxStack,
+            ByteBufCodecs.BOOL,
+            GameSlotCompletePayload::centered,
             GameSlotCompletePayload::new
     );
 
@@ -69,7 +71,7 @@ public record GameSlotCompletePayload(BlockPos pos, int index, List<Card> cards,
             level.getBlockEntity(payload.pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
                 List<Card> list = new LinkedList<>(payload.cards);
                 if(payload.index == cardTable.getSlotCount()) {
-                    cardTable.addSlot(new GameSlot(list, payload.x, payload.y, payload.z, payload.angle, payload.stackDirection, payload.maxStack));
+                    cardTable.addSlot(new GameSlot(list, payload.x, payload.y, payload.z, payload.angle, payload.stackDirection, payload.maxStack, payload.centered));
                 }else{
                     GameSlot tracked = cardTable.getSlot(payload.index);
                     tracked.setCards(list);
@@ -79,6 +81,7 @@ public record GameSlotCompletePayload(BlockPos pos, int index, List<Card> cards,
                     tracked.setAngle(payload.angle);
                     tracked.setStackDirection(payload.stackDirection);
                     tracked.setMaxStack(payload.maxStack);
+                    tracked.setCentered(payload.centered);
                 }
             });
         }

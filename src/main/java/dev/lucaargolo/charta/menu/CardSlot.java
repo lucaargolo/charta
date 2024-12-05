@@ -46,7 +46,7 @@ public class CardSlot<G extends CardGame<G>> {
 
     public final boolean insertCards(GameSlot collection, int index) {
         GameSlot slot = getter.apply(game);
-        return index == -1 ? slot.addAll(collection) : slot.addAll(!slot.isEmpty() ? index % slot.size() : 0, collection);
+        return index == -1 ? slot.addAll(collection) : slot.addAll(!slot.isEmpty() ? (index + 1) % (slot.size() + 1) : 0, collection);
     }
 
     public final List<Card> removeCards(int index) {
@@ -82,11 +82,11 @@ public class CardSlot<G extends CardGame<G>> {
 
     }
 
-    public boolean canInsertCard(CardPlayer player, List<Card> cards) {
+    public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
         return true;
     }
 
-    public boolean canRemoveCard(CardPlayer player) {
+    public boolean canRemoveCard(CardPlayer player, int index) {
         GameSlot slot = getter.apply(game);
         return !slot.isEmpty();
     }
@@ -100,7 +100,7 @@ public class CardSlot<G extends CardGame<G>> {
     }
 
     public boolean isExtended() {
-        return type == Type.INVENTORY || type == Type.PREVIEW;
+        return type == Type.PREVIEW || type == Type.HORIZONTAL || type == Type.VERTICAL;
     }
 
     public boolean isSmall() {
@@ -110,14 +110,15 @@ public class CardSlot<G extends CardGame<G>> {
     public enum Type {
         DEFAULT,
         SMALL,
-        INVENTORY,
-        PREVIEW
+        PREVIEW,
+        HORIZONTAL,
+        VERTICAL
     }
 
     public static float getWidth(CardSlot.Type type) {
         return switch (type) {
-            case DEFAULT -> CardImage.WIDTH * 1.5f;
-            case INVENTORY -> 150;
+            case DEFAULT, VERTICAL -> CardImage.WIDTH * 1.5f;
+            case HORIZONTAL -> 150;
             case SMALL -> CardImage.WIDTH / 2f;
             case PREVIEW -> 41;
         };
@@ -129,8 +130,9 @@ public class CardSlot<G extends CardGame<G>> {
 
     public static float getHeight(CardSlot.Type type) {
         return switch (type) {
-            case DEFAULT, INVENTORY -> CardImage.HEIGHT * 1.5f;
+            case DEFAULT, HORIZONTAL -> CardImage.HEIGHT * 1.5f;
             case SMALL, PREVIEW -> CardImage.HEIGHT / 2f;
+            case VERTICAL -> 112.5f;
         };
     }
 

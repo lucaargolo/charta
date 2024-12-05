@@ -14,6 +14,7 @@ import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.game.crazyeights.CrazyEightsScreen;
 import dev.lucaargolo.charta.game.fun.FunScreen;
+import dev.lucaargolo.charta.game.solitaire.SolitaireScreen;
 import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.resources.MarkdownResource;
@@ -204,6 +205,7 @@ public class ChartaClient {
         public static void registerMenuScreens(RegisterMenuScreensEvent event) {
             event.register(ModMenus.CRAZY_EIGHTS.get(), CrazyEightsScreen::new);
             event.register(ModMenus.FUN.get(), FunScreen::new);
+            event.register(ModMenus.SOLITAIRE.get(), SolitaireScreen::new);
         }
 
         @SubscribeEvent

@@ -4,6 +4,7 @@ import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.crazyeights.CrazyEightsGame;
 import dev.lucaargolo.charta.game.fun.FunGame;
+import dev.lucaargolo.charta.game.solitaire.SolitaireGame;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -21,6 +22,7 @@ public class CardGames {
 
     public static final Factory<CrazyEightsGame> CRAZY_EIGHTS = register(Charta.id("crazy_eights"), CrazyEightsGame::new);
     public static final Factory<FunGame> FUN = register(Charta.id("fun"), FunGame::new);
+    public static final Factory<SolitaireGame> SOLITAIRE = register(Charta.id("solitaire"), SolitaireGame::new);
 
     public static <G extends CardGame<G>> Factory<G> register(ResourceLocation location, Factory<G> factory) {
         if(factories.containsKey(location)) {

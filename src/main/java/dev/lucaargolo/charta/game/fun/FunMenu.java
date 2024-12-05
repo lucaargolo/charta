@@ -64,7 +64,7 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
         //Play pile
         addCardSlot(new PlaySlot<>(this.game, g -> g.getSlot(1), 87, 30, drawSlot));
 
-        addCardSlot(new CardSlot<>(this.game, g -> (cardPlayer == g.getCurrentPlayer() && g.isChoosingWild) ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.INVENTORY)/2f, -5, CardSlot.Type.INVENTORY) {
+        addCardSlot(new CardSlot<>(this.game, g -> (cardPlayer == g.getCurrentPlayer() && g.isChoosingWild) ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.HORIZONTAL)/2f, -5, CardSlot.Type.HORIZONTAL) {
             @Override
             public void onInsert(CardPlayer player, List<Card> cards) {
                 if(drawSlot.isDraw()) {

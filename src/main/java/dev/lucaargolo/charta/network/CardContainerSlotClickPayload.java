@@ -38,11 +38,11 @@ public record CardContainerSlotClickPayload(int containerId, int slotId, int car
                 CardPlayer cardPlayer = mixed.charta_getCardPlayer();
                 CardSlot<?> slot = cardMenu.getCardSlot(payload.slotId);
                 GameSlot carriedCards = cardMenu.getCarriedCards();
-                if(carriedCards.isEmpty() && slot.canRemoveCard(cardPlayer)) {
+                if(carriedCards.isEmpty() && slot.canRemoveCard(cardPlayer, payload.cardId)) {
                     List<Card> cards = slot.removeCards(payload.cardId);
                     cardMenu.setCarriedCards(new GameSlot(cards));
                     slot.onRemove(cardPlayer, cards);
-                }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards.stream().toList()) && slot.insertCards(carriedCards, payload.cardId)) {
+                }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards.stream().toList(), payload.cardId) && slot.insertCards(carriedCards, payload.cardId)) {
                     cardMenu.setCarriedCards(new GameSlot());
                     slot.onInsert(cardPlayer, carriedCards.stream().toList());
                 }

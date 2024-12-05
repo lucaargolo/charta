@@ -2,7 +2,6 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.gui.components.CardSlotWidget;
-import dev.lucaargolo.charta.client.gui.components.CardWidget;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
@@ -146,17 +145,17 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
         optionsButton = this.addRenderableWidget(new Button.Builder(config, b -> {
             ResourceLocation gameId = CardGames.getGameId(this.menu.getGameFactory());
             Minecraft.getInstance().setScreen(new OptionsScreen<>(this, BlockPos.ZERO, this.menu.getGame(), gameId, this.menu.getGameFactory(), true));
-        }).bounds(width-25, 35, 20, 20).tooltip(tooltip).build());
+        }).bounds(27, 35, 20, 20).tooltip(tooltip).build());
 
         Component cards = Component.literal("\ue41d").withStyle(Charta.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(cards, b -> {
             Minecraft.getInstance().setScreen(new DeckScreen(this, this.getDeck()));
-        }).bounds(width-47, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_deck"))).build());
+        }).bounds(width-25, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_deck"))).build());
 
         Component history = Component.literal("\uE889").withStyle(Charta.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(history, b -> {
             Minecraft.getInstance().setScreen(new HistoryScreen(this));
-        }).bounds(width-69, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_history"))).build());
+        }).bounds(width-47, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_history"))).build());
     }
 
     public void renderTopBar(@NotNull GuiGraphics guiGraphics) {
@@ -196,7 +195,7 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
     public void renderBottomBar(@NotNull GuiGraphics guiGraphics) {
         CardPlayer player = menu.getCardPlayer();
         DyeColor color = player.getColor();
-        int totalWidth = Mth.floor(CardSlot.getWidth(CardSlot.Type.INVENTORY)) + 10;
+        int totalWidth = Mth.floor(CardSlot.getWidth(CardSlot.Type.HORIZONTAL)) + 10;
         guiGraphics.fill(0, height-63, (width-totalWidth)/2, height, 0x88000000);
         guiGraphics.fill((width-totalWidth)/2, height-63, (width-totalWidth)/2 + totalWidth, height, 0x88000000  + color.getTextureDiffuseColor());
         guiGraphics.fill((width-totalWidth)/2 + totalWidth, height-63, width, height, 0x88000000);
@@ -221,14 +220,14 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
                 this.hoveredCardSlot = slot;
             }
 
-            if(!slot.isExtended() && !slot.isSmall()) {
+            if(CardSlot.getWidth(slot) == CardImage.WIDTH * 1.5f) {
                 guiGraphics.blit(CardMenuScreen.WIDGETS, leftPos + (int) slot.x, topPos + (int) slot.y, 0, 0, 38, 53);
             }
 
             if(!slot.isEmpty()) {
                 CardSlotWidget<G> slotWidget = this.slotWidgets.get(k);
                 slotWidget.setPreciseX(slot.x + this.leftPos);
-                if(slot.getType() == CardSlot.Type.INVENTORY) {
+                if(slot.getType() == CardSlot.Type.HORIZONTAL) {
                     slotWidget.setPreciseY(slot.y + this.height - slotWidget.getPreciseHeight());
                 }else if(slot.getType() == CardSlot.Type.PREVIEW) {
                     slotWidget.setPreciseY(slot.y);
@@ -295,8 +294,8 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
         guiGraphics.pose().translate(0f, 0f, 100f);
         GameSlot cards = this.menu.getCarriedCards();
         if (!cards.isEmpty()) {
-            Card card = cards.getLast();
-            CardWidget.renderCard(card, this.getDeck(), guiGraphics, mouseX- CardImage.WIDTH, mouseY-CardImage.HEIGHT, mouseX, mouseY, partialTick);
+            CardSlotWidget<G> carriedWidget = new CardSlotWidget<>(this, new CardSlot<>(this.menu.getGame(), g -> cards, mouseX-leftPos-(CardImage.WIDTH * 0.75f), mouseY-topPos-(CardImage.HEIGHT * 0.75f), CardSlot.Type.VERTICAL));
+            carriedWidget.render(guiGraphics, mouseX, mouseY, partialTick);
         }
         CardScreen.renderGlowBlur(this, guiGraphics, partialTick);
         guiGraphics.pose().popPose();
@@ -318,7 +317,7 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
 
     private boolean isHoveringPrecise(CardSlot<G> slot, float mouseX, float mouseY) {
         return switch (slot.getType()) {
-            case INVENTORY -> this.isHoveringPrecise(slot.x, slot.y - topPos + height - CardSlot.getHeight(slot), CardSlot.getWidth(slot), CardSlot.getHeight(slot), mouseX, mouseY);
+            case HORIZONTAL -> this.isHoveringPrecise(slot.x, slot.y - topPos + height - CardSlot.getHeight(slot), CardSlot.getWidth(slot), CardSlot.getHeight(slot), mouseX, mouseY);
             case PREVIEW -> this.isHoveringPrecise(slot.x, slot.y - topPos, CardSlot.getWidth(slot), CardSlot.getHeight(slot), mouseX, mouseY);
             default -> this.isHoveringPrecise(slot.x, slot.y, CardSlot.getWidth(slot), CardSlot.getHeight(slot), mouseX, mouseY);
         };

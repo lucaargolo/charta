@@ -17,7 +17,7 @@ public class PlaySlot<G extends CardGame<G>> extends CardSlot<G> {
     }
 
     @Override
-    public boolean canInsertCard(CardPlayer player, List<Card> cards) {
+    public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
         if(drawSlot != null && drawSlot.isDraw()) {
             player.getPlay(this.game).complete(null);
             drawSlot.setDraw(false);
@@ -26,7 +26,7 @@ public class PlaySlot<G extends CardGame<G>> extends CardSlot<G> {
     }
 
     @Override
-    public boolean canRemoveCard(CardPlayer player) {
+    public boolean canRemoveCard(CardPlayer player, int index) {
         return false;
     }
 

@@ -29,8 +29,9 @@ public class GameSlot {
     private float angle;
     private Direction stackDirection;
     private float maxStack;
+    private boolean centered;
 
-    public GameSlot(List<Card> cards, float x, float y, float z, float angle, Direction stackDirection, float maxStack) {
+    public GameSlot(List<Card> cards, float x, float y, float z, float angle, Direction stackDirection, float maxStack, boolean centered) {
         this.cards = cards;
         this.x = x;
         this.lastX = x;
@@ -42,6 +43,11 @@ public class GameSlot {
         this.lastAngle = angle;
         this.stackDirection = stackDirection;
         this.maxStack = maxStack;
+        this.centered = centered;
+    }
+
+    public GameSlot(List<Card> cards, float x, float y, float z, float angle, Direction stackDirection, float maxStack) {
+        this(cards, x, y, z, angle, stackDirection, maxStack, true);
     }
 
     public GameSlot(List<Card> cards, float x, float y, float z, float angle, Direction stackDirection) {
@@ -166,6 +172,14 @@ public class GameSlot {
         this.maxStack = maxStack;
     }
 
+    public boolean isCentered() {
+        return centered;
+    }
+
+    public void setCentered(boolean centered) {
+        this.centered = centered;
+    }
+
     public boolean isEmpty() {
         return this.cards.isEmpty();
     }
@@ -257,4 +271,5 @@ public class GameSlot {
         }
         return this.cards.equals(((GameSlot)obj).cards);
     }
+
 }

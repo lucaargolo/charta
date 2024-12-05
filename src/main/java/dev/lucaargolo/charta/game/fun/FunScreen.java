@@ -77,8 +77,8 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
 
     @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2)/2 - 65/2;
-        int y = height - ((int) CardSlot.getHeight(CardSlot.Type.INVENTORY))/2 - 14;
+        int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2)/2 - 65/2;
+        int y = height - ((int) CardSlot.getHeight(CardSlot.Type.HORIZONTAL))/2 - 14;
         int color = menu.canDoLast() ? menu.didntSayLast() ? 0x00FF00 : 0xFF0000 : 0x333333;
         guiGraphics.fill(x+1, y+1, x+63, y+16, 0xFF000000 + color);
         Vec3 c = Vec3.fromRGB24(color);
@@ -92,7 +92,7 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
             scheduleTooltip(Component.translatable("message.charta.say_last"));
         }
 
-        x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2;
+        x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2;
         color = menu.isCurrentPlayer() && menu.getDrawStack() > 0 && menu.canDraw() ? Color.HSBtoRGB(0.333f + ((menu.getDrawStack()/32f)*0.666f), 1f, 1f) : 0x333333;
         guiGraphics.fill(x+1, y+1, x+63, y+16, 0xFF000000 + color);
         c = Vec3.fromRGB24(color);
@@ -110,13 +110,13 @@ public class FunScreen extends CardMenuScreen<FunGame, FunMenu> {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2)/2 - 65/2;
-        int y = height - ((int) CardSlot.getHeight(CardSlot.Type.INVENTORY))/2 - 14;
+        int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2)/2 - 65/2;
+        int y = height - ((int) CardSlot.getHeight(CardSlot.Type.HORIZONTAL))/2 - 14;
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             PacketDistributor.sendToServer(new LastFunPayload());
             return true;
         }
-        x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.INVENTORY))/2;
+        x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2;
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             drawAll = menu.isCurrentPlayer() && menu.getCarriedCards().isEmpty();
             return true;
