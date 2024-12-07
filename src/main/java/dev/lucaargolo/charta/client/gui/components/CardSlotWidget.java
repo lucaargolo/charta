@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.client.gui.components;
 
-import dev.lucaargolo.charta.client.gui.screens.CardMenuScreen;
+import dev.lucaargolo.charta.client.gui.screens.GameScreen;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.GameSlot;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
 
-    private final CardMenuScreen<G, ?> parent;
+    private final GameScreen<G, ?> parent;
     private final CardSlot<G> cardSlot;
 
     private final List<CardSlotWidget<G>> renderables = new ArrayList<>();
@@ -24,7 +24,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
 
     private CardSlotWidget<G> hoverable = null;
 
-    public CardSlotWidget(CardMenuScreen<G, ?> parent, CardSlot<G> slot) {
+    public CardSlotWidget(GameScreen<G, ?> parent, CardSlot<G> slot) {
         super(parent, null, null, 0xFFFFFF, slot.x, slot.y, slot.isSmall() ? 0.333f : 1f);
         this.parent = parent;
         this.cardSlot = slot;
@@ -176,7 +176,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
         private final float leftOffset;
         private final float topOffset;
 
-        public ChildCardSlotWidget(CardMenuScreen<G, ?> parent, CardSlot<G> slot, int index, float leftOffset, float topOffset) {
+        public ChildCardSlotWidget(GameScreen<G, ?> parent, CardSlot<G> slot, int index, float leftOffset, float topOffset) {
             super(parent, slot);
             this.index = index;
             this.leftOffset = leftOffset;

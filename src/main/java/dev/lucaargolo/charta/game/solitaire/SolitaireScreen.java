@@ -1,13 +1,13 @@
 package dev.lucaargolo.charta.game.solitaire;
 
-import dev.lucaargolo.charta.client.gui.screens.CardMenuScreen;
+import dev.lucaargolo.charta.client.gui.screens.GameScreen;
 import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-public class SolitaireScreen extends CardMenuScreen<SolitaireGame, SolitaireMenu> {
+public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
 
     public SolitaireScreen(SolitaireMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);

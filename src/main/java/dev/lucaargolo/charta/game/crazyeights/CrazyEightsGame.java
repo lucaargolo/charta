@@ -253,7 +253,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
             getPlayers().stream().filter(player -> player != currentPlayer).forEach(player -> player.sendTitle(Component.translatable("message.charta.you_lost").withStyle(ChatFormatting.RED), Component.translatable("message.charta.won_the_match",currentPlayer.getName())));
         }else{
             getPlayers().forEach(player -> {
-                currentPlayer.sendTitle(Component.translatable("message.charta.draw").withStyle(ChatFormatting.YELLOW), Component.translatable("message.charta.no_winner"));
+                player.sendTitle(Component.translatable("message.charta.draw").withStyle(ChatFormatting.YELLOW), Component.translatable("message.charta.no_winner"));
                 player.sendMessage(Component.translatable("message.charta.match_unable").withStyle(ChatFormatting.GOLD));
             });
         }

@@ -96,7 +96,7 @@ public class TableScreen extends Screen {
                     minecraft.setScreen(new OptionsScreen<>(TableScreen.this, pos, game, gameId, gameFactory, false));
                 }
             }).bounds(0, 0, 20, 20).build();
-            this.configWidget.active = !game.getOptions().isEmpty();
+            this.configWidget.active = this.gameWidget.active && !game.getOptions().isEmpty();
             this.configWidget.setTooltip(Tooltip.create(Component.translatable("message.charta.configure_game")));
         }
 

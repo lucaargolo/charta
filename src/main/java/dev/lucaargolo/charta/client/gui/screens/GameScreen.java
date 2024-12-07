@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCardMenu<G>> extends AbstractContainerScreen<T> implements HoverableRenderable {
+public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMenu<G>> extends AbstractContainerScreen<T> implements HoverableRenderable {
 
     public static final ResourceLocation WIDGETS = Charta.id("textures/gui/widgets.png");
 
@@ -51,7 +51,7 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
 
     private Button optionsButton;
 
-    public CardMenuScreen(T menu, Inventory playerInventory, Component title) {
+    public GameScreen(T menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.areOptionsChanged = CardGames.areOptionsChanged(menu.getGameFactory(), menu.getGame());
     }
@@ -146,6 +146,7 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
             ResourceLocation gameId = CardGames.getGameId(this.menu.getGameFactory());
             Minecraft.getInstance().setScreen(new OptionsScreen<>(this, BlockPos.ZERO, this.menu.getGame(), gameId, this.menu.getGameFactory(), true));
         }).bounds(27, 35, 20, 20).tooltip(tooltip).build());
+        optionsButton.active = !menu.getGame().getOptions().isEmpty();
 
         Component cards = Component.literal("\ue41d").withStyle(Charta.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(cards, b -> {
@@ -221,7 +222,7 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
             }
 
             if(CardSlot.getWidth(slot) == CardImage.WIDTH * 1.5f) {
-                guiGraphics.blit(CardMenuScreen.WIDGETS, leftPos + (int) slot.x, topPos + (int) slot.y, 0, 0, 38, 53);
+                guiGraphics.blit(GameScreen.WIDGETS, leftPos + (int) slot.x, topPos + (int) slot.y, 0, 0, 38, 53);
             }
 
             if(!slot.getSlot().isEmpty()) {

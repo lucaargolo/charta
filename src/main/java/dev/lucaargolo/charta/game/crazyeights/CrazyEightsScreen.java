@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.game.crazyeights;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.client.gui.screens.CardMenuScreen;
+import dev.lucaargolo.charta.client.gui.screens.GameScreen;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.NotNull;
 
-public class CrazyEightsScreen extends CardMenuScreen<CrazyEightsGame, CrazyEightsMenu> {
+public class CrazyEightsScreen extends GameScreen<CrazyEightsGame, CrazyEightsMenu> {
 
     private static final ResourceLocation TEXTURE = Charta.id("textures/gui/crazy_eights.png");
 
