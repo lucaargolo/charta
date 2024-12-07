@@ -224,7 +224,7 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
                 guiGraphics.blit(CardMenuScreen.WIDGETS, leftPos + (int) slot.x, topPos + (int) slot.y, 0, 0, 38, 53);
             }
 
-            if(!slot.isEmpty()) {
+            if(!slot.getSlot().isEmpty()) {
                 CardSlotWidget<G> slotWidget = this.slotWidgets.get(k);
                 slotWidget.setPreciseX(slot.x + this.leftPos);
                 if(slot.getType() == CardSlot.Type.HORIZONTAL) {

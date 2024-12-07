@@ -78,17 +78,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         for (int i = 0; i < players.length; i++) {
             G game = this.getGame();
             CardPlayer p = game.getPlayers().get(i);
-            addCardSlot(new CardSlot<>(game, g -> g.getCensoredHand(cardPlayer, p), 26 + (140 / 2f - playersWidth / 2f) + (i * (totalWidth + totalWidth / 10f)), 7, CardSlot.Type.PREVIEW) {
-                @Override
-                public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
-                    return false;
-                }
-
-                @Override
-                public boolean canRemoveCard(CardPlayer player, int index) {
-                    return false;
-                }
-            });
+            addCardSlot(new CardSlot<>(game, g -> g.getCensoredHand(cardPlayer, p), 26 + (140 / 2f - playersWidth / 2f) + (i * (totalWidth + totalWidth / 10f)), 7, CardSlot.Type.PREVIEW));
         }
     }
 
@@ -144,12 +134,11 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         return this.remoteCardSlots.get(slotId);
     }
 
-    protected <C extends CardSlot<G>> C addCardSlot(C slot) {
+    protected <C extends CardSlot<G>> void addCardSlot(C slot) {
         slot.index = this.cardSlots.size();
         this.cardSlots.add(slot);
         this.lastCardSlots.add(new GameSlot());
         this.remoteCardSlots.add(new GameSlot());
-        return slot;
     }
 
     public CardSlot<G> getCardSlot(int slotId) {
@@ -244,7 +233,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         GameSlot carriedCards = this.getCarriedCards();
         if (!carriedCards.isEmpty()) {
             for(Card carriedCard : carriedCards.getCards()) {
-                this.cardPlayer.getHand().add(carriedCard);
+                this.getGame().getPlayerHand(this.cardPlayer).add(carriedCard);
                 this.getGame().getCensoredHand(this.cardPlayer).add(Card.BLANK);
             }
             this.setCarriedCards(new GameSlot());

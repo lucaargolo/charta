@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,10 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
     private final Map<Suit, GameSlot> foundationPiles;
     private final List<GameSlot> tableauPiles;
 
+    @Nullable
+    private Card lastStockCard = null;
+    private int lastTableauDraw = -1;
+
     public SolitaireGame(List<CardPlayer> players, CardDeck deck) {
         super(players, deck);
 
@@ -37,19 +42,142 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         float middleY = CardTableBlockEntity.TABLE_HEIGHT/2f;
         float topY = middleY + (1.75f * CardImage.HEIGHT);
 
-        this.stockPile = addSlot(new GameSlot(new LinkedList<>(), leftX, topY, 0f, 0f));
-        this.wastePile = addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + 5, topY, 0f, 0f));
+        this.stockPile = addSlot(new GameSlot(new LinkedList<>(), leftX, topY, 0f, 0f) {
+            @Override
+            public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
+                return false;
+            }
+
+            @Override
+            public void onRemove(CardPlayer player, List<Card> cards) {
+                super.onRemove(player, cards);
+                lastStockCard = cards.getLast();
+                lastStockCard.flip();
+            }
+
+            @Override
+            public boolean removeAll() {
+                return false;
+            }
+        });
+
+        this.wastePile = addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + 5, topY, 0f, 0f) {
+            @Override
+            public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
+                return cards.size() == 1 && cards.getLast() == lastStockCard;
+            }
+
+            @Override
+            public void onInsert(CardPlayer player, List<Card> cards) {
+                super.onInsert(player, cards);
+                lastStockCard = null;
+                player.play(null);
+            }
+
+            @Override
+            public void onRemove(CardPlayer player, List<Card> cards) {
+                super.onRemove(player, cards);
+                lastStockCard = cards.getLast();
+            }
+
+            @Override
+            public boolean removeAll() {
+                return false;
+            }
+        });
 
         int i = 0;
         ImmutableMap.Builder<Suit, GameSlot> map = ImmutableMap.builder();
         for(Suit suit : List.of(Suit.SPADES, Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS)) {
-            map.put(suit, addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*(3+i++), topY, 0f, 0f)));
+            map.put(suit, addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*(3+i++), topY, 0f, 0f) {
+                @Override
+                public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
+                    if(index != -1 && index != this.size()) {
+                        return false;
+                    }else{
+                        int i = this.isEmpty() ? 0 : this.getLast().getRank().ordinal();
+                        for(Card card : cards) {
+                            if(card.getSuit() != suit || card.getRank().ordinal() != 1 + i++) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                }
+
+                @Override
+                public void onInsert(CardPlayer player, List<Card> cards) {
+                    super.onInsert(player, cards);
+                    lastStockCard = null;
+                    if(lastTableauDraw >= 0) {
+                        player.play(cards, lastTableauDraw);
+                    }else{
+                        player.play(null);
+                    }
+                    lastTableauDraw = -1;
+                }
+
+                @Override
+                public boolean canRemoveCard(CardPlayer player, int index) {
+                    return false;
+                }
+            }));
         }
         this.foundationPiles = map.build();
 
         ImmutableList.Builder<GameSlot> list = ImmutableList.builder();
         for(i = 0; i < 7; i++) {
-            list.add(addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*i, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)));
+            int s = 6 + i;
+            list.add(addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*i, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)  {
+                @Override
+                public boolean canRemoveCard(CardPlayer player, int index) {
+                    if(index == -1) {
+                        return this.size() == 1;
+                    }
+                    Card last = null;
+                    for(int i = index; i < this.size(); i++) {
+                        Card current = this.get(i);
+                        if(last != null && (last.isFlipped() || !SolitaireGame.isAlternate(last, current))) {
+                            return false;
+                        }
+                        last = current;
+                    }
+                    return true;
+                }
+
+                @Override
+                public void onRemove(CardPlayer player, List<Card> cards) {
+                    super.onRemove(player, cards);
+                    lastTableauDraw = s;
+                }
+
+                @Override
+                public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
+                    if(lastTableauDraw == s) {
+                        return true;
+                    }
+                    Card last = this.isEmpty() ? null : this.getLast();
+                    for(Card current : cards) {
+                        if((last == null && current.getRank() != Rank.KING) || ((last != null && !SolitaireGame.isAlternate(last, current)) || (last != null && current.getRank().ordinal()+1 != last.getRank().ordinal()))) {
+                            return false;
+                        }
+                        last = current;
+                    }
+                    return true;
+                }
+
+                @Override
+                public void onInsert(CardPlayer player, List<Card> cards) {
+                    super.onInsert(player, cards);
+                    lastStockCard = null;
+                    if(lastTableauDraw != s && lastTableauDraw >= 0) {
+                        player.play(cards, lastTableauDraw);
+                    }else{
+                        player.play(null);
+                    }
+                    lastTableauDraw = -1;
+                }
+            }));
         }
         this.tableauPiles = list.build();
     }
@@ -96,8 +224,8 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
 
         for (CardPlayer player : players) {
             player.resetPlay();
-            player.getHand().clear();
-            getCensoredHand(player).clear();
+            this.getPlayerHand(player).clear();
+            this.getCensoredHand(player).clear();
         }
 
         for (int i = 0; i < this.tableauPiles.size(); i++) {

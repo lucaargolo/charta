@@ -20,10 +20,16 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
 
     private final GameOption.Number AVAILABLE_DRAWS = new GameOption.Number(3, 1, 5, Component.translatable("rule.charta.available_draws"), Component.translatable("rule.charta.available_draws.description"));
 
-    private final GameSlot playPile;
-    private final GameSlot drawPile;
+    private final PlaySlot playPile;
+    private final DrawSlot drawPile;
 
-    public final GameSlot suits = new GameSlot();
+    public final GameSlot suits = new GameSlot() {
+        @Override
+        public boolean removeAll() {
+            return false;
+        }
+    };
+
     public boolean isChoosingWild;
     public Suit currentSuit;
     public int drawsLeft;
@@ -32,8 +38,32 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
         super(players, deck);
         this.drawsLeft = AVAILABLE_DRAWS.get();
 
-        this.drawPile = addSlot(new GameSlot(new LinkedList<>(), CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f - 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0));
-        this.playPile = addSlot(new GameSlot(new LinkedList<>(), CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f + 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0));
+        this.drawPile = addSlot(new DrawSlot(this, new LinkedList<>(), CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f - 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0, () -> this.drawsLeft > 0));
+        this.playPile = addSlot(new PlaySlot(this, new LinkedList<>(), CardTableBlockEntity.TABLE_WIDTH/2f - CardImage.WIDTH/2f + 20f, CardTableBlockEntity.TABLE_HEIGHT/2f - CardImage.HEIGHT/2f, 0, 0, drawPile));
+    }
+
+    @Override
+    public GameSlot getPlayerHand(CardPlayer player) {
+        return (player == this.getCurrentPlayer() && this.isChoosingWild) ? this.suits : super.getPlayerHand(player);
+    }
+
+    @Override
+    protected GameSlot createPlayerHand(CardPlayer player) {
+        return new GameSlot(player.hand()) {
+            @Override
+            public void onInsert(CardPlayer player, List<Card> cards) {
+                super.onInsert(player, cards);
+                if(drawPile.isDraw()) {
+                    player.play(null);
+                    drawPile.setDraw(false);
+                }
+            }
+
+            @Override
+            public boolean removeAll() {
+                return false;
+            }
+        };
     }
 
     @Override
@@ -75,8 +105,8 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
 
         for (CardPlayer player : players) {
             player.resetPlay();
-            player.getHand().clear();
-            getCensoredHand(player).clear();
+            this.getPlayerHand(player).clear();
+            this.getCensoredHand(player).clear();
         }
 
         for(int i = 0; i < 5; i++) {
@@ -177,8 +207,8 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
                 }
 
                 //If the player is a bot, we need to manually remove the card from its hand and censored hand, and add it to the play pile.
-                if(currentPlayer.shouldCompute() && currentPlayer.getHand().remove(card)) {
-                    getCensoredHand(currentPlayer).removeLast();
+                if(currentPlayer.shouldCompute() && this.getPlayerHand(currentPlayer).remove(card)) {
+                    this.getCensoredHand(currentPlayer).removeLast();
                     playPile.addLast(card);
                 }
 

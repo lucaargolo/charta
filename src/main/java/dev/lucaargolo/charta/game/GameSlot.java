@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
+import dev.lucaargolo.charta.sound.ModSounds;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 
@@ -65,12 +66,24 @@ public class GameSlot {
         this(new LinkedList<>());
     }
 
-    public static GameSlot copyOf(GameSlot slot) {
-        LinkedList<Card> cards = new LinkedList<>();
-        for(Card c : slot.cards) {
-            cards.add(c.copy());
-        }
-        return new GameSlot(cards, slot.x, slot.y, slot.z, slot.angle, slot.stackDirection, slot.maxStack);
+    public boolean removeAll() {
+        return true;
+    }
+
+    public void onInsert(CardPlayer player, List<Card> cards) {
+        player.playSound(ModSounds.CARD_PLAY.get());
+    }
+
+    public void onRemove(CardPlayer player, List<Card> cards) {
+        player.playSound(ModSounds.CARD_DRAW.get());
+    }
+
+    public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
+        return true;
+    }
+
+    public boolean canRemoveCard(CardPlayer player, int index) {
+        return !isEmpty();
     }
 
     public void setParent(CardTableBlockEntity parent) {
@@ -276,6 +289,14 @@ public class GameSlot {
             return false;
         }
         return this.cards.equals(((GameSlot)obj).cards);
+    }
+
+    public static GameSlot copyOf(GameSlot slot) {
+        LinkedList<Card> cards = new LinkedList<>();
+        for(Card c : slot.cards) {
+            cards.add(c.copy());
+        }
+        return new GameSlot(cards, slot.x, slot.y, slot.z, slot.angle, slot.stackDirection, slot.maxStack);
     }
 
 }

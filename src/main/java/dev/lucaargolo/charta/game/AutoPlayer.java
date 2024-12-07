@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -15,7 +16,7 @@ import java.util.function.Consumer;
 public class AutoPlayer implements CardPlayer {
 
     private final Random random = new Random();
-    private final GameSlot hand = new GameSlot();
+    private final LinkedList<Card> hand = new LinkedList<>();
     private CompletableFuture<CardPlay> play = new CompletableFuture<>();
     private int playAge = 0;
 
@@ -26,7 +27,7 @@ public class AutoPlayer implements CardPlayer {
     }
 
     @Override
-    public GameSlot getHand() {
+    public LinkedList<Card> hand() {
         return hand;
     }
 
@@ -43,7 +44,7 @@ public class AutoPlayer implements CardPlayer {
             }catch (Exception e) {
                 Charta.LOGGER.error("Error while handling {}'s Card Play. ", this.getName().getString(), e);
             }
-        });;
+        });
     }
 
     @Override

@@ -4,7 +4,6 @@ import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.GameSlot;
-import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
 
 import java.util.ArrayList;
@@ -40,19 +39,19 @@ public class CardSlot<G extends CardGame<G>> {
     }
 
     public final void setCards(List<Card> cards) {
-        GameSlot slot = getter.apply(game);
+        GameSlot slot = this.getSlot();
         slot.clear();
         slot.addAll(cards);
     }
 
     public final boolean insertCards(GameSlot collection, int index) {
-        GameSlot slot = getter.apply(game);
+        GameSlot slot = this.getSlot();
         return index == -1 ? slot.addAll(collection) : slot.addAll(!slot.isEmpty() ? (index + 1) % (slot.size() + 1) : 0, collection);
     }
 
     public final List<Card> removeCards(int index) {
-        GameSlot slot = getter.apply(game);
-        if(this.removeAll()) {
+        GameSlot slot = this.getSlot();
+        if(slot.removeAll()) {
             if (index == -1) {
                 List<Card> cards = slot.stream().toList();
                 slot.clear();
@@ -70,30 +69,21 @@ public class CardSlot<G extends CardGame<G>> {
             return List.of(card);
         }
     }
-    
-    public boolean removeAll() {
-        return true;
+
+    public final void onInsert(CardPlayer player, List<Card> cards) {
+        getSlot().onInsert(player, cards);
     }
 
-    public void onInsert(CardPlayer player, List<Card> cards) {
-        player.playSound(ModSounds.CARD_PLAY.get());
+    public final void onRemove(CardPlayer player, List<Card> cards) {
+        getSlot().onRemove(player, cards);
     }
 
-    public void onRemove(CardPlayer player, List<Card> cards) {
-        player.playSound(ModSounds.CARD_DRAW.get());
+    public final boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
+        return getSlot().canInsertCard(player, cards, index);
     }
 
-    public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
-        return true;
-    }
-
-    public boolean canRemoveCard(CardPlayer player, int index) {
-        GameSlot slot = getter.apply(game);
-        return !slot.isEmpty();
-    }
-
-    public boolean isEmpty() {
-        return getSlot().isEmpty();
+    public final boolean canRemoveCard(CardPlayer player, int index) {
+        return getSlot().canRemoveCard(player, index);
     }
 
     public Type getType() {

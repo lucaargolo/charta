@@ -1,21 +1,17 @@
-package dev.lucaargolo.charta.menu;
-
-import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardGame;
-import dev.lucaargolo.charta.game.CardPlayer;
-import dev.lucaargolo.charta.game.GameSlot;
+package dev.lucaargolo.charta.game;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class DrawSlot<G extends CardGame<G>> extends CardSlot<G> {
+public class DrawSlot extends GameSlot {
 
+    private final CardGame<?> game;
     private final Supplier<Boolean> canDraw;
     private boolean draw = false;
 
-    public DrawSlot(G game, Function<G, GameSlot> getter, float x, float y, Supplier<Boolean> canDraw) {
-        super(game, getter, x, y);
+    public DrawSlot(CardGame<?> game, List<Card> cards, float x, float y, float z, float angle, Supplier<Boolean> canDraw) {
+        super(cards, x, y, z, angle);
+        this.game = game;
         this.canDraw = canDraw;
     }
 

@@ -9,12 +9,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
 public interface CardPlayer {
 
-    GameSlot getHand();
+    LinkedList<Card> hand();
 
     void play(CardPlay play);
 

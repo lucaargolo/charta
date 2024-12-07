@@ -30,6 +30,7 @@ public abstract class CardGame<G extends CardGame<G>> {
         }
     };
 
+    protected final Map<CardPlayer, GameSlot> hands = new HashMap<>();
     protected final Map<CardPlayer, GameSlot> censoredHands = new HashMap<>();
     protected final List<Runnable> scheduledActions = new ArrayList<>();
 
@@ -107,7 +108,7 @@ public abstract class CardGame<G extends CardGame<G>> {
         return gameSlots.get(index);
     }
 
-    protected GameSlot addSlot(GameSlot slot) {
+    protected <S extends GameSlot> S addSlot(S slot) {
         slot.setIndex(gameSlots.size());
         gameSlots.add(slot);
         return slot;
@@ -121,19 +122,39 @@ public abstract class CardGame<G extends CardGame<G>> {
         return isGameOver;
     }
 
-    public GameSlot getCensoredHand(CardPlayer player) {
-        return getCensoredHand(null, player);
+    protected GameSlot createPlayerHand(CardPlayer player) {
+        return new GameSlot(player.hand());
+    }
+
+    public GameSlot getPlayerHand(CardPlayer player) {
+        return hands.computeIfAbsent(player, this::createPlayerHand);
+    }
+
+    protected GameSlot createCensoredHand(CardPlayer player) {
+        LinkedList<Card> list = new LinkedList<>();
+        this.getPlayerHand(player).stream().map(c -> Card.BLANK).forEach(list::add);
+        return new GameSlot(list) {
+            @Override
+            public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
+                return false;
+            }
+
+            @Override
+            public boolean canRemoveCard(CardPlayer player, int index) {
+                return false;
+            }
+        };
     }
 
     public GameSlot getCensoredHand(@Nullable CardPlayer viewer, CardPlayer player) {
         if(viewer == player && player.getEntity() instanceof ServerPlayer) {
-            return player.getHand();
+            return hands.getOrDefault(player, new GameSlot());
         }
-        return censoredHands.computeIfAbsent(player, p -> {
-            LinkedList<Card> list = new LinkedList<>();
-            p.getHand().stream().map(c -> Card.BLANK).forEach(list::add);
-            return new GameSlot(list);
-        });
+        return censoredHands.computeIfAbsent(player, this::createCensoredHand);
+    }
+
+    public GameSlot getCensoredHand(CardPlayer player) {
+        return getCensoredHand(null, player);
     }
 
     public CardPlayer getCurrentPlayer() {
@@ -147,9 +168,9 @@ public abstract class CardGame<G extends CardGame<G>> {
     protected Stream<Card> getFullHand(CardPlayer player) {
         LivingEntity entity = player.getEntity();
         if(entity instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof AbstractCardMenu<?> menu && !menu.getCarriedCards().isEmpty()) {
-            return Stream.concat(player.getHand().stream(), menu.getCarriedCards().stream());
+            return Stream.concat(this.getPlayerHand(player).stream(), menu.getCarriedCards().stream());
         }else{
-            return player.getHand().stream();
+            return this.getPlayerHand(player).stream();
         }
     }
 
@@ -157,7 +178,7 @@ public abstract class CardGame<G extends CardGame<G>> {
         Map<Suit, Integer> suitCountMap = new HashMap<>();
 
         //Adds all suits to a map, and increases its value everytime it appears.
-        for (Card c : player.getHand().getCards()) {
+        for (Card c : this.getPlayerHand(player).getCards()) {
             Suit suit = c.getSuit();
             suitCountMap.put(suit, suitCountMap.getOrDefault(suit, 0) + 1);
         }
@@ -231,8 +252,8 @@ public abstract class CardGame<G extends CardGame<G>> {
         for (int i = 0; i < count; i++) {
             Card card = drawSlot.removeLast();
             card.flip();
-            player.getHand().add(card);
-            getCensoredHand(player).add(Card.BLANK);
+            this.getPlayerHand(player).add(card);
+            this.getCensoredHand(player).add(Card.BLANK);
         }
     }
 
@@ -244,7 +265,7 @@ public abstract class CardGame<G extends CardGame<G>> {
         for(CardPlayer p : this.getPlayers()) {
             LivingEntity entity = p.getEntity();
             if(entity instanceof ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, new CardPlayPayload(player.getName().equals(Component.empty()) ? Component.empty() : player.getColoredName(), player.getHand().size(), play));
+                PacketDistributor.sendToPlayer(serverPlayer, new CardPlayPayload(player.getName().equals(Component.empty()) ? Component.empty() : player.getColoredName(), this.getPlayerHand(player).size(), play));
             }
         }
     }

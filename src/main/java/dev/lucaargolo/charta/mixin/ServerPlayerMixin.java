@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
+import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -24,14 +25,14 @@ import java.util.function.Consumer;
 public abstract class ServerPlayerMixin extends Player implements LivingEntityMixed {
 
     @Unique
-    private final GameSlot charta_hand = new GameSlot();
+    private final LinkedList<Card> charta_hand = new LinkedList<>();
     @Unique
     private CompletableFuture<CardPlay> charta_play = new CompletableFuture<>();
     @Unique
     private final CardPlayer charta_cardPlayer = new CardPlayer() {
 
         @Override
-        public GameSlot getHand() {
+        public LinkedList<Card> hand() {
             return charta_hand;
         }
 

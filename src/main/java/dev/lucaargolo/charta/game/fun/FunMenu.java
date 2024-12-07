@@ -1,7 +1,11 @@
 package dev.lucaargolo.charta.game.fun;
 
-import dev.lucaargolo.charta.game.*;
-import dev.lucaargolo.charta.menu.*;
+import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.CardGames;
+import dev.lucaargolo.charta.game.Suit;
+import dev.lucaargolo.charta.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.menu.CardSlot;
+import dev.lucaargolo.charta.menu.ModMenus;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -10,11 +14,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 public class FunMenu extends AbstractCardMenu<FunGame> {
-
-    private final DrawSlot<FunGame> drawSlot;
 
     private int canDoLast = 0;
     private int didntSayLast = 0;
@@ -58,38 +58,10 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
         super(ModMenus.FUN.get(), containerId, inventory, access, deck, players, options);
 
         this.addTopPreview(players);
-        //Draw pile
-        this.drawSlot = addCardSlot(new DrawSlot<>(this.game, g -> g.getSlot(0), 16, 30, () -> this.game.canDraw));
-        //Play pile
-        addCardSlot(new PlaySlot<>(this.game, g -> g.getSlot(1), 87, 30, drawSlot));
-
-        addCardSlot(new CardSlot<>(this.game, g -> (cardPlayer == g.getCurrentPlayer() && g.isChoosingWild) ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.HORIZONTAL)/2f, -5, CardSlot.Type.HORIZONTAL) {
-            @Override
-            public void onInsert(CardPlayer player, List<Card> cards) {
-                super.onInsert(player, cards);
-                if(drawSlot.isDraw()) {
-                    player.play(null);
-                    drawSlot.setDraw(false);
-                }
-                if(!game.isChoosingWild)
-                    game.getCensoredHand(player).add(Card.BLANK);
-            }
-
-            @Override
-            public void onRemove(CardPlayer player, List<Card> cards) {
-                super.onRemove(player, cards);
-                if(!game.isChoosingWild)
-                    game.getCensoredHand(player).removeLast();
-            }
-
-            @Override
-            public boolean removeAll() {
-                return false;
-            }
-        });
-
+        addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(0), 16, 30));
+        addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(1), 87, 30));
+        addCardSlot(new CardSlot<>(this.game, g -> g.getPlayerHand(this.getCardPlayer()), 140/2f - CardSlot.getWidth(CardSlot.Type.HORIZONTAL)/2f, -5, CardSlot.Type.HORIZONTAL));
         addDataSlots(data);
-
     }
 
     public boolean canDoLast() {
