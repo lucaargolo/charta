@@ -358,6 +358,8 @@
   "button.charta.reset": "Reset",
   "button.charta.save": "Save",
   "button.charta.start": "Start",
+  "button.charta.confirm": "Confirm",
+  "button.charta.cancel": "Cancel",
 
   "rule.charta.available_draws": "Last draw amount",
   "rule.charta.available_draws.description": "The amount of cards you are able to draw during your round.",
@@ -430,10 +432,11 @@
   "message.charta.game_options": "Options",
   "message.charta.game_deck": "Card Deck",
   "message.charta.how_to_play": "How to play",
+  "message.charta.are_you_sure": "Are you sure?",
+  "message.charta.leaving_game": "Leaving this chair will make you abandon the game, finishing it prematurely.",
 
   "charta_md:charta.how_to_play_fun": "charta:en_us/how_to_play_fun",
   "charta_md:charta.how_to_play_crazy_eights": "charta:en_us/how_to_play_crazy_eights",
   "charta_md:charta.how_to_play_solitaire": "charta:en_us/how_to_play_solitaire"
-
 
 }

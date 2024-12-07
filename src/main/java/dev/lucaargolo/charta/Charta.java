@@ -119,6 +119,8 @@ public class Charta {
 
             registrar.playBidirectional(LastFunPayload.TYPE, LastFunPayload.STREAM_CODEC, LastFunPayload::handleBoth);
             registrar.playBidirectional(PlayerOptionsPayload.TYPE, PlayerOptionsPayload.STREAM_CODEC, PlayerOptionsPayload::handleBoth);
+            registrar.playBidirectional(GameLeavePayload.TYPE, GameLeavePayload.STREAM_CODEC, GameLeavePayload::handleBoth);
+
         }
 
     }

@@ -14,6 +14,7 @@
     "LeashableMixin",
     "LivingEntityMixin",
     "MobMixin",
+    "PlayerMixin",
     "ServerPlayerMixin"
   ],
   "client": [
