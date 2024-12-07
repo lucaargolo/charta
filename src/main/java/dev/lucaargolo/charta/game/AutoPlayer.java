@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.game;
 
+import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.utils.CardPlayerHead;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class AutoPlayer implements CardPlayer {
 
@@ -29,13 +31,24 @@ public class AutoPlayer implements CardPlayer {
     }
 
     @Override
-    public CompletableFuture<CardPlay> getPlay(CardGame<?> game) {
-        return play;
+    public void play(CardPlay play) {
+        this.play.complete(play);
     }
 
     @Override
-    public void setPlay(CompletableFuture<CardPlay> play) {
-        this.play = play;
+    public void afterPlay(Consumer<CardPlay> consumer) {
+        this.play.thenAccept(play -> {
+            try{
+                consumer.accept(play);
+            }catch (Exception e) {
+                Charta.LOGGER.error("Error while handling {}'s Card Play. ", this.getName().getString(), e);
+            }
+        });;
+    }
+
+    @Override
+    public void resetPlay() {
+        this.play = new CompletableFuture<>();
         this.playAge = 0;
     }
 
@@ -46,7 +59,7 @@ public class AutoPlayer implements CardPlayer {
             threshold += random.nextInt(-5, 40);
             if(playAge > threshold) {
                 CardPlay cardPlay = game.getBestPlay(this);
-                play.complete(cardPlay);
+                play(cardPlay);
             }else{
                 playAge++;
             }

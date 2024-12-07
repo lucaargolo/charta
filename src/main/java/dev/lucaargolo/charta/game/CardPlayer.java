@@ -9,15 +9,18 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.List;
+import java.util.function.Consumer;
 
 public interface CardPlayer {
 
     GameSlot getHand();
 
-    CompletableFuture<CardPlay> getPlay(CardGame<?> game);
+    void play(CardPlay play);
 
-    void setPlay(CompletableFuture<CardPlay> play);
+    void afterPlay(Consumer<CardPlay> consumer);
+
+    void resetPlay();
 
     void tick(CardGame<?> game);
 
@@ -38,6 +41,10 @@ public interface CardPlayer {
     DyeColor getColor();
 
     int getId();
+
+    default void play(List<Card> cards, int slot) {
+        play(new CardPlay(cards, slot));
+    }
 
     @Nullable
     default LivingEntity getEntity() {

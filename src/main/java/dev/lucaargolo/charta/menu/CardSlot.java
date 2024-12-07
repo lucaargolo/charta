@@ -4,6 +4,7 @@ import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.GameSlot;
+import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
 
 import java.util.ArrayList;
@@ -75,11 +76,11 @@ public class CardSlot<G extends CardGame<G>> {
     }
 
     public void onInsert(CardPlayer player, List<Card> cards) {
-
+        player.playSound(ModSounds.CARD_PLAY.get());
     }
 
     public void onRemove(CardPlayer player, List<Card> cards) {
-
+        player.playSound(ModSounds.CARD_DRAW.get());
     }
 
     public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {

@@ -1,10 +1,13 @@
 package dev.lucaargolo.charta.game.solitaire;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -15,7 +18,6 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 public class SolitaireGame extends CardGame<SolitaireGame> {
@@ -38,22 +40,18 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         this.stockPile = addSlot(new GameSlot(new LinkedList<>(), leftX, topY, 0f, 0f));
         this.wastePile = addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + 5, topY, 0f, 0f));
 
-        this.foundationPiles = Map.of(
-            Suit.SPADES, addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*3, topY, 0f, 0f)),
-            Suit.HEARTS, addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*4, topY, 0f, 0f)),
-            Suit.CLUBS, addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*5, topY, 0f, 0f)),
-            Suit.DIAMONDS, addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*6, topY, 0f, 0f))
-        );
+        int i = 0;
+        ImmutableMap.Builder<Suit, GameSlot> map = ImmutableMap.builder();
+        for(Suit suit : List.of(Suit.SPADES, Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS)) {
+            map.put(suit, addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*(3+i++), topY, 0f, 0f)));
+        }
+        this.foundationPiles = map.build();
 
-        this.tableauPiles = List.of(
-            addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)),
-            addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + CardImage.WIDTH + 5, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)),
-            addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*2, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)),
-            addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*3, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)),
-            addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*4, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)),
-            addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*5, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)),
-            addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*6, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false))
-        );
+        ImmutableList.Builder<GameSlot> list = ImmutableList.builder();
+        for(i = 0; i < 7; i++) {
+            list.add(addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*i, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)));
+        }
+        this.tableauPiles = list.build();
     }
 
     @Override
@@ -97,22 +95,24 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         this.stockPile.shuffle();
 
         for (CardPlayer player : players) {
-            player.setPlay(new CompletableFuture<>());
+            player.resetPlay();
             player.getHand().clear();
             getCensoredHand(player).clear();
         }
 
         for (int i = 0; i < this.tableauPiles.size(); i++) {
-            for (int j = 0; j <= i; j++) {
-                int slot = i;
-                int amount = j;
-                this.scheduledActions.add(() -> {
-                    this.currentPlayer.playSound(ModSounds.CARD_DRAW.get());
-                    Card card = this.stockPile.removeLast();
-                    if(slot == amount) card.flip();
-                    this.tableauPiles.get(slot).addLast(card);
-                });
-                this.scheduledActions.add(() -> {});
+            for (int j = 0; j < this.tableauPiles.size(); j++) {
+                int slot = j;
+                int amount = i;
+                if(slot >= amount) {
+                    this.scheduledActions.add(() -> {
+                        this.currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+                        Card card = this.stockPile.removeLast();
+                        if(slot == amount) card.flip();
+                        this.tableauPiles.get(slot).addLast(card);
+                    });
+                    this.scheduledActions.add(() -> {});
+                }
             }
         }
 
@@ -125,12 +125,62 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
 
     @Override
     public void runGame() {
+        if(!isGameReady) {
+            return;
+        }
+        currentPlayer.afterPlay(play -> {
+            //Setup next play.
+            currentPlayer.resetPlay();
 
+            if(play != null) {
+                //If they successfully did a play, unflip the last card from the tableau
+                GameSlot s = this.getSlot(play.slot());
+                if(!s.isEmpty() && s.getLast().isFlipped()) {
+                    s.getLast().flip();
+                    s.setDirty(true);
+                    play(currentPlayer, Component.translatable("message.charta.revealed_a_card", Component.translatable(deck.getCardTranslatableKey(s.getLast())), play.slot()-5));
+                }else{
+                    play(currentPlayer, Component.translatable("message.charta.did_a_move"));
+                }
+            }else{
+                play(currentPlayer, Component.translatable("message.charta.did_a_move"));
+            }
+
+            //Check if the stockpile is empty
+            if(this.stockPile.isEmpty()) {
+                this.wastePile.forEach(Card::flip);
+                this.wastePile.reverse();
+                this.stockPile.addAll(this.wastePile);
+                this.wastePile.clear();
+            }
+
+            boolean allEmpty = true;
+            for(GameSlot slot : this.tableauPiles) {
+                allEmpty = allEmpty && slot.isEmpty();
+            }
+
+            if(allEmpty) {
+                endGame();
+            }else{
+                runGame();
+            }
+        });
     }
 
     @Override
     public void endGame() {
+        boolean allEmpty = true;
+        for(GameSlot slot : this.tableauPiles) {
+            allEmpty = allEmpty && slot.isEmpty();
+        }
+        if(allEmpty) {
+            currentPlayer.sendTitle(Component.translatable("message.charta.you_won").withStyle(ChatFormatting.GREEN), Component.translatable("message.charta.congratulations"));
+        }else{
+            currentPlayer.sendTitle(Component.translatable("message.charta.you_lost").withStyle(ChatFormatting.RED), Component.translatable("message.charta.give_up"));
+        }
+
         this.isGameOver = true;
+
     }
 
     @Override
@@ -148,9 +198,9 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         return List.of();
     }
 
-    private boolean isAlternateColor(Card c1, Card c2) {
-        boolean c1Red = (c1.getSuit() == Suit.HEARTS || c1.getSuit() == Suit.DIAMONDS);
-        boolean c2Red = (c2.getSuit() == Suit.HEARTS || c2.getSuit() == Suit.DIAMONDS);
-        return c1Red != c2Red;
+    public static boolean isAlternate(Card c1, Card c2) {
+        boolean v1 = (c1.getSuit() == Suit.HEARTS || c1.getSuit() == Suit.DIAMONDS);
+        boolean v2 = (c2.getSuit() == Suit.HEARTS || c2.getSuit() == Suit.DIAMONDS);
+        return v1 != v2;
     }
 }

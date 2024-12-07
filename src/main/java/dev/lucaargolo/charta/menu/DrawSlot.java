@@ -4,7 +4,6 @@ import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.GameSlot;
-import dev.lucaargolo.charta.sound.ModSounds;
 
 import java.util.List;
 import java.util.function.Function;
@@ -32,7 +31,7 @@ public class DrawSlot<G extends CardGame<G>> extends CardSlot<G> {
 
     @Override
     public void onRemove(CardPlayer player, List<Card> card) {
-        player.playSound(ModSounds.CARD_DRAW.get());
+        super.onRemove(player, card);
         card.forEach(Card::flip);
         draw = true;
     }

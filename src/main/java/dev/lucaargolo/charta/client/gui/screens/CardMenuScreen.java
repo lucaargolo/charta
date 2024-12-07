@@ -288,6 +288,8 @@ public abstract class CardMenuScreen<G extends CardGame<G>, T extends AbstractCa
 
         if(this.hoveredCardSlot != null && this.hoverable instanceof CardSlotWidget<?> cardSlotWidget) {
             this.hoveredCardId = cardSlotWidget.getHoveredId();
+        }else{
+            this.hoveredCardId = -1;
         }
 
         guiGraphics.pose().pushPose();

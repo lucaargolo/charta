@@ -14,7 +14,6 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
@@ -75,7 +74,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
         drawPile.shuffle();
 
         for (CardPlayer player : players) {
-            player.setPlay(new CompletableFuture<>());
+            player.resetPlay();
             player.getHand().clear();
             getCensoredHand(player).clear();
         }
@@ -136,9 +135,9 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
             }
         }
 
-        currentPlayer.getPlay(this).thenAccept(play -> {
+        currentPlayer.afterPlay(play -> {
             //Setup next play.
-            currentPlayer.setPlay(new CompletableFuture<>());
+            currentPlayer.resetPlay();
 
             if(play == null) {
                 //Player tried drawing a card.

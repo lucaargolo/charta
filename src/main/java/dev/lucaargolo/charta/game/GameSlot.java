@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-@SuppressWarnings({"UnusedReturnValue", "ConstantValue"})
 public class GameSlot {
 
     private CardTableBlockEntity parent = null;
@@ -67,7 +66,11 @@ public class GameSlot {
     }
 
     public static GameSlot copyOf(GameSlot slot) {
-        return new GameSlot(new LinkedList<>(slot.cards), slot.x, slot.y, slot.z, slot.angle, slot.stackDirection, slot.maxStack);
+        LinkedList<Card> cards = new LinkedList<>();
+        for(Card c : slot.cards) {
+            cards.add(c.copy());
+        }
+        return new GameSlot(cards, slot.x, slot.y, slot.z, slot.angle, slot.stackDirection, slot.maxStack);
     }
 
     public void setParent(CardTableBlockEntity parent) {
@@ -196,16 +199,14 @@ public class GameSlot {
         return this.cards.getLast();
     }
 
-    public boolean add(Card card) {
-        boolean result = this.cards.add(card);
+    public void add(Card card) {
+        this.cards.add(card);
         this.setDirty(true);
-        return result;
     }
 
-    public boolean addLast(Card card) {
-        boolean result = this.cards.add(card);
+    public void addLast(Card card) {
+        this.cards.add(card);
         this.setDirty(true);
-        return result;
     }
 
     public boolean addAll(GameSlot slot) {
@@ -253,6 +254,11 @@ public class GameSlot {
 
     public void shuffle() {
         Collections.shuffle(this.cards);
+        this.setDirty(true);
+    }
+
+    public void reverse() {
+        Collections.reverse(this.cards);
         this.setDirty(true);
     }
 

@@ -2,7 +2,6 @@ package dev.lucaargolo.charta.game.fun;
 
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.*;
-import dev.lucaargolo.charta.sound.ModSounds;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -67,21 +66,20 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
         addCardSlot(new CardSlot<>(this.game, g -> (cardPlayer == g.getCurrentPlayer() && g.isChoosingWild) ? g.suits : cardPlayer.getHand(), 140/2f - CardSlot.getWidth(CardSlot.Type.HORIZONTAL)/2f, -5, CardSlot.Type.HORIZONTAL) {
             @Override
             public void onInsert(CardPlayer player, List<Card> cards) {
+                super.onInsert(player, cards);
                 if(drawSlot.isDraw()) {
-                    player.getPlay(this.game).complete(null);
+                    player.play(null);
                     drawSlot.setDraw(false);
                 }
-                player.playSound(ModSounds.CARD_PLAY.get());
                 if(!game.isChoosingWild)
                     game.getCensoredHand(player).add(Card.BLANK);
             }
 
             @Override
             public void onRemove(CardPlayer player, List<Card> cards) {
-                player.playSound(ModSounds.CARD_DRAW.get());
+                super.onRemove(player, cards);
                 if(!game.isChoosingWild)
                     game.getCensoredHand(player).removeLast();
-                super.onRemove(player, cards);
             }
 
             @Override

@@ -21,7 +21,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 public class FunGame extends CardGame<FunGame> {
@@ -111,7 +110,7 @@ public class FunGame extends CardGame<FunGame> {
         drawPile.shuffle();
 
         for (CardPlayer player : players) {
-            player.setPlay(new CompletableFuture<>());
+            player.resetPlay();
             player.getHand().clear();
             getCensoredHand(player).clear();
         }
@@ -176,9 +175,9 @@ public class FunGame extends CardGame<FunGame> {
             }
         }
 
-        currentPlayer.getPlay(this).thenAccept(play -> {
+        currentPlayer.afterPlay(play -> {
             //Setup next play.
-            currentPlayer.setPlay(new CompletableFuture<>());
+            currentPlayer.resetPlay();
 
             if(play == null) {
                 //Player tried drawing a card.

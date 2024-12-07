@@ -19,7 +19,7 @@ public class PlaySlot<G extends CardGame<G>> extends CardSlot<G> {
     @Override
     public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
         if(drawSlot != null && drawSlot.isDraw()) {
-            player.getPlay(this.game).complete(null);
+            player.play(null);
             drawSlot.setDraw(false);
         }
         return player == this.game.getCurrentPlayer() && this.game.canPlay(player, new CardPlay(cards, getter.apply(this.game).getIndex()));
@@ -32,7 +32,7 @@ public class PlaySlot<G extends CardGame<G>> extends CardSlot<G> {
 
     @Override
     public void onInsert(CardPlayer player, List<Card> cards) {
-        player.getPlay(this.game).complete(new CardPlay(cards, getter.apply(this.game).getIndex()));
+        player.play(cards, getter.apply(this.game).getIndex());
     }
 
 }

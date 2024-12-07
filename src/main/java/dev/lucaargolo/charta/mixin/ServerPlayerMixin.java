@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.mixin;
 
 import com.mojang.authlib.GameProfile;
+import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import net.minecraft.core.BlockPos;
@@ -17,6 +18,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements LivingEntityMixed {
@@ -34,13 +36,24 @@ public abstract class ServerPlayerMixin extends Player implements LivingEntityMi
         }
 
         @Override
-        public CompletableFuture<CardPlay> getPlay(CardGame<?> game) {
-            return charta_play;
+        public void play(CardPlay play) {
+            charta_play.complete(play);
         }
 
         @Override
-        public void setPlay(CompletableFuture<CardPlay> play) {
-            charta_play = play;
+        public void afterPlay(Consumer<CardPlay> consumer) {
+            charta_play.thenAccept(play -> {
+                try{
+                    consumer.accept(play);
+                }catch (Exception e) {
+                    Charta.LOGGER.error("Error while handling {}'s Card Play. ", this.getName().getString(), e);
+                }
+            });
+        }
+
+        @Override
+        public void resetPlay() {
+            charta_play = new CompletableFuture<>();
         }
 
         @Override
