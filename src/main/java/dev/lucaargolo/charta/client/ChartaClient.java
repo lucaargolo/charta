@@ -55,6 +55,9 @@ public class ChartaClient {
     public static ShaderInstance IMAGE_SHADER;
     public static ShaderInstance IMAGE_GLOW_SHADER;
     public static ShaderInstance IMAGE_ARGB_SHADER;
+    public static ShaderInstance WHITE_IMAGE_SHADER;
+    public static ShaderInstance WHITE_IMAGE_GLOW_SHADER;
+    public static ShaderInstance WHITE_IMAGE_ARGB_SHADER;
     public static ShaderInstance CARD_SHADER;
     public static ShaderInstance CARD_GLOW_SHADER;
     public static ShaderInstance CARD_ARGB_SHADER;
@@ -226,6 +229,15 @@ public class ChartaClient {
             event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("image_argb"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
                 IMAGE_ARGB_SHADER = instance;
             });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("white_image"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                WHITE_IMAGE_SHADER = instance;
+            });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("white_image_glow"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                WHITE_IMAGE_GLOW_SHADER = instance;
+            });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("white_image_argb"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                WHITE_IMAGE_ARGB_SHADER = instance;
+            });
             event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("card"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
                 cardFovUniforms.add(Objects.requireNonNull(instance.getUniform("Fov"))::set);
                 cardXRotUniforms.add(Objects.requireNonNull(instance.getUniform("XRot"))::set);
@@ -280,6 +292,21 @@ public class ChartaClient {
     @Nullable
     public static ShaderInstance getImageArgbShader() {
         return IMAGE_ARGB_SHADER;
+    }
+
+    @Nullable
+    public static ShaderInstance getWhiteImageShader() {
+        return WHITE_IMAGE_SHADER;
+    }
+
+    @Nullable
+    public static ShaderInstance getWhiteImageGlowShader() {
+        return WHITE_IMAGE_GLOW_SHADER;
+    }
+
+    @Nullable
+    public static ShaderInstance getWhiteImageArgbShader() {
+        return WHITE_IMAGE_ARGB_SHADER;
     }
 
     @Nullable

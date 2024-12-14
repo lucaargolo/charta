@@ -1,7 +1,10 @@
 package dev.lucaargolo.charta.game.solitaire;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.lucaargolo.charta.client.gui.screens.GameScreen;
+import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.utils.CardImage;
+import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,6 +20,19 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
 
     @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        int i = 0;
+        for(Suit suit : Suit.values()) {
+            if(suit != Suit.BLANK) {
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(leftPos+140.5 + i*42.5, topPos+22, 0f);
+                guiGraphics.pose().translate(0.5f, 0f, 0f);
+                guiGraphics.pose().scale(1.5f, 1.5f, 1.5f);
+                ChartaGuiGraphics.blitWhiteImageAndGlow(guiGraphics, this.getDeck().getSuitTexture(suit), 0, 0, 0, 0, 13, 13, 13, 13);
+                RenderSystem.defaultBlendFunc();
+                guiGraphics.pose().popPose();
+                i++;
+            }
+        }
     }
 
     @Override

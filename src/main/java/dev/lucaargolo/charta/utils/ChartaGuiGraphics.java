@@ -21,6 +21,16 @@ public class ChartaGuiGraphics {
         Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
     }
 
+    public static void blitWhiteImageAndGlow(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
+        ChartaGuiGraphics.blitWhiteImage(parent, textureLocation, x, y, u, v, width, height, textureWidth, textureHeight);
+        ChartaClient.getGlowRenderTarget().bindWrite(false);
+        RenderSystem.setShaderColor(0f, 0f, 0f, 0f);
+        ChartaGuiGraphics.blitWhiteImage(parent, textureLocation, x, y, u, v, width, height, textureWidth, textureHeight);
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        ChartaGuiGraphics.blitWhiteImageGlow(parent, textureLocation, x, y, u, v, width, height, textureWidth, textureHeight);
+        Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+    }
+
     public static void blitImage(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
         RenderSystem.setShaderTexture(0, textureLocation);
         if(IrisCompat.isPresent()) {
@@ -31,12 +41,32 @@ public class ChartaGuiGraphics {
         innerBlit(parent, x, x + width, y, y + height, (u + 0.0F) / textureWidth, (u + width) / textureWidth, (v + 0.0F) / textureHeight, (v + height) / textureHeight);
     }
 
+    public static void blitWhiteImage(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
+        RenderSystem.setShaderTexture(0, textureLocation);
+        if(IrisCompat.isPresent()) {
+            RenderSystem.setShader(ChartaClient::getWhiteImageArgbShader);
+        }else{
+            RenderSystem.setShader(ChartaClient::getWhiteImageShader);
+        }
+        innerBlit(parent, x, x + width, y, y + height, (u + 0.0F) / textureWidth, (u + width) / textureWidth, (v + 0.0F) / textureHeight, (v + height) / textureHeight);
+    }
+
     public static void blitImageGlow(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
         RenderSystem.setShaderTexture(0, textureLocation);
         if(IrisCompat.isPresent()) {
             RenderSystem.setShader(ChartaClient::getImageArgbShader);
         }else{
             RenderSystem.setShader(ChartaClient::getImageGlowShader);
+        }
+        innerBlit(parent, x, x + width, y, y + height, (u + 0.0F) / textureWidth, (u + width) / textureWidth, (v + 0.0F) / textureHeight, (v + height) / textureHeight);
+    }
+
+    public static void blitWhiteImageGlow(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
+        RenderSystem.setShaderTexture(0, textureLocation);
+        if(IrisCompat.isPresent()) {
+            RenderSystem.setShader(ChartaClient::getWhiteImageArgbShader);
+        }else{
+            RenderSystem.setShader(ChartaClient::getWhiteImageGlowShader);
         }
         innerBlit(parent, x, x + width, y, y + height, (u + 0.0F) / textureWidth, (u + width) / textureWidth, (v + 0.0F) / textureHeight, (v + height) / textureHeight);
     }
