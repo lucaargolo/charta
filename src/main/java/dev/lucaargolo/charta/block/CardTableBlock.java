@@ -178,17 +178,21 @@ public class CardTableBlock extends BaseEntityBlock {
                             cardTable.centerOffset = offset;
                             level.sendBlockUpdated(center, state, state, 3);
                         }
-                        if(!cardTable.getDeckStack().isEmpty()) {
-                            Containers.dropItemStack(level, c.x, c.y, c.z, cardTable.getDeckStack());
-                            cardTable.setDeckStack(ItemStack.EMPTY);
-                            level.sendBlockUpdated(center, state, state, 3);
-                        }else{
-                            DyeColor color = state.getValue(COLOR);
-                            getMultiblock(level, pos).forEach(p -> {
-                                BlockState s = level.getBlockState(p);
-                                level.setBlockAndUpdate(p, s.setValue(CLOTH, false));
-                            });
-                            Containers.dropItemStack(level, c.x, c.y, c.z, DyeColorHelper.getCarpet(color).asItem().getDefaultInstance());
+                        if(cardTable.getGame() != null && !cardTable.getGame().isGameOver()) {
+                            player.displayClientMessage(Component.translatable("message.charta.cant_remove_while_table_occupied").withStyle(ChatFormatting.RED), true);
+                        }else {
+                            if (!cardTable.getDeckStack().isEmpty()) {
+                                Containers.dropItemStack(level, c.x, c.y, c.z, cardTable.getDeckStack());
+                                cardTable.setDeckStack(ItemStack.EMPTY);
+                                level.sendBlockUpdated(center, state, state, 3);
+                            } else {
+                                DyeColor color = state.getValue(COLOR);
+                                getMultiblock(level, pos).forEach(p -> {
+                                    BlockState s = level.getBlockState(p);
+                                    level.setBlockAndUpdate(p, s.setValue(CLOTH, false));
+                                });
+                                Containers.dropItemStack(level, c.x, c.y, c.z, DyeColorHelper.getCarpet(color).asItem().getDefaultInstance());
+                            }
                         }
                     });
                 }
@@ -197,6 +201,9 @@ public class CardTableBlock extends BaseEntityBlock {
                 if (state.getValue(VALID)) {
                     if (!state.getValue(CLOTH)) {
                         if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof WoolCarpetBlock carpetBlock) {
+                            if(!player.isCreative()) {
+                                stack.shrink(1);
+                            }
                             DyeColor color = carpetBlock.getColor();
                             getMultiblock(level, pos).forEach(p -> {
                                 BlockState s = level.getBlockState(p);
@@ -265,6 +272,9 @@ public class CardTableBlock extends BaseEntityBlock {
             level.getBlockEntity(pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(entity -> {
                 Vec3 c = pos.getCenter();
                 Containers.dropItemStack(level, c.x, c.y, c.z, entity.getDeckStack());
+                if(entity.getGame() != null && !entity.getGame().isGameOver()) {
+                    entity.getGame().endGame();
+                }
             });
         }
         super.onRemove(state, level, pos, newState, movedByPiston);

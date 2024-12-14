@@ -1,7 +1,9 @@
 package dev.lucaargolo.charta.block;
 
 import dev.lucaargolo.charta.utils.DyeColorHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -79,6 +81,9 @@ public class BarStoolBlock extends SeatBlock {
         ItemStack stack = player.getMainHandItem();
         if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof WoolCarpetBlock carpetBlock) {
             if (!level.isClientSide()) {
+                if(!player.isCreative()) {
+                    stack.shrink(1);
+                }
                 if (!state.getValue(CLOTH)) {
                     DyeColor color = carpetBlock.getColor();
                     level.setBlockAndUpdate(pos, state.setValue(CLOTH, true).setValue(COLOR, color));
@@ -88,10 +93,14 @@ public class BarStoolBlock extends SeatBlock {
         }else if(player.isShiftKeyDown()){
             if (!level.isClientSide()) {
                 if (state.getValue(CLOTH)) {
-                    DyeColor color = state.getValue(COLOR);
-                    level.setBlockAndUpdate(pos, state.setValue(CLOTH, false));
-                    Vec3 c = pos.getCenter();
-                    Containers.dropItemStack(level, c.x, c.y, c.z, DyeColorHelper.getCarpet(color).asItem().getDefaultInstance());
+                    if(!isSeatOccupied(level, pos)) {
+                        DyeColor color = state.getValue(COLOR);
+                        level.setBlockAndUpdate(pos, state.setValue(CLOTH, false));
+                        Vec3 c = pos.getCenter();
+                        Containers.dropItemStack(level, c.x, c.y, c.z, DyeColorHelper.getCarpet(color).asItem().getDefaultInstance());
+                    }else{
+                        player.displayClientMessage(Component.translatable("message.charta.cant_remove_while_seat_occupied").withStyle(ChatFormatting.RED), true);
+                    }
                 }
             }
             return true;

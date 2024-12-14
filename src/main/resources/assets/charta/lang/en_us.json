@@ -378,15 +378,18 @@
   "rule.charta.stack_any_plus2_on_plus4": "Stack Any +2 on +4",
   "rule.charta.stack_any_plus2_on_plus4.description": "Controls if players are allowed to stack +2 cards on top of +4 cards, independent of its color.",
 
-  "message.charta.put_table_cloth": "You need to put a cloth on this table.",
+  "message.charta.put_table_cloth": "You need to put a carpet on this table.",
   "message.charta.not_playing_current": "You're not playing the current game.",
   "message.charta.need_to_be_sat": "You need to be sat in the table to start a game.",
   "message.charta.invalid_card_player": "You are not a valid Card Player.",
-  "message.charta.put_chair_cloth": "You need to put a cloth on this chair.",
+  "message.charta.put_chair_cloth": "You need to put a carpet on this chair.",
   "message.charta.game_started": "Game started",
   "message.charta.cant_play_deck": "You can't play this game with this deck.",
   "message.charta.try_finding_another": "Try finding another one.",
   "message.charta.table_unknown_game": "Table received an unknown game id.",
+  "message.charta.hold_to_options": "Hold %s to change game options.",
+  "message.charta.cant_remove_while_seat_occupied": "You can't remove that while the seat is in use.",
+  "message.charta.cant_remove_while_table_occupied": "You can't remove that while the table is in use.",
   "message.charta.table_no_game": "Table received no game id.",
   "message.charta.table_no_deck": "You need a deck to be able to play games.",
   "message.charta.choose_game": "Please choose a game to play:",
@@ -438,7 +441,6 @@
 
   "charta_md:charta.how_to_play_fun": "charta:en_us/how_to_play_fun",
   "charta_md:charta.how_to_play_crazy_eights": "charta:en_us/how_to_play_crazy_eights",
-  "charta_md:charta.how_to_play_solitaire": "charta:en_us/how_to_play_solitaire",
-  "message.charta.hold_to_options": "Hold %s to change game options."
+  "charta_md:charta.how_to_play_solitaire": "charta:en_us/how_to_play_solitaire"
 
 }
