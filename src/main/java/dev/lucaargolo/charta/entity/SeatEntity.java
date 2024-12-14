@@ -29,7 +29,9 @@
 
 package dev.lucaargolo.charta.entity;
 
+import dev.lucaargolo.charta.block.GameChairBlock;
 import dev.lucaargolo.charta.block.SeatBlock;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -44,6 +46,7 @@ import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -68,11 +71,19 @@ public class SeatEntity extends Entity {
         if (this.level().isClientSide) return;
 
         BlockState state = this.level().getBlockState(this.blockPosition());
+        if(state.getBlock() instanceof GameChairBlock) {
+            for(Entity entity : this.getPassengers()) {
+                if(!(entity instanceof Player)) {
+                    Direction facing = state.getValue(GameChairBlock.FACING);
+                    entity.lookAt(EntityAnchorArgument.Anchor.EYES, entity.getEyePosition().add(Vec3.atLowerCornerOf(facing.getNormal()).multiply(2f, 2f, 2f)));
+                }
+            }
+        }
+
         boolean canSit;
         if (state.getBlock() instanceof SeatBlock seatBlock) canSit = seatBlock.isSittable(state);
         else canSit = false;
         if (isVehicle() && canSit) return;
-
 
         this.discard();
         this.level().updateNeighbourForOutputSignal(this.blockPosition(), this.level().getBlockState(this.blockPosition()).getBlock());
