@@ -1,6 +1,6 @@
 {
     "vertex": "charta:perspective",
-    "fragment": "charta:card_glow",
+    "fragment": "charta:perspective",
     "samplers": [
         { "name": "Sampler0" }
     ],

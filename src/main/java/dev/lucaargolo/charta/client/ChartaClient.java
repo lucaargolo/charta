@@ -58,6 +58,8 @@ public class ChartaClient {
     public static ShaderInstance CARD_SHADER;
     public static ShaderInstance CARD_GLOW_SHADER;
     public static ShaderInstance CARD_ARGB_SHADER;
+    public static ShaderInstance PERSPECTIVE_SHADER;
+    public static ShaderInstance GRAYSCALE_SHADER;
 
     private static final List<Consumer<Float>> cardFovUniforms = new ArrayList<>();
     public static Consumer<Float> CARD_FOV = f -> cardFovUniforms.forEach(c -> c.accept(f));
@@ -245,6 +247,16 @@ public class ChartaClient {
                 cardInsetUniforms.add(Objects.requireNonNull(instance.getUniform("InSet"))::set);
                 CARD_ARGB_SHADER = instance;
             });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("perspective"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                cardFovUniforms.add(Objects.requireNonNull(instance.getUniform("Fov"))::set);
+                cardXRotUniforms.add(Objects.requireNonNull(instance.getUniform("XRot"))::set);
+                cardYRotUniforms.add(Objects.requireNonNull(instance.getUniform("YRot"))::set);
+                cardInsetUniforms.add(Objects.requireNonNull(instance.getUniform("InSet"))::set);
+                PERSPECTIVE_SHADER = instance;
+            });
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("grayscale"), DefaultVertexFormat.POSITION_TEX_COLOR), instance -> {
+                GRAYSCALE_SHADER = instance;
+            });
             event.registerShader(new ShaderInstance(event.getResourceProvider(), Charta.id("rendertype_entity_card"), DefaultVertexFormat.NEW_ENTITY), instance -> {
                 ENTITY_CARD_SHADER = instance;
             });
@@ -283,5 +295,15 @@ public class ChartaClient {
     @Nullable
     public static ShaderInstance getCardArgbShader() {
         return CARD_ARGB_SHADER;
+    }
+
+    @Nullable
+    public static ShaderInstance getPerspectiveShader() {
+        return PERSPECTIVE_SHADER;
+    }
+
+    @Nullable
+    public static ShaderInstance getGrayscaleShader() {
+        return GRAYSCALE_SHADER;
     }
 }

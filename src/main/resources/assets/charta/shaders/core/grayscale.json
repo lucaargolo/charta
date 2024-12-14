@@ -1,6 +1,6 @@
 {
     "vertex": "position_tex_color",
-    "fragment": "charta:image",
+    "fragment": "charta:grayscale",
     "samplers": [
         { "name": "Sampler0" }
     ],

@@ -61,6 +61,18 @@ public class ChartaGuiGraphics {
         innerBlit(parent, x, x + width, y, y + height, 0f, 1f, 0f, 1f);
     }
 
+    public static void blitPerspective(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float width, float height) {
+        RenderSystem.setShaderTexture(0, textureLocation);
+        RenderSystem.setShader(ChartaClient::getPerspectiveShader);
+        innerBlit(parent, x, x + width, y, y + height, 0f, 1f, 0f, 1f);
+    }
+
+    public static void blitGrayscale(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float width, float height) {
+        RenderSystem.setShaderTexture(0, textureLocation);
+        RenderSystem.setShader(ChartaClient::getGrayscaleShader);
+        innerBlit(parent, x, x + width, y, y + height, 0f, 1f, 0f, 1f);
+    }
+
     public static void innerBlit(GuiGraphics parent, float x1, float x2, float y1, float y2, float minU, float maxU, float minV, float maxV) {
         RenderSystem.enableBlend();
         Matrix4f matrix4f = parent.pose().last().pose();

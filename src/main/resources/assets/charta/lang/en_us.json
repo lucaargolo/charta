@@ -421,6 +421,7 @@
   "message.charta.say_last": "Say last!",
   "message.charta.draw_all_cards": "Draw all cards.",
   "message.charta.configure_game": "Configure game options",
+  "message.charta.play_game": "Play game",
   "message.charta.this_game_options": "%s Options",
   "message.charta.reset_options": "Reset all options to default",
   "message.charta.save_options": "Save all options.",
@@ -437,6 +438,7 @@
 
   "charta_md:charta.how_to_play_fun": "charta:en_us/how_to_play_fun",
   "charta_md:charta.how_to_play_crazy_eights": "charta:en_us/how_to_play_crazy_eights",
-  "charta_md:charta.how_to_play_solitaire": "charta:en_us/how_to_play_solitaire"
+  "charta_md:charta.how_to_play_solitaire": "charta:en_us/how_to_play_solitaire",
+  "message.charta.hold_to_options": "Hold %s to change game options."
 
 }

@@ -1,5 +1,5 @@
 {
-    "vertex": "charta:card",
+    "vertex": "charta:perspective",
     "fragment": "charta:card",
     "samplers": [
         { "name": "Sampler0" }

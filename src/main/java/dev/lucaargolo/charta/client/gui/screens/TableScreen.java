@@ -1,11 +1,14 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardGames;
 import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
+import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
+import dev.lucaargolo.charta.utils.TickableWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -17,12 +20,14 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.util.Mth;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class TableScreen extends Screen {
 
@@ -53,6 +58,22 @@ public class TableScreen extends Screen {
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(font, title, width/2, 10, 0xFFFFFFFF);
+        if(this.minecraft != null) {
+            guiGraphics.drawCenteredString(font, Component.translatable("message.charta.hold_to_options", this.minecraft.options.keyShift.getKey().getDisplayName()), width / 2, height - 20, 0xFFFFFFFF);
+        }
+    }
+
+    @Override
+    public void tick() {
+        if(this.minecraft != null) {
+            int mouseX = (int) (this.minecraft.mouseHandler.xpos() * (double) this.minecraft.getWindow().getGuiScaledWidth() / (double) this.minecraft.getWindow().getScreenWidth());
+            int mouseY = (int) (this.minecraft.mouseHandler.ypos() * (double) this.minecraft.getWindow().getGuiScaledHeight() / (double) this.minecraft.getWindow().getScreenHeight());
+            for (GuiEventListener widget : this.children()) {
+                if (widget instanceof TickableWidget tickable) {
+                    tickable.tick(mouseX, mouseY);
+                }
+            }
+        }
     }
 
     @Override
@@ -60,83 +81,190 @@ public class TableScreen extends Screen {
         return false;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public class Game<G extends CardGame<G>> extends ContainerObjectSelectionList.Entry<Game<G>> {
+    public class Game<G extends CardGame<G>> extends Button implements TickableWidget {
 
-        private final Button gameWidget;
-        private final Button configWidget;
+        private final ResourceLocation gameId;
+        private final CardGames.Factory<G> gameFactory;
+
+        private final ResourceLocation texture;
+        private final G game;
+
+        @Nullable
+        private final Component tooltip;
+
+        private float lastInset = 0f;
+        private float inset = 0f;
+        private float lastFov = 30f;
+        private float fov = 37f;
 
         public Game(ResourceLocation gameId, CardGames.Factory<G> gameFactory) {
-            G game = gameFactory.create(List.of(), CardDeck.EMPTY);
-            boolean invalidDeck = !CardGame.canPlayGame(game, deck);
-            boolean notEnoughPlayers = players.length < game.getMinPlayers();
-            boolean tooManyPlayers = players.length > game.getMaxPlayers();
-            Component name = Component.translatable(gameId.toLanguageKey());
-
-            this.gameWidget = Button.builder(name, button -> {
+            super(0, 0, 70, 70, Component.translatable(gameId.toLanguageKey()), (button) -> {
                 PacketDistributor.sendToServer(new CardTableSelectGamePayload(pos, gameId, ChartaClient.LOCAL_OPTIONS.getOrDefault(gameId, new byte[0])));
                 onClose();
-            }).bounds(0, 0, 135, 20).build();
-            this.gameWidget.active = !(invalidDeck || notEnoughPlayers || tooManyPlayers);
-            Tooltip tooltip;
+            }, Button.DEFAULT_NARRATION);
+
+            this.gameId = gameId;
+            this.gameFactory = gameFactory;
+            this.texture = gameId.withPrefix("textures/gui/game/").withSuffix(".png");
+            this.game = gameFactory.create(List.of(), CardDeck.EMPTY);
+
+            boolean invalidDeck = !CardGame.canPlayGame(this.game, deck);
+            boolean notEnoughPlayers = players.length < this.game.getMinPlayers();
+            boolean tooManyPlayers = players.length > this.game.getMaxPlayers();
+
+            this.active = !(invalidDeck || notEnoughPlayers || tooManyPlayers);
             if(invalidDeck) {
-                tooltip = Tooltip.create(Component.translatable("message.charta.cant_play_deck").append(" ").append(Component.translatable("message.charta.try_finding_another")));
+                this.tooltip = Component.translatable("message.charta.cant_play_deck").append(" ").append(Component.translatable("message.charta.try_finding_another"));
             }else if(notEnoughPlayers) {
-                tooltip = Tooltip.create(Component.translatable("message.charta.not_enough_players", game.getMinPlayers()));
+                this.tooltip = Component.translatable("message.charta.not_enough_players", this.game.getMinPlayers());
             }else if(tooManyPlayers) {
-                tooltip = Tooltip.create(Component.translatable("message.charta.too_many_players", game.getMaxPlayers()));
+                this.tooltip = Component.translatable("message.charta.too_many_players", this.game.getMaxPlayers());
             }else{
-                tooltip = null;
+                this.tooltip = null;
             }
-            this.gameWidget.setTooltip(tooltip);
 
-            Component config = Component.literal("\uE8B8").withStyle(Charta.SYMBOLS);
-            this.configWidget = Button.builder(config, button -> {
-                if(minecraft != null) {
-                    minecraft.setScreen(new OptionsScreen<>(TableScreen.this, pos, game, gameId, gameFactory, false));
+        }
+
+        @Override
+        protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            if(this.isHovered() && isShiftDown()) {
+                this.isHovered = false;
+            }
+            if(this.active) {
+                float inset = Mth.lerp(partialTick, this.lastInset, this.inset);
+                float fov = Mth.lerp(partialTick, this.lastFov, this.fov);
+
+                ChartaClient.CARD_INSET.accept(inset);
+                ChartaClient.CARD_FOV.accept(fov);
+                ChartaClient.CARD_X_ROT.accept(0f);
+                ChartaClient.CARD_Y_ROT.accept(0f);
+
+                float xOffset = (this.getWidth()*1.333333f - this.getWidth())/2f;
+                float yOffset = (this.getHeight()*1.333333f - this.getHeight())/2f;
+
+                ChartaGuiGraphics.blitPerspective(guiGraphics, this.texture, this.getX()-xOffset, this.getY()-yOffset, this.getWidth()+(xOffset*2f), this.getHeight()+(yOffset*2f));
+
+                this.lastInset = inset;
+                this.lastFov = fov;
+            }else{
+                ChartaGuiGraphics.blitGrayscale(guiGraphics, this.texture, this.getX(), this.getY(), 70, 70);
+            }
+            if(this.isHovered()) {
+                if(this.active) {
+                    guiGraphics.fill(this.getX(), this.getY(), this.getX()+70, this.getY()+70, 0x33FFFFFF);
+                }else{
+                    guiGraphics.fill(this.getX()+2, this.getY()+2, this.getX()+68, this.getY()+68, 0x33FFFFFF);
                 }
-            }).bounds(0, 0, 20, 20).build();
-            this.configWidget.active = this.gameWidget.active && !game.getOptions().isEmpty();
-            this.configWidget.setTooltip(Tooltip.create(Component.translatable("message.charta.configure_game")));
+            }else if(isShiftDown()) {
+                guiGraphics.fill(this.getX()+2, this.getY()+2, this.getX()+68, this.getY()+68, 0x66000000);
+            }
         }
 
         @Override
-        public @NotNull List<? extends GuiEventListener> children() {
-            return List.of(gameWidget, configWidget);
-        }
-
-        @Override
-        public @NotNull List<? extends NarratableEntry> narratables() {
-            return List.of(gameWidget, configWidget);
-        }
-
-        @Override
-        public void render(@NotNull GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            gameWidget.setX(left);
-            gameWidget.setY(top);
-            gameWidget.render(guiGraphics, mouseX, mouseY, partialTick);
-            configWidget.setX(left+140);
-            configWidget.setY(top);
-            configWidget.render(guiGraphics, mouseX, mouseY, partialTick);
+        public void tick(int mouseX, int mouseY) {
+            this.inset = this.isHovered() ? -30f : 0;
+            this.fov = 37f;
         }
 
     }
 
-    public static class GameWidget<G extends CardGame<G>> extends ContainerObjectSelectionList<Game<G>> {
+    public class GameRow<G extends CardGame<G>> extends ContainerObjectSelectionList.Entry<GameRow<G>> {
 
-        public GameWidget(Minecraft minecraft, int width, int height, int y) {
-            super(minecraft, width, height, y, 25);
+        protected List<Game<G>> games = new ArrayList<>();
+        protected List<Button> plays = new ArrayList<>();
+        protected List<Button> configs = new ArrayList<>();
+
+        @Override
+        public void render(@NotNull GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
+            int i = 0;
+            for(Game<G> game : games) {
+                game.setX(left + i*75);
+                game.setY(top);
+                game.render(guiGraphics, mouseX, mouseY, partialTick);
+                if(game.isHovered() && game.tooltip != null) {
+                    setTooltipForNextRenderPass(game.tooltip);
+                }
+                i++;
+            }
+            if(isShiftDown()) {
+                i = 0;
+                for(Button button : plays) {
+                    button.setX(left + i*75 + 25 - 12);
+                    button.setY(top + 25);
+                    button.render(guiGraphics, mouseX, mouseY, partialTick);
+                    i++;
+                }
+                i = 0;
+                for(Button button : configs) {
+                    button.setX(left + i*75 + 25 + 12);
+                    button.setY(top + 25);
+                    button.render(guiGraphics, mouseX, mouseY, partialTick);
+                    i++;
+                }
+            }
         }
 
         @Override
-        public int addEntry(@NotNull Game<G> entry) {
-            return super.addEntry(entry);
+        public @NotNull List<? extends GuiEventListener> children() {
+            return isShiftDown() ? Stream.concat(plays.stream(), configs.stream()).toList() : games;
+        }
+
+        @Override
+        public @NotNull List<? extends NarratableEntry> narratables() {
+            return isShiftDown() ? Stream.concat(plays.stream(), configs.stream()).toList() : games;
+        }
+
+    }
+
+    public class GameWidget<G extends CardGame<G>> extends ContainerObjectSelectionList<GameRow<G>> implements TickableWidget {
+
+        private final int amount;
+
+        public GameWidget(Minecraft minecraft, int width, int height, int y) {
+            super(minecraft, width, height, y, 75);
+            int margin = width - 40;
+            this.amount = margin/75;
+        }
+
+        public void addEntry(@NotNull Game<G> entry) {
+            if(this.children().isEmpty() || this.children().getLast().games.size() >= amount) {
+                this.addEntry(new GameRow<>());
+            }
+            this.children().getLast().games.add(entry);
+
+            Component play = Component.literal("\ue037").withStyle(Charta.SYMBOLS);
+            Button playWidget = Button.builder(play, button -> entry.onPress()).bounds(0, 0, 20, 20).build();
+            playWidget.active = entry.active;
+            playWidget.setTooltip(Tooltip.create(entry.tooltip != null ? entry.tooltip : Component.translatable("message.charta.play_game")));
+            this.children().getLast().plays.add(playWidget);
+
+            Component config = Component.literal("\uE8B8").withStyle(Charta.SYMBOLS);
+            Button configWidget = Button.builder(config, button -> {
+                minecraft.setScreen(new OptionsScreen<>(TableScreen.this, pos, entry.game, entry.gameId, entry.gameFactory, false));
+            }).bounds(0, 0, 20, 20).build();
+            configWidget.active = entry.active && !entry.game.getOptions().isEmpty();
+            configWidget.setTooltip(Tooltip.create(Component.translatable("message.charta.configure_game")));
+            this.children().getLast().configs.add(configWidget);
         }
 
         @Override
         public int getRowWidth() {
-            return 160;
+            return amount * 75 - 5;
         }
+
+        @Override
+        public void tick(int mouseX, int mouseY) {
+            for (GameRow<G> row : this.children()) {
+                for(Game<G> game : row.games) {
+                    game.tick(mouseX, mouseY);
+                }
+            }
+        }
+    }
+
+    private boolean isShiftDown() {
+        assert minecraft != null;
+        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), minecraft.options.keyShift.getKey().getValue());
     }
 
 }
