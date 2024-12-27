@@ -6,8 +6,6 @@ import dev.lucaargolo.charta.Charta;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import org.commonmark.internal.renderer.NodeRendererMap;
-import org.commonmark.internal.util.Escaping;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.NodeRenderer;
@@ -17,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -47,6 +46,34 @@ public class MarkdownResource implements ResourceManagerReloadListener {
     @Nullable
     public List<Either<String, String>> getMarkdown(ResourceLocation location) {
         return markdowns.get(location);
+    }
+
+    public static class NodeRendererMap {
+
+        private final List<NodeRenderer> nodeRenderers = new ArrayList<>();
+        private final Map<Class<? extends Node>, NodeRenderer> renderers = new HashMap<>(32);
+
+        public void add(NodeRenderer nodeRenderer) {
+            nodeRenderers.add(nodeRenderer);
+            for (var nodeType : nodeRenderer.getNodeTypes()) {
+                renderers.putIfAbsent(nodeType, nodeRenderer);
+            }
+        }
+
+        public void render(Node node) {
+            var nodeRenderer = renderers.get(node.getClass());
+            if (nodeRenderer != null) {
+                nodeRenderer.render(node);
+            }
+        }
+
+        public void beforeRoot(Node node) {
+            nodeRenderers.forEach(r -> r.beforeRoot(node));
+        }
+
+        public void afterRoot(Node node) {
+            nodeRenderers.forEach(r -> r.afterRoot(node));
+        }
     }
 
     public static class ObjectCollector implements Renderer {
@@ -117,7 +144,14 @@ public class MarkdownResource implements ResourceManagerReloadListener {
             @Override
             public String encodeUrl(String url) {
                 if (percentEncodeUrls) {
-                    return Escaping.percentEncodeUrl(url);
+                    try {
+                        ClassLoader classLoader = MarkdownResource.class.getModule().getLayer().findModule("org.commonmark").get().getClassLoader();
+                        Class<?> escapingClass = classLoader.loadClass("org.commonmark.internal.util.Escaping");
+                        Method encodeMethod = escapingClass.getDeclaredMethod("percentEncodeUrl");
+                        return (String) encodeMethod.invoke(null, url);
+                    }catch (Exception e) {
+                        throw new RuntimeException("Unable to encode url", e);
+                    }
                 } else {
                     return url;
                 }
