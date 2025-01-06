@@ -1,11 +1,10 @@
 package dev.lucaargolo.charta.resources;
 
-
 import com.mojang.datafixers.util.Either;
 import dev.lucaargolo.charta.Charta;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.NodeRenderer;
@@ -19,7 +18,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class MarkdownResource implements ResourceManagerReloadListener {
+public class MarkdownResource implements SimpleSynchronousResourceReloadListener {
 
     private final HashMap<ResourceLocation, List<Either<String, String>>> markdowns = new HashMap<>();
     private final Parser parser = Parser.builder().build();
@@ -46,6 +45,11 @@ public class MarkdownResource implements ResourceManagerReloadListener {
     @Nullable
     public List<Either<String, String>> getMarkdown(ResourceLocation location) {
         return markdowns.get(location);
+    }
+
+    @Override
+    public ResourceLocation getFabricId() {
+        return Charta.id("markdown");
     }
 
     public static class NodeRendererMap {

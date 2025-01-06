@@ -1,17 +1,16 @@
 package dev.lucaargolo.charta.resources;
 
-
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.utils.CardImage;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-public class CardImageResource implements ResourceManagerReloadListener {
+public class CardImageResource implements SimpleSynchronousResourceReloadListener {
 
     private HashMap<ResourceLocation, CardImage> images = new HashMap<>();
 
@@ -42,5 +41,10 @@ public class CardImageResource implements ResourceManagerReloadListener {
 
     public void setImages(HashMap<ResourceLocation, CardImage> images) {
         this.images = images;
+    }
+
+    @Override
+    public ResourceLocation getFabricId() {
+        return Charta.id(path+"_images");
     }
 }

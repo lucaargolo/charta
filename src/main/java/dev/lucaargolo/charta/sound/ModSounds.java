@@ -1,22 +1,31 @@
 package dev.lucaargolo.charta.sound;
 
 import dev.lucaargolo.charta.Charta;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class ModSounds {
 
-    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, Charta.MOD_ID);
+    public static final Map<ResourceLocation, SoundEvent> SOUNDS = new HashMap<>();
 
-    public static DeferredHolder<SoundEvent, SoundEvent> CARD_DRAW = SOUNDS.register("card_draw", () -> SoundEvent.createVariableRangeEvent(Charta.id("card_draw")));
-    public static DeferredHolder<SoundEvent, SoundEvent> CARD_PLAY = SOUNDS.register("card_play", () -> SoundEvent.createVariableRangeEvent(Charta.id("card_play")));
+    public static SoundEvent CARD_DRAW = register("card_draw", () -> SoundEvent.createVariableRangeEvent(Charta.id("card_draw")));
+    public static SoundEvent CARD_PLAY = register("card_play", () -> SoundEvent.createVariableRangeEvent(Charta.id("card_play")));
 
 
-    public static void register(IEventBus bus) {
-        SOUNDS.register(bus);
+    private static <T extends SoundEvent> T register(String id, Supplier<T> container) {
+        T obj = container.get();
+        SOUNDS.put(Charta.id(id), container.get());
+        return obj;
+    }
+
+    public static void register() {
+        SOUNDS.forEach((id, container) -> Registry.register(BuiltInRegistries.SOUND_EVENT, id, container));
     }
 
 }

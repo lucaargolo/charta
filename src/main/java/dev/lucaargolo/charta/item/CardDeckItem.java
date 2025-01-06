@@ -3,6 +3,8 @@ package dev.lucaargolo.charta.item;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.gui.screens.DeckScreen;
 import dev.lucaargolo.charta.game.CardDeck;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
@@ -15,8 +17,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +46,7 @@ public class CardDeckItem extends Item {
         return InteractionResultHolder.success(stack);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     private static void openScreen(CardDeck deck) {
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.setScreen(new DeckScreen(null, deck));
@@ -80,7 +80,7 @@ public class CardDeckItem extends Item {
 
     public static ItemStack getDeck(ResourceLocation deckId) {
         CardDeck deck = Charta.CARD_DECKS.getDeck(deckId);
-        ItemStack stack = ModItems.DECK.get().getDefaultInstance();
+        ItemStack stack = ModItems.DECK.getDefaultInstance();
         stack.set(ModDataComponentTypes.CARD_DECK, deckId);
         stack.set(DataComponents.RARITY, deck.getRarity());
         return stack;

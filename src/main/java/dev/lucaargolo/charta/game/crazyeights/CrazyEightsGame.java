@@ -112,7 +112,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
         for(int i = 0; i < 5; i++) {
             for (CardPlayer player : players) {
                 scheduledActions.add(() -> {
-                    player.playSound(ModSounds.CARD_DRAW.get());
+                    player.playSound(ModSounds.CARD_DRAW);
                     dealCards(drawPile, player, 1);
                 });
                 scheduledActions.add(() -> {});
@@ -178,7 +178,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
 
                     if(currentPlayer.shouldCompute()) {
                         dealCards(drawPile, currentPlayer, 1);
-                        currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+                        currentPlayer.playSound(ModSounds.CARD_DRAW);
                     }
 
                     if(drawsLeft == 0 && this.getBestPlay(currentPlayer) == null) {
@@ -191,7 +191,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
                 }
             }else if(!currentPlayer.shouldCompute() || canPlay(currentPlayer, play)) {
                 Card card = play.cards().getLast();
-                currentPlayer.playSound(ModSounds.CARD_PLAY.get());
+                currentPlayer.playSound(ModSounds.CARD_PLAY);
                 currentSuit = card.getSuit();
 
                 if(isChoosingWild) {

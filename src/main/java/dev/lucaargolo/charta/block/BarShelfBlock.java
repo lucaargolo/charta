@@ -69,7 +69,7 @@ public class BarShelfBlock extends BaseEntityBlock {
     @Override
     protected void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
         if(!state.is(newState.getBlock())) {
-            level.getBlockEntity(pos, ModBlockEntityTypes.BAR_SHELF.get()).ifPresent(entity -> {
+            level.getBlockEntity(pos, ModBlockEntityTypes.BAR_SHELF).ifPresent(entity -> {
                 Containers.dropContents(level, pos, entity);
             });
         }
@@ -85,7 +85,7 @@ public class BarShelfBlock extends BaseEntityBlock {
                 boolean plus = direction.getAxisDirection() == Direction.AxisDirection.POSITIVE;
                 Vector2d coords = new Vector2d(axis ? plus ? 1 - hit.z : hit.z : plus ? hit.x : 1 - hit.x, hit.y);
                 int slot = coords.x < 0.5 ? coords.y > 0.5 ? 0 : 2 : coords.y > 0.5 ? 1 : 3;
-                level.getBlockEntity(pos, ModBlockEntityTypes.BAR_SHELF.get()).ifPresent(entity -> {
+                level.getBlockEntity(pos, ModBlockEntityTypes.BAR_SHELF).ifPresent(entity -> {
                     ItemStack stored = entity.getItem(slot);
                     if(!stored.isEmpty()) {
                         player.getInventory().placeItemBackInInventory(entity.removeItem(slot, 1));

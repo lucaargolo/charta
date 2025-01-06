@@ -1,30 +1,13 @@
 package dev.lucaargolo.charta.entity;
 
-import com.google.common.collect.ImmutableSet;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.block.ModBlocks;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.entity.ai.village.poi.PoiType;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
-
-import java.util.Set;
+import net.fabricmc.fabric.api.object.builder.v1.world.poi.PointOfInterestHelper;
 
 public class ModPoiTypes {
 
-    public static final DeferredRegister<PoiType> POI_TYPES = DeferredRegister.create(Registries.POINT_OF_INTEREST_TYPE, Charta.MOD_ID);
-
-    public static final DeferredHolder<PoiType, PoiType> DEALER = POI_TYPES.register("dealer", () -> new PoiType(blockStates(ModBlocks.DEALER_TABLE.get()), 1, 1));
-
-    public static void register(IEventBus bus) {
-        POI_TYPES.register(bus);
+    public static void register() {
+        PointOfInterestHelper.register(Charta.id("dealer"), 1, 1, ModBlocks.DEALER_TABLE);
     }
-
-    private static Set<BlockState> blockStates(Block block) {
-        return ImmutableSet.copyOf(block.getStateDefinition().getPossibleStates());
-    }
-
+    
 }

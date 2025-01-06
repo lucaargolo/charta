@@ -1,146 +1,103 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '1.0.21'
-}
-
-tasks.named('wrapper', Wrapper).configure {
-    distributionType = Wrapper.DistributionType.BIN
+    id 'fabric-loom' version '1.9-SNAPSHOT'
 }
 
 version = mod_version
 group = mod_group_id
 
 repositories {
+    mavenCentral()
     mavenLocal()
+    maven {
+        name = 'ParchmentMC'
+        url = 'https://maven.parchmentmc.org'
+    }
+    maven {
+        name = "PortingLib"
+        url = "https://mvn.devos.one/snapshots/"
+    }
 }
 
-base {
-    archivesName = mod_id
+fabricApi {
+    configureDataGeneration()
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-neoForge {
-    version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
-
-    accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
-
+loom {
+    accessWidenerPath = file("src/main/resources/charta.accesswidener")
     runs {
-        client {
+        datagen {
             client()
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-        }
 
-        server {
-            server()
-            programArgument '--nogui'
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-        }
+            name "Data Generation"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.output-dir=${file("src/generated/resources")}"
+            vmArg "-Dfabric-api.datagen.modid=${mod_id}"
 
-        data {
-            data()
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-        }
+            property "porting_lib.datagen.existing_resources", file("src/main/resources").absolutePath
 
-        configureEach {
-            systemProperty 'forge.logging.markers', 'REGISTRIES'
-
-            logLevel = org.slf4j.event.Level.DEBUG
-        }
-    }
-
-    mods {
-        "${mod_id}" {
-            sourceSet(sourceSets.main)
+            runDir "build/datagen"
         }
     }
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-configurations {
-    runtimeClasspath.extendsFrom localRuntime
-}
-
 dependencies {
-    // Example optional mod dependency with JEI
-    // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
-    // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
-    // localRuntime "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
-
-    // Example mod dependency using a mod jar from ./libs with a flat dir repository
-    // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
-    // The group id is ignored when searching -- in this case, it is "blank"
-    // implementation "blank:coolmod-${mc_version}:${coolmod_version}"
-
-    // Example mod dependency using a file as dependency
-    // implementation files("libs/coolmod-${mc_version}-${coolmod_version}.jar")
-
-    // Example project dependency using a sister or child project:
-    // implementation project(":myproject")
-
-    // For more info:
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-    jarJar(implementation "org.commonmark:commonmark") {
-        version {
-            strictly '[0.1, 1.0)'
-            prefer '0.24.0'
-        }
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_mappings_version}@zip")
     }
-    additionalRuntimeClasspath "org.commonmark:commonmark:0.24.0"
+
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}+${minecraft_version}"
+
+    modImplementation("io.github.fabricators_of_create.Porting-Lib:models:3.1.0-beta.47+1.21.1")
+    include("io.github.fabricators_of_create.Porting-Lib:models:3.1.0-beta.47+1.21.1")
+
+    implementation "org.commonmark:commonmark:0.24.0"
+    include "org.commonmark:commonmark:0.24.0"
 }
 
-var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
-    var replaceProperties = [
-            minecraft_version      : minecraft_version,
-            minecraft_version_range: minecraft_version_range,
-            neo_version            : neo_version,
-            neo_version_range      : neo_version_range,
-            loader_version_range   : loader_version_range,
-            mod_id                 : mod_id,
-            mod_name               : mod_name,
-            mod_license            : mod_license,
-            mod_version            : mod_version,
-            mod_authors            : mod_authors,
-            mod_description        : mod_description
-    ]
-    inputs.properties replaceProperties
-    expand replaceProperties
-    from "src/main/templates"
-    into "build/generated/sources/modMetadata"
-}
+processResources {
+    inputs.property "minecraft_version", project.minecraft_version
+    inputs.property "fabric_version", project.fabric_version
+    inputs.property "loader_version", project.loader_version
+    inputs.property "mod_id", project.mod_id
+    inputs.property "mod_name", project.mod_name
+    inputs.property "mod_license", project.mod_license
+    inputs.property "mod_version", project.mod_version
+    inputs.property "mod_authors", project.mod_authors
+    inputs.property "mod_description", project.mod_description
 
-sourceSets.main.resources.srcDir generateModMetadata
-neoForge.ideSyncTask generateModMetadata
-
-// Example configuration to allow publishing using the maven-publish plugin
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            from components.java
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/repo"
-        }
+    filesMatching("fabric.mod.json") {
+        expand([
+            "minecraft_version": project.minecraft_version,
+            "fabric_version": project.fabric_version,
+            "loader_version": project.loader_version,
+            "mod_id": project.mod_id,
+            "mod_name": project.mod_name,
+            "mod_license": project.mod_license,
+            "mod_version": project.mod_version,
+            "mod_authors": project.mod_authors,
+            "mod_description": project.mod_description
+        ])
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.release = 21
 }
 
 tasks.withType(Jar).configureEach {
+    doLast {
+        archiveClassifier.set("fabric") // Explicitly set the classifier
+    }
     manifest {
         attributes["Main-Class"] = "dev.lucaargolo.charta.editor.CardEditor"
     }
@@ -149,9 +106,4 @@ tasks.withType(Jar).configureEach {
     exclude("suits/**")
 }
 
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
-    }
-}
+tasks.remapJar.archiveClassifier = "fabric"

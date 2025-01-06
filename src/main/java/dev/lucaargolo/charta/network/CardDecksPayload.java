@@ -7,7 +7,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
@@ -22,10 +22,8 @@ public record CardDecksPayload(LinkedHashMap<ResourceLocation, CardDeck> cardDec
         CardDecksPayload::new
     );
 
-    public static void handleClient(CardDecksPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Charta.CARD_DECKS.setDecks(payload.cardDecks);
-        });
+    public static void handleClient(Player player, CardDecksPayload payload) {
+        Charta.CARD_DECKS.setDecks(payload.cardDecks);
     }
 
     @Override

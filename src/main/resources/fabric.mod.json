@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "{$mod_authors}"
+  ],
+  "contact": {
+    "sources": "https://github.com/lucaargolo/charta"
+  },
+  "license": "${mod_license}",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "dev.lucaargolo.charta.datagen.DataGenerators"
+    ],
+    "main": [
+      "dev.lucaargolo.charta.Charta"
+    ],
+    "client": [
+      "dev.lucaargolo.charta.client.ChartaClient"
+    ]
+  },
+  "mixins": [
+    "${mod_id}.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_version}",
+    "java": ">=21",
+    "fabric-api": ">=${fabric_version}"
+  }
+}

@@ -14,6 +14,7 @@
     "LeashableMixin",
     "LivingEntityMixin",
     "MobMixin",
+    "PlayerChunkSenderMixin",
     "PlayerMixin",
     "ServerPlayerMixin"
   ],

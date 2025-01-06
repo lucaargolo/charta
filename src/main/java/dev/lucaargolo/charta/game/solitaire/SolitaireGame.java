@@ -234,7 +234,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                 int amount = i;
                 if(slot >= amount) {
                     this.scheduledActions.add(() -> {
-                        this.currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+                        this.currentPlayer.playSound(ModSounds.CARD_DRAW);
                         Card card = this.stockPile.removeLast();
                         if(slot == amount) card.flip();
                         this.tableauPiles.get(slot).addLast(card);

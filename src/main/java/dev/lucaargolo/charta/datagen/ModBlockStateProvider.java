@@ -2,23 +2,23 @@ package dev.lucaargolo.charta.datagen;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.block.*;
+import io.github.fabricators_of_create.porting_lib.data.ExistingFileHelper;
+import io.github.fabricators_of_create.porting_lib.models.generators.BlockStateProvider;
+import io.github.fabricators_of_create.porting_lib.models.generators.ConfiguredModel;
+import io.github.fabricators_of_create.porting_lib.models.generators.MultiPartBlockStateBuilder;
+import io.github.fabricators_of_create.porting_lib.models.generators.VariantBlockStateBuilder;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.core.Direction;
-import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.DyeColor;
-import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
-import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import java.util.List;
 
 public class ModBlockStateProvider extends BlockStateProvider {
 
-    public ModBlockStateProvider(PackOutput output, ExistingFileHelper exFileHelper) {
-        super(output, Charta.MOD_ID, exFileHelper);
+    public ModBlockStateProvider(FabricDataOutput output) {
+        super(output, Charta.MOD_ID, ExistingFileHelper.withResourcesFromArg());
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                     .texture("cloth", this.mcLoc("block/"+color+"_wool"));
         }
         ModBlocks.CARD_TABLE_MAP.forEach((woodType, cardTable) -> {
-            MultiPartBlockStateBuilder cardTableBuilder = this.getMultipartBuilder(cardTable.get());
+            MultiPartBlockStateBuilder cardTableBuilder = this.getMultipartBuilder(cardTable);
             String wood = woodType.name();
 
             String centerPath = "block/"+wood+"_card_table_center";
@@ -122,7 +122,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
             }
         });
         ModBlocks.GAME_CHAIR_MAP.forEach((woodType, cardTable) -> {
-            MultiPartBlockStateBuilder gameChairBuilder = this.getMultipartBuilder(cardTable.get());
+            MultiPartBlockStateBuilder gameChairBuilder = this.getMultipartBuilder(cardTable);
 
             String wood = woodType.name();
 
@@ -160,7 +160,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
         });
         ModBlocks.BAR_STOOL_MAP.forEach((woodType, barStool) -> {
-            MultiPartBlockStateBuilder barStoolBuilder = this.getMultipartBuilder(barStool.get());
+            MultiPartBlockStateBuilder barStoolBuilder = this.getMultipartBuilder(barStool);
 
             String wood = woodType.name();
 
@@ -189,7 +189,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
             }
         });
         ModBlocks.BAR_SHELF_MAP.forEach((woodType, barShelf) -> {
-            MultiPartBlockStateBuilder barShelfBuilder = this.getMultipartBuilder(barShelf.get());
+            MultiPartBlockStateBuilder barShelfBuilder = this.getMultipartBuilder(barShelf);
 
             String wood = woodType.name();
 
@@ -227,23 +227,23 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 i++;
             }
         });
-        ModBlocks.BLOCKS.getEntries().stream().filter(b -> b.get() instanceof BeerGlassBlock).forEach(block -> {
-            VariantBlockStateBuilder beerGlassBuilder = this.getVariantBuilder(block.get());
+        ModBlocks.BLOCKS.entrySet().stream().filter(b -> b.getValue() instanceof BeerGlassBlock).forEach(block -> {
+            VariantBlockStateBuilder beerGlassBuilder = this.getVariantBuilder(block.getValue());
             int i = 0;
             for(Direction d : List.of(Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH)) {
                 beerGlassBuilder.partialState()
                     .with(BeerGlassBlock.FACING, d)
                     .modelForState()
-                    .modelFile(this.models().getExistingFile(this.modLoc("block/"+block.getId().getPath())))
+                    .modelFile(this.models().getExistingFile(this.modLoc("block/"+block.getKey().getPath())))
                     .rotationY((i++) * 90)
                     .addModel();
             }
         });
-        ModBlocks.BLOCKS.getEntries().stream().filter(b -> b.get() instanceof WineGlassBlock).forEach(block -> {
-            VariantBlockStateBuilder wineGlassBuilder = this.getVariantBuilder(block.get());
+        ModBlocks.BLOCKS.entrySet().stream().filter(b -> b.getValue() instanceof WineGlassBlock).forEach(block -> {
+            VariantBlockStateBuilder wineGlassBuilder = this.getVariantBuilder(block.getValue());
             wineGlassBuilder.partialState()
                 .modelForState()
-                .modelFile(this.models().getExistingFile(this.modLoc("block/"+block.getId().getPath())))
+                .modelFile(this.models().getExistingFile(this.modLoc("block/"+block.getKey().getPath())))
                 .addModel();
         });
     }

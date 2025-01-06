@@ -4,13 +4,13 @@ import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.gui.screens.TableScreen;
 import dev.lucaargolo.charta.game.CardDeck;
 import io.netty.buffer.ByteBuf;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
 public record TableScreenPayload(BlockPos pos, CardDeck deck, int[] players) implements CustomPacketPayload {
@@ -45,13 +45,11 @@ public record TableScreenPayload(BlockPos pos, CardDeck deck, int[] players) imp
             TableScreenPayload::new
     );
 
-    public static void handleClient(TableScreenPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            openScreen(payload.pos, payload.deck, payload.players);
-        });
+    public static void handleClient(Player player, TableScreenPayload payload) {
+        openScreen(payload.pos, payload.deck, payload.players);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     private static void openScreen(BlockPos pos, CardDeck deck, int[] players) {
         Minecraft.getInstance().setScreen(new TableScreen(pos, deck, players));
     }

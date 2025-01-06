@@ -78,13 +78,13 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
                     );
                     CardSlotWidget<G> child = new ChildCardSlotWidget(this.parent, childCardSlot, index, Mth.floor(leftOffset), Mth.floor(topOffset));
 
-                    child.setPreciseX(childCardSlot.x + parent.getGuiLeft() + left/2f);
+                    child.setPreciseX(childCardSlot.x + parent.leftPos + left/2f);
                     if(cardSlot.getType() == CardSlot.Type.HORIZONTAL) {
                         child.setPreciseY(childCardSlot.y + parent.height - child.getPreciseHeight());
                     }else if(cardSlot.getType() == CardSlot.Type.PREVIEW) {
                         child.setPreciseY(childCardSlot.y);
                     }else{
-                        child.setPreciseY(childCardSlot.y + parent.getGuiTop());
+                        child.setPreciseY(childCardSlot.y + parent.topPos);
                     }
 
                     renderables.add(child);

@@ -85,8 +85,8 @@ public class ModChestLootProvider implements LootTableSubProvider {
 
     private static LootPoolSingletonContainer.Builder<?> deck(CardDeck deck, double chanceMultiplier) {
         ResourceLocation id = CardDecks.DECKS.entrySet().stream().filter(e -> e.getValue().equals(deck)).map(Map.Entry::getKey).findFirst().orElse(Charta.id("missing"));
-        return LootItem.lootTableItem(ModItems.DECK.get())
-                .apply(SetComponentsFunction.setComponent(ModDataComponentTypes.CARD_DECK.get(), id))
+        return LootItem.lootTableItem(ModItems.DECK)
+                .apply(SetComponentsFunction.setComponent(ModDataComponentTypes.CARD_DECK, id))
                 .setWeight(Mth.ceil((3 - deck.getRarity().ordinal()) * 20 * chanceMultiplier));
     }
 

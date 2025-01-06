@@ -7,6 +7,7 @@ import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
 import dev.lucaargolo.charta.utils.*;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -26,7 +27,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.DyeColor;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -64,7 +64,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (hoveredCardSlot != null) {
-            PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, hoveredCardSlot.index, hoveredCardId));
+            ClientPlayNetworking.send(new CardContainerSlotClickPayload(menu.containerId, hoveredCardSlot.index, hoveredCardId));
             return true;
         }
         if(super.mouseClicked(mouseX, mouseY, button)) {

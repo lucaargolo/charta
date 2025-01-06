@@ -2,15 +2,15 @@ package dev.lucaargolo.charta.compat;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.utils.CardImageUtils;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.fml.ModList;
 
 public class IrisCompat {
 
     public static boolean isPresent() {
-        return ModList.get().isLoaded("iris") || ModList.get().isLoaded("oculus");
+        return FabricLoader.getInstance().isModLoaded("iris");
     }
 
     public static void generateImages() {

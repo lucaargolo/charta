@@ -3,11 +3,11 @@ package dev.lucaargolo.charta.network;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import io.netty.buffer.ByteBuf;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
 public record GameStartPayload() implements CustomPacketPayload {
@@ -16,11 +16,11 @@ public record GameStartPayload() implements CustomPacketPayload {
 
     public static StreamCodec<ByteBuf, GameStartPayload> STREAM_CODEC = StreamCodec.unit(new GameStartPayload());
 
-    public static void handleClient(GameStartPayload payload, IPayloadContext context) {
-        context.enqueueWork(GameStartPayload::onGameStart);
+    public static void handleClient(Player player, GameStartPayload payload) {
+        onGameStart();
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     private static void onGameStart() {
         ChartaClient.LOCAL_HISTORY.clear();
     }

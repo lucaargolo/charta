@@ -19,45 +19,48 @@ import dev.lucaargolo.charta.resources.CardImageResource;
 import dev.lucaargolo.charta.resources.CardSuitResource;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.PlayerOptionData;
+import io.netty.buffer.ByteBuf;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.level.ChunkWatchEvent;
-import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.BiConsumer;
 
-@Mod(Charta.MOD_ID)
 @SuppressWarnings("unused")
-public class Charta {
+public class Charta implements ModInitializer {
 
     private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, ResourceLocation.withDefaultNamespace( "empty"));
 
@@ -79,58 +82,80 @@ public class Charta {
 
     public static EntityDataAccessor<Boolean> MOB_IRON_LEASH;
 
-    public Charta(IEventBus modEventBus, ModContainer modContainer) {
-        ModBlocks.register(modEventBus);
-        ModItems.register(modEventBus);
-        ModEntityTypes.register(modEventBus);
-        ModPoiTypes.register(modEventBus);
-        ModVillagerProfessions.register(modEventBus);
-        ModBlockEntityTypes.register(modEventBus);
-        ModMenus.register(modEventBus);
-        ModCreativeTabs.register(modEventBus);
-        ModDataComponentTypes.register(modEventBus);
-        ModSounds.register(modEventBus);
+    @Override
+    public void onInitialize() {
+        ModBlocks.register();
+        ModItems.register();
+        ModEntityTypes.register();
+        ModPoiTypes.register();
+        ModVillagerProfessions.register();
+        ModBlockEntityTypes.register();
+        ModMenus.register();
+        ModCreativeTabs.register();
+        ModDataComponentTypes.register();
+        ModSounds.register();
+
+        Charta.registerPayloads();
+        Charta.registerEvents();
     }
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(Charta.MOD_ID, path);
     }
 
-    @EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
-    public static class ModEvents {
+    private static void registerPayloads() {
+        registrarPlayToClient(ImagesPayload.TYPE, ImagesPayload.STREAM_CODEC, ImagesPayload::handleClient);
+        registrarPlayToClient(CardDecksPayload.TYPE, CardDecksPayload.STREAM_CODEC, CardDecksPayload::handleClient);
+        registrarPlayToClient(UpdateCardContainerSlotPayload.TYPE, UpdateCardContainerSlotPayload.STREAM_CODEC, UpdateCardContainerSlotPayload::handleClient);
+        registrarPlayToClient(UpdateCardContainerCarriedPayload.TYPE, UpdateCardContainerCarriedPayload.STREAM_CODEC, UpdateCardContainerCarriedPayload::handleClient);
+        registrarPlayToClient(TableScreenPayload.TYPE, TableScreenPayload.STREAM_CODEC, TableScreenPayload::handleClient);
+        registrarPlayToClient(GameSlotCompletePayload.TYPE, GameSlotCompletePayload.STREAM_CODEC, GameSlotCompletePayload::handleClient);
+        registrarPlayToClient(GameSlotPositionPayload.TYPE, GameSlotPositionPayload.STREAM_CODEC, GameSlotPositionPayload::handleClient);
+        registrarPlayToClient(GameSlotResetPayload.TYPE, GameSlotResetPayload.STREAM_CODEC, GameSlotResetPayload::handleClient);
+        registrarPlayToClient(GameStartPayload.TYPE, GameStartPayload.STREAM_CODEC, GameStartPayload::handleClient);
+        registrarPlayToClient(CardPlayPayload.TYPE, CardPlayPayload.STREAM_CODEC, CardPlayPayload::handleClient);
 
-        @SubscribeEvent
-        public static void register(final RegisterPayloadHandlersEvent event) {
-            final PayloadRegistrar registrar = event.registrar("1");
+        registrarPlayToServer(CardContainerSlotClickPayload.TYPE, CardContainerSlotClickPayload.STREAM_CODEC, CardContainerSlotClickPayload::handleServer);
+        registrarPlayToServer(CardTableSelectGamePayload.TYPE, CardTableSelectGamePayload.STREAM_CODEC, CardTableSelectGamePayload::handleServer);
 
-            registrar.playToClient(ImagesPayload.TYPE, ImagesPayload.STREAM_CODEC, ImagesPayload::handleClient);
-            registrar.playToClient(CardDecksPayload.TYPE, CardDecksPayload.STREAM_CODEC, CardDecksPayload::handleClient);
-            registrar.playToClient(UpdateCardContainerSlotPayload.TYPE, UpdateCardContainerSlotPayload.STREAM_CODEC, UpdateCardContainerSlotPayload::handleClient);
-            registrar.playToClient(UpdateCardContainerCarriedPayload.TYPE, UpdateCardContainerCarriedPayload.STREAM_CODEC, UpdateCardContainerCarriedPayload::handleClient);
-            registrar.playToClient(TableScreenPayload.TYPE, TableScreenPayload.STREAM_CODEC, TableScreenPayload::handleClient);
-            registrar.playToClient(GameSlotCompletePayload.TYPE, GameSlotCompletePayload.STREAM_CODEC, GameSlotCompletePayload::handleClient);
-            registrar.playToClient(GameSlotPositionPayload.TYPE, GameSlotPositionPayload.STREAM_CODEC, GameSlotPositionPayload::handleClient);
-            registrar.playToClient(GameSlotResetPayload.TYPE, GameSlotResetPayload.STREAM_CODEC, GameSlotResetPayload::handleClient);
-            registrar.playToClient(GameStartPayload.TYPE, GameStartPayload.STREAM_CODEC, GameStartPayload::handleClient);
-            registrar.playToClient(CardPlayPayload.TYPE, CardPlayPayload.STREAM_CODEC, CardPlayPayload::handleClient);
-
-            registrar.playToServer(CardContainerSlotClickPayload.TYPE, CardContainerSlotClickPayload.STREAM_CODEC, CardContainerSlotClickPayload::handleServer);
-            registrar.playToServer(CardTableSelectGamePayload.TYPE, CardTableSelectGamePayload.STREAM_CODEC, CardTableSelectGamePayload::handleServer);
-
-            registrar.playBidirectional(LastFunPayload.TYPE, LastFunPayload.STREAM_CODEC, LastFunPayload::handleBoth);
-            registrar.playBidirectional(PlayerOptionsPayload.TYPE, PlayerOptionsPayload.STREAM_CODEC, PlayerOptionsPayload::handleBoth);
-            registrar.playBidirectional(GameLeavePayload.TYPE, GameLeavePayload.STREAM_CODEC, GameLeavePayload::handleBoth);
-
-        }
-
+        registrarPlayBidirectional(LastFunPayload.TYPE, LastFunPayload.STREAM_CODEC, LastFunPayload::handleClient, LastFunPayload::handleServer);
+        registrarPlayBidirectional(PlayerOptionsPayload.TYPE, PlayerOptionsPayload.STREAM_CODEC, PlayerOptionsPayload::handleClient, PlayerOptionsPayload::handleServer);
+        registrarPlayBidirectional(GameLeavePayload.TYPE, GameLeavePayload.STREAM_CODEC, GameLeavePayload::handleClient, GameLeavePayload::handleServer);
     }
 
-    @EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
+    private static <T extends CustomPacketPayload> void registrarPlayToClient(CustomPacketPayload.Type<T> type, StreamCodec<ByteBuf, T> codec, BiConsumer<Player, T> handler) {
+        PayloadTypeRegistry.playS2C().register(type, codec);
+        if(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            registerClientReceiver(type, handler);
+        }
+    }
+
+    @Environment(EnvType.CLIENT)
+    private static <T extends CustomPacketPayload> void registerClientReceiver(CustomPacketPayload.Type<T> type, BiConsumer<Player, T> handler) {
+        ClientPlayNetworking.registerGlobalReceiver(type, (payload, ctx) -> ctx.client().execute(() -> handler.accept(ctx.player(), payload)));
+    }
+
+    private static <T extends CustomPacketPayload> void registrarPlayToServer(CustomPacketPayload.Type<T> type, StreamCodec<ByteBuf, T> codec, BiConsumer<Player, T> handler) {
+        PayloadTypeRegistry.playC2S().register(type, codec);
+        ServerPlayNetworking.registerGlobalReceiver(type, (payload, ctx) -> ctx.server().execute(() -> handler.accept(ctx.player(), payload)));
+    }
+
+    private static <T extends CustomPacketPayload> void registrarPlayBidirectional(CustomPacketPayload.Type<T> type, StreamCodec<ByteBuf, T> codec,BiConsumer<Player, T> clientHandler, BiConsumer<Player, T> serverHandler) {
+        registrarPlayToClient(type, codec, clientHandler);
+        registrarPlayToServer(type, codec, serverHandler);
+    }
+
+    private static void registerEvents() {
+        ServerLifecycleEvents.SERVER_STARTING.register(GameEvents::serverAboutToStart);
+        ServerPlayConnectionEvents.JOIN.register(GameEvents::onPlayerJoined);
+        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register(GameEvents::onDatapackReload);
+        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((a, b) -> ModVillagerProfessions.registerVillagerTrades());
+        GameEvents.addReloadListeners(ResourceManagerHelper.get(PackType.SERVER_DATA));
+    }
+
     public static class GameEvents {
 
-        @SubscribeEvent
-        public static void serverAboutToStart(final ServerAboutToStartEvent event) {
-            MinecraftServer server = event.getServer();
+        public static void serverAboutToStart(MinecraftServer server) {
             RegistryAccess registryAccess = server.registryAccess();
             Registry<StructureTemplatePool> templatePoolRegistry = registryAccess.registry(Registries.TEMPLATE_POOL).orElseThrow();
             Registry<StructureProcessorList> processorListRegistry = registryAccess.registry(Registries.PROCESSOR_LIST).orElseThrow();
@@ -152,53 +177,47 @@ public class Charta {
                     "charta:savanna_card_bar", 60);
         }
 
-        @SubscribeEvent
-        public static void addReloadListeners(final AddReloadListenerEvent event) {
-            event.addListener(CARD_SUITS);
-            event.addListener(CARD_IMAGES);
-            event.addListener(DECK_IMAGES);
-            event.addListener(CARD_DECKS);
+        public static void addReloadListeners(ResourceManagerHelper event) {
+            event.registerReloadListener(CARD_SUITS);
+            event.registerReloadListener(CARD_IMAGES);
+            event.registerReloadListener(DECK_IMAGES);
+            event.registerReloadListener(CARD_DECKS);
         }
 
-        @SubscribeEvent
-        public static void onChunkSent(final ChunkWatchEvent.Sent event) {
-            LevelChunk chunk = event.getChunk();
+        public static void onChunkSent(ServerPlayer player, LevelChunk chunk) {
             chunk.getBlockEntities().forEach((pos, blockEntity) -> {
                 if(blockEntity instanceof CardTableBlockEntity cardTable) {
                     int count = cardTable.getSlotCount();
                     for(int i = 0; i < count; i++) {
                         GameSlot slot = cardTable.getSlot(i);
                         GameSlotCompletePayload payload = new GameSlotCompletePayload(pos, i, slot);
-                        PacketDistributor.sendToPlayer(event.getPlayer(), payload);
+                        ServerPlayNetworking.send(player, payload);
                     }
                 }
             });
 
         }
 
-        @SubscribeEvent
-        public static void onPlayerJoined(final PlayerEvent.PlayerLoggedInEvent event) {
-            Player player = event.getEntity();
-            if(player instanceof ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, new ImagesPayload(
+        public static void onPlayerJoined(ServerGamePacketListenerImpl handler, PacketSender sender, MinecraftServer server) {
+            ServerPlayer serverPlayer = handler.getPlayer();
+            ServerPlayNetworking.send(serverPlayer, new ImagesPayload(
                     new HashMap<>(Charta.CARD_SUITS.getImages()),
                     new HashMap<>(Charta.CARD_IMAGES.getImages()),
                     new HashMap<>(Charta.DECK_IMAGES.getImages())
-                ));
-                PacketDistributor.sendToPlayer(serverPlayer, new CardDecksPayload(new LinkedHashMap<>(Charta.CARD_DECKS.getDecks())));
-                PlayerOptionData data = serverPlayer.server.overworld().getDataStorage().computeIfAbsent(PlayerOptionData.factory(), "charta_player_options");
-                PacketDistributor.sendToPlayer(serverPlayer, new PlayerOptionsPayload(data.getPlayerOptions(serverPlayer)));
-            }
+            ));
+            ServerPlayNetworking.send(serverPlayer, new CardDecksPayload(new LinkedHashMap<>(Charta.CARD_DECKS.getDecks())));
+            PlayerOptionData data = serverPlayer.server.overworld().getDataStorage().computeIfAbsent(PlayerOptionData.factory(), "charta_player_options");
+            ServerPlayNetworking.send(serverPlayer, new PlayerOptionsPayload(data.getPlayerOptions(serverPlayer)));
+
         }
 
-        @SubscribeEvent
-        public static void onDatapackReload(final OnDatapackSyncEvent event) {
-            PacketDistributor.sendToAllPlayers(new ImagesPayload(
+        public static void onDatapackReload(ServerPlayer player, boolean joined) {
+            ServerPlayNetworking.send(player, new ImagesPayload(
                 new HashMap<>(Charta.CARD_SUITS.getImages()),
                 new HashMap<>(Charta.CARD_IMAGES.getImages()),
                 new HashMap<>(Charta.DECK_IMAGES.getImages())
             ));
-            PacketDistributor.sendToAllPlayers(new CardDecksPayload(new LinkedHashMap<>(Charta.CARD_DECKS.getDecks())));
+            ServerPlayNetworking.send(player, new CardDecksPayload(new LinkedHashMap<>(Charta.CARD_DECKS.getDecks())));
         }
 
     }

@@ -4,45 +4,49 @@ import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.block.BeerGlassBlock;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.block.WineGlassBlock;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.LeadItem;
-import net.minecraft.world.level.block.Block;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class ModItems {
 
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, Charta.MOD_ID);
+    public static final Map<ResourceLocation, Item> ITEMS = new HashMap<>();
 
     static {
-        ModBlocks.BLOCKS.getEntries().forEach(holder -> {
-            ResourceKey<Block> resourceKey = holder.getKey();
-            if(resourceKey != null) {
-                String path = resourceKey.location().getPath();
-                if(!path.contains("empty")) {
-                    if(path.contains("wine_glass")) {
-                        ITEMS.register(resourceKey.location().getPath(), () -> new DrinkGlassBlockItem(holder.get(), ModBlocks.EMPTY_WINE_GLASS.get(), new Item.Properties().food(WineGlassBlock.FOOD)));
-                    }else if(path.contains("beer_glass")) {
-                        ITEMS.register(resourceKey.location().getPath(), () -> new DrinkGlassBlockItem(holder.get(), ModBlocks.EMPTY_BEER_GLASS.get(), new Item.Properties().food(BeerGlassBlock.FOOD)));
-                    }else{
-                        ITEMS.register(resourceKey.location().getPath(), () -> new BlockItem(holder.get(), new Item.Properties()));
-                    }
-                }else{
-                    ITEMS.register(resourceKey.location().getPath(), () -> new BlockItem(holder.get(), new Item.Properties()));
+        ModBlocks.BLOCKS.forEach((location, block) -> {
+            String path = location.getPath();
+            if (!path.contains("empty")) {
+                if (path.contains("wine_glass")) {
+                    register(location.getPath(), () -> new DrinkGlassBlockItem(block, ModBlocks.EMPTY_WINE_GLASS, new Item.Properties().food(WineGlassBlock.FOOD)));
+                } else if (path.contains("beer_glass")) {
+                    register(location.getPath(), () -> new DrinkGlassBlockItem(block, ModBlocks.EMPTY_BEER_GLASS, new Item.Properties().food(BeerGlassBlock.FOOD)));
+                } else {
+                    register(location.getPath(), () -> new BlockItem(block, new Item.Properties()));
                 }
+            } else {
+                register(location.getPath(), () -> new BlockItem(block, new Item.Properties()));
             }
         });
     }
 
-    public static final DeferredHolder<Item, CardDeckItem> DECK = ITEMS.register("deck", () -> new CardDeckItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredHolder<Item, LeadItem> IRON_LEAD = ITEMS.register("iron_lead", () -> new LeadItem(new Item.Properties()));
+    public static final CardDeckItem DECK = register("deck", () -> new CardDeckItem(new Item.Properties().stacksTo(1)));
+    public static final LeadItem IRON_LEAD = register("iron_lead", () -> new LeadItem(new Item.Properties()));
 
-    public static void register(IEventBus bus) {
-        ITEMS.register(bus);
+    private static <T extends Item> T register(String id, Supplier<T> item) {
+        T obj = item.get();
+        ITEMS.put(Charta.id(id), obj);
+        return obj;
+    }
+
+    public static void register() {
+        ITEMS.forEach((id, item) -> Registry.register(BuiltInRegistries.ITEM, id, item));
     }
 
 

@@ -3,9 +3,9 @@ package dev.lucaargolo.charta.datagen;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
 import org.jetbrains.annotations.NotNull;
 
 import javax.imageio.ImageIO;
@@ -24,9 +24,9 @@ import java.util.stream.Stream;
 
 public class DeckImageProvider implements DataProvider {
 
-    private final PackOutput output;
+    private final FabricDataOutput output;
 
-    public DeckImageProvider(PackOutput output) {
+    public DeckImageProvider(FabricDataOutput output) {
         this.output = output;
     }
 
@@ -43,7 +43,8 @@ public class DeckImageProvider implements DataProvider {
                     paths.filter(Files::isRegularFile).forEach(path -> {
                         String fileName = path.getFileName().toString();
                         String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
-                        String subFolder = path.getParent().toString().replace("decks", "");
+                        String parentFolder = path.getParent().toString();
+                        String subFolder = parentFolder.substring(parentFolder.indexOf("decks") + "decks".length());
                         File cardOutputFolder = new File(decksOutputPath);
                         cardOutputFolder.mkdirs();
                         File cardOutputFile = new File(cardOutputFolder + File.separator + subFolder + File.separator + cardName);

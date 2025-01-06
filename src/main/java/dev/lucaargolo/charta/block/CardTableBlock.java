@@ -12,6 +12,7 @@ import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.network.TableScreenPayload;
 import dev.lucaargolo.charta.utils.DyeColorHelper;
 import dev.lucaargolo.charta.utils.VoxelShapeUtils;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
@@ -44,7 +45,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -151,7 +151,7 @@ public class CardTableBlock extends BaseEntityBlock {
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
-        return !level.isClientSide ? createTickerHelper(blockEntityType, ModBlockEntityTypes.CARD_TABLE.get(), CardTableBlockEntity::serverTick) : null;
+        return !level.isClientSide ? createTickerHelper(blockEntityType, ModBlockEntityTypes.CARD_TABLE, CardTableBlockEntity::serverTick) : null;
     }
 
     @Override
@@ -172,7 +172,7 @@ public class CardTableBlock extends BaseEntityBlock {
                     Pair<BlockPos, Vector2f> pair = getCenterAndOffset(level, pos);
                     BlockPos center = pair.getFirst();
                     Vector2f offset = pair.getSecond();
-                    level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
+                    level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE).ifPresent(cardTable -> {
                         Vec3 c = pos.getCenter();
                         if(!cardTable.centerOffset.equals(offset)) {
                             cardTable.centerOffset = offset;
@@ -216,7 +216,7 @@ public class CardTableBlock extends BaseEntityBlock {
                         Pair<BlockPos, Vector2f> pair = getCenterAndOffset(level, pos);
                         BlockPos center = pair.getFirst();
                         Vector2f offset = pair.getSecond();
-                        level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
+                        level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE).ifPresent(cardTable -> {
                             if(!cardTable.centerOffset.equals(offset)) {
                                 cardTable.centerOffset = offset;
                                 level.sendBlockUpdated(center, state, state, 3);
@@ -238,7 +238,7 @@ public class CardTableBlock extends BaseEntityBlock {
                                     if (satPlayers.contains(player)){
                                         CardGame<?> game = cardTable.getGame();
                                         if (game == null || game.isGameOver()) {
-                                            PacketDistributor.sendToPlayer(serverPlayer, new TableScreenPayload(center, deck, satPlayers.stream().mapToInt(LivingEntity::getId).toArray()));
+                                            ServerPlayNetworking.send(serverPlayer, new TableScreenPayload(center, deck, satPlayers.stream().mapToInt(LivingEntity::getId).toArray()));
                                         }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
                                             game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
                                         }else{
@@ -269,7 +269,7 @@ public class CardTableBlock extends BaseEntityBlock {
                 ItemStack carpetStack = DyeColorHelper.getCarpet(state.getValue(COLOR)).asItem().getDefaultInstance();
                 Containers.dropItemStack(level, c.x, c.y, c.z, carpetStack);
             }
-            level.getBlockEntity(pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(entity -> {
+            level.getBlockEntity(pos, ModBlockEntityTypes.CARD_TABLE).ifPresent(entity -> {
                 Vec3 c = pos.getCenter();
                 Containers.dropItemStack(level, c.x, c.y, c.z, entity.getDeckStack());
                 if(entity.getGame() != null && !entity.getGame().isGameOver()) {

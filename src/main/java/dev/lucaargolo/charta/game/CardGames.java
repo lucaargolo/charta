@@ -49,7 +49,7 @@ public class CardGames {
     @SuppressWarnings({"OptionalGetWithoutIsPresent", "unchecked"})
     public static <G extends CardGame<G>> G getGameForMenu(Factory<G> factory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
         try{
-            return access.evaluate((level, pos) -> level.getBlockEntity(pos, ModBlockEntityTypes.CARD_TABLE.get()).get()).map(table -> (G) table.getGame()).get();
+            return access.evaluate((level, pos) -> level.getBlockEntity(pos, ModBlockEntityTypes.CARD_TABLE).get()).map(table -> (G) table.getGame()).get();
         }catch (Exception e) {
             List<CardPlayer> cardPlayers = new ArrayList<>();
             for (int entityId : players) {

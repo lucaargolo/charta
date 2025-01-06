@@ -2,29 +2,31 @@ package dev.lucaargolo.charta.item;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.block.ModBlocks;
-import net.minecraft.core.registries.Registries;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.state.properties.WoodType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class ModCreativeTabs {
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Charta.MOD_ID);
+    public static final Map<ResourceLocation, CreativeModeTab> CREATIVE_MODE_TABS = new HashMap<>();
     
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ITEMS = CREATIVE_MODE_TABS.register("items", () -> CreativeModeTab.builder()
+    public static final CreativeModeTab ITEMS = register("items", () -> FabricItemGroup.builder()
             .title(Component.translatable("itemGroup.charta.items"))
-            .icon(ModBlocks.CARD_TABLE_MAP.get(WoodType.OAK).get().asItem()::getDefaultInstance)
+            .icon(ModBlocks.CARD_TABLE_MAP.get(WoodType.OAK).asItem()::getDefaultInstance)
             .displayItems((parameters, output) -> {
-                ModItems.ITEMS.getEntries().stream().filter(h -> h != ModItems.DECK).map(DeferredHolder::get).forEach(output::accept);
+                ModItems.ITEMS.values().stream().filter(h -> h != ModItems.DECK).forEach(output::accept);
             })
             .build());
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> DECKS = CREATIVE_MODE_TABS.register("decks", () -> CreativeModeTab.builder()
+    public static final CreativeModeTab DECKS = register("decks", () -> FabricItemGroup.builder()
             .title(Component.translatable("itemGroup.charta.decks"))
             .icon(() -> CardDeckItem.getDeck(new ArrayList<>(Charta.CARD_DECKS.getDecks().keySet()).getFirst()))
             .displayItems((parameters, output) -> {
@@ -33,8 +35,15 @@ public class ModCreativeTabs {
                 });
             })
             .build());
-    
-    public static void register(IEventBus bus) {
-        CREATIVE_MODE_TABS.register(bus);
+
+
+    private static <T extends CreativeModeTab> T register(String id, Supplier<T> creativeTab) {
+        T obj = creativeTab.get();
+        CREATIVE_MODE_TABS.put(Charta.id(id), obj);
+        return obj;
+    }
+
+    public static void register() {
+        CREATIVE_MODE_TABS.forEach((id, creativeTab) -> Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, id, creativeTab));
     }
 }

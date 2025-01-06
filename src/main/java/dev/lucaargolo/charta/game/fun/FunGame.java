@@ -7,6 +7,7 @@ import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.LastFunPayload;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -16,7 +17,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -148,7 +148,7 @@ public class FunGame extends CardGame<FunGame> {
         for(int i = 0; i < 7; i++) {
             for (CardPlayer player : players) {
                 scheduledActions.add(() -> {
-                    player.playSound(ModSounds.CARD_DRAW.get());
+                    player.playSound(ModSounds.CARD_DRAW);
                     dealCards(drawPile, player, 1);
                 });
                 scheduledActions.add(() -> {});
@@ -216,7 +216,7 @@ public class FunGame extends CardGame<FunGame> {
 
                 if (currentPlayer.shouldCompute()) {
                     dealCards(drawPile, currentPlayer, 1);
-                    currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+                    currentPlayer.playSound(ModSounds.CARD_DRAW);
                 }
                 play(currentPlayer, Component.translatable("message.charta.drew_a_card"));
 
@@ -248,7 +248,7 @@ public class FunGame extends CardGame<FunGame> {
             }else if(!currentPlayer.shouldCompute() || canPlay(currentPlayer, play)) {
                 //Player played a card (Since we already checked in the menu, we don't need to check again if the player is pre computed).]
                 Card card = play.cards().getLast();
-                currentPlayer.playSound(ModSounds.CARD_PLAY.get());
+                currentPlayer.playSound(ModSounds.CARD_PLAY);
                 currentSuit = card.getSuit();
 
                 if(isChoosingWild) {
@@ -441,7 +441,7 @@ public class FunGame extends CardGame<FunGame> {
                         players.forEach(p -> {
                             LivingEntity entity = p.getEntity();
                             if(entity instanceof ServerPlayer serverPlayer) {
-                                PacketDistributor.sendToPlayer(serverPlayer, new LastFunPayload(CardDeckItem.getDeck(deck)));
+                                ServerPlayNetworking.send(serverPlayer, new LastFunPayload(CardDeckItem.getDeck(deck)));
                             }
                         });
                         table(Component.translatable("message.charta.player_automatically_drew_cards", player.getColoredName(), drawAmount));

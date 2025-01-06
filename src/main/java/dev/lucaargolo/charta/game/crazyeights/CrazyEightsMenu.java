@@ -45,7 +45,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     }
 
     public CrazyEightsMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
-        super(ModMenus.CRAZY_EIGHTS.get(), containerId, inventory, access, deck, players, options);
+        super(ModMenus.CRAZY_EIGHTS, containerId, inventory, access, deck, players, options);
 
         this.addTopPreview(players);
         addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(0), 16, 30));

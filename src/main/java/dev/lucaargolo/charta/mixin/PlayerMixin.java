@@ -7,6 +7,7 @@ import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.entity.SeatEntity;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.network.GameLeavePayload;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,13 +41,13 @@ public abstract class PlayerMixin extends LivingEntity {
                 BlockState tableState = level.getBlockState(pos.relative(facing));
                 if(tableState.getBlock() instanceof CardTableBlock cardTableBlock) {
                     BlockPos center = cardTableBlock.getCenterAndOffset(level, pos.relative(facing)).getFirst();
-                    Optional<CardTableBlockEntity> optional = level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE.get());
+                    Optional<CardTableBlockEntity> optional = level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE);
                     if(optional.isPresent()) {
                         CardTableBlockEntity blockEntity = optional.get();
                         CardGame<?> currentGame = blockEntity.getGame();
                         if(currentGame != null && !currentGame.isGameOver()) {
                             if((Object) this instanceof ServerPlayer serverPlayer) {
-                                PacketDistributor.sendToPlayer(serverPlayer, new GameLeavePayload());
+                                ServerPlayNetworking.send(serverPlayer, new GameLeavePayload());
                             }
                             cir.setReturnValue(false);
                         }

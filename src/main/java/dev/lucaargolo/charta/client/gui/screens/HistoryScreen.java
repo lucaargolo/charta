@@ -3,7 +3,9 @@ package dev.lucaargolo.charta.client.gui.screens;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.Tooltip;
@@ -11,8 +13,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,8 +55,6 @@ public class HistoryScreen extends Screen {
         return false;
     }
 
-
-    @OnlyIn(Dist.CLIENT)
     public class Play extends ContainerObjectSelectionList.Entry<Play> {
 
         private final Component player;
@@ -77,8 +75,18 @@ public class HistoryScreen extends Screen {
                 guiGraphics.drawString(font, player, left-12, top, 0xFFFFFFFF);
                 guiGraphics.drawString(font, Component.literal(Integer.toString(cards)).append(" ").append(cards > 1 ? Component.translatable("charta.cards") : Component.translatable("charta.card")), left-12 + width - 101, top, 0xFFFFFFFF);
             }
-            guiGraphics.drawScrollingString(font, play, left-12 + 108, left-12+width-108, top, 0xFFFFFFFF);
+            drawScrollingString(guiGraphics, font, play, left-12 + 108, left-12+width-108, top, 0xFFFFFFFF);
 
+        }
+
+        private void drawScrollingString(GuiGraphics guiGraphics, Font font, Component text, int minX, int maxX, int y, int color) {
+            int maxWidth = maxX - minX;
+            int textWidth = font.width(text.getVisualOrderText());
+            if (textWidth <= maxWidth) {
+                guiGraphics.drawString(font, text, minX, y, color);
+            } else {
+                AbstractWidget.renderScrollingString(guiGraphics, font, text, minX, y, maxX, y + font.lineHeight, color);
+            }
         }
 
         @Override

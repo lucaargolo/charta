@@ -9,7 +9,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -30,13 +29,10 @@ public record UpdateCardContainerSlotPayload(int containerId, int stateId, int s
             UpdateCardContainerSlotPayload::new
     );
 
-    public static void handleClient(UpdateCardContainerSlotPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Player player = context.player();
-            if(player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
-                cardMenu.setCards(payload.slotId, payload.stateId, payload.cards);
-            }
-        });
+    public static void handleClient(Player player, UpdateCardContainerSlotPayload payload) {
+        if(player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
+            cardMenu.setCards(payload.slotId, payload.stateId, payload.cards);
+        }
     }
 
     @Override

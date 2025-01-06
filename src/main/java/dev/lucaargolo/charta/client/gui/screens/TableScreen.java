@@ -9,6 +9,7 @@ import dev.lucaargolo.charta.game.CardGames;
 import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import dev.lucaargolo.charta.utils.TickableWidget;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -21,7 +22,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +59,7 @@ public class TableScreen extends Screen {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(font, title, width/2, 10, 0xFFFFFFFF);
         if(this.minecraft != null) {
-            guiGraphics.drawCenteredString(font, Component.translatable("message.charta.hold_to_options", this.minecraft.options.keyShift.getKey().getDisplayName()), width / 2, height - 20, 0xFFFFFFFF);
+            guiGraphics.drawCenteredString(font, Component.translatable("message.charta.hold_to_options", this.minecraft.options.keyShift.key.getDisplayName()), width / 2, height - 20, 0xFFFFFFFF);
         }
     }
 
@@ -99,7 +99,7 @@ public class TableScreen extends Screen {
 
         public Game(ResourceLocation gameId, CardGames.Factory<G> gameFactory) {
             super(0, 0, 70, 70, Component.translatable(gameId.toLanguageKey()), (button) -> {
-                PacketDistributor.sendToServer(new CardTableSelectGamePayload(pos, gameId, ChartaClient.LOCAL_OPTIONS.getOrDefault(gameId, new byte[0])));
+                ClientPlayNetworking.send(new CardTableSelectGamePayload(pos, gameId, ChartaClient.LOCAL_OPTIONS.getOrDefault(gameId, new byte[0])));
                 onClose();
             }, Button.DEFAULT_NARRATION);
 
@@ -264,7 +264,7 @@ public class TableScreen extends Screen {
 
     private boolean isShiftDown() {
         assert minecraft != null;
-        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), minecraft.options.keyShift.getKey().getValue());
+        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), minecraft.options.keyShift.key.getValue());
     }
 
 }

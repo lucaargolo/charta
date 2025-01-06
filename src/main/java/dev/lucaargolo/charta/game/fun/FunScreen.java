@@ -11,6 +11,7 @@ import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
 import dev.lucaargolo.charta.network.LastFunPayload;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
@@ -21,10 +22,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Random;
 
@@ -61,11 +61,11 @@ public class FunScreen extends GameScreen<FunGame, FunMenu> {
             drawAll = false;
         }else if(drawAll) {
             if(menu.getCarriedCards().isEmpty()) {
-                PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-3, -1));
+                ClientPlayNetworking.send(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-3, -1));
             }else{
                 drawAll = false;
             }
-            PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-1, -1));
+            ClientPlayNetworking.send(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-1, -1));
         }
         if (this.itemActivationTicks > 0) {
             this.itemActivationTicks--;
@@ -113,7 +113,7 @@ public class FunScreen extends GameScreen<FunGame, FunMenu> {
         int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2)/2 - 65/2;
         int y = height - ((int) CardSlot.getHeight(CardSlot.Type.HORIZONTAL))/2 - 14;
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
-            PacketDistributor.sendToServer(new LastFunPayload());
+            ClientPlayNetworking.send(new LastFunPayload());
             return true;
         }
         x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2;

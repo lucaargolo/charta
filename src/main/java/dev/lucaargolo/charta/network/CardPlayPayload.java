@@ -4,15 +4,15 @@ import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.client.gui.screens.HistoryScreen;
 import io.netty.buffer.ByteBuf;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,13 +30,11 @@ public record CardPlayPayload(Component playerName, int playerCards, Component p
         CardPlayPayload::new
     );
 
-    public static void handleClient(CardPlayPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            addToHistory(payload.playerName, payload.playerCards, payload.play);
-        });
+    public static void handleClient(Player player, CardPlayPayload payload) {
+        addToHistory(payload.playerName, payload.playerCards, payload.play);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     private static void addToHistory(Component playerName, int playerCards, Component play) {
         ChartaClient.LOCAL_HISTORY.add(ImmutableTriple.of(playerName, playerCards, play));
         Minecraft mc = Minecraft.getInstance();

@@ -17,7 +17,7 @@ public class IronLeashFenceKnotEntity extends LeashFenceKnotEntity {
     }
 
     public IronLeashFenceKnotEntity(Level level, BlockPos pos) {
-        super(ModEntityTypes.IRON_LEASH_KNOT.get(), level);
+        super(ModEntityTypes.IRON_LEASH_KNOT, level);
         this.pos = pos;
         this.setPos(pos.getX(), pos.getY(), pos.getZ());
     }

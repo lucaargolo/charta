@@ -1,22 +1,20 @@
 package dev.lucaargolo.charta.datagen;
 
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.block.ModBannerPatterns;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.BannerPatternTags;
 import net.minecraft.world.level.block.entity.BannerPattern;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
 public class ModBannerPatternTagsProvider extends TagsProvider<BannerPattern> {
 
-    public ModBannerPatternTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider, ExistingFileHelper existingFileHelper) {
-        super(output, Registries.BANNER_PATTERN, provider, Charta.MOD_ID, existingFileHelper);
+    public ModBannerPatternTagsProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> provider) {
+        super(output, Registries.BANNER_PATTERN, provider);
     }
 
     @Override

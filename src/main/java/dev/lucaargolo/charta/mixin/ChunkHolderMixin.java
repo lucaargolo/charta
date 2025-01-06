@@ -3,12 +3,12 @@ package dev.lucaargolo.charta.mixin;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.network.GameSlotCompletePayload;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,7 +27,7 @@ public class ChunkHolderMixin {
             for(int i = 0; i < count; i++) {
                 GameSlot slot = cardTable.getSlot(i);
                 GameSlotCompletePayload payload = new GameSlotCompletePayload(pos, i, slot);
-                players.forEach(player -> PacketDistributor.sendToPlayer(player, payload));
+                players.forEach(player -> ServerPlayNetworking.send(player, payload));
             }
         }
 

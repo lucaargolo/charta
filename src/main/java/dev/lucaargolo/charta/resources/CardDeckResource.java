@@ -1,15 +1,14 @@
 package dev.lucaargolo.charta.resources;
 
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.CardDeck;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.item.Rarity;
 
 import java.io.IOException;
@@ -22,7 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CardDeckResource implements ResourceManagerReloadListener {
+public class CardDeckResource implements SimpleSynchronousResourceReloadListener {
 
     private static final CardDeck MISSING = CardDeck.simple(Rarity.COMMON, false, Charta.MISSING_CARD, Charta.MISSING_CARD);
 
@@ -67,4 +66,8 @@ public class CardDeckResource implements ResourceManagerReloadListener {
         return decks.getOrDefault(id, MISSING);
     }
 
+    @Override
+    public ResourceLocation getFabricId() {
+        return Charta.id("card_decks");
+    }
 }

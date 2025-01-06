@@ -6,16 +6,16 @@ import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.utils.ExpandedStreamCodec;
 import io.netty.buffer.ByteBuf;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -59,16 +59,16 @@ public record GameSlotCompletePayload(BlockPos pos, int index, List<Card> cards,
         return TYPE;
     }
 
-    public static void handleClient(GameSlotCompletePayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> updateGameSlot(payload));
+    public static void handleClient(Player player, GameSlotCompletePayload payload) {
+        updateGameSlot(payload);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     private static void updateGameSlot(GameSlotCompletePayload payload) {
         Minecraft minecraft = Minecraft.getInstance();
         Level level = minecraft.level;
         if(level != null) {
-            level.getBlockEntity(payload.pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
+            level.getBlockEntity(payload.pos, ModBlockEntityTypes.CARD_TABLE).ifPresent(cardTable -> {
                 List<Card> list = new LinkedList<>(payload.cards);
                 if(payload.index == cardTable.getSlotCount()) {
                     cardTable.addSlot(new GameSlot(list, payload.x, payload.y, payload.z, payload.angle, payload.stackDirection, payload.maxStack, payload.centered));

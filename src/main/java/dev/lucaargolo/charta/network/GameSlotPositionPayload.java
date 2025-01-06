@@ -4,15 +4,15 @@ import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.GameSlot;
 import io.netty.buffer.ByteBuf;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 public record GameSlotPositionPayload(BlockPos pos, int index, float x, float y, float z, float angle) implements CustomPacketPayload {
@@ -40,16 +40,16 @@ public record GameSlotPositionPayload(BlockPos pos, int index, float x, float y,
         return TYPE;
     }
 
-    public static void handleClient(GameSlotPositionPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> updateGameSlot(payload));
+    public static void handleClient(Player player, GameSlotPositionPayload payload) {
+        updateGameSlot(payload);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     private static void updateGameSlot(GameSlotPositionPayload payload) {
         Minecraft minecraft = Minecraft.getInstance();
         Level level = minecraft.level;
         if(level != null) {
-            level.getBlockEntity(payload.pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
+            level.getBlockEntity(payload.pos, ModBlockEntityTypes.CARD_TABLE).ifPresent(cardTable -> {
                 GameSlot slot = cardTable.getSlot(payload.index);
                 slot.setX(payload.x);
                 slot.setY(payload.y);

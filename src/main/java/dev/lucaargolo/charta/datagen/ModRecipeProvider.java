@@ -2,86 +2,91 @@ package dev.lucaargolo.charta.datagen;
 
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.item.ModItems;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.properties.WoodType;
-import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
-public class ModRecipeProvider extends RecipeProvider {
+public class ModRecipeProvider extends FabricRecipeProvider {
 
-    public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+    private final CompletableFuture<HolderLookup.Provider> registries;
+
+    public ModRecipeProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries);
+        this.registries = registries;
     }
 
     @Override
-    protected void buildRecipes(@NotNull RecipeOutput recipeOutput, @NotNull HolderLookup.Provider holderLookup) {
-        HolderLookup.RegistryLookup<Item> itemLookup = holderLookup.lookupOrThrow(Registries.ITEM);
+    public void buildRecipes(@NotNull RecipeOutput recipeOutput) {
+        registries.thenAccept(holderLookup -> {
+            HolderLookup.RegistryLookup<Item> itemLookup = holderLookup.lookupOrThrow(Registries.ITEM);
 
-        ModBlocks.CARD_TABLE_MAP.forEach((woodType, holder) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, holder.get(), 1)
-                .pattern("PSP")
-                .pattern("L L")
-                .define('P', getPlanks(woodType, itemLookup))
-                .define('S', getSlab(woodType, itemLookup))
-                .define('L', getLog(woodType, itemLookup))
-                .unlockedBy("has_wood", has(getLog(woodType, itemLookup)))
-                .save(recipeOutput);
-        });
+            ModBlocks.CARD_TABLE_MAP.forEach((woodType, holder) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, holder, 1)
+                        .pattern("PSP")
+                        .pattern("L L")
+                        .define('P', getPlanks(woodType, itemLookup))
+                        .define('S', getSlab(woodType, itemLookup))
+                        .define('L', getLog(woodType, itemLookup))
+                        .unlockedBy("has_wood", has(getLog(woodType, itemLookup)))
+                        .save(recipeOutput);
+            });
 
-        ModBlocks.GAME_CHAIR_MAP.forEach((woodType, holder) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, holder.get(), 1)
-                .pattern("P ")
-                .pattern("PS")
-                .pattern("LL")
-                .define('P', getPlanks(woodType, itemLookup))
-                .define('S', getSlab(woodType, itemLookup))
-                .define('L', getLog(woodType, itemLookup))
-                .unlockedBy("has_wood", has(getLog(woodType, itemLookup)))
-                .save(recipeOutput);
-        });
+            ModBlocks.GAME_CHAIR_MAP.forEach((woodType, holder) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, holder, 1)
+                        .pattern("P ")
+                        .pattern("PS")
+                        .pattern("LL")
+                        .define('P', getPlanks(woodType, itemLookup))
+                        .define('S', getSlab(woodType, itemLookup))
+                        .define('L', getLog(woodType, itemLookup))
+                        .unlockedBy("has_wood", has(getLog(woodType, itemLookup)))
+                        .save(recipeOutput);
+            });
 
-        ModBlocks.BAR_STOOL_MAP.forEach((woodType, holder) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, holder.get(), 1)
-                    .pattern("SLS")
-                    .pattern(" P ")
-                    .define('P', getPlanks(woodType, itemLookup))
-                    .define('S', getSlab(woodType, itemLookup))
-                    .define('L', getLog(woodType, itemLookup))
-                    .unlockedBy("has_wood", has(getLog(woodType, itemLookup)))
+            ModBlocks.BAR_STOOL_MAP.forEach((woodType, holder) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, holder, 1)
+                        .pattern("SLS")
+                        .pattern(" P ")
+                        .define('P', getPlanks(woodType, itemLookup))
+                        .define('S', getSlab(woodType, itemLookup))
+                        .define('L', getLog(woodType, itemLookup))
+                        .unlockedBy("has_wood", has(getLog(woodType, itemLookup)))
+                        .save(recipeOutput);
+            });
+
+            ModBlocks.BAR_SHELF_MAP.forEach((woodType, holder) -> {
+                ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, holder, 1)
+                        .pattern("SLS")
+                        .pattern("SLS")
+                        .define('S', getSlab(woodType, itemLookup))
+                        .define('L', getLog(woodType, itemLookup))
+                        .unlockedBy("has_wood", has(getLog(woodType, itemLookup)))
+                        .save(recipeOutput);
+            });
+
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.IRON_LEAD, 1)
+                    .pattern(" I ")
+                    .pattern("ILI")
+                    .pattern(" I ")
+                    .define('I', TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", "nuggets/iron")))
+                    .define('L', Items.LEAD)
+                    .unlockedBy("has_lead", has(Items.LEAD))
                     .save(recipeOutput);
         });
-
-        ModBlocks.BAR_SHELF_MAP.forEach((woodType, holder) -> {
-            ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, holder.get(), 1)
-                    .pattern("SLS")
-                    .pattern("SLS")
-                    .define('S', getSlab(woodType, itemLookup))
-                    .define('L', getLog(woodType, itemLookup))
-                    .unlockedBy("has_wood", has(getLog(woodType, itemLookup)))
-                    .save(recipeOutput);
-        });
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.IRON_LEAD.get(), 1)
-                .pattern(" I ")
-                .pattern("ILI")
-                .pattern(" I ")
-                .define('I', Tags.Items.NUGGETS_IRON)
-                .define('L', Items.LEAD)
-                .unlockedBy("has_lead", has(Items.LEAD))
-                .save(recipeOutput);
     }
 
     private ItemLike getPlanks(WoodType woodType, HolderLookup.RegistryLookup<Item> itemLookup) {

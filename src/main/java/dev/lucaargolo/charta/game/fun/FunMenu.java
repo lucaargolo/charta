@@ -55,7 +55,7 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
     }
 
     public FunMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
-        super(ModMenus.FUN.get(), containerId, inventory, access, deck, players, options);
+        super(ModMenus.FUN, containerId, inventory, access, deck, players, options);
 
         this.addTopPreview(players);
         addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(0), 16, 30));

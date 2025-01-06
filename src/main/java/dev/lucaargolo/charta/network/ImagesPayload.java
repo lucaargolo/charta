@@ -10,7 +10,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -29,14 +29,12 @@ public record ImagesPayload(HashMap<ResourceLocation, SuitImage> suitImages, Has
         ImagesPayload::new
     );
 
-    public static void handleClient(ImagesPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            ChartaClient.clearImages();
-            Charta.CARD_SUITS.setImages(payload.suitImages());
-            Charta.CARD_IMAGES.setImages(payload.cardImages());
-            Charta.DECK_IMAGES.setImages(payload.deckImages());
-            ChartaClient.generateImages();
-        });
+    public static void handleClient(Player player, ImagesPayload payload) {
+        ChartaClient.clearImages();
+        Charta.CARD_SUITS.setImages(payload.suitImages());
+        Charta.CARD_IMAGES.setImages(payload.cardImages());
+        Charta.DECK_IMAGES.setImages(payload.deckImages());
+        ChartaClient.generateImages();
     }
 
     @Override

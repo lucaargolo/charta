@@ -20,7 +20,7 @@ public class SolitaireMenu extends AbstractCardMenu<SolitaireGame> {
     }
 
     public SolitaireMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
-        super(ModMenus.SOLITAIRE.get(), containerId, inventory, access, deck, players, options);
+        super(ModMenus.SOLITAIRE, containerId, inventory, access, deck, players, options);
 
         //Stock Pile
         addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(0), 5f, 5f));

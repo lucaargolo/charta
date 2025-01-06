@@ -10,9 +10,9 @@ import com.mojang.serialization.JsonOps;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardDecks;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
@@ -25,10 +25,10 @@ import java.util.concurrent.CompletableFuture;
 
 public class CardDeckProvider implements DataProvider {
 
-    private final PackOutput output;
+    private final FabricDataOutput output;
     private final Gson gson;
 
-    public CardDeckProvider(PackOutput output) {
+    public CardDeckProvider(FabricDataOutput output) {
         this.output = output;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }

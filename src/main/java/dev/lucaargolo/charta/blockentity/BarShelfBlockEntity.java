@@ -24,7 +24,7 @@ public class BarShelfBlockEntity extends RandomizableContainerBlockEntity implem
     private NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
 
     public BarShelfBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntityTypes.BAR_SHELF.get(), pos, blockState);
+        super(ModBlockEntityTypes.BAR_SHELF, pos, blockState);
     }
 
     @Override

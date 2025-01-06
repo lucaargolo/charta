@@ -86,7 +86,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityMi
                 BlockState tableState = level.getBlockState(pos.relative(facing));
                 if(tableState.getBlock() instanceof CardTableBlock cardTableBlock) {
                     BlockPos center = cardTableBlock.getCenterAndOffset(level, pos.relative(facing)).getFirst();
-                    level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(blockEntity -> {
+                    level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE).ifPresent(blockEntity -> {
                         blockEntity.playersDirty = true;
                     });
                 }

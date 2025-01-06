@@ -2,20 +2,22 @@ package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.CardPlayPayload;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -209,7 +211,17 @@ public abstract class CardGame<G extends CardGame<G>> {
     }
 
     public void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, CardDeck deck) {
-        serverPlayer.openMenu(new MenuProvider() {
+        serverPlayer.openMenu(new ExtendedScreenHandlerFactory<RegistryFriendlyByteBuf>() {
+            @Override
+            public RegistryFriendlyByteBuf getScreenOpeningData(ServerPlayer serverPlayer) {
+                RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), serverPlayer.registryAccess());
+                buf.writeBlockPos(pos);
+                CardDeck.STREAM_CODEC.encode(buf, deck);
+                buf.writeVarIntArray(getPlayers().stream().mapToInt(CardPlayer::getId).toArray());
+                buf.writeByteArray(CardGame.this.getRawOptions());
+                return buf;
+            }
+
             @Override
             public @NotNull Component getDisplayName() {
                 return Component.empty();
@@ -219,11 +231,6 @@ public abstract class CardGame<G extends CardGame<G>> {
             public @NotNull AbstractContainerMenu createMenu(int containerId, @NotNull Inventory playerInventory, @NotNull Player player) {
                 return CardGame.this.createMenu(containerId, playerInventory, level, pos, deck);
             }
-        }, buf -> {
-            buf.writeBlockPos(pos);
-            CardDeck.STREAM_CODEC.encode(buf, deck);
-            buf.writeVarIntArray(getPlayers().stream().mapToInt(CardPlayer::getId).toArray());
-            buf.writeByteArray(this.getRawOptions());
         });
     }
 
@@ -265,7 +272,7 @@ public abstract class CardGame<G extends CardGame<G>> {
         for(CardPlayer p : this.getPlayers()) {
             LivingEntity entity = p.getEntity();
             if(entity instanceof ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, new CardPlayPayload(player.getName().equals(Component.empty()) ? Component.empty() : player.getColoredName(), this.getPlayerHand(player).size(), play));
+                ServerPlayNetworking.send(serverPlayer, new CardPlayPayload(player.getName().equals(Component.empty()) ? Component.empty() : player.getColoredName(), this.getPlayerHand(player).size(), play));
             }
         }
     }

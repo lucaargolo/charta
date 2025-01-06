@@ -12,7 +12,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -31,23 +30,20 @@ public record CardContainerSlotClickPayload(int containerId, int slotId, int car
             CardContainerSlotClickPayload::new
     );
 
-    public static void handleServer(CardContainerSlotClickPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Player player = context.player();
-            if(player instanceof LivingEntityMixed mixed && player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
-                CardPlayer cardPlayer = mixed.charta_getCardPlayer();
-                CardSlot<?> slot = cardMenu.getCardSlot(payload.slotId);
-                GameSlot carriedCards = cardMenu.getCarriedCards();
-                if(carriedCards.isEmpty() && slot.canRemoveCard(cardPlayer, payload.cardId)) {
-                    List<Card> cards = slot.removeCards(payload.cardId);
-                    cardMenu.setCarriedCards(new GameSlot(cards));
-                    slot.onRemove(cardPlayer, cards);
-                }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards.stream().toList(), payload.cardId) && slot.insertCards(carriedCards, payload.cardId)) {
-                    cardMenu.setCarriedCards(new GameSlot());
-                    slot.onInsert(cardPlayer, carriedCards.stream().toList());
-                }
+    public static void handleServer(Player player, CardContainerSlotClickPayload payload) {
+        if(player instanceof LivingEntityMixed mixed && player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
+            CardPlayer cardPlayer = mixed.charta_getCardPlayer();
+            CardSlot<?> slot = cardMenu.getCardSlot(payload.slotId);
+            GameSlot carriedCards = cardMenu.getCarriedCards();
+            if(carriedCards.isEmpty() && slot.canRemoveCard(cardPlayer, payload.cardId)) {
+                List<Card> cards = slot.removeCards(payload.cardId);
+                cardMenu.setCarriedCards(new GameSlot(cards));
+                slot.onRemove(cardPlayer, cards);
+            }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards.stream().toList(), payload.cardId) && slot.insertCards(carriedCards, payload.cardId)) {
+                cardMenu.setCarriedCards(new GameSlot());
+                slot.onInsert(cardPlayer, carriedCards.stream().toList());
             }
-        });
+        }
     }
 
     @Override

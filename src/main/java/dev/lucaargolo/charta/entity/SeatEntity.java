@@ -63,7 +63,7 @@ public class SeatEntity extends Entity {
     }
 
     public SeatEntity(Level level, BlockPos pos) {
-        this(ModEntityTypes.SEAT.get(), level);
+        this(ModEntityTypes.SEAT, level);
         this.setPos(pos.getX() + 0.5, pos.getY() + 0.001, pos.getZ() + 0.5);
     }
     @Override

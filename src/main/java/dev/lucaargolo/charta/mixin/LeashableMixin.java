@@ -48,7 +48,7 @@ public interface LeashableMixin {
     private static <E extends Entity & Leashable> ItemLike restoreIronLeashFromSave(ItemLike item) {
         if(LeashableHelper.capturedRestoreEntity instanceof LeashableMixed mixed && mixed.charta_isIronLeash()) {
             mixed.charta_setIronLeash(false);
-            return ModItems.IRON_LEAD.get();
+            return ModItems.IRON_LEAD;
         }
         return item;
     }
@@ -62,7 +62,7 @@ public interface LeashableMixin {
     private static <E extends Entity & Leashable> ItemLike dropIronLeash(ItemLike item) {
         if(LeashableHelper.capturedDropEntity instanceof LeashableMixed mixed && mixed.charta_isIronLeash()) {
             mixed.charta_setIronLeash(false);
-            return ModItems.IRON_LEAD.get();
+            return ModItems.IRON_LEAD;
         }
         return item;
     }
