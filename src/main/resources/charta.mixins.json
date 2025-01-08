@@ -3,7 +3,6 @@
   "minVersion": "0.8",
   "package": "dev.lucaargolo.charta.mixin",
   "compatibilityLevel": "JAVA_21",
-  "refmap": "charta.refmap.json",
   "mixins": [
     "ChunkHolderMixin",
     "ContainerListenerMixin",
