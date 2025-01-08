@@ -1,6 +1,5 @@
 package dev.lucaargolo.charta.editor;
 
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.utils.CardImage;
 
 import javax.imageio.ImageIO;
@@ -19,9 +18,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 public class CardEditor extends JFrame {
+
+    private static final Logger LOGGER = Logger.getLogger("CardEditor");
 
     private static final Preferences PREFERENCES = Preferences.userNodeForPackage(CardEditor.class);
     private static final String LAST_DIRECTORY = "lastDirectory";
@@ -318,7 +321,7 @@ public class CardEditor extends JFrame {
             }
             updateImage();
         } catch (IOException e) {
-            Charta.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
+            LOGGER.log(Level.SEVERE, "Error loading image: "+selectedFile.getAbsoluteFile(), e);
             JOptionPane.showMessageDialog(this, "Error loading image.");
         }
     }
@@ -335,15 +338,15 @@ public class CardEditor extends JFrame {
                 File outputFile = new File(selectedFile.toPath().getParent() + File.separator + cardName);
                 CardImage.saveCards(ImageIO.read(selectedFile), outputFile, (fileToSave, cardImage) -> {
                     try {
-                        Charta.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
+                        LOGGER.info("Saving file: "+fileToSave.getAbsoluteFile());
                         cardImage.saveToFile(fileToSave.getAbsolutePath());
                     } catch (IOException e) {
-                        Charta.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
+                        LOGGER.log(Level.SEVERE, "Error saving file: "+fileToSave.getAbsoluteFile(), e);
                     }
                 });
                 JOptionPane.showMessageDialog(this, "Finalized atlas conversion.");
             } catch (IOException e) {
-                Charta.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
+                LOGGER.log(Level.SEVERE, "Error loading image: "+selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error loading image: "+selectedFile.getName());
             }
         }
@@ -369,11 +372,11 @@ public class CardEditor extends JFrame {
                     ImageIO.write(convertedImage, "png", selectedFile);
                     JOptionPane.showMessageDialog(this, "Finished fixing card color.");
                 }catch (IOException e) {
-                    Charta.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
+                    LOGGER.log(Level.SEVERE, "Error saving image: "+selectedFile.getAbsoluteFile(), e);
                     JOptionPane.showMessageDialog(this, "Error saving image.");
                 }
             } catch (IOException e) {
-                Charta.LOGGER.error("Error loading image: {}", selectedFile.getAbsoluteFile(), e);
+                LOGGER.log(Level.SEVERE, "Error loading image: "+selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error loading image.");
             }
         }
@@ -400,7 +403,7 @@ public class CardEditor extends JFrame {
                 ImageIO.write(paletteImage, "png", selectedFile);
                 JOptionPane.showMessageDialog(this, "Exported palette image.");
             }catch (IOException e) {
-                Charta.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
+                LOGGER.log(Level.SEVERE, "Error saving image: "+selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error saving image.");
             }
         }
@@ -441,7 +444,7 @@ public class CardEditor extends JFrame {
                 }
                 JOptionPane.showMessageDialog(this, "Exported palette file.");
             }catch (IOException e) {
-                Charta.LOGGER.error("Error saving palette: {}", selectedFile.getAbsoluteFile(), e);
+                LOGGER.log(Level.SEVERE, "Error saving palette: "+selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error saving palette.");
             }
         }
@@ -477,7 +480,7 @@ public class CardEditor extends JFrame {
                 currentImage.saveToFile(selectedFile.getAbsolutePath());
                 JOptionPane.showMessageDialog(this, "Image saved successfully.");
             } catch (IOException e) {
-                Charta.LOGGER.error("Error saving image: {}", selectedFile.getAbsoluteFile(), e);
+                LOGGER.log(Level.SEVERE, "Error saving image: "+selectedFile.getAbsoluteFile(), e);
                 JOptionPane.showMessageDialog(this, "Error saving image.");
             }
         }
@@ -488,7 +491,7 @@ public class CardEditor extends JFrame {
             try {
                 UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             } catch (Exception e) {
-                Charta.LOGGER.error("Error setting cross platform look and feel: ", e);
+                LOGGER.log(Level.SEVERE, "Error setting cross platform look and feel: ", e);
             }
             CardEditor editor = new CardEditor();
             editor.setUndecorated(true);
