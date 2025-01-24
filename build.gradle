@@ -56,8 +56,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}+${minecraft_version}"
 
+    //Only needed for data generation.
     modImplementation("io.github.fabricators_of_create.Porting-Lib:models:3.1.0-beta.47+1.21.1")
-    include("io.github.fabricators_of_create.Porting-Lib:models:3.1.0-beta.47+1.21.1")
 
     implementation "org.commonmark:commonmark:0.24.0"
     include "org.commonmark:commonmark:0.24.0"
@@ -95,9 +95,6 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 tasks.withType(Jar).configureEach {
-    doLast {
-        archiveClassifier.set("fabric") // Explicitly set the classifier
-    }
     manifest {
         attributes["Main-Class"] = "dev.lucaargolo.charta.editor.CardEditor"
     }

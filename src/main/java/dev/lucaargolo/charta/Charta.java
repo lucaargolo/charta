@@ -5,6 +5,7 @@ import com.mojang.logging.LogUtils;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.datagen.ModChestLootProvider;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.entity.ModPoiTypes;
 import dev.lucaargolo.charta.entity.ModVillagerProfessions;
@@ -25,6 +26,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -51,12 +53,12 @@ import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 @SuppressWarnings("unused")
@@ -97,6 +99,40 @@ public class Charta implements ModInitializer {
 
         Charta.registerPayloads();
         Charta.registerEvents();
+        Charta.registerLootModifiers();
+    }
+
+    private static void registerLootModifiers() {
+        ModChestLootProvider chestLoot = new ModChestLootProvider(null);
+        Map<ResourceKey<LootTable>, LootTable.Builder> builders = new LinkedHashMap<>();
+        chestLoot.generate(builders::put);
+        LootTableEvents.MODIFY.register((key, builder, source, provider) -> {
+            if(source.isBuiltin()) {
+                String id = key.location().toString();
+                LootTable.Builder mod;
+                if (id.equals("minecraft:chests/simple_dungeon")) {
+                    mod = builders.get(ModChestLootProvider.SIMPLE_DUNGEON_DECKS);
+                } else if (id.equals("minecraft:chests/desert_pyramid")) {
+                    mod = builders.get(ModChestLootProvider.DESERT_PYRAMID_DECKS);
+                } else if (id.equals("minecraft:chests/abandoned_mineshaft")) {
+                    mod = builders.get(ModChestLootProvider.ABANDONED_MINESHAFT_DECKS);
+                } else {
+                    mod = null;
+                }
+                if(mod != null) {
+                    List<LootPool> pools = mod.pools.build();
+                    if(!pools.isEmpty()) {
+                        Charta.LOGGER.info("Modifying {} with {} pools", key, pools.size());
+                        builder.pools(pools);
+                    }
+                    List<LootItemFunction> functions = mod.functions.build();
+                    if(!functions.isEmpty()) {
+                        Charta.LOGGER.info("Modifying {} with {} functions", key, functions.size());
+                        builder.apply(functions);
+                    }
+                }
+            }
+        });
     }
 
     public static ResourceLocation id(String path) {
