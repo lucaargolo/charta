@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.block;
 
 import dev.lucaargolo.charta.Charta;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.BlockFamilies;
