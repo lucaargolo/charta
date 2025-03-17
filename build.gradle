@@ -40,6 +40,11 @@ loom {
             property "porting_lib.datagen.existing_resources", file("src/main/resources").absolutePath
 
             runDir "build/datagen"
+
+            dependencies {
+                modRuntimeOnly("io.github.fabricators_of_create.Porting-Lib:models:3.1.0-beta.47+1.21.1")
+            }
+
         }
     }
 }
@@ -57,7 +62,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}+${minecraft_version}"
 
     //Only needed for data generation.
-    modImplementation("io.github.fabricators_of_create.Porting-Lib:models:3.1.0-beta.47+1.21.1")
+    modCompileOnly("io.github.fabricators_of_create.Porting-Lib:models:3.1.0-beta.47+1.21.1")
 
     implementation "org.commonmark:commonmark:0.24.0"
     include "org.commonmark:commonmark:0.24.0"
