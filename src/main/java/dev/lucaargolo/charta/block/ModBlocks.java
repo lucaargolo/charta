@@ -31,21 +31,23 @@ public class ModBlocks {
         BlockFamilies.getAllFamilies().filter(f -> f.getRecipeGroupPrefix().orElse("").equals("wooden")).forEach(f -> {
             ResourceKey<Block> resourceKey = f.getBaseBlock().builtInRegistryHolder().getKey();
             if(resourceKey != null) {
-                String woodName = resourceKey.location().withPath(s -> s.replace("_planks", "")).getPath();
-                WoodType.values().filter(t -> t.name().equals(woodName)).findFirst().ifPresent(type -> {
-                    Supplier<CardTableBlock> tableSupplier = () -> new CardTableBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
-                    DeferredHolder<Block, CardTableBlock> tableHolder = BLOCKS.register(woodName + "_card_table", tableSupplier);
-                    CARD_TABLE_MAP.put(type, tableHolder);
-                    Supplier<GameChairBlock> chairSupplier = () -> new GameChairBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
-                    DeferredHolder<Block, GameChairBlock> chairHolder = BLOCKS.register(woodName + "_game_chair", chairSupplier);
-                    GAME_CHAIR_MAP.put(type, chairHolder);
-                    Supplier<BarStoolBlock> stoolSupplier = () -> new BarStoolBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
-                    DeferredHolder<Block, BarStoolBlock> stoolHolder = BLOCKS.register(woodName + "_bar_stool", stoolSupplier);
-                    BAR_STOOL_MAP.put(type, stoolHolder);
-                    Supplier<BarShelfBlock> shelfSupplier = () -> new BarShelfBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
-                    DeferredHolder<Block, BarShelfBlock> shelfHolder = BLOCKS.register(woodName + "_bar_shelf", shelfSupplier);
-                    BAR_SHELF_MAP.put(type, shelfHolder);
-                });
+                if(resourceKey.location().getNamespace().equals("minecraft")) {
+                    String woodName = resourceKey.location().withPath(s -> s.replace("_planks", "")).getPath();
+                    WoodType.values().filter(t -> t.name().equals(woodName)).findFirst().ifPresent(type -> {
+                        Supplier<CardTableBlock> tableSupplier = () -> new CardTableBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
+                        DeferredHolder<Block, CardTableBlock> tableHolder = BLOCKS.register(woodName + "_card_table", tableSupplier);
+                        CARD_TABLE_MAP.put(type, tableHolder);
+                        Supplier<GameChairBlock> chairSupplier = () -> new GameChairBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
+                        DeferredHolder<Block, GameChairBlock> chairHolder = BLOCKS.register(woodName + "_game_chair", chairSupplier);
+                        GAME_CHAIR_MAP.put(type, chairHolder);
+                        Supplier<BarStoolBlock> stoolSupplier = () -> new BarStoolBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
+                        DeferredHolder<Block, BarStoolBlock> stoolHolder = BLOCKS.register(woodName + "_bar_stool", stoolSupplier);
+                        BAR_STOOL_MAP.put(type, stoolHolder);
+                        Supplier<BarShelfBlock> shelfSupplier = () -> new BarShelfBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
+                        DeferredHolder<Block, BarShelfBlock> shelfHolder = BLOCKS.register(woodName + "_bar_shelf", shelfSupplier);
+                        BAR_SHELF_MAP.put(type, shelfHolder);
+                    });
+                }
             }
         });
     }
