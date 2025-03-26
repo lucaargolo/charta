@@ -94,8 +94,12 @@ public class CardDeck {
         return Component.translatable(deckTranslatableKey.get());
     }
 
-    public ResourceLocation getSuitTexture(Suit suit) {
-        return ChartaClient.getSuitTexture(suitsLocation.apply(suit));
+    public ResourceLocation getSuitTexture(Suit suit, boolean glow) {
+        if(glow && IrisCompat.isPresent()) {
+            return IrisCompat.getSuitGlowTexture(suitsLocation.apply(suit));
+        }else {
+            return ChartaClient.getSuitTexture(suitsLocation.apply(suit));
+        }
     }
 
     public String getSuitTranslatableKey(Suit suit) {

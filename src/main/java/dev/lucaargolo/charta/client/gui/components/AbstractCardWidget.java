@@ -63,7 +63,7 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
         float yOffset = (this.getPreciseHeight()*1.333333f - this.getPreciseHeight())/2f;
         ChartaGuiGraphics.blitCard(guiGraphics, this.getCardTexture(cardId, false), this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseWidth()+(xOffset*2f), this.getPreciseHeight()+(yOffset*2f));
         ChartaClient.getGlowRenderTarget().bindWrite(false);
-        RenderSystem.setShaderColor(0f, 0f, 0f, 0f);
+        RenderSystem.setShaderColor(0f, 0f, 0f, 1f);
         ChartaGuiGraphics.blitCard(guiGraphics, this.getCardTexture(cardId, false), this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseWidth()+(xOffset*2f), this.getPreciseHeight()+(yOffset*2f));
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         ChartaGuiGraphics.blitCardGlow(guiGraphics, this.getCardTexture(cardId, true), this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseWidth()+(xOffset*2f), this.getPreciseHeight()+(yOffset*2f));

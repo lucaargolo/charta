@@ -110,7 +110,7 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
         int i = 0;
         int totalWidth = suits.size()*16 - 3;
         for(Suit suit : suits) {
-            ChartaGuiGraphics.blitImageAndGlow(guiGraphics, deck.getSuitTexture(suit), width/2f - totalWidth/2f + (i*16), headerOffset+10, 0, 0, 13, 13, 13, 13);
+            ChartaGuiGraphics.blitSuitAndGlow(guiGraphics, deck, suit, width/2f - totalWidth/2f + (i*16), headerOffset+10, 0, 0, 13, 13, 13, 13);
             i++;
         }
         guiGraphics.drawCenteredString(font, Component.literal(deck.getCards().size() + " ").append(Component.translatable("charta.cards")).append(" | "+suits.size()+" ").append(Component.translatable("charta.suits")), width/2, height-footerOffset, 0xFFFFFFFF);

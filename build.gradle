@@ -11,10 +11,6 @@ tasks.named('wrapper', Wrapper).configure {
 version = mod_version
 group = mod_group_id
 
-repositories {
-    mavenLocal()
-}
-
 base {
     archivesName = mod_id
 }
@@ -68,6 +64,14 @@ configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
 
+
+repositories {
+    mavenLocal()
+    maven {
+        url "https://maven.architectury.dev/"
+    }
+}
+
 dependencies {
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
@@ -85,7 +89,8 @@ dependencies {
     // implementation files("libs/coolmod-${mc_version}-${coolmod_version}.jar")
 
     // Example project dependency using a sister or child project:
-    // implementation project(":myproject")
+    implementation "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.799"
+
 
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

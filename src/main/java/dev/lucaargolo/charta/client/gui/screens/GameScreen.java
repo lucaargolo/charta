@@ -84,27 +84,29 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if(this.minecraft != null && this.chatFocused && this.chatScreen.keyPressed(keyCode, scanCode, modifiers)) {
-            if(keyCode == GLFW.GLFW_KEY_ESCAPE) {
-                this.minecraft.setScreen(this);
-                this.chatFocused = false;
-            }
+        if(this.minecraft != null && this.chatFocused) {
             if(keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+                this.chatScreen.handleChatInput(this.chatScreen.input.getValue(), true);
                 this.chatFocused = false;
-            }
-            return true;
-        }else {
-            if(!this.chatFocused) {
-                if (keyCode == GLFW.GLFW_KEY_T) {
-                    this.chatFocused = true;
-                    this.chatScreen.input.setValue("");
-                    return false;
-                } else {
-                    return super.keyPressed(keyCode, scanCode, modifiers);
+                return true;
+            }else if(this.chatScreen.keyPressed(keyCode, scanCode, modifiers)) {
+                if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                    this.minecraft.setScreen(this);
+                    this.chatFocused = false;
                 }
-            }else{
-                return false;
+                return true;
             }
+        }
+        if(!this.chatFocused) {
+            if (keyCode == GLFW.GLFW_KEY_T) {
+                this.chatFocused = true;
+                this.chatScreen.input.setValue("");
+                return false;
+            } else {
+                return super.keyPressed(keyCode, scanCode, modifiers);
+            }
+        }else{
+            return false;
         }
     }
 

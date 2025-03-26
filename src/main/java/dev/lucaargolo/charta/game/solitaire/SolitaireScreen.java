@@ -27,7 +27,7 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
                 guiGraphics.pose().translate(leftPos+140.5 + i*42.5, topPos+22, 0f);
                 guiGraphics.pose().translate(0.5f, 0f, 0f);
                 guiGraphics.pose().scale(1.5f, 1.5f, 1.5f);
-                ChartaGuiGraphics.blitWhiteImageAndGlow(guiGraphics, this.getDeck().getSuitTexture(suit), 0, 0, 0, 0, 13, 13, 13, 13);
+                ChartaGuiGraphics.blitWhiteSuitAndGlow(guiGraphics, this.getDeck(), suit, 0, 0, 0, 0, 13, 13, 13, 13);
                 RenderSystem.defaultBlendFunc();
                 guiGraphics.pose().popPose();
                 i++;
