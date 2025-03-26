@@ -17,6 +17,10 @@ public class IrisCompat {
         if(IrisCompat.isPresent()) {
             Minecraft client = Minecraft.getInstance();
             TextureManager manager = client.getTextureManager();
+            Charta.CARD_SUITS.getImages().forEach((id, image) -> {
+                ResourceLocation cardId = getSuitGlowTexture(id);
+                manager.register(cardId, CardImageUtils.convertImage(image, IrisCompat.isPresent(), true));
+            });
             Charta.CARD_IMAGES.getImages().forEach((id, image) -> {
                 ResourceLocation cardId = getCardGlowTexture(id);
                 manager.register(cardId, CardImageUtils.convertImage(image, IrisCompat.isPresent(), true));
@@ -32,8 +36,17 @@ public class IrisCompat {
         if(IrisCompat.isPresent()) {
             Minecraft client = Minecraft.getInstance();
             TextureManager manager = client.getTextureManager();
+            Charta.CARD_SUITS.getImages().keySet().stream().map(IrisCompat::getSuitGlowTexture).forEach(manager::release);
             Charta.CARD_IMAGES.getImages().keySet().stream().map(IrisCompat::getCardGlowTexture).forEach(manager::release);
             Charta.DECK_IMAGES.getImages().keySet().stream().map(IrisCompat::getDeckGlowTexture).forEach(manager::release);
+        }
+    }
+
+    public static ResourceLocation getSuitGlowTexture(ResourceLocation location) {
+        if (Charta.CARD_SUITS.getImages().containsKey(location)) {
+            return location.withPrefix("suit_glow/");
+        }else{
+            return Charta.MISSING_SUIT;
         }
     }
 

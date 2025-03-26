@@ -18,6 +18,10 @@ repositories {
         name = "PortingLib"
         url = "https://mvn.devos.one/snapshots/"
     }
+    maven {
+        name = "Architectury"
+        url = "https://maven.architectury.dev/"
+    }
 }
 
 fabricApi {
@@ -60,6 +64,7 @@ dependencies {
 
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}+${minecraft_version}"
+    modImplementation "me.shedaniel:RoughlyEnoughItems-fabric:16.0.799"
 
     //Only needed for data generation.
     modCompileOnly("io.github.fabricators_of_create.Porting-Lib:models:3.1.0-beta.47+1.21.1")

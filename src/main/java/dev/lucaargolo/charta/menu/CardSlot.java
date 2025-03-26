@@ -72,10 +72,16 @@ public class CardSlot<G extends CardGame<G>> {
 
     public final void onInsert(CardPlayer player, List<Card> cards) {
         getSlot().onInsert(player, cards);
+        this.onUpdate();
     }
 
     public final void onRemove(CardPlayer player, List<Card> cards) {
         getSlot().onRemove(player, cards);
+        this.onUpdate();
+    }
+
+    protected void onUpdate() {
+
     }
 
     public final boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {

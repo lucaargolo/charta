@@ -40,7 +40,7 @@ public class CrazyEightsScreen extends GameScreen<CrazyEightsGame, CrazyEightsMe
             guiGraphics.pose().translate(imageWidth / 2f - 10f, 50f, 0f);
             guiGraphics.pose().translate(0.5f, 0f, 0f);
             guiGraphics.pose().scale(1.5f, 1.5f, 1.5f);
-            ChartaGuiGraphics.blitImageAndGlow(guiGraphics, this.getDeck().getSuitTexture(suit), 0, 0, 0, 0, 13, 13, 13, 13);
+            ChartaGuiGraphics.blitSuitAndGlow(guiGraphics, this.getDeck(), suit, 0, 0, 0, 0, 13, 13, 13, 13);
             guiGraphics.pose().popPose();
         }
 
