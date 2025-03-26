@@ -22,6 +22,9 @@
     ],
     "client": [
       "dev.lucaargolo.charta.client.ChartaClient"
+    ],
+    "rei_client": [
+      "dev.lucaargolo.charta.compat.REICompat"
     ]
   },
   "mixins": [

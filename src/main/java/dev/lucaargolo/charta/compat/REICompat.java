@@ -3,11 +3,9 @@ package dev.lucaargolo.charta.compat;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.screen.OverlayDecider;
 import me.shedaniel.rei.api.client.registry.screen.ScreenRegistry;
-import me.shedaniel.rei.forge.REIPluginClient;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.InteractionResult;
 
-@REIPluginClient
 public class REICompat implements REIClientPlugin {
 
     @Override
