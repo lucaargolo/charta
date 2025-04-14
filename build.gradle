@@ -68,33 +68,25 @@ configurations {
 repositories {
     mavenLocal()
     maven {
+        url "https://maven.blamejared.com/"
+    }
+    maven {
         url "https://maven.architectury.dev/"
+    }
+    maven {
+        url "https://maven.terraformersmc.com/"
     }
 }
 
 dependencies {
-    // Example optional mod dependency with JEI
-    // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
-    // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
-    // localRuntime "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
-
-    // Example mod dependency using a mod jar from ./libs with a flat dir repository
-    // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
-    // The group id is ignored when searching -- in this case, it is "blank"
-    // implementation "blank:coolmod-${mc_version}:${coolmod_version}"
-
-    // Example mod dependency using a file as dependency
-    // implementation files("libs/coolmod-${mc_version}-${coolmod_version}.jar")
-
-    // Example project dependency using a sister or child project:
     implementation "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.799"
 
+    compileOnly("mezz.jei:jei-1.21.1-neoforge-api:19.21.1.300")
+    runtimeOnly("mezz.jei:jei-1.21.1-neoforge:19.21.1.300")
 
-    // For more info:
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    compileOnly "dev.emi:emi-neoforge:1.1.22+1.21.1:api"
+    runtimeOnly "dev.emi:emi-neoforge:1.1.22+1.21.1"
+
     jarJar(implementation "org.commonmark:commonmark") {
         version {
             strictly '[0.1, 1.0)'
