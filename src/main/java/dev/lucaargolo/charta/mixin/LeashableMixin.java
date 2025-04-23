@@ -53,6 +53,11 @@ public interface LeashableMixin {
         return item;
     }
 
+    @Inject(at = @At("TAIL"), method = "restoreLeashFromSave")
+    private static <E extends Entity & Leashable> void removeCapturedEntity(E p_entity, Leashable.LeashData leashData, CallbackInfo ci) {
+        LeashableHelper.capturedRestoreEntity = null;
+    }
+
     @Inject(at = @At("HEAD"), method = "dropLeash(Lnet/minecraft/world/entity/Entity;ZZ)V")
     private static <E extends Entity & Leashable> void captureDropEntity(E entity, boolean broadcastPacket, boolean dropItem, CallbackInfo ci) {
         LeashableHelper.capturedDropEntity = entity;
@@ -65,6 +70,11 @@ public interface LeashableMixin {
             return ModItems.IRON_LEAD.get();
         }
         return item;
+    }
+
+    @Inject(at = @At("TAIL"), method = "dropLeash(Lnet/minecraft/world/entity/Entity;ZZ)V")
+    private static <E extends Entity & Leashable> void removeCapturedEntity(E entity, boolean broadcastPacket, boolean dropItem, CallbackInfo ci) {
+        LeashableHelper.capturedDropEntity = null;
     }
 
 }
