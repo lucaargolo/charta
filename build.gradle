@@ -79,10 +79,9 @@ repositories {
 }
 
 dependencies {
-    implementation "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.799"
+    compileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.799"
 
     compileOnly("mezz.jei:jei-1.21.1-neoforge-api:19.21.1.300")
-    runtimeOnly("mezz.jei:jei-1.21.1-neoforge:19.21.1.300")
 
     compileOnly "dev.emi:emi-neoforge:1.1.22+1.21.1:api"
     runtimeOnly "dev.emi:emi-neoforge:1.1.22+1.21.1"

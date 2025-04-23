@@ -438,6 +438,8 @@
   "message.charta.how_to_play": "How to play",
   "message.charta.are_you_sure": "Are you sure?",
   "message.charta.leaving_game": "Leaving this chair will make you abandon the game, finishing it prematurely.",
+  "message.charta.undo": "Undo your last move",
+  "message.charta.hint": "Gives you a hint",
 
   "charta_md:charta.how_to_play_fun": "charta:en_us/how_to_play_fun",
   "charta_md:charta.how_to_play_crazy_eights": "charta:en_us/how_to_play_crazy_eights",
