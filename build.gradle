@@ -125,4 +125,4 @@ tasks.withType(Jar).configureEach {
     exclude("suits/**")
 }
 
-tasks.remapJar.archiveClassifier = "fabric"
+tasks.remapJar.archiveClassifier = "fabric-"+minecraft_version
