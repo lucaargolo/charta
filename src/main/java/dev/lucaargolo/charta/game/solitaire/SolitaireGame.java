@@ -347,11 +347,11 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
 
     public void restore() {
         if(!this.snapshots.isEmpty()) {
-            this.currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+            this.currentPlayer.playSound(ModSounds.CARD_DRAW);
             Snapshot snapshot = this.snapshots.removeLast();
             snapshot.restore(this);
             this.moves++;
-            this.currentPlayer.playSound(ModSounds.CARD_PLAY.get());
+            this.currentPlayer.playSound(ModSounds.CARD_PLAY);
         }
     }
 

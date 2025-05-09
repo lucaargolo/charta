@@ -7,7 +7,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 public record RestoreSolitairePayload() implements CustomPacketPayload {
@@ -16,13 +15,10 @@ public record RestoreSolitairePayload() implements CustomPacketPayload {
 
     public static final StreamCodec<ByteBuf, RestoreSolitairePayload> STREAM_CODEC = StreamCodec.unit(new RestoreSolitairePayload());
 
-    public static void handleServer(RestoreSolitairePayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Player player = context.player();
-            if(player instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof SolitaireMenu solitaireMenu) {
-                solitaireMenu.getGame().restore();
-            }
-        });
+    public static void handleServer(Player player, RestoreSolitairePayload payload) {
+        if(player instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof SolitaireMenu solitaireMenu) {
+            solitaireMenu.getGame().restore();
+        }
     }
 
     @Override
