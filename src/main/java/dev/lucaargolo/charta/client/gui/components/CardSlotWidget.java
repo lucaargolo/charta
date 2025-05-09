@@ -71,7 +71,12 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
                     int index = i;
                     CardSlot<G> childCardSlot = new CardSlot<>(
                         this.parent.getMenu().getGame(),
-                        g -> new GameSlot(List.of(card)),
+                        g -> {
+                            GameSlot inner = new GameSlot(List.of(card));
+                            inner.highlightColor = slot.highlightColor;
+                            inner.highlightTime = slot.highlightTime;
+                            return inner;
+                        },
                         cardSlot.x + leftOffset * i,
                         cardSlot.y + topOffset * i,
                         cardSlot.isSmall() ? CardSlot.Type.SMALL : CardSlot.Type.DEFAULT
@@ -118,8 +123,16 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
                     this.hoverable = null;
                 }
             }
+            if(slot.highlightTime > 0) {
+                CardSlotWidget<G> first = this.renderables.getFirst();
+                CardSlotWidget<G> last = this.renderables.getLast();
+                guiGraphics.fill((int) first.getPreciseX() - 2, (int) first.getPreciseY() - 2, (int) (last.getPreciseX()+last.getPreciseWidth()) + 2, (int) (last.getPreciseY()+last.getPreciseHeight()) + 2, 0x66000000 + slot.highlightColor);
+            }
         }else{
             super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+            if(!(this instanceof ChildCardSlotWidget) && slot.highlightTime > 0) {
+                guiGraphics.fill((int) this.getPreciseX() - 2, (int) this.getPreciseY() - 2, (int) (this.getPreciseX()+this.getPreciseWidth()) + 2, (int) (this.getPreciseY()+this.getPreciseHeight()) + 2, 0x66000000 + slot.highlightColor);
+            }
         }
     }
 
@@ -127,8 +140,11 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
     public void tick(int mouseX, int mouseY) {
         super.tick(mouseX, mouseY);
         int i = 0;
+        GameSlot slot = cardSlot.getSlot();
+        if(slot.highlightTime > 0) {
+            slot.highlightTime--;
+        }
         for(CardSlotWidget<G> renderable : renderables) {
-            GameSlot slot = cardSlot.getSlot();
             if(i >= slot.size() || !renderable.cardSlot.getSlot().contains(slot.get(i)))
                 renderablesDirty = true;
             if(cardSlot.getType() != CardSlot.Type.VERTICAL || i == renderables.size() - 1)

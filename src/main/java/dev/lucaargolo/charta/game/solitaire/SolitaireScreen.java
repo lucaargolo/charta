@@ -1,7 +1,9 @@
 package dev.lucaargolo.charta.game.solitaire;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.util.Pair;
 import dev.lucaargolo.charta.client.gui.screens.GameScreen;
+import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.network.RestoreSolitairePayload;
@@ -9,12 +11,19 @@ import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
+
+    private Component hint;
+    private int hintTime = 0;
+    private int lastMoves = 0;
 
     public SolitaireScreen(SolitaireMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -41,7 +50,6 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
         Component text = Component.literal("Solitaire");
         guiGraphics.drawString(font, text, width/2 - font.width(text)/2, 14, 0xFFFFFFFF);
 
-
         int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2)/2 - 65/2;
         int y = height - 18/2 - 14;
         int color = 0x2d99ff;
@@ -59,21 +67,43 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
             scheduleTooltip(Component.translatable("message.charta.undo"));
         }
 
-        text = Component.translatable("message.charta.moves", menu.getMoves());
-        guiGraphics.drawString(font, text, width/2 - font.width(text)/2, height - 23, 0xFFFFFFFF);
-
-        int time = menu.getTime();
-        String seconds = String.valueOf(time % 60);
-        if(seconds.length() == 1) {
-            seconds = "0" + seconds;
+        int moves = menu.getMoves();
+        if(moves != lastMoves) {
+            hintTime = 0;
+            hint = null;
+            for(GameSlot slot : menu.getGame().getSlots()) {
+                slot.highlightTime = 0;
+            }
         }
-        String minutes = String.valueOf(time / 60);
-        if(minutes.length() == 1) {
-            minutes = "0" + minutes;
-        }
+        lastMoves = moves;
 
-        text = Component.literal(minutes+":"+seconds);
-        guiGraphics.drawString(font, text, width/2 - font.width(text)/2, height - 13, 0xFFFFFFFF);
+        if(hint != null && hintTime > 0) {
+            text = hint;
+            List<FormattedCharSequence> list = font.split(text, 180);
+            if(list.size() == 1) {
+                guiGraphics.drawString(font, text, width / 2 - font.width(text) / 2, height - 18, 0xFFFFFFFF);
+            }else{
+                for(i = 0; i < list.size(); i++) {
+                    guiGraphics.drawString(font, list.get(i), width / 2 - font.width(list.get(i)) / 2, height - 23 + 10*i, 0xFFFFFFFF);
+                }
+            }
+        }else {
+            text = Component.translatable("message.charta.moves", moves);
+            guiGraphics.drawString(font, text, width / 2 - font.width(text) / 2, height - 23, 0xFFFFFFFF);
+
+            int time = menu.getTime();
+            String seconds = String.valueOf(time % 60);
+            if (seconds.length() == 1) {
+                seconds = "0" + seconds;
+            }
+            String minutes = String.valueOf(time / 60);
+            if (minutes.length() == 1) {
+                minutes = "0" + minutes;
+            }
+
+            text = Component.literal(minutes + ":" + seconds);
+            guiGraphics.drawString(font, text, width / 2 - font.width(text) / 2, height - 13, 0xFFFFFFFF);
+        }
 
         x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2;
         guiGraphics.fill(x+1, y+1, x+63, y+16, 0xFF000000 + color);
@@ -87,6 +117,8 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
             guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
             scheduleTooltip(Component.translatable("message.charta.hint"));
         }
+
+
 
     }
 
@@ -103,9 +135,25 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
         }
         x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2;
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
+            Pair<Component, List<GameSlot>> hint = menu.getGame().getHint();
+            this.hint = hint.getFirst();
+            this.hintTime = 100;
+            for(GameSlot slot : hint.getSecond()) {
+                slot.highlightTime = hintTime;
+            }
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void containerTick() {
+        super.containerTick();
+        if(this.hintTime > 0) {
+            this.hintTime--;
+        }else{
+            this.hint = null;
+        }
     }
 
     @Override

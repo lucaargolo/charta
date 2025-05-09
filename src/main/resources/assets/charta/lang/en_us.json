@@ -441,6 +441,11 @@
   "message.charta.undo": "Undo your last move",
   "message.charta.hint": "Gives you a hint",
   "message.charta.moves": "%s moves",
+  "message.charta.move_card_from_tableau_to_foundation": "Move %s from Tableau to Foundation.",
+  "message.charta.move_card_from_waste_to_foundation": "Move %s from Waste to Foundation.",
+  "message.charta.move_card_from_tableau_to_tableau": "Move %s from one Tableau to another.",
+  "message.charta.move_card_from_waste_to_tableau": "Move %s from Waste to Tableau.",
+  "message.charta.no_moves_available": "No moves available. Try drawing a new card.",
 
   "charta_md:charta.how_to_play_fun": "charta:en_us/how_to_play_fun",
   "charta_md:charta.how_to_play_crazy_eights": "charta:en_us/how_to_play_crazy_eights",

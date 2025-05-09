@@ -2,6 +2,7 @@ package dev.lucaargolo.charta.game.solitaire;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.util.Pair;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
@@ -70,6 +71,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                 return false;
             }
         });
+        this.stockPile.highlightColor = 0xf192fc;
 
         this.wastePile = addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + 5, topY, 0f, 0f) {
             @Override
@@ -95,11 +97,12 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                 return false;
             }
         });
+        this.wastePile.highlightColor = 0xfc605d;
 
         int i = 0;
         ImmutableMap.Builder<Suit, GameSlot> map = ImmutableMap.builder();
         for(Suit suit : List.of(Suit.SPADES, Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS)) {
-            map.put(suit, addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*(3+i++), topY, 0f, 0f) {
+            GameSlot slot = addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*(3+i++), topY, 0f, 0f) {
                 @Override
                 public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
                     if(index != -1 && index != this.size()) {
@@ -127,14 +130,16 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                     lastTableauDraw = -1;
                 }
 
-            }));
+            });
+            slot.highlightColor = 0x93ff9c;
+            map.put(suit, slot);
         }
         this.foundationPiles = map.build();
 
         ImmutableList.Builder<GameSlot> list = ImmutableList.builder();
         for(i = 0; i < 7; i++) {
             int s = 6 + i;
-            list.add(addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*i, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)  {
+            GameSlot slot = addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*i, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)  {
                 @Override
                 public boolean canRemoveCard(CardPlayer player, int index) {
                     if(index == -1) {
@@ -186,7 +191,9 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                     }
                     lastTableauDraw = -1;
                 }
-            }));
+            });
+            slot.highlightColor = 0xfff570;
+            list.add(slot);
         }
         this.tableauPiles = list.build();
     }
@@ -400,6 +407,68 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         boolean v1 = (c1.getSuit() == Suit.HEARTS || c1.getSuit() == Suit.DIAMONDS);
         boolean v2 = (c2.getSuit() == Suit.HEARTS || c2.getSuit() == Suit.DIAMONDS);
         return v1 != v2;
+    }
+
+    public Pair<Component, List<GameSlot>> getHint() {
+        // Check if any card from tableau can be moved to foundation
+        for (GameSlot slot : tableauPiles) {
+            if (!slot.isEmpty()) {
+                Card card = slot.getLast();
+                if (foundationPiles.get(card.getSuit()).canInsertCard(currentPlayer, List.of(card), -1)) {
+                    return Pair.of(
+                        Component.translatable("message.charta.move_card_from_tableau_to_foundation", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))),
+                        List.of(slot, foundationPiles.get(card.getSuit()))
+                    );
+                }
+            }
+        }
+
+        // Check if any card from waste can be moved to foundation
+        if (!wastePile.isEmpty()) {
+            Card card = wastePile.getLast();
+            if (foundationPiles.get(card.getSuit()).canInsertCard(currentPlayer, List.of(card), -1)) {
+                return Pair.of(
+                    Component.translatable("message.charta.move_card_from_waste_to_foundation", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))),
+                    List.of(wastePile, foundationPiles.get(card.getSuit()))
+                );
+            }
+        }
+
+        // Check for moves between tableau columns
+        for (GameSlot fromSlot : tableauPiles) {
+            for (int i = 0; i < fromSlot.size(); i++) {
+                Card card = fromSlot.get(i);
+                if (card.isFlipped()) continue;
+
+                for (GameSlot toSlot : tableauPiles) {
+                    if (fromSlot == toSlot) continue;
+                    if (toSlot.canInsertCard(currentPlayer, List.of(card), -1)) {
+                        return Pair.of(
+                            Component.translatable("message.charta.move_card_from_tableau_to_tableau", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))),
+                            List.of(fromSlot, toSlot)
+                        );
+                    }
+                }
+            }
+        }
+
+        // Check if waste can be moved to tableau
+        if (!wastePile.isEmpty()) {
+            Card card = wastePile.getLast();
+            for (GameSlot slot : tableauPiles) {
+                if (slot.canInsertCard(currentPlayer, List.of(card), -1)) {
+                    return Pair.of(
+                        Component.translatable("message.charta.move_card_from_waste_to_tableau", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))),
+                        List.of(wastePile, slot)
+                    );
+                }
+            }
+        }
+
+        return Pair.of(
+            Component.translatable("message.charta.no_moves_available"),
+            List.of(stockPile)
+        );
     }
 
     private record Snapshot(List<Card> stockPile, List<Card> wastePile, Map<Suit, List<Card>> foundationPiles, List<List<Card>> tableauPiles) {
