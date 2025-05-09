@@ -51,7 +51,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         this.addTopPreview(players);
         addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(0), 16, 30));
         addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(1), 87, 30));
-        addCardSlot(new HandSlot<>(this.game, this.getCardPlayer(), 140/2f - CardSlot.getWidth(CardSlot.Type.HORIZONTAL)/2f, -5, CardSlot.Type.HORIZONTAL));
+        addCardSlot(new HandSlot<>(this.game, g -> !g.isChoosingWild, this.getCardPlayer(), 140/2f - CardSlot.getWidth(CardSlot.Type.HORIZONTAL)/2f, -5, CardSlot.Type.HORIZONTAL));
         addDataSlots(data);
     }
 

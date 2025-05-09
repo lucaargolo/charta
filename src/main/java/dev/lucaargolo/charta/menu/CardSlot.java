@@ -70,26 +70,29 @@ public class CardSlot<G extends CardGame<G>> {
         }
     }
 
+
+    public void preUpdate() {
+        this.game.preUpdate();
+    }
+
     public final void onInsert(CardPlayer player, List<Card> cards) {
         getSlot().onInsert(player, cards);
-        this.onUpdate();
     }
 
     public final void onRemove(CardPlayer player, List<Card> cards) {
         getSlot().onRemove(player, cards);
-        this.onUpdate();
     }
 
-    protected void onUpdate() {
-
+    public void postUpdate() {
+        this.game.postUpdate();
     }
 
     public final boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
-        return getSlot().canInsertCard(player, cards, index);
+        return this.game.isGameReady() && !this.game.isGameOver() && getSlot().canInsertCard(player, cards, index);
     }
 
     public final boolean canRemoveCard(CardPlayer player, int index) {
-        return getSlot().canRemoveCard(player, index);
+        return this.game.isGameReady() && !this.game.isGameOver() && getSlot().canRemoveCard(player, index);
     }
 
     public Type getType() {

@@ -77,6 +77,14 @@ public abstract class CardGame<G extends CardGame<G>> {
 
     public abstract List<GameOption<?>> getOptions();
 
+    public void preUpdate() {
+
+    }
+
+    public void postUpdate() {
+
+    }
+
     public final byte[] getRawOptions() {
         List<GameOption<?>> options = this.getOptions();
         byte[] byteArray = new byte[options.size()];

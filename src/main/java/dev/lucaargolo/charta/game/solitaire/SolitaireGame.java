@@ -2,6 +2,7 @@ package dev.lucaargolo.charta.game.solitaire;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.util.Pair;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
@@ -16,12 +17,16 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class SolitaireGame extends CardGame<SolitaireGame> {
+
+    private final List<Snapshot> snapshots = new ArrayList<>();
 
     private final GameSlot stockPile;
     private final GameSlot wastePile;
@@ -32,6 +37,12 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
     @Nullable
     private Card lastStockCard = null;
     private int lastTableauDraw = -1;
+
+    private int age = 0;
+    private boolean taken = false;
+
+    public int moves = 0;
+    public int time = 0;
 
     public SolitaireGame(List<CardPlayer> players, CardDeck deck) {
         super(players, deck);
@@ -60,6 +71,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                 return false;
             }
         });
+        this.stockPile.highlightColor = 0xf192fc;
 
         this.wastePile = addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + 5, topY, 0f, 0f) {
             @Override
@@ -85,11 +97,12 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                 return false;
             }
         });
+        this.wastePile.highlightColor = 0xfc605d;
 
         int i = 0;
         ImmutableMap.Builder<Suit, GameSlot> map = ImmutableMap.builder();
         for(Suit suit : List.of(Suit.SPADES, Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS)) {
-            map.put(suit, addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*(3+i++), topY, 0f, 0f) {
+            GameSlot slot = addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*(3+i++), topY, 0f, 0f) {
                 @Override
                 public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
                     if(index != -1 && index != this.size()) {
@@ -117,18 +130,16 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                     lastTableauDraw = -1;
                 }
 
-                @Override
-                public boolean canRemoveCard(CardPlayer player, int index) {
-                    return false;
-                }
-            }));
+            });
+            slot.highlightColor = 0x93ff9c;
+            map.put(suit, slot);
         }
         this.foundationPiles = map.build();
 
         ImmutableList.Builder<GameSlot> list = ImmutableList.builder();
         for(i = 0; i < 7; i++) {
             int s = 6 + i;
-            list.add(addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*i, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)  {
+            GameSlot slot = addSlot(new GameSlot(new LinkedList<>(), leftX + CardImage.WIDTH + (CardImage.WIDTH + 5)*i, topY + 5f + CardImage.HEIGHT - (CardImage.HEIGHT*1.5f), 0f, 180f, Direction.NORTH, CardImage.HEIGHT*3, false)  {
                 @Override
                 public boolean canRemoveCard(CardPlayer player, int index) {
                     if(index == -1) {
@@ -153,6 +164,9 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
 
                 @Override
                 public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
+                    if(index != -1 && index != this.size()-1) {
+                        return false;
+                    }
                     if(lastTableauDraw == s) {
                         return true;
                     }
@@ -177,7 +191,9 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                     }
                     lastTableauDraw = -1;
                 }
-            }));
+            });
+            slot.highlightColor = 0xfff570;
+            list.add(slot);
         }
         this.tableauPiles = list.build();
     }
@@ -205,6 +221,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
     public Predicate<Card> getCardPredicate() {
         return card -> card.getSuit() != Suit.BLANK && card.getRank() != Rank.BLANK && card.getRank() != Rank.JOKER;
     }
+
 
     @Override
     public boolean canPlay(CardPlayer player, CardPlay play) {
@@ -244,11 +261,24 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
             }
         }
 
+        this.scheduledActions.add(() -> Snapshot.create(this));
+
         this.currentPlayer = players.getFirst();
         this.isGameReady = false;
         this.isGameOver = false;
 
         table(Component.translatable("message.charta.game_started"));
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if(isGameReady) {
+            this.age++;
+            if (age % 20 == 0) {
+                this.time++;
+            }
+        }
     }
 
     @Override
@@ -311,6 +341,53 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
 
     }
 
+    public boolean canRestore() {
+        return this.moves > 0 && !this.snapshots.isEmpty();
+    }
+
+    public void restore() {
+        if(!this.snapshots.isEmpty()) {
+            this.currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+            Snapshot snapshot = this.snapshots.removeLast();
+            snapshot.restore(this);
+            this.moves++;
+            this.currentPlayer.playSound(ModSounds.CARD_PLAY.get());
+        }
+    }
+
+    @Override
+    public void preUpdate() {
+        if(!taken) {
+            Snapshot current = Snapshot.create(this);
+            if(!snapshots.isEmpty()) {
+                Snapshot last = snapshots.getLast();
+                if (!current.equals(last)) {
+                    snapshots.addLast(current);
+                }
+            }else{
+                snapshots.addLast(current);
+            }
+        }
+    }
+
+    @Override
+    public void postUpdate() {
+        if(taken) {
+            if(!snapshots.isEmpty()) {
+                Snapshot current = Snapshot.create(this);
+                Snapshot last = snapshots.getLast();
+                if(!current.equals(last)) {
+                    moves++;
+                }
+            }else{
+                moves++;
+            }
+            taken = false;
+        }else{
+            taken = true;
+        }
+    }
+
     @Override
     public int getMinPlayers() {
         return 1;
@@ -331,4 +408,141 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         boolean v2 = (c2.getSuit() == Suit.HEARTS || c2.getSuit() == Suit.DIAMONDS);
         return v1 != v2;
     }
+
+    public Pair<Component, List<GameSlot>> getHint() {
+        // Check if any card from tableau can be moved to foundation
+        for (GameSlot slot : tableauPiles) {
+            if (!slot.isEmpty()) {
+                Card card = slot.getLast();
+                if (foundationPiles.get(card.getSuit()).canInsertCard(currentPlayer, List.of(card), -1)) {
+                    return Pair.of(
+                        Component.translatable("message.charta.move_card_from_tableau_to_foundation", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))),
+                        List.of(slot, foundationPiles.get(card.getSuit()))
+                    );
+                }
+            }
+        }
+
+        // Check if any card from waste can be moved to foundation
+        if (!wastePile.isEmpty()) {
+            Card card = wastePile.getLast();
+            if (foundationPiles.get(card.getSuit()).canInsertCard(currentPlayer, List.of(card), -1)) {
+                return Pair.of(
+                    Component.translatable("message.charta.move_card_from_waste_to_foundation", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))),
+                    List.of(wastePile, foundationPiles.get(card.getSuit()))
+                );
+            }
+        }
+
+        // Check for moves between tableau columns
+        for (GameSlot fromSlot : tableauPiles) {
+            for (int i = 0; i < fromSlot.size(); i++) {
+                Card card = fromSlot.get(i);
+                if (card.isFlipped()) continue;
+
+                for (GameSlot toSlot : tableauPiles) {
+                    if (fromSlot == toSlot) continue;
+                    if (toSlot.canInsertCard(currentPlayer, List.of(card), -1)) {
+                        return Pair.of(
+                            Component.translatable("message.charta.move_card_from_tableau_to_tableau", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))),
+                            List.of(fromSlot, toSlot)
+                        );
+                    }
+                }
+            }
+        }
+
+        // Check if waste can be moved to tableau
+        if (!wastePile.isEmpty()) {
+            Card card = wastePile.getLast();
+            for (GameSlot slot : tableauPiles) {
+                if (slot.canInsertCard(currentPlayer, List.of(card), -1)) {
+                    return Pair.of(
+                        Component.translatable("message.charta.move_card_from_waste_to_tableau", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))),
+                        List.of(wastePile, slot)
+                    );
+                }
+            }
+        }
+
+        return Pair.of(
+            Component.translatable("message.charta.no_moves_available"),
+            List.of(stockPile)
+        );
+    }
+
+    private record Snapshot(List<Card> stockPile, List<Card> wastePile, Map<Suit, List<Card>> foundationPiles, List<List<Card>> tableauPiles) {
+
+        private static Snapshot create(SolitaireGame game) {
+            return new Snapshot(
+                game.stockPile.stream().map(Card::copy).collect(Collectors.toList()),
+                game.wastePile.stream().map(Card::copy).collect(Collectors.toList()),
+                game.foundationPiles.entrySet().stream().collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Card::copy).collect(Collectors.toList()))),
+                game.tableauPiles.stream().map(g -> g.stream().map(Card::copy).collect(Collectors.toList())).toList()
+            );
+        }
+
+        //This basically prints the entire game in a string so we can compare snapshots.
+        //Yes this is a horrible and lazy solution but who cares, it's a minecraft mod, fix it yourself if you are angry at it 😡.
+        private String state() {
+            StringBuilder str = new StringBuilder();
+            str.append(stockPile.size());
+            str.append("-");
+            stockPile.forEach(c -> str.append(c.toString()));
+            str.append("-");
+
+            str.append(wastePile.size());
+            str.append("-");
+            wastePile.forEach(c -> str.append(c.toString()));
+            str.append("-");
+
+            foundationPiles.forEach((suit, cards) -> {
+                str.append(suit.name());
+                str.append("-");
+                str.append(cards.size());
+                str.append("-");
+                cards.forEach(c -> str.append(c.toString()));
+                str.append("-");
+            });
+
+            for(int i = 0; i < tableauPiles.size(); i++) {
+                List<Card> cards = tableauPiles.get(i);
+                str.append(i);
+                str.append("-");
+                str.append(cards.size());
+                str.append("-");
+                cards.forEach(c -> str.append(c.toString()));
+                str.append("-");
+            }
+
+            return str.toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            Snapshot snapshot = (Snapshot) o;
+            return snapshot.state().equals(this.state());
+        }
+
+        @Override
+        public int hashCode() {
+            return this.state().hashCode();
+        }
+
+        private void restore(SolitaireGame game) {
+            game.stockPile.setCards(this.stockPile);
+            game.wastePile.setCards(this.wastePile);
+            game.foundationPiles.forEach((suit, slot) -> {
+                slot.setCards(this.foundationPiles.get(suit));
+            });
+            for(int i = 0; i < game.tableauPiles.size(); i++) {
+                game.tableauPiles.get(i).setCards(this.tableauPiles.get(i));
+            }
+        }
+
+
+
+    }
+
 }

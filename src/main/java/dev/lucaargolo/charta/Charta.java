@@ -153,6 +153,7 @@ public class Charta implements ModInitializer {
 
         registrarPlayToServer(CardContainerSlotClickPayload.TYPE, CardContainerSlotClickPayload.STREAM_CODEC, CardContainerSlotClickPayload::handleServer);
         registrarPlayToServer(CardTableSelectGamePayload.TYPE, CardTableSelectGamePayload.STREAM_CODEC, CardTableSelectGamePayload::handleServer);
+        registrarPlayToServer(RestoreSolitairePayload.TYPE, RestoreSolitairePayload.STREAM_CODEC, RestoreSolitairePayload::handleServer);
 
         registrarPlayBidirectional(LastFunPayload.TYPE, LastFunPayload.STREAM_CODEC, LastFunPayload::handleClient, LastFunPayload::handleServer);
         registrarPlayBidirectional(PlayerOptionsPayload.TYPE, PlayerOptionsPayload.STREAM_CODEC, PlayerOptionsPayload::handleClient, PlayerOptionsPayload::handleServer);

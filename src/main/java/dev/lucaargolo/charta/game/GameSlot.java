@@ -31,6 +31,9 @@ public class GameSlot {
     private float maxStack;
     private boolean centered;
 
+    public int highlightColor = 0xFFFFFF;
+    public int highlightTime = 0;
+
     public GameSlot(List<Card> cards, float x, float y, float z, float angle, Direction stackDirection, float maxStack, boolean centered) {
         this.cards = cards;
         this.x = x;
