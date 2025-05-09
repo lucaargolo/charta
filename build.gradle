@@ -137,7 +137,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 tasks.withType(Jar).configureEach {
-    archiveClassifier = "neoforge"
+    archiveClassifier = "neoforge-"+minecraft_version
     manifest {
         attributes["Main-Class"] = "dev.lucaargolo.charta.editor.CardEditor"
     }
