@@ -1,12 +1,22 @@
-plugins {
-    id 'java-library'
-    id 'maven-publish'
-    id 'net.neoforged.moddev' version '1.0.21'
+buildscript {
+    repositories {
+        // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
 }
 
-tasks.named('wrapper', Wrapper).configure {
-    distributionType = Wrapper.DistributionType.BIN
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
+
+apply plugin: 'org.spongepowered.mixin'
 
 version = mod_version
 group = mod_group_id
@@ -15,55 +25,51 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-neoForge {
-    version = project.neo_version
+minecraft {
+    mappings channel: "parchment", version: parchment_mappings_version+"-"+parchment_minecraft_version
 
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
-
-    accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
+    copyIdeResources = true
 
     runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
         client {
-            client()
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            property 'forge.enabledGameTestNamespaces', mod_id
         }
 
         server {
-            server()
-            programArgument '--nogui'
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            property 'forge.enabledGameTestNamespaces', mod_id
+            args '--nogui'
         }
+
 
         data {
-            data()
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-        }
+            workingDirectory project.file('run-data')
 
-        configureEach {
-            systemProperty 'forge.logging.markers', 'REGISTRIES'
-
-            logLevel = org.slf4j.event.Level.DEBUG
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
     }
+}
 
-    mods {
-        "${mod_id}" {
-            sourceSet(sourceSets.main)
-        }
-    }
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
+
+    config "${mod_id}.mixins.json"
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
-
-configurations {
-    runtimeClasspath.extendsFrom localRuntime
-}
-
 
 repositories {
     mavenLocal()
@@ -78,72 +84,63 @@ repositories {
     }
 }
 
+jarJar.enable()
 dependencies {
-    compileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:16.0.799"
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    compileOnly("mezz.jei:jei-1.21.1-neoforge-api:19.21.1.300")
+    compileOnly fg.deobf("me.shedaniel:RoughlyEnoughItems-forge:12.1.785")
 
-    compileOnly "dev.emi:emi-neoforge:1.1.22+1.21.1:api"
-    runtimeOnly "dev.emi:emi-neoforge:1.1.22+1.21.1"
+    compileOnly fg.deobf("mezz.jei:jei-1.20.1-forge-api:15.20.0.106")
 
-    jarJar(implementation "org.commonmark:commonmark") {
-        version {
-            strictly '[0.1, 1.0)'
-            prefer '0.24.0'
-        }
+    compileOnly fg.deobf("dev.emi:emi-forge:1.1.22+1.20.1:api")
+    runtimeOnly fg.deobf("dev.emi:emi-forge:1.1.22+1.20.1")
+
+    implementation(jarJar("org.commonmark:commonmark")) {
+        jarJar.ranged(it, "[0.24.0,)")
     }
-    additionalRuntimeClasspath "org.commonmark:commonmark:0.24.0"
+    minecraftLibrary "org.commonmark:commonmark:0.24.0"
 }
 
-var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [
-            minecraft_version      : minecraft_version,
-            minecraft_version_range: minecraft_version_range,
-            neo_version            : neo_version,
-            neo_version_range      : neo_version_range,
-            loader_version_range   : loader_version_range,
-            mod_id                 : mod_id,
-            mod_name               : mod_name,
-            mod_license            : mod_license,
-            mod_version            : mod_version,
-            mod_authors            : mod_authors,
-            mod_description        : mod_description
+            minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
+            forge_version       : forge_version, forge_version_range: forge_version_range,
+            loader_version_range: loader_version_range,
+            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_authors         : mod_authors, mod_description: mod_description,
     ]
+
     inputs.properties replaceProperties
-    expand replaceProperties
-    from "src/main/templates"
-    into "build/generated/sources/modMetadata"
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
 }
 
-sourceSets.main.resources.srcDir generateModMetadata
-neoForge.ideSyncTask generateModMetadata
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                "Specification-Title"     : mod_id,
+                "Specification-Vendor"    : mod_authors,
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   : mod_authors,
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Main-Class"              : "dev.lucaargolo.charta.editor.CardEditor"
+        ])
+    }
+    archiveClassifier = "forge-"+minecraft_version
 
-// Example configuration to allow publishing using the maven-publish plugin
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            from components.java
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/repo"
-        }
-    }
+    exclude("cards/**")
+    exclude("decks/**")
+    exclude("suits/**")
+
+    finalizedBy 'reobfJar'
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-}
-
-tasks.withType(Jar).configureEach {
-    archiveClassifier = "neoforge-"+minecraft_version
-    manifest {
-        attributes["Main-Class"] = "dev.lucaargolo.charta.editor.CardEditor"
-    }
-    exclude("cards/**")
-    exclude("decks/**")
-    exclude("suits/**")
 }
 
 idea {

@@ -3,9 +3,9 @@ package dev.lucaargolo.charta.sound;
 import dev.lucaargolo.charta.Charta;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredHolder;
+import net.minecraftforge.registries.DeferredRegister;
 
 public class ModSounds {
 
