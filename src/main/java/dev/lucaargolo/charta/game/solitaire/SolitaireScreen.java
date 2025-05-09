@@ -4,12 +4,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.lucaargolo.charta.client.gui.screens.GameScreen;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.CardSlot;
+import dev.lucaargolo.charta.network.RestoreSolitairePayload;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
@@ -44,21 +46,33 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
         int y = height - 18/2 - 14;
         int color = 0x2d99ff;
 
-        guiGraphics.fill(x+1, y+1, x+63, y+16, 0xFF000000 + color);
+        boolean canRestore = menu.canRestore() && menu.getCarriedCards().isEmpty();
+        guiGraphics.fill(x+1, y+1, x+63, y+16, 0xFF000000 + (canRestore ? color : 0x666666));
         Vec3 c = Vec3.fromRGB24(color);
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
         guiGraphics.blit(WIDGETS, x, y, 59, 0, 65, 18);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         text = Component.literal("Undo");
-        guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
+        guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+5, 0xFFFFFFFF);
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
             scheduleTooltip(Component.translatable("message.charta.undo"));
         }
 
-        text = Component.literal("0 moves");
+        text = Component.translatable("message.charta.moves", menu.getMoves());
         guiGraphics.drawString(font, text, width/2 - font.width(text)/2, height - 23, 0xFFFFFFFF);
-        text = Component.literal("00:00");
+
+        int time = menu.getTime();
+        String seconds = String.valueOf(time % 60);
+        if(seconds.length() == 1) {
+            seconds = "0" + seconds;
+        }
+        String minutes = String.valueOf(time / 60);
+        if(minutes.length() == 1) {
+            minutes = "0" + minutes;
+        }
+
+        text = Component.literal(minutes+":"+seconds);
         guiGraphics.drawString(font, text, width/2 - font.width(text)/2, height - 13, 0xFFFFFFFF);
 
         x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2;
@@ -68,7 +82,7 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
         guiGraphics.blit(WIDGETS, x, y, 59, 0, 65, 18);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         text = Component.literal("Hint");
-        guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
+        guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+5, 0xFFFFFFFF);
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
             scheduleTooltip(Component.translatable("message.charta.hint"));
@@ -81,7 +95,11 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
         int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2)/2 - 65/2;
         int y = height - 18/2 - 14;
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
-            return true;
+            boolean canRestore = menu.canRestore() && menu.getCarriedCards().isEmpty();
+            if(canRestore) {
+                PacketDistributor.sendToServer(new RestoreSolitairePayload());
+                return true;
+            }
         }
         x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2;
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {

@@ -16,12 +16,16 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class SolitaireGame extends CardGame<SolitaireGame> {
+
+    private final List<Snapshot> snapshots = new ArrayList<>();
 
     private final GameSlot stockPile;
     private final GameSlot wastePile;
@@ -32,6 +36,12 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
     @Nullable
     private Card lastStockCard = null;
     private int lastTableauDraw = -1;
+
+    private int age = 0;
+    private boolean taken = false;
+
+    public int moves = 0;
+    public int time = 0;
 
     public SolitaireGame(List<CardPlayer> players, CardDeck deck) {
         super(players, deck);
@@ -117,10 +127,6 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                     lastTableauDraw = -1;
                 }
 
-                @Override
-                public boolean canRemoveCard(CardPlayer player, int index) {
-                    return false;
-                }
             }));
         }
         this.foundationPiles = map.build();
@@ -153,6 +159,9 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
 
                 @Override
                 public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
+                    if(index != -1 && index != this.size()-1) {
+                        return false;
+                    }
                     if(lastTableauDraw == s) {
                         return true;
                     }
@@ -206,6 +215,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         return card -> card.getSuit() != Suit.BLANK && card.getRank() != Rank.BLANK && card.getRank() != Rank.JOKER;
     }
 
+
     @Override
     public boolean canPlay(CardPlayer player, CardPlay play) {
         return false;
@@ -244,11 +254,24 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
             }
         }
 
+        this.scheduledActions.add(() -> Snapshot.create(this));
+
         this.currentPlayer = players.getFirst();
         this.isGameReady = false;
         this.isGameOver = false;
 
         table(Component.translatable("message.charta.game_started"));
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if(isGameReady) {
+            this.age++;
+            if (age % 20 == 0) {
+                this.time++;
+            }
+        }
     }
 
     @Override
@@ -311,6 +334,53 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
 
     }
 
+    public boolean canRestore() {
+        return this.moves > 0 && !this.snapshots.isEmpty();
+    }
+
+    public void restore() {
+        if(!this.snapshots.isEmpty()) {
+            this.currentPlayer.playSound(ModSounds.CARD_DRAW.get());
+            Snapshot snapshot = this.snapshots.removeLast();
+            snapshot.restore(this);
+            this.moves++;
+            this.currentPlayer.playSound(ModSounds.CARD_PLAY.get());
+        }
+    }
+
+    @Override
+    public void preUpdate() {
+        if(!taken) {
+            Snapshot current = Snapshot.create(this);
+            if(!snapshots.isEmpty()) {
+                Snapshot last = snapshots.getLast();
+                if (!current.equals(last)) {
+                    snapshots.addLast(current);
+                }
+            }else{
+                snapshots.addLast(current);
+            }
+        }
+    }
+
+    @Override
+    public void postUpdate() {
+        if(taken) {
+            if(!snapshots.isEmpty()) {
+                Snapshot current = Snapshot.create(this);
+                Snapshot last = snapshots.getLast();
+                if(!current.equals(last)) {
+                    moves++;
+                }
+            }else{
+                moves++;
+            }
+            taken = false;
+        }else{
+            taken = true;
+        }
+    }
+
     @Override
     public int getMinPlayers() {
         return 1;
@@ -331,4 +401,79 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         boolean v2 = (c2.getSuit() == Suit.HEARTS || c2.getSuit() == Suit.DIAMONDS);
         return v1 != v2;
     }
+
+    private record Snapshot(List<Card> stockPile, List<Card> wastePile, Map<Suit, List<Card>> foundationPiles, List<List<Card>> tableauPiles) {
+
+        private static Snapshot create(SolitaireGame game) {
+            return new Snapshot(
+                game.stockPile.stream().map(Card::copy).collect(Collectors.toList()),
+                game.wastePile.stream().map(Card::copy).collect(Collectors.toList()),
+                game.foundationPiles.entrySet().stream().collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Card::copy).collect(Collectors.toList()))),
+                game.tableauPiles.stream().map(g -> g.stream().map(Card::copy).collect(Collectors.toList())).toList()
+            );
+        }
+
+        //This basically prints the entire game in a string so we can compare snapshots.
+        //Yes this is a horrible and lazy solution but who cares, it's a minecraft mod, fix it yourself if you are angry at it 😡.
+        private String state() {
+            StringBuilder str = new StringBuilder();
+            str.append(stockPile.size());
+            str.append("-");
+            stockPile.forEach(c -> str.append(c.toString()));
+            str.append("-");
+
+            str.append(wastePile.size());
+            str.append("-");
+            wastePile.forEach(c -> str.append(c.toString()));
+            str.append("-");
+
+            foundationPiles.forEach((suit, cards) -> {
+                str.append(suit.name());
+                str.append("-");
+                str.append(cards.size());
+                str.append("-");
+                cards.forEach(c -> str.append(c.toString()));
+                str.append("-");
+            });
+
+            for(int i = 0; i < tableauPiles.size(); i++) {
+                List<Card> cards = tableauPiles.get(i);
+                str.append(i);
+                str.append("-");
+                str.append(cards.size());
+                str.append("-");
+                cards.forEach(c -> str.append(c.toString()));
+                str.append("-");
+            }
+
+            return str.toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            Snapshot snapshot = (Snapshot) o;
+            return snapshot.state().equals(this.state());
+        }
+
+        @Override
+        public int hashCode() {
+            return this.state().hashCode();
+        }
+
+        private void restore(SolitaireGame game) {
+            game.stockPile.setCards(this.stockPile);
+            game.wastePile.setCards(this.wastePile);
+            game.foundationPiles.forEach((suit, slot) -> {
+                slot.setCards(this.foundationPiles.get(suit));
+            });
+            for(int i = 0; i < game.tableauPiles.size(); i++) {
+                game.tableauPiles.get(i).setCards(this.tableauPiles.get(i));
+            }
+        }
+
+
+
+    }
+
 }

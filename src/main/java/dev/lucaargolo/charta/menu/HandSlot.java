@@ -32,7 +32,8 @@ public class HandSlot<G extends CardGame<G>> extends CardSlot<G> {
     }
 
     @Override
-    protected void onUpdate() {
+    public void postUpdate() {
+        super.postUpdate();
         if (shouldUpdate.test(game)) {
             GameSlot censored = this.getCensoredSlot();
             Iterable<Card> cards = this.getSlot().getCards();
