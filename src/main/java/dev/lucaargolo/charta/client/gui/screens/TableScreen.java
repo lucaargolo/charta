@@ -48,7 +48,7 @@ public class TableScreen extends Screen {
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected void init() {
         super.init();
-        this.widget = this.addRenderableWidget(new GameWidget<>(minecraft, width, height-60, 30));
+        this.widget = this.addRenderableWidget(new GameWidget<>(minecraft, width, height, 30));
         CardGames.getGames().forEach((gameId, gameFactory) ->  {
             this.widget.addEntry(new Game(gameId, gameFactory));
         });
@@ -221,7 +221,7 @@ public class TableScreen extends Screen {
         private final int amount;
 
         public GameWidget(Minecraft minecraft, int width, int height, int y) {
-            super(minecraft, width, height, y, y+75, 75);
+            super(minecraft, width, height, y, height-y, 75);
             int margin = width - 40;
             this.amount = margin/75;
         }

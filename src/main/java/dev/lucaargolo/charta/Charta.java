@@ -126,9 +126,9 @@ public class Charta {
         registrarPlayToClient(GameStartPayload.class, GameStartPayload::new, GameStartPayload::handleClient);
         registrarPlayToClient(CardPlayPayload.class, CardPlayPayload::new, CardPlayPayload::handleClient);
 
-        registrarPlayToClient(CardContainerSlotClickPayload.class, CardContainerSlotClickPayload::new, CardContainerSlotClickPayload::handleServer);
-        registrarPlayToClient(CardTableSelectGamePayload.class, CardTableSelectGamePayload::new, CardTableSelectGamePayload::handleServer);
-        registrarPlayToClient(RestoreSolitairePayload.class, RestoreSolitairePayload::new, RestoreSolitairePayload::handleServer);
+        registrarPlayToServer(CardContainerSlotClickPayload.class, CardContainerSlotClickPayload::new, CardContainerSlotClickPayload::handleServer);
+        registrarPlayToServer(CardTableSelectGamePayload.class, CardTableSelectGamePayload::new, CardTableSelectGamePayload::handleServer);
+        registrarPlayToServer(RestoreSolitairePayload.class, RestoreSolitairePayload::new, RestoreSolitairePayload::handleServer);
 
         registrarPlayBidirectional(LastFunPayload.class, LastFunPayload::new, LastFunPayload::handleBoth);
         registrarPlayBidirectional(PlayerOptionsPayload.class, PlayerOptionsPayload::new, PlayerOptionsPayload::handleBoth);

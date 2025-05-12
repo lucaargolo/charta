@@ -23,7 +23,6 @@ import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -185,7 +184,7 @@ public class ChartaClient {
 
         @SubscribeEvent
         public static void registerCoverModel(ModelEvent.RegisterAdditional event) {
-            event.register(new ModelResourceLocation(Charta.id("deck"), "standalone"));
+            event.register(Charta.id("deck"));
         }
 
         @SubscribeEvent

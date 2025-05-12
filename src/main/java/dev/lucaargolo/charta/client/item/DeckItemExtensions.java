@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -37,7 +36,7 @@ public class DeckItemExtensions implements IClientItemExtensions {
             @Override
             @SuppressWarnings("deprecation")
             public void renderByItem(@NotNull ItemStack stack, @NotNull ItemDisplayContext displayContext, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight, int packedOverlay) {
-                BakedModel model = minecraft.getModelManager().getModel(new ModelResourceLocation(Charta.id("deck"), "standalone"));
+                BakedModel model = minecraft.getModelManager().getModel(Charta.id("deck"));
                 List<BakedQuad> transformedQuads = model.getQuads(null, null, RANDOM).stream().map(DeckItemExtensions::replaceQuadSprite).toList();
 
                 CardDeck deck = CardDeckItem.getDeck(stack);

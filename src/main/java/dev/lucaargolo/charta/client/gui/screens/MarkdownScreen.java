@@ -48,7 +48,7 @@ public class MarkdownScreen extends Screen {
 
     @Override
     protected void init() {
-        this.widget = this.addRenderableWidget(new MarkdownWidget(minecraft, width, height - 60, 30));
+        this.widget = this.addRenderableWidget(new MarkdownWidget(minecraft, width, height, 30));
 
         LinkedList<MarkdownTag> stack = new LinkedList<>();
         LinkedList<Integer> countStack = new LinkedList<>();
@@ -233,7 +233,7 @@ public class MarkdownScreen extends Screen {
 
 
         public MarkdownWidget(Minecraft minecraft, int width, int height, int y) {
-            super(minecraft, width, height, y, y+10, 10);
+            super(minecraft, width, height, y, height-y, 10);
         }
 
         @Override

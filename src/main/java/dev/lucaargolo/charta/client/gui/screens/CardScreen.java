@@ -16,7 +16,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 public abstract class CardScreen extends Screen implements HoverableRenderable {
 
@@ -80,9 +79,8 @@ public abstract class CardScreen extends Screen implements HoverableRenderable {
         Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, glowTarget.getColorTextureId());
-        RenderSystem.blendFunc(GL11.GL_ONE, GL11.GL_ONE);
         ChartaGuiGraphics.innerBlit(guiGraphics, 0, screen.width, 0, screen.height, 0, 1, 1, 0);
-        RenderSystem.defaultBlendFunc();
+        ChartaClient.getGlowRenderTarget().setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
         ChartaClient.getGlowRenderTarget().clear(Minecraft.ON_OSX);
         Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
     }

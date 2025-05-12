@@ -58,7 +58,7 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
 
     @Override
     protected void init() {
-        this.widget = this.addRenderableWidget(new OptionsWidget(minecraft, width, height - 60, 30));
+        this.widget = this.addRenderableWidget(new OptionsWidget(minecraft, width, height, 30));
 
         for(int i = 0; i < this.game.getOptions().size(); i++) {
             GameOption<?> option = this.game.getOptions().get(i);
@@ -143,7 +143,7 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
         protected final BooleanList changed = new BooleanArrayList();
 
         public OptionsWidget(Minecraft minecraft, int width, int height, int y) {
-            super(minecraft, width, height, y, y+25, 25);
+            super(minecraft, width, height, y, height-y, 25);
         }
 
         @Override

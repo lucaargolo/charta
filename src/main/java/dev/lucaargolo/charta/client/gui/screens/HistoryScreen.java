@@ -31,7 +31,7 @@ public class HistoryScreen extends Screen {
 
     @Override
     protected void init() {
-        widget = this.addRenderableWidget(new HistoryWidget(minecraft, width, height-60, 30));
+        widget = this.addRenderableWidget(new HistoryWidget(minecraft, width, height, 30));
         ChartaClient.LOCAL_HISTORY.forEach(triple -> widget.addEntry(new Play(triple)));
         widget.setScrollAmount(Double.MAX_VALUE);
         Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
@@ -96,7 +96,7 @@ public class HistoryScreen extends Screen {
     public class HistoryWidget extends ContainerObjectSelectionList<Play> {
 
         public HistoryWidget(Minecraft minecraft, int width, int height, int y) {
-            super(minecraft, width, height, y, y+15, 15);
+            super(minecraft, width, height, y, height-y, 15);
         }
 
         @Override

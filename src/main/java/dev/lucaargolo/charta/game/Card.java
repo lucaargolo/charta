@@ -3,8 +3,6 @@ package dev.lucaargolo.charta.game;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.lucaargolo.charta.Charta;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
@@ -108,14 +106,12 @@ public class Card implements Comparable<Card>, StringRepresentable {
         return new Card(suit, rank, flipped);
     }
 
-    public FriendlyByteBuf toBuf(FriendlyByteBuf buf) {
-        CompoundTag tag = (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this).resultOrPartial(Charta.LOGGER::error).orElseThrow();
-        buf.writeNbt(tag);
-        return buf;
+    public void toBuf(FriendlyByteBuf buf) {
+        buf.writeUtf(this.toString());
     }
 
     public static Card fromBuf(FriendlyByteBuf buf) {
-        return CODEC.parse(NbtOps.INSTANCE, buf.readNbt()).resultOrPartial(Charta.LOGGER::error).orElseThrow();
+        return Card.read(buf.readUtf()).getOrThrow(false, Charta.LOGGER::error);
     }
 
 }

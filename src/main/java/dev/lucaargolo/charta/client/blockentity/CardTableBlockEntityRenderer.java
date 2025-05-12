@@ -137,20 +137,20 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
             ResourceLocation glowTexture = card.isFlipped() ? deck.getDeckTexture(true) : deck.getCardTexture(card, true);
             RenderType glowType = RenderType.entityTranslucentEmissive(glowTexture);
             VertexConsumer glowConsumer = bufferSource.getBuffer(glowType);
-            glowConsumer.vertex(entry.pose(), (x+CardImage.WIDTH)/160f, y/160f, 0).color(1f, 1f, 1f, 1f).uv(1f, 1f).overlayCoords(packedOverlay).uv2(LightTexture.FULL_BRIGHT).normal(entry.normal(), normal.x, normal.y, normal.z);
-            glowConsumer.vertex(entry.pose(), (x+CardImage.WIDTH)/160f, (y+CardImage.HEIGHT)/160f, 0).color(1f, 1f, 1f, 1f).uv(1f, 0f).overlayCoords(packedOverlay).uv2(LightTexture.FULL_BRIGHT).normal(entry.normal(), normal.x, normal.y, normal.z);
-            glowConsumer.vertex(entry.pose(), x/160f, (y+CardImage.HEIGHT)/160f, 0).color(1f, 1f, 1f, 1f).uv(0f, 0f).overlayCoords(packedOverlay).uv2(LightTexture.FULL_BRIGHT).normal(entry.normal(), normal.x, normal.y, normal.z);
-            glowConsumer.vertex(entry.pose(), x/160f, y/160f, 0).color(1f, 1f, 1f, 1f).uv(0f, 1f).overlayCoords(packedOverlay).uv2(LightTexture.FULL_BRIGHT).normal(entry.normal(), normal.x, normal.y, normal.z);
+            glowConsumer.vertex(entry.pose(), (x+CardImage.WIDTH)/160f, y/160f, 0).color(1f, 1f, 1f, 1f).uv(1f, 1f).overlayCoords(packedOverlay).uv2(LightTexture.FULL_BRIGHT).normal(entry.normal(), normal.x, normal.y, normal.z).endVertex();
+            glowConsumer.vertex(entry.pose(), (x+CardImage.WIDTH)/160f, (y+CardImage.HEIGHT)/160f, 0).color(1f, 1f, 1f, 1f).uv(1f, 0f).overlayCoords(packedOverlay).uv2(LightTexture.FULL_BRIGHT).normal(entry.normal(), normal.x, normal.y, normal.z).endVertex();
+            glowConsumer.vertex(entry.pose(), x/160f, (y+CardImage.HEIGHT)/160f, 0).color(1f, 1f, 1f, 1f).uv(0f, 0f).overlayCoords(packedOverlay).uv2(LightTexture.FULL_BRIGHT).normal(entry.normal(), normal.x, normal.y, normal.z).endVertex();
+            glowConsumer.vertex(entry.pose(), x/160f, y/160f, 0).color(1f, 1f, 1f, 1f).uv(0f, 1f).overlayCoords(packedOverlay).uv2(LightTexture.FULL_BRIGHT).normal(entry.normal(), normal.x, normal.y, normal.z).endVertex();
         }
 
         ResourceLocation texture = card.isFlipped() ? deck.getDeckTexture(false) : deck.getCardTexture(card, false);
         RenderType type = IrisCompat.isPresent() ? RenderType.entityTranslucent(texture) : ModRenderType.entityCard(texture);
         VertexConsumer consumer = bufferSource.getBuffer(type);
 
-        consumer.vertex(entry.pose(), (x+CardImage.WIDTH)/160f, y/160f, 0).color(1f, 1f, 1f, 1f).uv(1f, 1f).overlayCoords(packedOverlay).uv2(packedLight).normal(entry.normal(), normal.x, normal.y, normal.z);
-        consumer.vertex(entry.pose(), (x+CardImage.WIDTH)/160f, (y+CardImage.HEIGHT)/160f, 0).color(1f, 1f, 1f, 1f).uv(1f, 0f).overlayCoords(packedOverlay).uv2(packedLight).normal(entry.normal(), normal.x, normal.y, normal.z);
-        consumer.vertex(entry.pose(), x/160f, (y+CardImage.HEIGHT)/160f, 0).color(1f, 1f, 1f, 1f).uv(0f, 0f).overlayCoords(packedOverlay).uv2(packedLight).normal(entry.normal(), normal.x, normal.y, normal.z);
-        consumer.vertex(entry.pose(), x/160f, y/160f, 0).color(1f, 1f, 1f, 1f).uv(0f, 1f).overlayCoords(packedOverlay).uv2(packedLight).normal(entry.normal(), normal.x, normal.y, normal.z);
+        consumer.vertex(entry.pose(), (x+CardImage.WIDTH)/160f, y/160f, 0).color(1f, 1f, 1f, 1f).uv(1f, 1f).overlayCoords(packedOverlay).uv2(packedLight).normal(entry.normal(), normal.x, normal.y, normal.z).endVertex();
+        consumer.vertex(entry.pose(), (x+CardImage.WIDTH)/160f, (y+CardImage.HEIGHT)/160f, 0).color(1f, 1f, 1f, 1f).uv(1f, 0f).overlayCoords(packedOverlay).uv2(packedLight).normal(entry.normal(), normal.x, normal.y, normal.z).endVertex();
+        consumer.vertex(entry.pose(), x/160f, (y+CardImage.HEIGHT)/160f, 0).color(1f, 1f, 1f, 1f).uv(0f, 0f).overlayCoords(packedOverlay).uv2(packedLight).normal(entry.normal(), normal.x, normal.y, normal.z).endVertex();
+        consumer.vertex(entry.pose(), x/160f, y/160f, 0).color(1f, 1f, 1f, 1f).uv(0f, 1f).overlayCoords(packedOverlay).uv2(packedLight).normal(entry.normal(), normal.x, normal.y, normal.z).endVertex();
     }
 
 }

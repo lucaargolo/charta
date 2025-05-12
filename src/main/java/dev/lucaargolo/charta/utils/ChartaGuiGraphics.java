@@ -118,10 +118,10 @@ public class ChartaGuiGraphics {
         Matrix4f matrix4f = parent.pose().last().pose();
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.vertex(matrix4f, x1, y1, 0).uv(minU, minV).color(1f, 1f, 1f, 1f);
-        bufferbuilder.vertex(matrix4f, x1, y2, 0).uv(minU, maxV).color(1f, 1f, 1f, 1f);
-        bufferbuilder.vertex(matrix4f, x2, y2, 0).uv(maxU, maxV).color(1f, 1f, 1f, 1f);
-        bufferbuilder.vertex(matrix4f, x2, y1, 0).uv(maxU, minV).color(1f, 1f, 1f, 1f);
+        bufferbuilder.vertex(matrix4f, x1, y1, 0).uv(minU, minV).color(1f, 1f, 1f, 1f).endVertex();
+        bufferbuilder.vertex(matrix4f, x1, y2, 0).uv(minU, maxV).color(1f, 1f, 1f, 1f).endVertex();
+        bufferbuilder.vertex(matrix4f, x2, y2, 0).uv(maxU, maxV).color(1f, 1f, 1f, 1f).endVertex();
+        bufferbuilder.vertex(matrix4f, x2, y1, 0).uv(maxU, minV).color(1f, 1f, 1f, 1f).endVertex();
         BufferUploader.drawWithShader(bufferbuilder.end());
         RenderSystem.disableBlend();
     }
