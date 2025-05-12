@@ -1,6 +1,5 @@
 package dev.lucaargolo.charta.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.lucaargolo.charta.blockentity.BarShelfBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.utils.VoxelShapeUtils;
@@ -8,7 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -33,8 +32,6 @@ import org.joml.Vector2d;
 
 public class BarShelfBlock extends BaseEntityBlock {
 
-    public static final MapCodec<BarShelfBlock> CODEC = simpleCodec(BarShelfBlock::new);
-
     private static final VoxelShape NORTH_SHAPE = Block.box(0, 0, 14, 16, 16, 16);
     private static final VoxelShape SOUTH_SHAPE = VoxelShapeUtils.rotate(NORTH_SHAPE, Direction.SOUTH);
     private static final VoxelShape EAST_SHAPE = VoxelShapeUtils.rotate(NORTH_SHAPE, Direction.EAST);
@@ -52,11 +49,6 @@ public class BarShelfBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
-    }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, UP);
     }
@@ -67,7 +59,7 @@ public class BarShelfBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+    public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
         if(!state.is(newState.getBlock())) {
             level.getBlockEntity(pos, ModBlockEntityTypes.BAR_SHELF.get()).ifPresent(entity -> {
                 Containers.dropContents(level, pos, entity);
@@ -75,8 +67,11 @@ public class BarShelfBlock extends BaseEntityBlock {
         }
     }
 
+
+
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
+    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand pHand, @NotNull BlockHitResult hitResult) {
+        ItemStack stack = player.getItemInHand(pHand);
         Direction direction = hitResult.getDirection();
         if(direction == state.getValue(FACING)) {
             if(!level.isClientSide()) {
@@ -95,26 +90,24 @@ public class BarShelfBlock extends BaseEntityBlock {
                     }
                 });
             }
-
-
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
-        return ItemInteractionResult.FAIL;
+        return InteractionResult.FAIL;
     }
 
     @Override
-    protected @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
-    protected @NotNull BlockState rotate(BlockState state, Rotation rot) {
+    public @NotNull BlockState rotate(BlockState state, Rotation rot) {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    protected @NotNull BlockState mirror(BlockState state, Mirror mirror) {
+    public @NotNull BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
@@ -130,7 +123,7 @@ public class BarShelfBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
+    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
         if(direction == Direction.UP) {
             return state.setValue(UP, neighborState.getBlock() instanceof BarShelfBlock || neighborState.isCollisionShapeFullBlock(level, neighborPos));
         }else{
@@ -139,7 +132,7 @@ public class BarShelfBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case SOUTH -> SOUTH_SHAPE;
             case EAST -> EAST_SHAPE;

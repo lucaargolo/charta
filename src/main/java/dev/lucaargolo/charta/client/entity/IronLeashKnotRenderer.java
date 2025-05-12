@@ -24,7 +24,7 @@ public class IronLeashKnotRenderer extends LeashKnotRenderer {
         poseStack.scale(-1.0F, -1.0F, 1.0F);
         this.model.setupAnim(entity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
         VertexConsumer vertexconsumer = buffer.getBuffer(this.model.renderType(IRON_KNOT_LOCATION));
-        this.model.renderToBuffer(poseStack, vertexconsumer, packedLight, OverlayTexture.NO_OVERLAY);
+        this.model.renderToBuffer(poseStack, vertexconsumer, packedLight, OverlayTexture.NO_OVERLAY, 1f, 1f, 1f, 1f);
         poseStack.popPose();
     }
 

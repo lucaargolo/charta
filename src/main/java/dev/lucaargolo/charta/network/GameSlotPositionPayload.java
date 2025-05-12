@@ -1,46 +1,53 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.GameSlot;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.handling.IPayloadContext;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.NetworkEvent;
 
-public record GameSlotPositionPayload(BlockPos pos, int index, float x, float y, float z, float angle) implements CustomPacketPayload {
+public class GameSlotPositionPayload implements CustomPacketPayload {
 
-    public static final CustomPacketPayload.Type<GameSlotPositionPayload> TYPE = new CustomPacketPayload.Type<>(Charta.id("game_slot_position"));
+    private final BlockPos pos;
+    private final int index;
+    private final float x;
+    private final float y;
+    private final float z;
+    private final float angle;
 
-    public static StreamCodec<ByteBuf, GameSlotPositionPayload> STREAM_CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC,
-            GameSlotPositionPayload::pos,
-            ByteBufCodecs.INT,
-            GameSlotPositionPayload::index,
-            ByteBufCodecs.FLOAT,
-            GameSlotPositionPayload::x,
-            ByteBufCodecs.FLOAT,
-            GameSlotPositionPayload::y,
-            ByteBufCodecs.FLOAT,
-            GameSlotPositionPayload::z,
-            ByteBufCodecs.FLOAT,
-            GameSlotPositionPayload::angle,
-            GameSlotPositionPayload::new
-    );
-
-    @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    public GameSlotPositionPayload(BlockPos pos, int index, float x, float y, float z, float angle) {
+        this.pos = pos;
+        this.index = index;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.angle = angle;
     }
 
-    public static void handleClient(GameSlotPositionPayload payload, IPayloadContext context) {
+    public GameSlotPositionPayload(FriendlyByteBuf buf) {
+        this.pos = buf.readBlockPos();
+        this.index = buf.readInt();
+        this.x = buf.readFloat();
+        this.y = buf.readFloat();
+        this.z = buf.readFloat();
+        this.angle = buf.readFloat();
+    }
+
+    @Override
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeBlockPos(pos);
+        buf.writeInt(index);
+        buf.writeFloat(x);
+        buf.writeFloat(y);
+        buf.writeFloat(z);
+        buf.writeFloat(angle);
+    }
+
+    public static void handleClient(GameSlotPositionPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> updateGameSlot(payload));
     }
 

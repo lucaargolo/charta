@@ -26,7 +26,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.DyeColor;
-import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -64,7 +63,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (hoveredCardSlot != null) {
-            PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, hoveredCardSlot.index, hoveredCardId));
+            PacketUtils.sendToServer(new CardContainerSlotClickPayload(menu.containerId, hoveredCardSlot.index, hoveredCardId));
             return true;
         }
         if(super.mouseClicked(mouseX, mouseY, button)) {
@@ -74,11 +73,11 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if(chatFocused && chatScreen.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if(chatFocused && chatScreen.mouseScrolled(mouseX, mouseY, delta)) {
             return true;
         }else {
-            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+            return super.mouseScrolled(mouseX, mouseY, delta);
         }
     }
 
@@ -119,7 +118,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
     }
 
     @Override
-    public final void renderBackground(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public final void renderBackground(@NotNull GuiGraphics guiGraphics) {
 
     }
 
@@ -173,7 +172,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
             float x = width/2f - playersWidth/2f + (i*(totalWidth + totalWidth/10f));
             Component text = player.getName();
             DyeColor color = player.getColor();
-            guiGraphics.fill(Mth.floor(x), 0, Mth.ceil(x + totalWidth), 28, 0x88000000 + color.getTextureDiffuseColor());
+            guiGraphics.fill(Mth.floor(x), 0, Mth.ceil(x + totalWidth), 28, 0x88000000 + ChartaGuiGraphics.getDyeColor(color));
             if(i < players-1) {
                 guiGraphics.fill(Mth.ceil(x + totalWidth), 0, Mth.floor(x + totalWidth + totalWidth/10f), 28, 0x88000000);
             }
@@ -185,7 +184,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
 
             Minecraft mc = Minecraft.getInstance();
             Function<ResourceLocation, TextureAtlasSprite> function = mc.getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
-            ResourceLocation wool = ResourceLocation.withDefaultNamespace("block/"+color.getName()+"_wool");
+            ResourceLocation wool = new ResourceLocation("block/"+color.getName()+"_wool");
             TextureAtlasSprite woolSprite = function.apply(wool);
             guiGraphics.blit((int) (x+4), 2, 0, 16, 1, woolSprite);
             guiGraphics.blit((int) (x+2), 2+1, 0, 20, 22, woolSprite);
@@ -200,14 +199,14 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
         DyeColor color = player.getColor();
         int totalWidth = Mth.floor(CardSlot.getWidth(CardSlot.Type.HORIZONTAL)) + 10;
         guiGraphics.fill(0, height-63, (width-totalWidth)/2, height, 0x88000000);
-        guiGraphics.fill((width-totalWidth)/2, height-63, (width-totalWidth)/2 + totalWidth, height, 0x88000000  + color.getTextureDiffuseColor());
+        guiGraphics.fill((width-totalWidth)/2, height-63, (width-totalWidth)/2 + totalWidth, height, 0x88000000 + ChartaGuiGraphics.getDyeColor(color));
         guiGraphics.fill((width-totalWidth)/2 + totalWidth, height-63, width, height, 0x88000000);
 
     }
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBlurredBackground(partialTick);
+        this.renderBackground(guiGraphics);
 
         this.renderTopBar(guiGraphics);
         this.renderBottomBar(guiGraphics);
@@ -272,7 +271,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
                 guiGraphics.pose().translate(0f, -25f, 0f);
                 double chatWidth = this.minecraft.options.chatWidth().get();
                 this.minecraft.options.chatWidth().set(Math.min(chatWidth * 280.0, (width / 2.0) - (imageWidth / 2.0) - 50.0) / 280.0);
-                this.minecraft.gui.getChat().render(guiGraphics, this.minecraft.gui.getGuiTicks(), mouseX, mouseY + 25, false);
+                this.minecraft.gui.getChat().render(guiGraphics, this.minecraft.gui.getGuiTicks(), mouseX, mouseY + 25);
                 this.minecraft.options.chatWidth().set(chatWidth);
                 guiGraphics.pose().popPose();
             }
@@ -306,7 +305,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
         guiGraphics.pose().popPose();
 
         if(chatFocused) {
-            this.renderBlurredBackground(partialTick);
+            this.renderBackground(guiGraphics);
             this.chatScreen.render(guiGraphics, mouseX, mouseY, partialTick);
         }
     }

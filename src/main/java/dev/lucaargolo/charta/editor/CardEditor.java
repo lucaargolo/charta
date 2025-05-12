@@ -15,9 +15,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.*;
 import java.util.List;
 import java.util.Queue;
-import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -61,7 +61,7 @@ public class CardEditor extends JFrame {
                 try {
                     List<File> files = (List<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     if(!files.isEmpty()) {
-                        loadImageFile(files.getFirst());
+                        loadImageFile(files.get(0));
                     }
                     return true;
                 } catch (Exception e) {

@@ -38,7 +38,7 @@ public class CardDeckResource implements ResourceManagerReloadListener {
                 try(InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
                     JsonElement json = JsonParser.parseReader(reader);
                     DataResult<CardDeck> cardDeck = CardDeck.CODEC.parse(JsonOps.INSTANCE, json);
-                    decks.put(location, cardDeck.getOrThrow());
+                    decks.put(location, cardDeck.getOrThrow(false, Charta.LOGGER::error));
                 }
             }catch (IOException e) {
                 Charta.LOGGER.error("Error while reading deck {} :", id, e);

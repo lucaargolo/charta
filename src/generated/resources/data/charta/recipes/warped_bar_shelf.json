@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": {
+      "item": "minecraft:warped_stem"
+    },
+    "S": {
+      "item": "minecraft:warped_slab"
+    }
+  },
+  "pattern": [
+    "SLS",
+    "SLS"
+  ],
+  "result": {
+    "item": "charta:warped_bar_shelf"
+  },
+  "show_notification": true
+}

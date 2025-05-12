@@ -10,25 +10,27 @@ import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.registries.DeferredHolder;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.List;
 
-@EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.FORGE)
 public class ModVillagerProfessions {
 
     public static final DeferredRegister<VillagerProfession> VILLAGER_PROFESSIONS = DeferredRegister.create(Registries.VILLAGER_PROFESSION, Charta.MOD_ID);
 
-    @SuppressWarnings("deprecation")
-    public static final DeferredHolder<VillagerProfession, VillagerProfession> DEALER = VILLAGER_PROFESSIONS.register("dealer", () -> new VillagerProfession(
-        "dealer",
-        heldJob -> heldJob.is(ModPoiTypes.DEALER),
-        acquirableJob -> acquirableJob.is(ModPoiTypes.DEALER),
-        ImmutableSet.of(),
-        ImmutableSet.of(),
-        SoundEvents.VILLAGER_WORK_CARTOGRAPHER
-    ));
+    public static final RegistryObject<VillagerProfession> DEALER = VILLAGER_PROFESSIONS.register("dealer", () -> {
+        assert ModPoiTypes.DEALER.getKey() != null;
+        return new VillagerProfession(
+                "dealer",
+                heldJob -> heldJob.is(ModPoiTypes.DEALER.getKey()),
+                acquirableJob -> acquirableJob.is(ModPoiTypes.DEALER.getKey()),
+                ImmutableSet.of(),
+                ImmutableSet.of(),
+                SoundEvents.VILLAGER_WORK_CARTOGRAPHER
+        );
+    });
 
     @SubscribeEvent
     public static void trades(final VillagerTradesEvent event) {

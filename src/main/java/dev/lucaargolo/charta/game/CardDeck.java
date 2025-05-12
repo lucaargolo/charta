@@ -3,17 +3,17 @@ package dev.lucaargolo.charta.game;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.utils.CardImageUtils;
-import dev.lucaargolo.charta.utils.ExpandedStreamCodec;
 import dev.lucaargolo.charta.utils.SuitImage;
-import io.netty.buffer.ByteBuf;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Rarity;
@@ -27,30 +27,8 @@ public class CardDeck {
 
     public static final CardDeck EMPTY = new CardDeck(Rarity.COMMON, false, List.of(), s -> Charta.MISSING_SUIT, s -> "suit.charta.unknown", c -> Charta.MISSING_CARD, c -> "card.charta.unknown", () -> Charta.MISSING_DECK, () -> "deck.charta.unknown");
 
-    public static final StreamCodec<ByteBuf, CardDeck> STREAM_CODEC = ExpandedStreamCodec.composite(
-        Rarity.STREAM_CODEC,
-        CardDeck::getRarity,
-        ByteBufCodecs.BOOL,
-        CardDeck::isTradeable,
-        ByteBufCodecs.collection(ArrayList::new, Card.STREAM_CODEC),
-        CardDeck::getCards,
-        ByteBufCodecs.map(HashMap::new, Suit.STREAM_CODEC, ResourceLocation.STREAM_CODEC),
-        CardDeck::getSuitsLocation,
-        ByteBufCodecs.map(HashMap::new, Suit.STREAM_CODEC, ByteBufCodecs.STRING_UTF8),
-        CardDeck::getSuitsTranslatableKeys,
-        ByteBufCodecs.map(HashMap::new, Card.STREAM_CODEC, ResourceLocation.STREAM_CODEC),
-        CardDeck::getCardsLocation,
-        ByteBufCodecs.map(HashMap::new, Card.STREAM_CODEC, ByteBufCodecs.STRING_UTF8),
-        CardDeck::getCardsTranslatableKeys,
-        ResourceLocation.STREAM_CODEC,
-        CardDeck::getDeckLocation,
-        ByteBufCodecs.STRING_UTF8,
-        CardDeck::getDeckTranslatableKey,
-        CardDeck::new
-    );
-
     public static final Codec<CardDeck> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Rarity.CODEC.fieldOf("rarity").forGetter(CardDeck::getRarity),
+        Codec.STRING.comapFlatMap(CardDeck::readRarity, CardDeck::writeRarity).stable().fieldOf("rarity").forGetter(CardDeck::getRarity),
         Codec.BOOL.fieldOf("tradeable").forGetter(CardDeck::isTradeable),
         Card.CODEC.listOf().fieldOf("cards").forGetter(CardDeck::getCards),
         Codec.simpleMap(Suit.CODEC, ResourceLocation.CODEC, StringRepresentable.keys(Suit.values())).fieldOf("suits_images").forGetter(CardDeck::getSuitsLocation),
@@ -60,6 +38,20 @@ public class CardDeck {
         ResourceLocation.CODEC.fieldOf("deck_image").forGetter(CardDeck::getDeckLocation),
         Codec.STRING.fieldOf("deck_key").forGetter(CardDeck::getDeckTranslatableKey)
     ).apply(instance, CardDeck::new));
+
+    public static String writeRarity(Rarity rarity) {
+        return rarity.name().toLowerCase();
+    }
+
+    public static DataResult<Rarity> readRarity(String string) {
+        try {
+            return DataResult.success(Rarity.valueOf(string.toUpperCase()));
+        } catch (Exception e) {
+            return DataResult.error(() -> {
+                return "Not a valid card: " + string + " " + e.getMessage();
+            });
+        }
+    }
 
     private final Rarity rarity;
     private final boolean tradeable;
@@ -292,5 +284,21 @@ public class CardDeck {
         }else{
             return color;
         }
+    }
+
+    public CompoundTag toTag() {
+        return (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this).resultOrPartial(Charta.LOGGER::error).orElseThrow();
+    }
+
+    public void toBuf(FriendlyByteBuf buf) {
+        buf.writeNbt(toTag());
+    }
+
+    public static CardDeck fromTag(CompoundTag tag) {
+        return CODEC.parse(NbtOps.INSTANCE, tag).resultOrPartial(Charta.LOGGER::error).orElseThrow();
+    }
+
+    public static CardDeck fromBuf(FriendlyByteBuf buf) {
+        return fromTag(buf.readNbt());
     }
 }

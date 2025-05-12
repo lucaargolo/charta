@@ -37,7 +37,7 @@ public class DrinkGlassBlockItem extends BlockItem {
         if (stack.isEmpty()) {
             return new ItemStack(original);
         } else {
-            if (entityLiving instanceof Player player && !player.hasInfiniteMaterials()) {
+            if (entityLiving instanceof Player player && !player.isCreative()) {
                 ItemStack itemstack = new ItemStack(original);
                 if (!player.getInventory().add(itemstack)) {
                     player.drop(itemstack, false);

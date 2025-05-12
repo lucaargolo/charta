@@ -3,12 +3,9 @@ package dev.lucaargolo.charta.datagen;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardDecks;
-import dev.lucaargolo.charta.item.ModDataComponentTypes;
+import dev.lucaargolo.charta.item.CardDeckItem;
 import dev.lucaargolo.charta.item.ModItems;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.LootTableSubProvider;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -16,7 +13,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
-import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
+import net.minecraft.world.level.storage.loot.functions.SetNbtFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,20 +25,17 @@ import java.util.function.BiConsumer;
 
 public class ModChestLootProvider implements LootTableSubProvider {
 
-    public static final ResourceKey<LootTable> ABANDONED_MINESHAFT_DECKS =
-            ResourceKey.create(Registries.LOOT_TABLE, Charta.id("chests/abandoned_mineshaft_decks"));
-    public static final ResourceKey<LootTable> DESERT_PYRAMID_DECKS =
-            ResourceKey.create(Registries.LOOT_TABLE, Charta.id("chests/desert_pyramid_decks"));
-    public static final ResourceKey<LootTable> SIMPLE_DUNGEON_DECKS =
-            ResourceKey.create(Registries.LOOT_TABLE, Charta.id("chests/simple_dungeon_decks"));
+    public static final ResourceLocation ABANDONED_MINESHAFT_DECKS = Charta.id("chests/abandoned_mineshaft_decks");
+    public static final ResourceLocation DESERT_PYRAMID_DECKS = Charta.id("chests/desert_pyramid_decks");
+    public static final ResourceLocation SIMPLE_DUNGEON_DECKS = Charta.id("chests/simple_dungeon_decks");
 
     @SuppressWarnings("unused")
-    public ModChestLootProvider(HolderLookup.Provider provider) {
+    public ModChestLootProvider() {
 
     }
 
     @Override
-    public void generate(@NotNull BiConsumer<ResourceKey<LootTable>, LootTable.Builder> consumer) {
+    public void generate(@NotNull BiConsumer<ResourceLocation, LootTable.Builder> consumer) {
         LootPool.Builder mineshaftPool = LootPool.lootPool()
             .setRolls(ConstantValue.exactly(1))
             .add(deck(CardDecks.FUN_INVERTED, 0.75))
@@ -86,7 +80,7 @@ public class ModChestLootProvider implements LootTableSubProvider {
     private static LootPoolSingletonContainer.Builder<?> deck(CardDeck deck, double chanceMultiplier) {
         ResourceLocation id = CardDecks.DECKS.entrySet().stream().filter(e -> e.getValue().equals(deck)).map(Map.Entry::getKey).findFirst().orElse(Charta.id("missing"));
         return LootItem.lootTableItem(ModItems.DECK.get())
-                .apply(SetComponentsFunction.setComponent(ModDataComponentTypes.CARD_DECK.get(), id))
+                .apply(SetNbtFunction.setTag(CardDeckItem.getDeck(id).getOrCreateTag()))
                 .setWeight(Mth.ceil((3 - deck.getRarity().ordinal()) * 20 * chanceMultiplier));
     }
 

@@ -233,7 +233,7 @@ public class MarkdownScreen extends Screen {
 
 
         public MarkdownWidget(Minecraft minecraft, int width, int height, int y) {
-            super(minecraft, width, height, y, 10);
+            super(minecraft, width, height, y, y+10, 10);
         }
 
         @Override

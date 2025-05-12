@@ -2,34 +2,42 @@ package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.CardDeck;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.handling.IPayloadContext;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.LinkedHashMap;
 
-public record CardDecksPayload(LinkedHashMap<ResourceLocation, CardDeck> cardDecks) implements CustomPacketPayload {
+public class CardDecksPayload implements CustomPacketPayload {
 
-    public static final Type<CardDecksPayload> TYPE = new Type<>(Charta.id("card_decks"));
+    private final LinkedHashMap<ResourceLocation, CardDeck> cardDecks;
 
-    public static final StreamCodec<ByteBuf, CardDecksPayload> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.map(LinkedHashMap::new, ResourceLocation.STREAM_CODEC, CardDeck.STREAM_CODEC),
-        CardDecksPayload::cardDecks,
-        CardDecksPayload::new
-    );
+    public CardDecksPayload(LinkedHashMap<ResourceLocation, CardDeck> cardDecks) {
+        this.cardDecks = cardDecks;
+    }
 
-    public static void handleClient(CardDecksPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Charta.CARD_DECKS.setDecks(payload.cardDecks);
-        });
+    public CardDecksPayload(FriendlyByteBuf buf) {
+        this.cardDecks = new LinkedHashMap<>();
+        int size = buf.readInt();
+        for (int i = 0; i < size; i++) {
+            this.cardDecks.put(buf.readResourceLocation(), CardDeck.fromBuf(buf));
+        }
     }
 
     @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeInt(cardDecks.size());
+        cardDecks.forEach((key, value) -> {
+            buf.writeResourceLocation(key);
+            value.toBuf(buf);
+        });
     }
+
+    public static void handleClient(CardDecksPayload payload, NetworkEvent.Context context) {
+        context.enqueueWork(() -> {
+            Charta.CARD_DECKS.setDecks(payload.cardDecks);
+        });
+        context.setPacketHandled(true);
+    }
+
 }

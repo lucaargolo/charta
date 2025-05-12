@@ -4,6 +4,7 @@ import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.Tooltip;
@@ -32,7 +33,7 @@ public class HistoryScreen extends Screen {
     protected void init() {
         widget = this.addRenderableWidget(new HistoryWidget(minecraft, width, height-60, 30));
         ChartaClient.LOCAL_HISTORY.forEach(triple -> widget.addEntry(new Play(triple)));
-        widget.setClampedScrollAmount(Double.MAX_VALUE);
+        widget.setScrollAmount(Double.MAX_VALUE);
         Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(back, b -> this.onClose()).bounds(5, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.go_back"))).build());
     }
@@ -77,7 +78,7 @@ public class HistoryScreen extends Screen {
                 guiGraphics.drawString(font, player, left-12, top, 0xFFFFFFFF);
                 guiGraphics.drawString(font, Component.literal(Integer.toString(cards)).append(" ").append(cards > 1 ? Component.translatable("charta.cards") : Component.translatable("charta.card")), left-12 + width - 101, top, 0xFFFFFFFF);
             }
-            guiGraphics.drawScrollingString(font, play, left-12 + 108, left-12+width-108, top, 0xFFFFFFFF);
+            AbstractWidget.renderScrollingString(guiGraphics, font, play, left-12 + 108, 0, left-12+width-108, top, 0xFFFFFFFF);
 
         }
 
@@ -95,7 +96,7 @@ public class HistoryScreen extends Screen {
     public class HistoryWidget extends ContainerObjectSelectionList<Play> {
 
         public HistoryWidget(Minecraft minecraft, int width, int height, int y) {
-            super(minecraft, width, height, y, 15);
+            super(minecraft, width, height, y, y+15, 15);
         }
 
         @Override

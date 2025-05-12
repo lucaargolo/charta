@@ -2,7 +2,6 @@ package dev.lucaargolo.charta.utils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.NotNull;
@@ -21,8 +20,7 @@ public class MultiLineTooltip extends Tooltip {
 
     @Override
     public @NotNull List<FormattedCharSequence> toCharSequence(@NotNull Minecraft minecraft) {
-        Language language = Language.getInstance();
-        if (this.cachedTooltip == null || language != this.splitWithLanguage) {
+        if (this.cachedTooltip == null) {
             List<FormattedCharSequence> lines = new ArrayList<>();
             for(Component component : this.components) {
                 List<FormattedCharSequence> split = splitTooltip(minecraft, component);
@@ -31,9 +29,7 @@ public class MultiLineTooltip extends Tooltip {
                     lines.add(Component.empty().getVisualOrderText());
                 }
             }
-
             this.cachedTooltip = lines;
-            this.splitWithLanguage = language;
         }
 
         return this.cachedTooltip;

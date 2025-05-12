@@ -1,25 +1,25 @@
 package dev.lucaargolo.charta.block;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.MapCodec;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.item.CardDeckItem;
-import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.network.TableScreenPayload;
+import dev.lucaargolo.charta.utils.BlockBox;
 import dev.lucaargolo.charta.utils.DyeColorHelper;
+import dev.lucaargolo.charta.utils.PacketUtils;
 import dev.lucaargolo.charta.utils.VoxelShapeUtils;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -44,7 +44,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -54,8 +53,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class CardTableBlock extends BaseEntityBlock {
-
-    public static final MapCodec<CardTableBlock> CODEC = simpleCodec(CardTableBlock::new);
 
     private static final VoxelShape CENTER = Block.box(0, 10, 0, 16, 13, 16);
 
@@ -91,7 +88,7 @@ public class CardTableBlock extends BaseEntityBlock {
     public static final EnumProperty<DyeColor> COLOR = EnumProperty.create("color", DyeColor.class);
 
     static {
-        Vector2i last = VALID_DIMENSIONS.getLast();
+        Vector2i last = VALID_DIMENSIONS.get(VALID_DIMENSIONS.size() - 1);
         MAX_SIZE = last.x * last.y;
 
         for (int i = 0; i < 32; i++) {
@@ -165,7 +162,7 @@ public class CardTableBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
+    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
         if(player instanceof ServerPlayer serverPlayer) {
             if(serverPlayer.isShiftKeyDown()) {
                 if (state.getValue(CLOTH)) {
@@ -221,7 +218,7 @@ public class CardTableBlock extends BaseEntityBlock {
                                 cardTable.centerOffset = offset;
                                 level.sendBlockUpdated(center, state, state, 3);
                             }
-                            if (stack.getItem() instanceof CardDeckItem && stack.has(ModDataComponentTypes.CARD_DECK)) {
+                            if (stack.getItem() instanceof CardDeckItem && CardDeckItem.hasDeck(stack)) {
                                 if(!cardTable.getDeckStack().isEmpty()) {
                                     Vec3 c = center.getCenter();
                                     Containers.dropItemStack(level, c.x, c.y, c.z, cardTable.getDeckStack());
@@ -238,7 +235,7 @@ public class CardTableBlock extends BaseEntityBlock {
                                     if (satPlayers.contains(player)){
                                         CardGame<?> game = cardTable.getGame();
                                         if (game == null || game.isGameOver()) {
-                                            PacketDistributor.sendToPlayer(serverPlayer, new TableScreenPayload(center, deck, satPlayers.stream().mapToInt(LivingEntity::getId).toArray()));
+                                            PacketUtils.sendToPlayer(serverPlayer, new TableScreenPayload(center, deck, satPlayers.stream().mapToInt(LivingEntity::getId).toArray()));
                                         }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
                                             game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
                                         }else{
@@ -262,7 +259,7 @@ public class CardTableBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+    public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
         if(!state.is(newState.getBlock())) {
             if(state.getValue(CLOTH)) {
                 Vec3 c = pos.getCenter();
@@ -281,20 +278,20 @@ public class CardTableBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
+    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
         boolean valid = isValidMultiblock(level, pos);
         state = switch (direction) {
-            case Direction.NORTH -> state.setValue(VALID, valid).setValue(NORTH, neighborState.is(this));
-            case Direction.EAST -> state.setValue(VALID, valid).setValue(EAST, neighborState.is(this));
-            case Direction.SOUTH -> state.setValue(VALID, valid).setValue(SOUTH, neighborState.is(this));
-            case Direction.WEST -> state.setValue(VALID, valid).setValue(WEST, neighborState.is(this));
+            case NORTH -> state.setValue(VALID, valid).setValue(NORTH, neighborState.is(this));
+            case EAST -> state.setValue(VALID, valid).setValue(EAST, neighborState.is(this));
+            case SOUTH -> state.setValue(VALID, valid).setValue(SOUTH, neighborState.is(this));
+            case WEST -> state.setValue(VALID, valid).setValue(WEST, neighborState.is(this));
             default -> super.updateShape(state, direction, neighborState, level, pos, neighborPos).setValue(VALID, valid);
         };
         return neighborState.is(this) ? state.setValue(CLOTH, neighborState.getValue(CLOTH)) : valid ? state : state.setValue(CLOTH, false);
     }
 
     @Override
-    protected @NotNull BlockState rotate(BlockState state, @NotNull Rotation rot) {
+    public @NotNull BlockState rotate(BlockState state, @NotNull Rotation rot) {
         boolean north = state.getValue(NORTH);
         boolean east = state.getValue(EAST);
         boolean south = state.getValue(SOUTH);
@@ -339,7 +336,7 @@ public class CardTableBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
+    public @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
         if(mirror == Mirror.FRONT_BACK) {
             boolean east = state.getValue(EAST);
             boolean west = state.getValue(WEST);
@@ -363,7 +360,7 @@ public class CardTableBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         Combination combination = new Combination(
             state.getValue(VALID),
             state.getValue(NORTH),
@@ -375,12 +372,7 @@ public class CardTableBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull MapCodec<CardTableBlock> codec() {
-        return CODEC;
-    }
-
-    @Override
-    protected @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.MODEL;
     }
 

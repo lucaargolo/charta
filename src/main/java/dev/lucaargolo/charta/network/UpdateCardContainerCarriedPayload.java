@@ -1,46 +1,54 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.handling.IPayloadContext;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public record UpdateCardContainerCarriedPayload(int containerId, int stateId, List<Card> cards) implements CustomPacketPayload {
+public class UpdateCardContainerCarriedPayload implements CustomPacketPayload {
 
-    public static final Type<UpdateCardContainerCarriedPayload> TYPE = new Type<>(Charta.id("update_card_container_carried"));
+    private final int containerId;
+    private final int stateId;
+    private final List<Card> cards;
 
-    public static final StreamCodec<ByteBuf, UpdateCardContainerCarriedPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT,
-            UpdateCardContainerCarriedPayload::containerId,
-            ByteBufCodecs.INT,
-            UpdateCardContainerCarriedPayload::stateId,
-            ByteBufCodecs.collection(i -> new LinkedList<>(), Card.STREAM_CODEC),
-            UpdateCardContainerCarriedPayload::cards,
-            UpdateCardContainerCarriedPayload::new
-    );
+    public UpdateCardContainerCarriedPayload(int containerId, int stateId, List<Card> cards) {
+        this.containerId = containerId;
+        this.stateId = stateId;
+        this.cards = cards;
+    }
 
-    public static void handleClient(UpdateCardContainerCarriedPayload payload, IPayloadContext context) {
+    public UpdateCardContainerCarriedPayload(FriendlyByteBuf buf) {
+        this.containerId = buf.readInt();
+        this.stateId = buf.readInt();
+        this.cards = new LinkedList<>();
+        int size = buf.readInt();
+        for (int i = 0; i < size; i++) {
+            this.cards.add(Card.fromBuf(buf));
+        }
+    }
+
+    @Override
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeInt(containerId);
+        buf.writeInt(stateId);
+        buf.writeInt(cards.size());
+        for (Card card : cards) {
+            card.toBuf(buf);
+        }
+    }
+
+    public static void handleClient(UpdateCardContainerCarriedPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> {
-            Player player = context.player();
+            Player player = context.getSender();
             if(player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
                 cardMenu.setCarriedCards(payload.stateId, new GameSlot(payload.cards));
             }
         });
-    }
-
-    @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
-        return TYPE;
     }
 
 }

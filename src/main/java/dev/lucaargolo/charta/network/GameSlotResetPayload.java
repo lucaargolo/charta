@@ -1,35 +1,33 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.handling.IPayloadContext;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.NetworkEvent;
 
-public record GameSlotResetPayload(BlockPos pos) implements CustomPacketPayload  {
+public class GameSlotResetPayload implements CustomPacketPayload  {
 
-    public static final Type<GameSlotResetPayload> TYPE = new Type<>(Charta.id("game_slot_reset"));
+    private final BlockPos pos;
 
-    public static StreamCodec<ByteBuf, GameSlotResetPayload> STREAM_CODEC = StreamCodec.composite(
-        BlockPos.STREAM_CODEC,
-        GameSlotResetPayload::pos,
-        GameSlotResetPayload::new
-    );
-
-    @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    public GameSlotResetPayload(BlockPos pos) {
+        this.pos = pos;
     }
 
-    public static void handleClient(GameSlotResetPayload payload, IPayloadContext context) {
+    public GameSlotResetPayload(FriendlyByteBuf buf) {
+        this.pos = buf.readBlockPos();
+    }
+
+    @Override
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeBlockPos(pos);
+    }
+
+    public static void handleClient(GameSlotResetPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> resetGameSlots(payload));
     }
 

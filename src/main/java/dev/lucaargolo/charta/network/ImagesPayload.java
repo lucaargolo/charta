@@ -3,44 +3,71 @@ package dev.lucaargolo.charta.network;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.utils.CardImage;
-import dev.lucaargolo.charta.utils.CardImageUtils;
 import dev.lucaargolo.charta.utils.SuitImage;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.handling.IPayloadContext;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.HashMap;
 
-public record ImagesPayload(HashMap<ResourceLocation, SuitImage> suitImages, HashMap<ResourceLocation, CardImage> cardImages, HashMap<ResourceLocation, CardImage> deckImages) implements CustomPacketPayload {
+public class ImagesPayload implements CustomPacketPayload {
 
-    public static final CustomPacketPayload.Type<ImagesPayload> TYPE = new CustomPacketPayload.Type<>(Charta.id("card_images"));
+    private final HashMap<ResourceLocation, SuitImage> suitImages;
+    private final HashMap<ResourceLocation, CardImage> cardImages;
+    private final HashMap<ResourceLocation, CardImage> deckImages;
 
-    public static final StreamCodec<ByteBuf, ImagesPayload> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, CardImageUtils.SUIT_STREAM_CODEC),
-        ImagesPayload::suitImages,
-        ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, CardImageUtils.CARD_STREAM_CODEC),
-        ImagesPayload::cardImages,
-        ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, CardImageUtils.CARD_STREAM_CODEC),
-        ImagesPayload::deckImages,
-        ImagesPayload::new
-    );
+    public ImagesPayload(HashMap<ResourceLocation, SuitImage> suitImages, HashMap<ResourceLocation, CardImage> cardImages, HashMap<ResourceLocation, CardImage> deckImages) {
+        this.suitImages = suitImages;
+        this.cardImages = cardImages;
+        this.deckImages = deckImages;
+    }
 
-    public static void handleClient(ImagesPayload payload, IPayloadContext context) {
+    public ImagesPayload(FriendlyByteBuf buf) {
+        int size = buf.readInt();
+        this.suitImages = new HashMap<>();
+        for (int i = 0; i < size; i++) {
+            this.suitImages.put(buf.readResourceLocation(), SuitImage.decompress(buf.readByteArray()));
+        }
+        size = buf.readInt();
+        this.cardImages = new HashMap<>();
+        for (int i = 0; i < size; i++) {
+            this.cardImages.put(buf.readResourceLocation(), CardImage.decompress(buf.readByteArray()));
+        }
+        size = buf.readInt();
+        this.deckImages = new HashMap<>();
+        for (int i = 0; i < size; i++) {
+            this.deckImages.put(buf.readResourceLocation(), CardImage.decompress(buf.readByteArray()));
+        }
+    }
+
+    @Override
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeInt(suitImages.size());
+        suitImages.forEach((key, value) -> {
+            buf.writeResourceLocation(key);
+            buf.writeByteArray(value.compress());
+        });
+        buf.writeInt(cardImages.size());
+        cardImages.forEach((key, value) -> {
+            buf.writeResourceLocation(key);
+            buf.writeByteArray(value.compress());
+        });
+        buf.writeInt(deckImages.size());
+        deckImages.forEach((key, value) -> {
+            buf.writeResourceLocation(key);
+            buf.writeByteArray(value.compress());
+        });
+    }
+
+    public static void handleClient(ImagesPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> {
             ChartaClient.clearImages();
-            Charta.CARD_SUITS.setImages(payload.suitImages());
-            Charta.CARD_IMAGES.setImages(payload.cardImages());
-            Charta.DECK_IMAGES.setImages(payload.deckImages());
+            Charta.CARD_SUITS.setImages(payload.suitImages);
+            Charta.CARD_IMAGES.setImages(payload.cardImages);
+            Charta.DECK_IMAGES.setImages(payload.deckImages);
             ChartaClient.generateImages();
         });
     }
 
-    @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+
 }

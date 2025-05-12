@@ -8,8 +8,12 @@ import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.Suit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
 import org.joml.Matrix4f;
+
+import java.util.Deque;
 
 public class ChartaGuiGraphics {
 
@@ -112,13 +116,31 @@ public class ChartaGuiGraphics {
     public static void innerBlit(GuiGraphics parent, float x1, float x2, float y1, float y2, float minU, float maxU, float minV, float maxV) {
         RenderSystem.enableBlend();
         Matrix4f matrix4f = parent.pose().last().pose();
-        BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.addVertex(matrix4f, x1, y1, 0).setUv(minU, minV).setColor(1f, 1f, 1f, 1f);
-        bufferbuilder.addVertex(matrix4f, x1, y2, 0).setUv(minU, maxV).setColor(1f, 1f, 1f, 1f);
-        bufferbuilder.addVertex(matrix4f, x2, y2, 0).setUv(maxU, maxV).setColor(1f, 1f, 1f, 1f);
-        bufferbuilder.addVertex(matrix4f, x2, y1, 0).setUv(maxU, minV).setColor(1f, 1f, 1f, 1f);
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferbuilder.vertex(matrix4f, x1, y1, 0).uv(minU, minV).color(1f, 1f, 1f, 1f);
+        bufferbuilder.vertex(matrix4f, x1, y2, 0).uv(minU, maxV).color(1f, 1f, 1f, 1f);
+        bufferbuilder.vertex(matrix4f, x2, y2, 0).uv(maxU, maxV).color(1f, 1f, 1f, 1f);
+        bufferbuilder.vertex(matrix4f, x2, y1, 0).uv(maxU, minV).color(1f, 1f, 1f, 1f);
+        BufferUploader.drawWithShader(bufferbuilder.end());
         RenderSystem.disableBlend();
     }
 
+    public static boolean containsPointInScissor(GuiGraphics graphics, int x, int y) {
+        Deque<ScreenRectangle> stack = graphics.scissorStack.stack;
+        if(stack.isEmpty()) {
+            return true;
+        }else{
+            ScreenRectangle rect = stack.peek();
+            return x >= rect.left() && x < rect.right() && y >= rect.top() && y < rect.bottom();
+        }
+    }
+
+    public static int getDyeColor(DyeColor color) {
+        float[] rgb = color.getTextureDiffuseColors();
+        int r = (int) (rgb[0] * 255);
+        int g = (int) (rgb[1] * 255);
+        int b = (int) (rgb[2] * 255);
+        return (r << 16) | (g << 8) | b;
+    }
 }

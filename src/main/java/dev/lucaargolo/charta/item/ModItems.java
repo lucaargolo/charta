@@ -11,8 +11,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.LeadItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredHolder;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ModItems {
 
@@ -38,8 +38,8 @@ public class ModItems {
         });
     }
 
-    public static final DeferredHolder<Item, CardDeckItem> DECK = ITEMS.register("deck", () -> new CardDeckItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredHolder<Item, LeadItem> IRON_LEAD = ITEMS.register("iron_lead", () -> new LeadItem(new Item.Properties()));
+    public static final RegistryObject<CardDeckItem> DECK = ITEMS.register("deck", () -> new CardDeckItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<LeadItem> IRON_LEAD = ITEMS.register("iron_lead", () -> new LeadItem(new Item.Properties()));
 
     public static void register(IEventBus bus) {
         ITEMS.register(bus);

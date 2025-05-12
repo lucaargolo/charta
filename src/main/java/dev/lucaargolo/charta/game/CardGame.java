@@ -2,6 +2,7 @@ package dev.lucaargolo.charta.game;
 
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.CardPlayPayload;
+import dev.lucaargolo.charta.utils.PacketUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -12,7 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -217,7 +218,7 @@ public abstract class CardGame<G extends CardGame<G>> {
     }
 
     public void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, CardDeck deck) {
-        serverPlayer.openMenu(new MenuProvider() {
+        NetworkHooks.openScreen(serverPlayer, new MenuProvider() {
             @Override
             public @NotNull Component getDisplayName() {
                 return Component.empty();
@@ -229,7 +230,7 @@ public abstract class CardGame<G extends CardGame<G>> {
             }
         }, buf -> {
             buf.writeBlockPos(pos);
-            CardDeck.STREAM_CODEC.encode(buf, deck);
+            deck.toBuf(buf);
             buf.writeVarIntArray(getPlayers().stream().mapToInt(CardPlayer::getId).toArray());
             buf.writeByteArray(this.getRawOptions());
         });
@@ -238,7 +239,7 @@ public abstract class CardGame<G extends CardGame<G>> {
     public void tick() {
         if(!this.isGameReady) {
             if(!this.scheduledActions.isEmpty()) {
-                this.scheduledActions.removeFirst().run();
+                this.scheduledActions.remove(0).run();
             } else {
                 this.isGameReady = true;
                 runGame();
@@ -273,7 +274,7 @@ public abstract class CardGame<G extends CardGame<G>> {
         for(CardPlayer p : this.getPlayers()) {
             LivingEntity entity = p.getEntity();
             if(entity instanceof ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, new CardPlayPayload(player.getName().equals(Component.empty()) ? Component.empty() : player.getColoredName(), this.getPlayerHand(player).size(), play));
+                PacketUtils.sendToPlayer(serverPlayer, new CardPlayPayload(player.getName().equals(Component.empty()) ? Component.empty() : player.getColoredName(), this.getPlayerHand(player).size(), play));
             }
         }
     }

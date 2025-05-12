@@ -35,7 +35,6 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -90,7 +89,7 @@ public class SeatEntity extends Entity {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {}
+    protected void defineSynchedData() {}
 
     @Override
     protected void readAdditionalSaveData(@NotNull CompoundTag compound) {}
@@ -99,10 +98,6 @@ public class SeatEntity extends Entity {
     protected void addAdditionalSaveData(@NotNull CompoundTag compound) {}
 
     @Override
-    public @NotNull Vec3 getPassengerRidingPosition(@NotNull Entity entity) {
-        return this.position().add(new Vec3(0.0, getPassengersRidingOffset(), 0.0));
-    }
-
     public double getPassengersRidingOffset() {
         List<Entity> passengers = this.getPassengers();
         if (passengers.isEmpty()) return 0.0;
@@ -110,7 +105,7 @@ public class SeatEntity extends Entity {
         BlockState state = this.level().getBlockState(this.blockPosition());
         if (state.getBlock() instanceof SeatBlock seatBlock) seatHeight = seatBlock.seatHeight(state);
 
-        return seatHeight + getEntitySeatOffset(passengers.getFirst());
+        return seatHeight + getEntitySeatOffset(passengers.get(0));
     }
 
     public static double getEntitySeatOffset(Entity entity) {

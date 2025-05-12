@@ -48,9 +48,9 @@ public class CrazyEightsScreen extends GameScreen<CrazyEightsGame, CrazyEightsMe
         DyeColor color = player.getColor();
         if(menu.isGameReady()) {
             if (menu.isCurrentPlayer()) {
-                text = Component.translatable("message.charta.your_turn").withStyle(s -> s.withColor(color.getTextureDiffuseColor()));
+                text = Component.translatable("message.charta.your_turn").withStyle(s -> s.withColor(ChartaGuiGraphics.getDyeColor(color)));
             } else {
-                text = Component.translatable("message.charta.other_turn", player.getName()).withStyle(s -> s.withColor(color.getTextureDiffuseColor()));
+                text = Component.translatable("message.charta.other_turn", player.getName()).withStyle(s -> s.withColor(ChartaGuiGraphics.getDyeColor(color)));
             }
             guiGraphics.drawString(font, text, imageWidth / 2 - font.width(text) / 2, 105, 0xFFFFFFFF);
             text = Component.translatable("message.charta.draws_left", menu.getDrawsLeft());

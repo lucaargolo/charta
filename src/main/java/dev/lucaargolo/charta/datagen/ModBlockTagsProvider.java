@@ -9,7 +9,7 @@ import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.DeferredHolder;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,12 +27,12 @@ public class ModBlockTagsProvider extends IntrinsicHolderTagsProvider<Block> {
 
     @Override
     protected void addTags(@NotNull HolderLookup.Provider provider) {
-        List<DeferredHolder<Block, ? extends Block>> mineableWithAxe = new ArrayList<>();
+        List<RegistryObject<? extends Block>> mineableWithAxe = new ArrayList<>();
         mineableWithAxe.addAll(ModBlocks.CARD_TABLE_MAP.values());
         mineableWithAxe.addAll(ModBlocks.GAME_CHAIR_MAP.values());
         mineableWithAxe.addAll(ModBlocks.BAR_STOOL_MAP.values());
         mineableWithAxe.addAll(ModBlocks.BAR_SHELF_MAP.values());
-        mineableWithAxe.sort(Comparator.comparing(DeferredHolder::getId));
-        tag(BlockTags.MINEABLE_WITH_AXE).addAll(mineableWithAxe.stream().map(DeferredHolder::getKey).toList());
+        mineableWithAxe.sort(Comparator.comparing(RegistryObject::getId));
+        tag(BlockTags.MINEABLE_WITH_AXE).add(mineableWithAxe.stream().map(RegistryObject::get).toList().toArray(new Block[0]));
     }
 }

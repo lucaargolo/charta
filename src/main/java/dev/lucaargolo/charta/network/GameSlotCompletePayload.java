@@ -1,65 +1,90 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.GameSlot;
-import dev.lucaargolo.charta.utils.ExpandedStreamCodec;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.handling.IPayloadContext;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public record GameSlotCompletePayload(BlockPos pos, int index, List<Card> cards, float x, float y, float z, float angle, Direction stackDirection, float maxStack, boolean centered) implements CustomPacketPayload  {
+public class GameSlotCompletePayload implements CustomPacketPayload  {
+
+    private final BlockPos pos;
+    private final int index;
+    private final List<Card> cards;
+    private final float x;
+    private final float y;
+    private final float z;
+    private final float angle;
+    private final Direction stackDirection;
+    private final float maxStack;
+    private final boolean centered;
+
+    public GameSlotCompletePayload(BlockPos pos, int index, List<Card> cards, float x, float y, float z, float angle, Direction stackDirection, float maxStack, boolean centered) {
+        this.pos = pos;
+        this.index = index;
+        this.cards = cards;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.angle = angle;
+        this.stackDirection = stackDirection;
+        this.maxStack = maxStack;
+        this.centered = centered;
+    }
 
     public GameSlotCompletePayload(BlockPos pos, int index, GameSlot slot) {
         this(pos, index, slot.stream().toList(), slot.getX(), slot.getY(), slot.getZ(), slot.getAngle(), slot.getStackDirection(), slot.getMaxStack(), slot.isCentered());
     }
 
-    public static final CustomPacketPayload.Type<GameSlotCompletePayload> TYPE = new CustomPacketPayload.Type<>(Charta.id("game_slot_complete"));
-
-    public static StreamCodec<ByteBuf, GameSlotCompletePayload> STREAM_CODEC = ExpandedStreamCodec.composite(
-            BlockPos.STREAM_CODEC,
-            GameSlotCompletePayload::pos,
-            ByteBufCodecs.INT,
-            GameSlotCompletePayload::index,
-            ByteBufCodecs.collection(ArrayList::new, Card.STREAM_CODEC),
-            GameSlotCompletePayload::cards,
-            ByteBufCodecs.FLOAT,
-            GameSlotCompletePayload::x,
-            ByteBufCodecs.FLOAT,
-            GameSlotCompletePayload::y,
-            ByteBufCodecs.FLOAT,
-            GameSlotCompletePayload::z,
-            ByteBufCodecs.FLOAT,
-            GameSlotCompletePayload::angle,
-            Direction.STREAM_CODEC,
-            GameSlotCompletePayload::stackDirection,
-            ByteBufCodecs.FLOAT,
-            GameSlotCompletePayload::maxStack,
-            ByteBufCodecs.BOOL,
-            GameSlotCompletePayload::centered,
-            GameSlotCompletePayload::new
-    );
-
-    @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+    public GameSlotCompletePayload(FriendlyByteBuf buf) {
+        this.pos = buf.readBlockPos();
+        this.index = buf.readInt();
+        this.cards = new ArrayList<>();
+        int size = buf.readInt();
+        for (int i = 0; i < size; i++) {
+            Card card = Card.fromBuf(buf);
+            cards.add(card);
+        }
+        this.x = buf.readFloat();
+        this.y = buf.readFloat();
+        this.z = buf.readFloat();
+        this.angle = buf.readFloat();
+        this.stackDirection = buf.readEnum(Direction.class);
+        this.maxStack = buf.readFloat();
+        this.centered = buf.readBoolean();
     }
 
-    public static void handleClient(GameSlotCompletePayload payload, IPayloadContext context) {
+    @Override
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeBlockPos(pos);
+        buf.writeInt(index);
+        buf.writeInt(cards.size());
+        for (Card card : cards) {
+            card.toBuf(buf);
+        }
+        buf.writeInt(index);
+        buf.writeInt(cards.size());
+        buf.writeFloat(x);
+        buf.writeFloat(y);
+        buf.writeFloat(z);
+        buf.writeFloat(angle);
+        buf.writeEnum(stackDirection);
+        buf.writeFloat(maxStack);
+        buf.writeBoolean(centered);
+    }
+
+
+    public static void handleClient(GameSlotCompletePayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> updateGameSlot(payload));
     }
 

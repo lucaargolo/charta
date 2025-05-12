@@ -4,11 +4,8 @@ import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
 import com.mojang.blaze3d.platform.NativeImage;
 import dev.lucaargolo.charta.Charta;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,10 +14,7 @@ import java.io.IOException;
 public class CardImageUtils {
 
     public static SuitImage EMPTY_SUIT = new SuitImage();
-    public static StreamCodec<ByteBuf, SuitImage> SUIT_STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.BYTE_ARRAY, SuitImage::compress, SuitImage::decompress);
-
     public static CardImage EMPTY_CARD = new CardImage();
-    public static StreamCodec<ByteBuf, CardImage> CARD_STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.BYTE_ARRAY, CardImage::compress, CardImage::decompress);
 
     static {
         for(int x = 0; x < SuitImage.WIDTH; x++) {

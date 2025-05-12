@@ -20,6 +20,8 @@ public class ModRenderType extends RenderType {
             DefaultVertexFormat.POSITION_COLOR_LIGHTMAP,
             VertexFormat.Mode.TRIANGLE_STRIP,
             1536,
+            false,
+            false,
             RenderType.CompositeState.builder()
                     .setShaderState(IRON_LEASH_SHADER)
                     .setTextureState(NO_TEXTURE)

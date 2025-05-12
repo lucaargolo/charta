@@ -13,10 +13,11 @@ import dev.lucaargolo.charta.network.GameSlotPositionPayload;
 import dev.lucaargolo.charta.network.GameSlotResetPayload;
 import dev.lucaargolo.charta.network.GameStartPayload;
 import dev.lucaargolo.charta.utils.CardImage;
+import dev.lucaargolo.charta.utils.PacketUtils;
+import dev.lucaargolo.charta.utils.ReversedListView;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -37,7 +38,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -104,11 +104,11 @@ public class CardTableBlockEntity extends BlockEntity {
                     if(CardGame.canPlayGame(game, this.getDeck())) {
                         if (players.size() >= game.getMinPlayers()) {
                             if (players.size() <= game.getMaxPlayers()) {
-                                PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), new GameSlotResetPayload(worldPosition));
+                                PacketUtils.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), new GameSlotResetPayload(worldPosition));
                                 for(CardPlayer player : players) {
                                     LivingEntity entity = player.getEntity();
                                     if (entity instanceof ServerPlayer serverPlayer) {
-                                        PacketDistributor.sendToPlayer(serverPlayer, new GameStartPayload());
+                                        PacketUtils.sendToPlayer(serverPlayer, new GameStartPayload());
                                     }
                                 }
                                 this.resetSlots();
@@ -188,10 +188,10 @@ public class CardTableBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
         if(!deckStack.isEmpty()) {
-            tag.put("deckStack", deckStack.save(registries));
+            tag.put("deckStack", deckStack.save(new CompoundTag()));
         }else{
             tag.put("deckStack", new CompoundTag());
         }
@@ -200,12 +200,12 @@ public class CardTableBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(@NotNull CompoundTag tag) {
+        super.load(tag);
         if(tag.contains("deckStack")) {
             Tag deckTag = tag.get("deckStack");
             if(deckTag instanceof CompoundTag compoundTag && !compoundTag.getAllKeys().isEmpty()) {
-                ItemStack.parse(registries, deckTag).ifPresentOrElse(this::setDeckStack, () -> setDeckStack(ItemStack.EMPTY));
+                setDeckStack(ItemStack.of(compoundTag));
             }else {
                 setDeckStack(ItemStack.EMPTY);
             }
@@ -215,15 +215,15 @@ public class CardTableBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void handleUpdateTag(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider lookupProvider) {
+    public void handleUpdateTag(@NotNull CompoundTag tag) {
         this.resetSlots();
-        super.handleUpdateTag(tag, lookupProvider);
+        super.handleUpdateTag(tag);
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        CompoundTag tag = super.getUpdateTag();
+        saveAdditional(tag);
         return tag;
     }
 
@@ -287,8 +287,8 @@ public class CardTableBlockEntity extends BlockEntity {
                         if(SeatBlock.isSeatOccupied(this.level, pos)) {
                             List<SeatEntity> seats = level.getEntitiesOfClass(SeatEntity.class, new AABB(pos));
                             if(!seats.isEmpty()) {
-                                List<Entity> passengers = seats.getFirst().getPassengers();
-                                if(!passengers.isEmpty() && passengers.getFirst() instanceof LivingEntity entity) {
+                                List<Entity> passengers = seats.get(0).getPassengers();
+                                if(!passengers.isEmpty() && passengers.get(0) instanceof LivingEntity entity) {
                                     players.add(entity);
                                 }
                             }
@@ -314,7 +314,7 @@ public class CardTableBlockEntity extends BlockEntity {
         });
 
         Collections.shuffle(entries);
-        Pair<Vector2i, CardPlayer> firstEntry = entries.getFirst();
+        Pair<Vector2i, CardPlayer> firstEntry = entries.get(0);
         Vector2i firstPos = firstEntry.getFirst();
         int firstQuadrant = getQuadrant(firstPos);
         List<Integer> order = new ArrayList<>();
@@ -346,7 +346,7 @@ public class CardTableBlockEntity extends BlockEntity {
             }
         });
 
-        return entries.stream().map(Pair::getSecond).toList().reversed();
+        return ReversedListView.reversed(entries.stream().map(Pair::getSecond).toList());
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, CardTableBlockEntity blockEntity) {
@@ -354,7 +354,7 @@ public class CardTableBlockEntity extends BlockEntity {
         while (updateIterator.hasNext()) {
             int index = updateIterator.next();
             GameSlot slot = blockEntity.trackedSlots.get(index);
-            PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotCompletePayload(pos, index, slot));
+            PacketUtils.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotCompletePayload(pos, index, slot));
             blockEntity.dirtySlotPositions.remove(index);
             updateIterator.remove();
         }
@@ -362,7 +362,7 @@ public class CardTableBlockEntity extends BlockEntity {
         while (updateIterator.hasNext()) {
             int index = updateIterator.next();
             GameSlot slot = blockEntity.trackedSlots.get(index);
-            PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotPositionPayload(pos, index, slot.getX(), slot.getY(), slot.getZ(), slot.getAngle()));
+            PacketUtils.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotPositionPayload(pos, index, slot.getX(), slot.getY(), slot.getZ(), slot.getAngle()));
             updateIterator.remove();
         }
         if(!state.getValue(CardTableBlock.CLOTH) && !blockEntity.getDeckStack().isEmpty()) {
@@ -383,7 +383,7 @@ public class CardTableBlockEntity extends BlockEntity {
                 }
                 game.tick();
             }else{
-                PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotResetPayload(pos));
+                PacketUtils.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotResetPayload(pos));
                 blockEntity.resetSlots();
                 blockEntity.game = null;
             }

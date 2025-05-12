@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.block;
 import dev.lucaargolo.charta.utils.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -11,10 +12,10 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractGlassBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -29,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
-public class BeerGlassBlock extends TransparentBlock {
+public class BeerGlassBlock extends AbstractGlassBlock {
 
     private static final VoxelShape EAST_SHAPE = Stream.of(
             Block.box(5, 0, 5, 11, 9, 11),
@@ -45,7 +46,7 @@ public class BeerGlassBlock extends TransparentBlock {
 
     public static final FoodProperties FOOD = new FoodProperties.Builder()
             .nutrition(1)
-            .saturationModifier(0.1F)
+            .saturationMod(0.1F)
             .effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 1200, 1), 1.0F)
             .effect(() -> new MobEffectInstance(MobEffects.HUNGER, 300, 2), 1.0F)
             .effect(() -> new MobEffectInstance(MobEffects.CONFUSION, 300, 0), 1.0F)
@@ -64,10 +65,10 @@ public class BeerGlassBlock extends TransparentBlock {
     }
 
     @Override
-    protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
-        if(!state.is(ModBlocks.EMPTY_BEER_GLASS)) {
+    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand,  @NotNull BlockHitResult hitResult) {
+        if(!state.is(ModBlocks.EMPTY_BEER_GLASS.get())) {
             if(!level.isClientSide()) {
-                player.eat(level, this.asItem().getDefaultInstance(), FOOD);
+                player.eat(level, this.asItem().getDefaultInstance());
                 level.setBlockAndUpdate(pos, ModBlocks.EMPTY_BEER_GLASS.get().defaultBlockState().setValue(FACING, state.getValue(FACING)));
             }
             return InteractionResult.SUCCESS;
@@ -76,13 +77,13 @@ public class BeerGlassBlock extends TransparentBlock {
     }
 
     @Override
-    protected @NotNull BlockState rotate(BlockState state, Rotation rot) {
+    public @NotNull BlockState rotate(BlockState state, Rotation rot) {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    protected @NotNull BlockState mirror(BlockState state, Mirror mirror) {
+    public @NotNull BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
@@ -93,7 +94,7 @@ public class BeerGlassBlock extends TransparentBlock {
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case SOUTH -> SOUTH_SHAPE;
             case EAST -> EAST_SHAPE;

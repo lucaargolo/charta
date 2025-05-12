@@ -1,39 +1,45 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.client.gui.screens.HistoryScreen;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.NetworkEvent;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.jetbrains.annotations.NotNull;
 
-public record CardPlayPayload(Component playerName, int playerCards, Component play) implements CustomPacketPayload {
+public class CardPlayPayload implements CustomPacketPayload {
 
-    public static final CustomPacketPayload.Type<CardPlayPayload> TYPE = new CustomPacketPayload.Type<>(Charta.id("card_play"));
+    private final Component playerName;
+    private final int playerCards;
+    private final Component play;
 
-    public static StreamCodec<ByteBuf, CardPlayPayload> STREAM_CODEC = StreamCodec.composite(
-        ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC,
-        CardPlayPayload::playerName,
-        ByteBufCodecs.INT,
-        CardPlayPayload::playerCards,
-        ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC,
-        CardPlayPayload::play,
-        CardPlayPayload::new
-    );
+    public CardPlayPayload(Component playerName, int playerCards, Component play) {
+        this.playerName = playerName;
+        this.playerCards = playerCards;
+        this.play = play;
+    }
 
-    public static void handleClient(CardPlayPayload payload, IPayloadContext context) {
+    public CardPlayPayload(FriendlyByteBuf buf) {
+        this.playerName = buf.readComponent();
+        this.playerCards = buf.readInt();
+        this.play = buf.readComponent();
+    }
+
+    @Override
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeComponent(playerName);
+        buf.writeInt(playerCards);
+        buf.writeComponent(play);
+    }
+
+    public static void handleClient(CardPlayPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> {
             addToHistory(payload.playerName, payload.playerCards, payload.play);
         });
+        context.setPacketHandled(true);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -45,9 +51,5 @@ public record CardPlayPayload(Component playerName, int playerCards, Component p
         }
     }
 
-    @Override
-    public @NotNull CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
 
 }

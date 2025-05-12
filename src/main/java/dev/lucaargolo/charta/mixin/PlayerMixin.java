@@ -7,6 +7,7 @@ import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.entity.SeatEntity;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.network.GameLeavePayload;
+import dev.lucaargolo.charta.utils.PacketUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,7 +47,7 @@ public abstract class PlayerMixin extends LivingEntity {
                         CardGame<?> currentGame = blockEntity.getGame();
                         if(currentGame != null && !currentGame.isGameOver()) {
                             if((Object) this instanceof ServerPlayer serverPlayer) {
-                                PacketDistributor.sendToPlayer(serverPlayer, new GameLeavePayload());
+                                PacketUtils.sendToPlayer(serverPlayer, new GameLeavePayload());
                             }
                             cir.setReturnValue(false);
                         }

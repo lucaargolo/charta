@@ -6,7 +6,6 @@ import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -120,12 +119,13 @@ public abstract class GameOption<T> {
 
         @OnlyIn(Dist.CLIENT)
         public Widget getWidget(Consumer<Boolean> consumer, Font font, int width, int height, boolean showcase) {
-            Checkbox.Builder builder = Checkbox.builder(this.getTitle(), font);
-            builder.tooltip(Tooltip.create(this.getDescription()));
-            builder.maxWidth(width);
-            builder.selected(this.get());
-            builder.onValueChange((checkbox, value) -> this.set(value));
-            Checkbox checkbox = builder.build();
+            Checkbox checkbox = new Checkbox(0, 0, width, height, this.getTitle(), this.get()) {
+                @Override
+                public void onPress() {
+                    set(selected());
+                }
+            };
+            checkbox.setTooltip(Tooltip.create(this.getDescription()));
             this.consumer = b -> {
                 if(b != checkbox.selected()) checkbox.onPress();
                 consumer.accept(this.get());
@@ -161,12 +161,9 @@ public abstract class GameOption<T> {
         public Widget getWidget(Consumer<Integer> consumer, Font font, int width, int height, boolean showcase) {
             Function<Integer, Component> message = (i) -> this.getTitle().copy().append(": ").append(Integer.toString(i));
             AbstractSliderButton slider = new AbstractSliderButton(0, 0, width, height, message.apply(this.get()), this.get() * (1.0/(max - min))) {
-                private static final ResourceLocation SLIDER_HANDLE_SPRITE = ResourceLocation.withDefaultNamespace("widget/slider_handle");
+                //TODO: This
+                //private static final ResourceLocation SLIDER_HANDLE_SPRITE = new ResourceLocation("widget/slider_handle");
 
-                @Override
-                protected @NotNull ResourceLocation getHandleSprite() {
-                    return showcase ? SLIDER_HANDLE_SPRITE : super.getHandleSprite();
-                }
 
                 @Override
                 protected void updateMessage() {

@@ -32,7 +32,7 @@ public abstract class CardScreen extends Screen implements HoverableRenderable {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderBackground(guiGraphics);
         for (Renderable renderable : this.renderables) {
             if(renderable != this.hoverable) {
                 /*

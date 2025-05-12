@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": {
+      "tag": "forge:nuggets/iron"
+    },
+    "L": {
+      "item": "minecraft:lead"
+    }
+  },
+  "pattern": [
+    " I ",
+    "ILI",
+    " I "
+  ],
+  "result": {
+    "item": "charta:iron_lead"
+  },
+  "show_notification": true
+}

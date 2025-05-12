@@ -11,6 +11,7 @@ import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
 import dev.lucaargolo.charta.network.LastFunPayload;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
+import dev.lucaargolo.charta.utils.PacketUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
@@ -21,7 +22,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -61,11 +61,11 @@ public class FunScreen extends GameScreen<FunGame, FunMenu> {
             drawAll = false;
         }else if(drawAll) {
             if(menu.getCarriedCards().isEmpty()) {
-                PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-3, -1));
+                PacketUtils.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-3, -1));
             }else{
                 drawAll = false;
             }
-            PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-1, -1));
+            PacketUtils.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-1, -1));
         }
         if (this.itemActivationTicks > 0) {
             this.itemActivationTicks--;
@@ -113,7 +113,7 @@ public class FunScreen extends GameScreen<FunGame, FunMenu> {
         int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2)/2 - 65/2;
         int y = height - ((int) CardSlot.getHeight(CardSlot.Type.HORIZONTAL))/2 - 14;
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
-            PacketDistributor.sendToServer(new LastFunPayload());
+            PacketUtils.sendToServer(new LastFunPayload());
             return true;
         }
         x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2;
@@ -153,8 +153,8 @@ public class FunScreen extends GameScreen<FunGame, FunMenu> {
             }
         }
         CardPlayer nextPlayer = game.getPlayers().get(index);
-        int color = nextPlayer.getColor().getTextureDiffuseColor();
-        text = Component.translatable("message.charta.next_player", nextPlayer.getName()).withStyle(s -> s.withColor(nextPlayer.getColor().getTextureDiffuseColor()));
+        int color = ChartaGuiGraphics.getDyeColor(nextPlayer.getColor());
+        text = Component.translatable("message.charta.next_player", nextPlayer.getName()).withStyle(s -> s.withColor(ChartaGuiGraphics.getDyeColor(nextPlayer.getColor())));
         guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 132, 0xFFFFFFFF);
         Vec3 c = Vec3.fromRGB24(color);
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
@@ -176,9 +176,9 @@ public class FunScreen extends GameScreen<FunGame, FunMenu> {
         CardPlayer player = menu.getCurrentPlayer();
         if(menu.isGameReady()) {
             if (menu.isCurrentPlayer()) {
-                text = Component.translatable("message.charta.your_turn").withStyle(s -> s.withColor(player.getColor().getTextureDiffuseColor()));
+                text = Component.translatable("message.charta.your_turn").withStyle(s -> s.withColor(ChartaGuiGraphics.getDyeColor(player.getColor())));
             } else {
-                text = Component.translatable("message.charta.other_turn", player.getName()).withStyle(s -> s.withColor(player.getColor().getTextureDiffuseColor()));
+                text = Component.translatable("message.charta.other_turn", player.getName()).withStyle(s -> s.withColor(ChartaGuiGraphics.getDyeColor(player.getColor())));
             }
             guiGraphics.drawString(font, text, imageWidth / 2 - font.width(text) / 2, 110, 0xFFFFFFFF);
         }else{

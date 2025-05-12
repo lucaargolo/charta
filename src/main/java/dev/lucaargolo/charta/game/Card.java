@@ -2,9 +2,10 @@ package dev.lucaargolo.charta.game;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import dev.lucaargolo.charta.Charta;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,13 +25,6 @@ public class Card implements Comparable<Card>, StringRepresentable {
     }
 
     public static final Codec<Card> CODEC = Codec.STRING.comapFlatMap(Card::read, Card::toString).stable();
-
-    public static final StreamCodec<ByteBuf, Card> STREAM_CODEC = StreamCodec.composite(
-            Suit.STREAM_CODEC, Card::getSuit,
-            Rank.STREAM_CODEC, Card::getRank,
-            ByteBufCodecs.BOOL, Card::isFlipped,
-            Card::new
-    );
 
     public static final Card BLANK = new Card(Suit.BLANK, Rank.BLANK, true);
 
@@ -112,6 +106,16 @@ public class Card implements Comparable<Card>, StringRepresentable {
 
     public Card copy() {
         return new Card(suit, rank, flipped);
+    }
+
+    public FriendlyByteBuf toBuf(FriendlyByteBuf buf) {
+        CompoundTag tag = (CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this).resultOrPartial(Charta.LOGGER::error).orElseThrow();
+        buf.writeNbt(tag);
+        return buf;
+    }
+
+    public static Card fromBuf(FriendlyByteBuf buf) {
+        return CODEC.parse(NbtOps.INSTANCE, buf.readNbt()).resultOrPartial(Charta.LOGGER::error).orElseThrow();
     }
 
 }

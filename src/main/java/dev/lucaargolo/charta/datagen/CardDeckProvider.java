@@ -46,7 +46,7 @@ public class CardDeckProvider implements DataProvider {
                 HashingOutputStream hashedOutStream = new HashingOutputStream(Hashing.sha1(), outStream);
                 DataResult<JsonElement> json = CardDeck.CODEC.encode(deck, JsonOps.INSTANCE, JsonOps.INSTANCE.empty());
                 try (OutputStreamWriter writer = new OutputStreamWriter(hashedOutStream, StandardCharsets.UTF_8)) {
-                    writer.write(gson.toJson(json.getOrThrow()));
+                    writer.write(gson.toJson(json.getOrThrow(false, Charta.LOGGER::error)));
                     writer.flush();
                 } catch (IOException e) {
                     Charta.LOGGER.error("Error writing stream for file: {}", fullPath, e);

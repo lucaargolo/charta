@@ -7,7 +7,7 @@ import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.utils.CardImage;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
@@ -45,8 +45,8 @@ public class SolitaireMenu extends AbstractCardMenu<SolitaireGame> {
         }
     };
 
-    public SolitaireMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buf) {
-        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), CardDeck.STREAM_CODEC.decode(buf), buf.readVarIntArray(), buf.readByteArray());
+    public SolitaireMenu(int containerId, Inventory inventory, FriendlyByteBuf buf) {
+        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), CardDeck.fromBuf(buf), buf.readVarIntArray(), buf.readByteArray());
     }
 
     public SolitaireMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {

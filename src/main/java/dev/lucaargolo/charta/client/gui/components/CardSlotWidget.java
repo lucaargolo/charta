@@ -5,6 +5,7 @@ import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.CardSlot;
+import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -124,8 +125,8 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
                 }
             }
             if(slot.highlightTime > 0) {
-                CardSlotWidget<G> first = this.renderables.getFirst();
-                CardSlotWidget<G> last = this.renderables.getLast();
+                CardSlotWidget<G> first = this.renderables.get(0);
+                CardSlotWidget<G> last = this.renderables.get(renderables.size() - 1);
                 guiGraphics.fill((int) first.getPreciseX() - 2, (int) first.getPreciseY() - 2, (int) (last.getPreciseX()+last.getPreciseWidth()) + 2, (int) (last.getPreciseY()+last.getPreciseHeight()) + 2, 0x66000000 + slot.highlightColor);
             }
         }else{
@@ -211,7 +212,8 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
                 if(CardSlotWidget.this.cardSlot.getType() == CardSlot.Type.VERTICAL && !this.isHovered() && this.index < (CardSlotWidget.this.cardSlot.getSlot().size() - 1)) {
                     actualHeight = this.topOffset;
                 }
-                this.isHovered = guiGraphics.containsPointInScissor(mouseX, mouseY)
+
+                this.isHovered = ChartaGuiGraphics.containsPointInScissor(guiGraphics, mouseX, mouseY)
                         && mouseX >= this.getX()
                         && mouseY >= this.getY()
                         && mouseX < this.getX() + actualWidth

@@ -2,7 +2,6 @@ package dev.lucaargolo.charta.blockentity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -28,19 +27,19 @@ public class BarShelfBlockEntity extends RandomizableContainerBlockEntity implem
     }
 
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(@NotNull CompoundTag tag) {
+        super.load(tag);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         if (!this.tryLoadLootTable(tag)) {
-            ContainerHelper.loadAllItems(tag, this.items, registries);
+            ContainerHelper.loadAllItems(tag, this.items);
         }
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.saveAdditional(tag, registries);
+    public void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
         if (!this.trySaveLootTable(tag)) {
-            ContainerHelper.saveAllItems(tag, this.items, registries);
+            ContainerHelper.saveAllItems(tag, this.items);
         }
     }
 
@@ -59,9 +58,9 @@ public class BarShelfBlockEntity extends RandomizableContainerBlockEntity implem
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        CompoundTag tag = super.getUpdateTag();
+        saveAdditional(tag);
         return tag;
     }
 

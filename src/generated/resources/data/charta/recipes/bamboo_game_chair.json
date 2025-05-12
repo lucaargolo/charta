@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": {
+      "item": "minecraft:bamboo"
+    },
+    "P": {
+      "item": "minecraft:bamboo_planks"
+    },
+    "S": {
+      "item": "minecraft:bamboo_slab"
+    }
+  },
+  "pattern": [
+    "P ",
+    "PS",
+    "LL"
+  ],
+  "result": {
+    "item": "charta:bamboo_game_chair"
+  },
+  "show_notification": true
+}

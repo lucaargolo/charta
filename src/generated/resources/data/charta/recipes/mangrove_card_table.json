@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": {
+      "item": "minecraft:mangrove_log"
+    },
+    "P": {
+      "item": "minecraft:mangrove_planks"
+    },
+    "S": {
+      "item": "minecraft:mangrove_slab"
+    }
+  },
+  "pattern": [
+    "PSP",
+    "L L"
+  ],
+  "result": {
+    "item": "charta:mangrove_card_table"
+  },
+  "show_notification": true
+}

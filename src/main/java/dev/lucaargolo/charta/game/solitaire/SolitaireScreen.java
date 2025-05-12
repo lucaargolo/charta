@@ -9,12 +9,12 @@ import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.network.RestoreSolitairePayload;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
+import dev.lucaargolo.charta.utils.PacketUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -129,7 +129,7 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             boolean canRestore = menu.canRestore() && menu.getCarriedCards().isEmpty();
             if(canRestore) {
-                PacketDistributor.sendToServer(new RestoreSolitairePayload());
+                PacketUtils.sendToServer(new RestoreSolitairePayload());
                 return true;
             }
         }

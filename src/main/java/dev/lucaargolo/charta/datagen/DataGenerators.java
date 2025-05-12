@@ -1,9 +1,7 @@
 package dev.lucaargolo.charta.datagen;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.block.ModBannerPatterns;
 import net.minecraft.core.RegistrySetBuilder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
@@ -29,15 +27,16 @@ public class DataGenerators {
         generator.addProvider(event.includeServer(), new CardImageProvider(output));
         generator.addProvider(event.includeServer(), new DeckImageProvider(output));
         generator.addProvider(event.includeServer(), new CardDeckProvider(output));
-        generator.addProvider(event.includeServer(), new ModLootProvider(output, builtinProvider.getRegistryProvider()));
-        generator.addProvider(event.includeServer(), new ModBannerPatternTagsProvider(output, builtinProvider.getRegistryProvider(), exFileHelper));
+        //TODO: This
+        //generator.addProvider(event.includeServer(), new ModLootProvider(output));
+        //generator.addProvider(event.includeServer(), new ModBannerPatternTagsProvider(output, builtinProvider.getRegistryProvider(), exFileHelper));
         generator.addProvider(event.includeServer(), new ModBlockTagsProvider(output, builtinProvider.getRegistryProvider(), exFileHelper));
-        generator.addProvider(event.includeServer(), new ModRecipeProvider(output, builtinProvider.getRegistryProvider()));
+        generator.addProvider(event.includeServer(), new ModRecipeProvider(output));
     }
 
     public static RegistrySetBuilder bootstrapRegistries() {
-        return new RegistrySetBuilder()
-            .add(Registries.BANNER_PATTERN, ModBannerPatterns::bootstrap);
+        return new RegistrySetBuilder();
+            //.add(Registries.BANNER_PATTERN, ModBannerPatterns::bootstrap);
     }
 
 }

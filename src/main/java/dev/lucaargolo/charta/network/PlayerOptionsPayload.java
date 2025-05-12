@@ -1,57 +1,60 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.utils.PlayerOptionData;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.handling.IPayloadContext;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.HashMap;
 
-public record PlayerOptionsPayload(HashMap<ResourceLocation, byte[]> playerOptions) implements CustomPacketPayload {
+public class PlayerOptionsPayload implements CustomPacketPayload {
 
-    public static final Type<PlayerOptionsPayload> TYPE = new Type<>(Charta.id("player_options"));
+    private final HashMap<ResourceLocation, byte[]> playerOptions;
 
-    public static StreamCodec<ByteBuf, PlayerOptionsPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, ByteBufCodecs.BYTE_ARRAY),
-            PlayerOptionsPayload::playerOptions,
-            PlayerOptionsPayload::new
-    );
+    public PlayerOptionsPayload(HashMap<ResourceLocation, byte[]> playerOptions) {
+        this.playerOptions = playerOptions;
+    }
 
-    public static void handleBoth(PlayerOptionsPayload payload, IPayloadContext context) {
-        if(context.flow() == PacketFlow.SERVERBOUND) {
+    public PlayerOptionsPayload(FriendlyByteBuf buf) {
+        this.playerOptions = new HashMap<>();
+        int size = buf.readInt();
+        for (int i = 0; i < size; i++) {
+            this.playerOptions.put(buf.readResourceLocation(), buf.readByteArray());
+        }
+    }
+
+    @Override
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeInt(playerOptions.size());
+        this.playerOptions.forEach((key, value) -> {
+            buf.writeResourceLocation(key);
+            buf.writeByteArray(value);
+        });
+    }
+
+    public static void handleBoth(PlayerOptionsPayload payload, NetworkEvent.Context context) {
+        if(context.getDirection().getReceptionSide().isServer()) {
             handleServer(payload, context);
         }else{
             handleClient(payload, context);
         }
     }
 
-    public static void handleClient(PlayerOptionsPayload payload, IPayloadContext context) {
+    public static void handleClient(PlayerOptionsPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> {
             ChartaClient.LOCAL_OPTIONS.clear();
             ChartaClient.LOCAL_OPTIONS.putAll(payload.playerOptions);
         });
     }
 
-    public static void handleServer(PlayerOptionsPayload payload, IPayloadContext context) {
+    public static void handleServer(PlayerOptionsPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> {
-            if(context.player() instanceof ServerPlayer serverPlayer) {
-                PlayerOptionData data = serverPlayer.server.overworld().getDataStorage().computeIfAbsent(PlayerOptionData.factory(), "charta_player_options");
-                data.setPlayerOptions(serverPlayer, payload.playerOptions());
-            }
+            PlayerOptionData data = context.getSender().server.overworld().getDataStorage().computeIfAbsent(PlayerOptionData::load, PlayerOptionData::new, "charta_player_options");
+            data.setPlayerOptions(context.getSender(), payload.playerOptions);
         });
     }
 
-    @Override
-    public @NotNull CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+
 
 }

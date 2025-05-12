@@ -49,7 +49,7 @@ public record CardPlayerHead(ResourceLocation texture, float u, float v, float u
         if(connection != null) {
             PlayerInfo info = connection.getPlayerInfo(player.getUUID());
             if(info != null) {
-                return new CardPlayerHead(info.getSkin().texture(), 8f, 8f, 8f, 8f, 64f, 64f);
+                return new CardPlayerHead(info.getSkinLocation(), 8f, 8f, 8f, 8f, 64f, 64f);
             }
         }
         return UNKNOWN;
@@ -59,7 +59,7 @@ public record CardPlayerHead(ResourceLocation texture, float u, float v, float u
     private static CardPlayerHead getOther(LivingEntity entity) {
         Minecraft minecraft = Minecraft.getInstance();
         ResourceLocation id = entity.getType().builtInRegistryHolder().key().location();
-        ResourceLocation location = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "textures/head/" + id.getPath() + ".png");
+        ResourceLocation location = new ResourceLocation(id.getNamespace(), "textures/head/" + id.getPath() + ".png");
         AbstractTexture texture = minecraft.getTextureManager().getTexture(location);
         try {
             texture.load(minecraft.getResourceManager());

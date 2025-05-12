@@ -46,7 +46,7 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
     @Override
     protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if(isHovered && this.getCardTranslatableKey() != null) {
-            scheduleTooltip(Component.translatable(this.getCardTranslatableKey()).withColor(this.getCardColor()));
+            scheduleTooltip(Component.translatable(this.getCardTranslatableKey()).withStyle(s -> s.withColor(this.getCardColor())));
         }
 
         float inset = Mth.lerp(partialTick, this.lastInset, this.inset);

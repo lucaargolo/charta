@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -66,7 +67,7 @@ public class GameChairBlock extends BarStoolBlock {
     }
 
     @Override
-    protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
+    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
         if(tryAndSetCloth(state, level, pos, player)) {
             return InteractionResult.SUCCESS;
         }else if (!state.getValue(CLOTH)) {
@@ -84,7 +85,7 @@ public class GameChairBlock extends BarStoolBlock {
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case SOUTH -> SOUTH_SHAPE;
             case EAST -> EAST_SHAPE;
@@ -94,7 +95,7 @@ public class GameChairBlock extends BarStoolBlock {
     }
 
     @Override
-    protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
+    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
         Direction facing = getValidTable(level, pos);
         if(facing != null) {
             return state.setValue(FACING, facing);
@@ -104,13 +105,13 @@ public class GameChairBlock extends BarStoolBlock {
     }
 
     @Override
-    protected @NotNull BlockState rotate(BlockState state, Rotation rot) {
+    public @NotNull BlockState rotate(BlockState state, Rotation rot) {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    protected @NotNull BlockState mirror(BlockState state, Mirror mirror) {
+    public @NotNull BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
@@ -135,7 +136,7 @@ public class GameChairBlock extends BarStoolBlock {
                 }
             }
         }
-        return valid.size() == 1 ? valid.getFirst() : null;
+        return valid.size() == 1 ? valid.get(0) : null;
     }
 
     @Nullable

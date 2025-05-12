@@ -12,7 +12,6 @@ import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraftforge.common.BasicItemListing;
 import org.jetbrains.annotations.NotNull;
@@ -30,13 +29,13 @@ public class ModItemListings {
             if (trader instanceof VillagerDataHolder villagerdataholder) {
                 VillagerType type = villagerdataholder.getVillagerData().getType();
                 if(type == VillagerType.DESERT) {
-                    return new MerchantOffer(new ItemCost(Items.EMERALD, 2 + random.nextInt(7)), ModBlocks.CACTUS_WINE_GLASS.get().asItem().getDefaultInstance(), 32, 12, 1f);
+                    return new MerchantOffer(new ItemStack(Items.EMERALD, 2 + random.nextInt(7)), ModBlocks.CACTUS_WINE_GLASS.get().asItem().getDefaultInstance(), 32, 12, 1f);
                 }else if(type == VillagerType.SAVANNA) {
-                    return new MerchantOffer(new ItemCost(Items.EMERALD, 2 + random.nextInt(7)), ModBlocks.SORGHUM_BEER_GLASS.get().asItem().getDefaultInstance(), 32, 12, 1f);
+                    return new MerchantOffer(new ItemStack(Items.EMERALD, 2 + random.nextInt(7)), ModBlocks.SORGHUM_BEER_GLASS.get().asItem().getDefaultInstance(), 32, 12, 1f);
                 }else if(type == VillagerType.TAIGA) {
-                    return new MerchantOffer(new ItemCost(Items.EMERALD, 2 + random.nextInt(7)), ModBlocks.BERRY_WINE_GLASS.get().asItem().getDefaultInstance(), 32, 12, 1f);
+                    return new MerchantOffer(new ItemStack(Items.EMERALD, 2 + random.nextInt(7)), ModBlocks.BERRY_WINE_GLASS.get().asItem().getDefaultInstance(), 32, 12, 1f);
                 }else{
-                    return new MerchantOffer(new ItemCost(Items.EMERALD, 2 + random.nextInt(7)), ModBlocks.WHEAT_BEER_GLASS.get().asItem().getDefaultInstance(), 32, 12, 1f);
+                    return new MerchantOffer(new ItemStack(Items.EMERALD, 2 + random.nextInt(7)), ModBlocks.WHEAT_BEER_GLASS.get().asItem().getDefaultInstance(), 32, 12, 1f);
                 }
             } else {
                 return null;
@@ -54,7 +53,7 @@ public class ModItemListings {
     private static ItemListing getDecksByRarity(Rarity rarity) {
         return (trader, random) -> {
             List<ItemStack> decks = Charta.CARD_DECKS.getDecks().entrySet().stream().filter(c -> c.getValue().isTradeable() && c.getValue().getRarity() == rarity).map(Map.Entry::getKey).map(CardDeckItem::getDeck).toList();
-            return decks.isEmpty() ? null : new MerchantOffer(new ItemCost(Items.EMERALD, (6 + random.nextInt(11)) * (rarity.ordinal() + 1)), decks.get(random.nextInt(decks.size())), 4, 25, 1f);
+            return decks.isEmpty() ? null : new MerchantOffer(new ItemStack(Items.EMERALD, (6 + random.nextInt(11)) * (rarity.ordinal() + 1)), decks.get(random.nextInt(decks.size())), 4, 25, 1f);
         };
     }
 

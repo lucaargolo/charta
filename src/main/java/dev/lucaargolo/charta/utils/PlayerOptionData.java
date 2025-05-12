@@ -1,6 +1,5 @@
 package dev.lucaargolo.charta.utils;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,14 +12,10 @@ import java.util.UUID;
 
 public class PlayerOptionData extends SavedData {
 
-    public static SavedData.Factory<PlayerOptionData> factory() {
-        return new SavedData.Factory<>(PlayerOptionData::new, PlayerOptionData::load, null);
-    }
-
     private final HashMap<UUID, HashMap<ResourceLocation, byte[]>> playerOptions = new HashMap<>();
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
         for (Map.Entry<UUID, HashMap<ResourceLocation, byte[]>> playerEntry : playerOptions.entrySet()) {
             CompoundTag playerTag = new CompoundTag();
             UUID playerUUID = playerEntry.getKey();
@@ -46,7 +41,7 @@ public class PlayerOptionData extends SavedData {
         this.setDirty();
     }
 
-    public static PlayerOptionData load(@NotNull CompoundTag tag, HolderLookup.Provider registries) {
+    public static PlayerOptionData load(@NotNull CompoundTag tag) {
         PlayerOptionData data = new PlayerOptionData();
         for (String playerUUIDString : tag.getAllKeys()) {
             UUID playerUUID = UUID.fromString(playerUUIDString);
@@ -55,7 +50,7 @@ public class PlayerOptionData extends SavedData {
             HashMap<ResourceLocation, byte[]> resourceMap = new HashMap<>();
 
             for (String resourceKey : playerTag.getAllKeys()) {
-                ResourceLocation resourceLocation = ResourceLocation.parse(resourceKey);
+                ResourceLocation resourceLocation = ResourceLocation.tryParse(resourceKey);
                 byte[] array = playerTag.getByteArray(resourceKey);
                 resourceMap.put(resourceLocation, array);
             }

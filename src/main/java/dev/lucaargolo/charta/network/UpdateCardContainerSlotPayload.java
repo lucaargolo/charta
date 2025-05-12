@@ -1,47 +1,57 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.handling.IPayloadContext;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.NetworkEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public record UpdateCardContainerSlotPayload(int containerId, int stateId, int slotId, List<Card> cards) implements CustomPacketPayload {
+public class UpdateCardContainerSlotPayload implements CustomPacketPayload {
 
-    public static final CustomPacketPayload.Type<UpdateCardContainerSlotPayload> TYPE = new CustomPacketPayload.Type<>(Charta.id("update_card_container_slot"));
+    private final int containerId;
+    private final int stateId;
+    private final int slotId;
+    private final List<Card> cards;
 
-    public static final StreamCodec<ByteBuf, UpdateCardContainerSlotPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT,
-            UpdateCardContainerSlotPayload::containerId,
-            ByteBufCodecs.INT,
-            UpdateCardContainerSlotPayload::stateId,
-            ByteBufCodecs.INT,
-            UpdateCardContainerSlotPayload::slotId,
-            ByteBufCodecs.collection(NonNullList::createWithCapacity, Card.STREAM_CODEC),
-            UpdateCardContainerSlotPayload::cards,
-            UpdateCardContainerSlotPayload::new
-    );
+    public UpdateCardContainerSlotPayload(int containerId, int stateId, int slotId, List<Card> cards) {
+        this.containerId = containerId;
+        this.stateId = stateId;
+        this.slotId = slotId;
+        this.cards = cards;
+    }
 
-    public static void handleClient(UpdateCardContainerSlotPayload payload, IPayloadContext context) {
+    public UpdateCardContainerSlotPayload(FriendlyByteBuf buf) {
+        this.containerId = buf.readInt();
+        this.stateId = buf.readInt();
+        this.slotId = buf.readInt();
+        int size = buf.readInt();
+        this.cards = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            this.cards.add(Card.fromBuf(buf));
+        }
+    }
+
+    @Override
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeInt(containerId);
+        buf.writeInt(stateId);
+        buf.writeInt(slotId);
+        buf.writeInt(cards.size());
+        for (Card card : cards) {
+            card.toBuf(buf);
+        }
+    }
+
+    public static void handleClient(UpdateCardContainerSlotPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> {
-            Player player = context.player();
+            Player player = context.getSender();
             if(player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
                 cardMenu.setCards(payload.slotId, payload.stateId, payload.cards);
             }
         });
-    }
-
-    @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
-        return TYPE;
     }
 
 }

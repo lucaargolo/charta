@@ -212,7 +212,7 @@ public class GameSlot {
     }
 
     public Card getLast() {
-        return this.cards.getLast();
+        return this.cards.get(cards.size()-1);
     }
 
     public void add(Card card) {
@@ -254,7 +254,7 @@ public class GameSlot {
     }
 
     public Card removeLast() {
-        Card last = this.cards.removeLast();
+        Card last = this.cards.remove(this.cards.size()-1);
         this.setDirty(true);
         return last;
     }

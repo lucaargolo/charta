@@ -1,51 +1,47 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.gui.screens.TableScreen;
 import dev.lucaargolo.charta.game.CardDeck;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.handling.IPayloadContext;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.NetworkEvent;
 
-public record TableScreenPayload(BlockPos pos, CardDeck deck, int[] players) implements CustomPacketPayload {
+public class TableScreenPayload implements CustomPacketPayload {
 
-    public static final Type<TableScreenPayload> TYPE = new Type<>(Charta.id("table_screen"));
+    private final BlockPos pos;
+    private final CardDeck deck;
+    private final int[] players;
 
-    public static final StreamCodec<ByteBuf, TableScreenPayload> STREAM_CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC,
-            TableScreenPayload::pos,
-            CardDeck.STREAM_CODEC,
-            TableScreenPayload::deck,
-            new StreamCodec<>() {
-                @Override
-                public void encode(@NotNull ByteBuf buffer, int @NotNull [] value) {
-                    buffer.writeInt(value.length);
-                    for (int i : value) {
-                        buffer.writeInt(i);
-                    }
-                }
+    public TableScreenPayload(BlockPos pos, CardDeck deck, int[] players) {
+        this.pos = pos;
+        this.deck = deck;
+        this.players = players;
+    }
 
-                @Override
-                public int @NotNull [] decode(@NotNull ByteBuf buffer) {
-                    int length = buffer.readInt();
-                    int[] array = new int[length];
-                    for(int i = 0; i < length; i++) {
-                        array[i] = buffer.readInt();
-                    }
-                    return array;
-                }
-            },
-            TableScreenPayload::players,
-            TableScreenPayload::new
-    );
+    public TableScreenPayload(FriendlyByteBuf buf) {
+        this.pos = buf.readBlockPos();
+        this.deck = CardDeck.fromBuf(buf);
+        int size = buf.readInt();
+        this.players = new int[size];
+        for (int i = 0; i < players.length; i++) {
+            this.players[i] = buf.readInt();
+        }
+    }
 
-    public static void handleClient(TableScreenPayload payload, IPayloadContext context) {
+    @Override
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeBlockPos(pos);
+        this.deck.toBuf(buf);
+        buf.writeInt(players.length);
+        for (int player : players) {
+            buf.writeInt(player);
+        }
+    }
+
+    public static void handleClient(TableScreenPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> {
             openScreen(payload.pos, payload.deck, payload.players);
         });
@@ -56,9 +52,5 @@ public record TableScreenPayload(BlockPos pos, CardDeck deck, int[] players) imp
         Minecraft.getInstance().setScreen(new TableScreen(pos, deck, players));
     }
 
-    @Override
-    public @NotNull Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
 
 }

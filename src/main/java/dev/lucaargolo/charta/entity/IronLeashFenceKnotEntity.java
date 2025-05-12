@@ -42,7 +42,7 @@ public class IronLeashFenceKnotEntity extends LeashFenceKnotEntity {
 
     @Override
     public ItemStack getPickResult() {
-        return new ItemStack(ModItems.IRON_LEAD);
+        return new ItemStack(ModItems.IRON_LEAD.get());
     }
 
 }

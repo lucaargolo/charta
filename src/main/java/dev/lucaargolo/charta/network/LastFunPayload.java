@@ -1,57 +1,57 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.fun.FunMenu;
 import dev.lucaargolo.charta.game.fun.FunScreen;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.handling.IPayloadContext;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.network.NetworkEvent;
 
-public record LastFunPayload(ItemStack deckStack) implements CustomPacketPayload {
+public class LastFunPayload implements CustomPacketPayload {
+
+    private final ItemStack deckStack;
+
+    public LastFunPayload(ItemStack deckStack) {
+        this.deckStack = deckStack;
+    }
 
     public LastFunPayload() {
         this(ItemStack.EMPTY);
     }
 
-    public static final Type<LastFunPayload> TYPE = new Type<>(Charta.id("last_fun"));
+    public LastFunPayload(FriendlyByteBuf buf) {
+        this.deckStack = buf.readItem();
+    }
 
-    private static final StreamCodec<ByteBuf, ItemStack> STACK_STREAM = ByteBufCodecs.fromCodecTrusted(ItemStack.OPTIONAL_CODEC);
-    public static StreamCodec<ByteBuf, LastFunPayload> STREAM_CODEC = StreamCodec.composite(
-            STACK_STREAM,
-            LastFunPayload::deckStack,
-            LastFunPayload::new
-    );
+    @Override
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeItem(deckStack);
+    }
 
-    public static void handleBoth(LastFunPayload payload, IPayloadContext context) {
-        if(context.flow() == PacketFlow.SERVERBOUND) {
+    public static void handleBoth(LastFunPayload payload, NetworkEvent.Context context) {
+        if(context.getDirection().getReceptionSide().isServer()) {
             handleServer(payload, context);
         }else{
             handleClient(payload, context);
         }
     }
 
-    public static void handleServer(LastFunPayload payload, IPayloadContext context) {
+    public static void handleServer(LastFunPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> {
-            Player player = context.player();
+            Player player = context.getSender();
             if(player instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof FunMenu funMenu) {
                 funMenu.getGame().sayLast(((LivingEntityMixed) player).charta_getCardPlayer());
             }
         });
     }
 
-    public static void handleClient(LastFunPayload payload, IPayloadContext context) {
+    public static void handleClient(LastFunPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> displayTotemEffect(payload.deckStack));
     }
 
@@ -62,11 +62,6 @@ public record LastFunPayload(ItemStack deckStack) implements CustomPacketPayload
             mc.level.playLocalSound(mc.player.getX(), mc.player.getY(), mc.player.getZ(), SoundEvents.TOTEM_USE, mc.player.getSoundSource(), 1.0F, 1.0F, false);
             funScreen.displayItemActivation(deckStack);
         }
-    }
-
-    @Override
-    public @NotNull CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
-        return TYPE;
     }
 
 }
