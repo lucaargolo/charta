@@ -1,6 +1,16 @@
 {
+    "blend": {
+        "func": "add",
+        "srcrgb": "srcalpha",
+        "dstrgb": "1-srcalpha"
+    },
     "vertex": "charta:rendertype_iron_leash",
     "fragment": "charta:rendertype_iron_leash",
+    "attributes": [
+        "Position",
+        "Color",
+        "UV2"
+    ],
     "samplers": [
         { "name": "Sampler2" }
     ],

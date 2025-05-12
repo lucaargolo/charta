@@ -4,7 +4,7 @@
     ],
     "passes": [
         {
-            "name": "box_blur",
+            "name": "charta:box_blur",
             "intarget": "minecraft:main",
             "outtarget": "swap",
             "use_linear_filter": true,
@@ -16,7 +16,7 @@
             ]
         },
         {
-            "name": "box_blur",
+            "name": "charta:box_blur",
             "intarget": "swap",
             "outtarget": "minecraft:main",
             "use_linear_filter": true,
@@ -27,7 +27,7 @@
                 }
             ]
         }, {
-            "name": "box_blur",
+            "name": "charta:box_blur",
             "intarget": "minecraft:main",
             "outtarget": "swap",
             "use_linear_filter": true,
@@ -40,7 +40,7 @@
             ]
         },
         {
-            "name": "box_blur",
+            "name": "charta:box_blur",
             "intarget": "swap",
             "outtarget": "minecraft:main",
             "use_linear_filter": true,
@@ -52,7 +52,7 @@
                 }
             ]
         }, {
-            "name": "box_blur",
+            "name": "charta:box_blur",
             "intarget": "minecraft:main",
             "outtarget": "swap",
             "use_linear_filter": true,
@@ -65,7 +65,7 @@
             ]
         },
         {
-            "name": "box_blur",
+            "name": "charta:box_blur",
             "intarget": "swap",
             "outtarget": "minecraft:main",
             "use_linear_filter": true,

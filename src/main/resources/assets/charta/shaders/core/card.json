@@ -1,6 +1,16 @@
 {
+    "blend": {
+        "func": "add",
+        "srcrgb": "srcalpha",
+        "dstrgb": "1-srcalpha"
+    },
     "vertex": "charta:perspective",
     "fragment": "charta:card",
+    "attributes": [
+        "Position",
+        "UV0",
+        "Color"
+    ],
     "samplers": [
         { "name": "Sampler0" }
     ],

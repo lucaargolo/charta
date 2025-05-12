@@ -1,6 +1,16 @@
 {
+    "blend": {
+        "func": "add",
+        "srcrgb": "srcalpha",
+        "dstrgb": "1-srcalpha"
+    },
     "vertex": "position_tex_color",
     "fragment": "charta:white_image_glow",
+    "attributes": [
+        "Position",
+        "UV0",
+        "Color"
+    ],
     "samplers": [
         { "name": "Sampler0" }
     ],
