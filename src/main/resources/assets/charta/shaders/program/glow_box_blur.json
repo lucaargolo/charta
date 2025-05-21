@@ -2,7 +2,7 @@
   "blend": {
     "func": "add",
     "srcrgb": "one",
-    "dstrgb": "zero"
+    "dstrgb": "one"
   },
   "vertex": "charta:blur",
   "fragment": "charta:box_blur",

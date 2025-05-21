@@ -19,12 +19,19 @@ public class MinecraftMixin {
 
     @Inject(at = @At("TAIL"), method = "resizeDisplay")
     public void resizeDisplay(CallbackInfo ci) {
-        RenderTarget rendertarget = ChartaClient.getGlowRenderTarget();
-        if(rendertarget != null)
-            rendertarget.resize(this.window.getWidth(), this.window.getHeight(), Minecraft.ON_OSX);
-        PostChain postChain = ChartaClient.getGlowBlurEffect();
-        if(postChain != null)
-            postChain.resize(this.window.getWidth(), this.window.getHeight());
+        RenderTarget blurRenderTarget = ChartaClient.getBlurRenderTarget();
+        if(blurRenderTarget != null)
+            blurRenderTarget.resize(this.window.getWidth(), this.window.getHeight(), Minecraft.ON_OSX);
+        PostChain blurEffect = ChartaClient.getBlurEffect();
+        if(blurEffect != null)
+            blurEffect.resize(this.window.getWidth(), this.window.getHeight());
+
+        RenderTarget glowRenderTarget = ChartaClient.getGlowRenderTarget();
+        if(glowRenderTarget != null)
+            glowRenderTarget.resize(this.window.getWidth(), this.window.getHeight(), Minecraft.ON_OSX);
+        PostChain glowBlurEffect = ChartaClient.getGlowBlurEffect();
+        if(glowBlurEffect != null)
+            glowBlurEffect.resize(this.window.getWidth(), this.window.getHeight());
     }
 
 

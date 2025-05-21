@@ -206,7 +206,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        ChartaGuiGraphics.renderBackgroundBlur(this, guiGraphics, partialTick);
 
         this.renderTopBar(guiGraphics);
         this.renderBottomBar(guiGraphics);

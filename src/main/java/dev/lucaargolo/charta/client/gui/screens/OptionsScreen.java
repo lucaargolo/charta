@@ -8,6 +8,7 @@ import dev.lucaargolo.charta.game.CardGames;
 import dev.lucaargolo.charta.game.GameOption;
 import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
 import dev.lucaargolo.charta.network.PlayerOptionsPayload;
+import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import dev.lucaargolo.charta.utils.CustomOptionTooltip;
 import dev.lucaargolo.charta.utils.PacketUtils;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
@@ -138,12 +139,24 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
         return false;
     }
 
-    public static class OptionsWidget extends ContainerObjectSelectionList<GameOption.Widget> {
+    public class OptionsWidget extends ContainerObjectSelectionList<GameOption.Widget> {
 
         protected final BooleanList changed = new BooleanArrayList();
 
         public OptionsWidget(Minecraft minecraft, int width, int height, int y) {
             super(minecraft, width, height, y, height-y, 25);
+            this.setRenderBackground(false);
+            this.setRenderTopAndBottom(false);
+        }
+
+        @Override
+        protected void renderBackground(@NotNull GuiGraphics pGuiGraphics) {
+            ChartaGuiGraphics.renderBackgroundBlur(OptionsScreen.this, pGuiGraphics, 0.5f);
+            pGuiGraphics.fill(this.x0, this.y0-2, this.x1, this.y0-1, 0x55FFFFFF);
+            pGuiGraphics.fill(this.x0, this.y0-1, this.x1, this.y0, 0xAA000000);
+            pGuiGraphics.fill(this.x0, this.y0, this.x1, this.y1, 0x66000000);
+            pGuiGraphics.fill(this.x0, this.y1, this.x1, this.y1+1, 0xAA000000);
+            pGuiGraphics.fill(this.x0, this.y1+1, this.x1, this.y1+2, 0x55FFFFFF);
         }
 
         @Override

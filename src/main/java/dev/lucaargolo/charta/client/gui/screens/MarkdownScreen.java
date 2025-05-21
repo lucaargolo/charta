@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -229,11 +230,23 @@ public class MarkdownScreen extends Screen {
 
     }
 
-    public static class MarkdownWidget extends ContainerObjectSelectionList<MarkdownLine> {
+    public class MarkdownWidget extends ContainerObjectSelectionList<MarkdownLine> {
 
 
         public MarkdownWidget(Minecraft minecraft, int width, int height, int y) {
             super(minecraft, width, height, y, height-y, 10);
+            this.setRenderBackground(false);
+            this.setRenderTopAndBottom(false);
+        }
+
+        @Override
+        protected void renderBackground(@NotNull GuiGraphics pGuiGraphics) {
+            ChartaGuiGraphics.renderBackgroundBlur(MarkdownScreen.this, pGuiGraphics, 0.5f);
+            pGuiGraphics.fill(this.x0, this.y0-2, this.x1, this.y0-1, 0x55FFFFFF);
+            pGuiGraphics.fill(this.x0, this.y0-1, this.x1, this.y0, 0xAA000000);
+            pGuiGraphics.fill(this.x0, this.y0, this.x1, this.y1, 0x66000000);
+            pGuiGraphics.fill(this.x0, this.y1, this.x1, this.y1+1, 0xAA000000);
+            pGuiGraphics.fill(this.x0, this.y1+1, this.x1, this.y1+2, 0x55FFFFFF);
         }
 
         @Override

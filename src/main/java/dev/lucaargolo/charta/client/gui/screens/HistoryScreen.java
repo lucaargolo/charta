@@ -2,6 +2,7 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -97,7 +98,20 @@ public class HistoryScreen extends Screen {
 
         public HistoryWidget(Minecraft minecraft, int width, int height, int y) {
             super(minecraft, width, height, y, height-y, 15);
+            this.setRenderBackground(false);
+            this.setRenderTopAndBottom(false);
         }
+
+        @Override
+        protected void renderBackground(@NotNull GuiGraphics pGuiGraphics) {
+            ChartaGuiGraphics.renderBackgroundBlur(HistoryScreen.this, pGuiGraphics, 0.5f);
+            pGuiGraphics.fill(this.x0, this.y0-2, this.x1, this.y0-1, 0x55FFFFFF);
+            pGuiGraphics.fill(this.x0, this.y0-1, this.x1, this.y0, 0xAA000000);
+            pGuiGraphics.fill(this.x0, this.y0, this.x1, this.y1, 0x66000000);
+            pGuiGraphics.fill(this.x0, this.y1, this.x1, this.y1+1, 0xAA000000);
+            pGuiGraphics.fill(this.x0, this.y1+1, this.x1, this.y1+2, 0x55FFFFFF);
+        }
+
 
         @Override
         public int addEntry(@NotNull Play entry) {

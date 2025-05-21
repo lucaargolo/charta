@@ -224,7 +224,20 @@ public class TableScreen extends Screen {
             super(minecraft, width, height, y, height-y, 75);
             int margin = width - 40;
             this.amount = margin/75;
+            this.setRenderBackground(false);
+            this.setRenderTopAndBottom(false);
         }
+
+        @Override
+        protected void renderBackground(@NotNull GuiGraphics pGuiGraphics) {
+            ChartaGuiGraphics.renderBackgroundBlur(TableScreen.this, pGuiGraphics, 0.5f);
+            pGuiGraphics.fill(this.x0, this.y0-2, this.x1, this.y0-1, 0x55FFFFFF);
+            pGuiGraphics.fill(this.x0, this.y0-1, this.x1, this.y0, 0xAA000000);
+            pGuiGraphics.fill(this.x0, this.y0, this.x1, this.y1, 0x66000000);
+            pGuiGraphics.fill(this.x0, this.y1, this.x1, this.y1+1, 0xAA000000);
+            pGuiGraphics.fill(this.x0, this.y1+1, this.x1, this.y1+2, 0x55FFFFFF);
+        }
+
 
         public void addEntry(@NotNull Game<G> entry) {
             if(this.children().isEmpty() || this.children().get(this.children().size()-1).games.size() >= amount) {

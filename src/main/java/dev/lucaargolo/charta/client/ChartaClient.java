@@ -47,6 +47,10 @@ public class ChartaClient {
     public static final LinkedList<Triple<Component, Integer, Component>> LOCAL_HISTORY = new LinkedList<>();
     public static final HashMap<ResourceLocation, byte[]> LOCAL_OPTIONS = new HashMap<>();
     private static final ResourceLocation BLUR_LOCATION = Charta.id("shaders/post/blur.json");
+    private static final ResourceLocation GLOW_BLUR_LOCATION = Charta.id("shaders/post/glow_blur.json");
+
+    private static RenderTarget blurRenderTarget;
+    private static PostChain blurEffect;
 
     private static RenderTarget glowRenderTarget;
     private static PostChain glowBlurEffect;
@@ -136,9 +140,21 @@ public class ChartaClient {
     }
 
     public static void processBlurEffect(float partialTick) {
-        //float f = 2f;
+        if (blurEffect != null) {
+            blurEffect.process(partialTick);
+        }
+    }
+
+    public static RenderTarget getBlurRenderTarget() {
+        return blurRenderTarget;
+    }
+
+    public static PostChain getBlurEffect() {
+        return blurEffect;
+    }
+
+    public static void processGlowBlurEffect(float partialTick) {
         if (glowBlurEffect != null) {
-            //glowBlurEffect.setUniform("Radius", f);
             glowBlurEffect.process(partialTick);
         }
     }
@@ -151,20 +167,33 @@ public class ChartaClient {
         return glowBlurEffect;
     }
 
-    private static void loadGlowBlurEffect() {
+    private static void loadBlurEffect() {
         Minecraft minecraft = Minecraft.getInstance();
+
+        if (blurEffect != null) {
+            blurEffect.close();
+        }
+
+        try {
+            blurEffect = new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(), getBlurRenderTarget(), BLUR_LOCATION);
+            blurEffect.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
+        } catch (IOException ioexception) {
+            Charta.LOGGER.warn("Failed to load shader: {}", BLUR_LOCATION, ioexception);
+        } catch (JsonSyntaxException jsonsyntaxexception) {
+            Charta.LOGGER.warn("Failed to parse shader: {}", BLUR_LOCATION, jsonsyntaxexception);
+        }
 
         if (glowBlurEffect != null) {
             glowBlurEffect.close();
         }
 
         try {
-            glowBlurEffect = new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(), getGlowRenderTarget(), BLUR_LOCATION);
+            glowBlurEffect = new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(), getBlurRenderTarget(), GLOW_BLUR_LOCATION);
             glowBlurEffect.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
         } catch (IOException ioexception) {
-            Charta.LOGGER.warn("Failed to load shader: {}", BLUR_LOCATION, ioexception);
+            Charta.LOGGER.warn("Failed to load shader: {}", GLOW_BLUR_LOCATION, ioexception);
         } catch (JsonSyntaxException jsonsyntaxexception) {
-            Charta.LOGGER.warn("Failed to parse shader: {}", BLUR_LOCATION, jsonsyntaxexception);
+            Charta.LOGGER.warn("Failed to parse shader: {}", GLOW_BLUR_LOCATION, jsonsyntaxexception);
         }
     }
 
@@ -176,6 +205,10 @@ public class ChartaClient {
         public static void onClientSetup(FMLClientSetupEvent event) {
             Minecraft minecraft = Minecraft.getInstance();
             minecraft.submit(() -> {
+                blurRenderTarget = new TextureTarget(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight(), false, Minecraft.ON_OSX);
+                blurRenderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+                blurRenderTarget.clear(Minecraft.ON_OSX);
+
                 glowRenderTarget = new TextureTarget(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight(), false, Minecraft.ON_OSX);
                 glowRenderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
                 glowRenderTarget.clear(Minecraft.ON_OSX);
@@ -211,7 +244,7 @@ public class ChartaClient {
 
         @SubscribeEvent
         public static void registerShaders(RegisterShadersEvent event) throws IOException {
-            loadGlowBlurEffect();
+            loadBlurEffect();
             cardFovUniforms.clear();
             cardXRotUniforms.clear();
             cardYRotUniforms.clear();

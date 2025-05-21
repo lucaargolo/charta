@@ -31,7 +31,7 @@ public abstract class CardScreen extends Screen implements HoverableRenderable {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics);
+        ChartaGuiGraphics.renderBackgroundBlur(this, guiGraphics, partialTick);
         for (Renderable renderable : this.renderables) {
             if(renderable != this.hoverable) {
                 /*
@@ -74,7 +74,7 @@ public abstract class CardScreen extends Screen implements HoverableRenderable {
     }
 
     public static void renderGlowBlur(Screen screen, GuiGraphics guiGraphics, float partialTick) {
-        ChartaClient.processBlurEffect(partialTick);
+        ChartaClient.processGlowBlurEffect(partialTick);
         RenderTarget glowTarget = ChartaClient.getGlowRenderTarget();
         Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);

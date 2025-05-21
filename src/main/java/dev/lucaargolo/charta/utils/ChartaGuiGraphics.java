@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.utils;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import dev.lucaargolo.charta.client.ChartaClient;
@@ -9,6 +10,8 @@ import dev.lucaargolo.charta.game.Suit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import org.joml.Matrix4f;
@@ -124,6 +127,27 @@ public class ChartaGuiGraphics {
         bufferbuilder.vertex(matrix4f, x2, y1, 0).uv(maxU, minV).color(1f, 1f, 1f, 1f).endVertex();
         BufferUploader.drawWithShader(bufferbuilder.end());
         RenderSystem.disableBlend();
+    }
+
+    public static void renderBackgroundBlur(Screen screen, GuiGraphics guiGraphics, float partialTick) {
+        RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
+        RenderTarget blurTarget = ChartaClient.getBlurRenderTarget();
+        //Draw main target into blur target
+        blurTarget.bindWrite(false);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, mainTarget.getColorTextureId());
+        ChartaGuiGraphics.innerBlit(guiGraphics, 0, screen.width, 0, screen.height, 0, 1, 1, 0);
+        //Blur main target
+        ChartaClient.processBlurEffect(partialTick);
+        //Draw blur target into main target
+        mainTarget.bindWrite(false);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, blurTarget.getColorTextureId());
+        ChartaGuiGraphics.innerBlit(guiGraphics, 0, screen.width, 0, screen.height, 0, 1, 1, 0);
+        //Clear blur target
+        blurTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+        blurTarget.clear(Minecraft.ON_OSX);
+        mainTarget.bindWrite(false);
     }
 
     public static boolean containsPointInScissor(GuiGraphics graphics, int x, int y) {
