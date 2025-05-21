@@ -17,7 +17,7 @@ public class ChatComponentMixin {
 
     @Inject(at = @At("HEAD"), method = "isChatFocused", cancellable = true)
     public void isChatFocused(CallbackInfoReturnable<Boolean> cir) {
-        if(this.minecraft.screen instanceof GameScreen<?,?>) {
+        if(this.minecraft.screen instanceof GameScreen<?,?> gameScreen && gameScreen.isChatFocused()) {
             cir.setReturnValue(true);
         }
     }

@@ -304,9 +304,16 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
         CardScreen.renderGlowBlur(this, guiGraphics, partialTick);
         guiGraphics.pose().popPose();
 
-        if(chatFocused) {
-            this.renderBackground(guiGraphics);
-            this.chatScreen.render(guiGraphics, mouseX, mouseY, partialTick);
+        if(this.minecraft != null) {
+            if (chatFocused) {
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0f, 0f, 100f);
+                ChartaGuiGraphics.renderBackgroundBlur(this, guiGraphics, partialTick);
+                guiGraphics.pose().translate(0f, 0f, 50f);
+                this.minecraft.gui.getChat().render(guiGraphics, this.minecraft.gui.getGuiTicks(), mouseX, mouseY);
+                this.chatScreen.render(guiGraphics, mouseX, mouseY, partialTick);
+                guiGraphics.pose().popPose();
+            }
         }
     }
 
@@ -359,4 +366,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
         return this.hoverable;
     }
 
+    public boolean isChatFocused() {
+        return chatFocused;
+    }
 }

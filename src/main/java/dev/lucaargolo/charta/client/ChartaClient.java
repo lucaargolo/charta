@@ -9,6 +9,7 @@ import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.client.blockentity.BarShelfBlockEntityRenderer;
 import dev.lucaargolo.charta.client.blockentity.CardTableBlockEntityRenderer;
 import dev.lucaargolo.charta.client.entity.IronLeashKnotRenderer;
+import dev.lucaargolo.charta.client.gui.screens.GameScreen;
 import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.game.crazyeights.CrazyEightsScreen;
@@ -27,10 +28,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.event.RegisterShadersEvent;
+import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -188,7 +187,7 @@ public class ChartaClient {
         }
 
         try {
-            glowBlurEffect = new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(), getBlurRenderTarget(), GLOW_BLUR_LOCATION);
+            glowBlurEffect = new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(), getGlowRenderTarget(), GLOW_BLUR_LOCATION);
             glowBlurEffect.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
         } catch (IOException ioexception) {
             Charta.LOGGER.warn("Failed to load shader: {}", GLOW_BLUR_LOCATION, ioexception);
@@ -196,6 +195,20 @@ public class ChartaClient {
             Charta.LOGGER.warn("Failed to parse shader: {}", GLOW_BLUR_LOCATION, jsonsyntaxexception);
         }
     }
+
+    @OnlyIn(Dist.CLIENT)
+    @EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+    public static class ClientEvents {
+
+        @SubscribeEvent
+        public static void onOverlayRender(RenderGuiOverlayEvent.Pre event) {
+            Minecraft minecraft = Minecraft.getInstance();
+            if(minecraft.screen instanceof GameScreen<?,?> && event.getOverlay() == VanillaGuiOverlay.CHAT_PANEL.type()) {
+                event.setCanceled(true);
+            }
+        }
+    }
+
 
     @OnlyIn(Dist.CLIENT)
     @EventBusSubscriber(modid = Charta.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)

@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -62,6 +63,7 @@ public class ConfirmScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        ChartaGuiGraphics.renderBackgroundBlur(this, graphics, partialTicks);
         super.render(graphics, mouseX, mouseY, partialTicks);
         graphics.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
         graphics.drawCenteredString(font, title, leftPos + imageWidth / 2, topPos + 9, 0xFFFFFF);
