@@ -3,8 +3,11 @@ package dev.lucaargolo.charta.network;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.LinkedList;
@@ -43,12 +46,17 @@ public class UpdateCardContainerCarriedPayload implements CustomPacketPayload {
     }
 
     public static void handleClient(UpdateCardContainerCarriedPayload payload, NetworkEvent.Context context) {
-        context.enqueueWork(() -> {
-            Player player = context.getSender();
-            if(player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
-                cardMenu.setCarriedCards(payload.stateId, new GameSlot(payload.cards));
-            }
-        });
+        context.enqueueWork(() -> updateCardContainerCarried(payload));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static void updateCardContainerCarried(UpdateCardContainerCarriedPayload payload) {
+        Minecraft minecraft = Minecraft.getInstance();
+        Player player = minecraft.player;
+        assert player != null;
+        if(player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
+            cardMenu.setCarriedCards(payload.stateId, new GameSlot(payload.cards));
+        }
     }
 
 }

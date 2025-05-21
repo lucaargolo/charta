@@ -2,8 +2,11 @@ package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
@@ -46,12 +49,17 @@ public class UpdateCardContainerSlotPayload implements CustomPacketPayload {
     }
 
     public static void handleClient(UpdateCardContainerSlotPayload payload, NetworkEvent.Context context) {
-        context.enqueueWork(() -> {
-            Player player = context.getSender();
-            if(player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
-                cardMenu.setCards(payload.slotId, payload.stateId, payload.cards);
-            }
-        });
+        context.enqueueWork(() -> updateCardContainerSlot(payload));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static void updateCardContainerSlot(UpdateCardContainerSlotPayload payload) {
+        Minecraft minecraft = Minecraft.getInstance();
+        Player player = minecraft.player;
+        assert player != null;
+        if(player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
+            cardMenu.setCards(payload.slotId, payload.stateId, payload.cards);
+        }
     }
 
 }

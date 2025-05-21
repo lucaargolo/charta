@@ -2,7 +2,6 @@ package dev.lucaargolo.charta.game;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import dev.lucaargolo.charta.Charta;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
@@ -107,11 +106,16 @@ public class Card implements Comparable<Card>, StringRepresentable {
     }
 
     public void toBuf(FriendlyByteBuf buf) {
-        buf.writeUtf(this.toString());
+        buf.writeEnum(suit);
+        buf.writeEnum(rank);
+        buf.writeBoolean(flipped);
     }
 
     public static Card fromBuf(FriendlyByteBuf buf) {
-        return Card.read(buf.readUtf()).getOrThrow(false, Charta.LOGGER::error);
+        Suit suit = buf.readEnum(Suit.class);
+        Rank rank = buf.readEnum(Rank.class);
+        boolean flipped = buf.readBoolean();
+        return new Card(suit, rank, flipped);
     }
 
 }
