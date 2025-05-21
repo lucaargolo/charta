@@ -7,12 +7,16 @@ import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.Suit;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
 import org.joml.Matrix4f;
 
@@ -127,6 +131,24 @@ public class ChartaGuiGraphics {
         bufferbuilder.vertex(matrix4f, x2, y1, 0).uv(maxU, minV).color(1f, 1f, 1f, 1f).endVertex();
         BufferUploader.drawWithShader(bufferbuilder.end());
         RenderSystem.disableBlend();
+    }
+
+    public static void renderScrollingString(GuiGraphics pGuiGraphics, Font pFont, Component pText, int pMinX, int pMinY, int pMaxX, int pMaxY, int pColor) {
+        int i = pFont.width(pText);
+        int j = (pMinY + pMaxY - 9) / 2 + 1;
+        int k = pMaxX - pMinX;
+        if (i > k) {
+            int l = i - k;
+            double d0 = (double) Util.getMillis() / 1000.0D;
+            double d1 = Math.max((double)l * 0.5D, 3.0D);
+            double d2 = Math.sin((Math.PI / 2D) * Math.cos((Math.PI * 2D) * d0 / d1)) / 2.0D + 0.5D;
+            double d3 = Mth.lerp(d2, 0.0D, l);
+            pGuiGraphics.enableScissor(pMinX, pMinY, pMaxX, pMaxY);
+            pGuiGraphics.drawString(pFont, pText, pMinX - (int)d3, j, pColor);
+            pGuiGraphics.disableScissor();
+        } else {
+            pGuiGraphics.drawString(pFont, pText, pMinX, j, pColor);
+        }
     }
 
     public static void renderBackgroundBlur(Screen screen, GuiGraphics guiGraphics, float partialTick) {

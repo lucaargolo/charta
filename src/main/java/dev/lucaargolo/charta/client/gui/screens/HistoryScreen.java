@@ -5,7 +5,6 @@ import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.Tooltip;
@@ -79,7 +78,7 @@ public class HistoryScreen extends Screen {
                 guiGraphics.drawString(font, player, left-12, top, 0xFFFFFFFF);
                 guiGraphics.drawString(font, Component.literal(Integer.toString(cards)).append(" ").append(cards > 1 ? Component.translatable("charta.cards") : Component.translatable("charta.card")), left-12 + width - 101, top, 0xFFFFFFFF);
             }
-            AbstractWidget.renderScrollingString(guiGraphics, font, play, left-12 + 108, 0, left-12+width-108, top, 0xFFFFFFFF);
+            ChartaGuiGraphics.renderScrollingString(guiGraphics, font, play, left-12 + 108, top-4, left-12+width-108, top+height, 0xFFFFFFFF);
 
         }
 
@@ -122,6 +121,12 @@ public class HistoryScreen extends Screen {
         public int getRowWidth() {
             return Math.min(600, minecraft.getWindow().getGuiScaledWidth()-32);
         }
+
+        @Override
+        protected int getScrollbarPosition() {
+            return this.getRowLeft() + this.getRowWidth() + 8;
+        }
+
     }
 
 }

@@ -266,6 +266,11 @@ public class TableScreen extends Screen {
         }
 
         @Override
+        protected int getScrollbarPosition() {
+            return this.getRowLeft() + this.getRowWidth() + 8;
+        }
+
+        @Override
         public void tick(int mouseX, int mouseY) {
             for (GameRow<G> row : this.children()) {
                 for(Game<G> game : row.games) {

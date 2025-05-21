@@ -177,6 +177,12 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
         public GameOption.@NotNull Widget getEntry(int index) {
             return super.getEntry(index);
         }
+
+        @Override
+        protected int getScrollbarPosition() {
+            return this.getRowLeft() + this.getRowWidth() + 8;
+        }
+
     }
 
 }

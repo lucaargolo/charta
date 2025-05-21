@@ -281,6 +281,11 @@ public class MarkdownScreen extends Screen {
             return Math.min(600, minecraft.getWindow().getGuiScaledWidth()-32);
         }
 
+        @Override
+        protected int getScrollbarPosition() {
+            return this.getRowLeft() + this.getRowWidth() + 8;
+        }
+
     }
 
     public enum MarkdownTag {
