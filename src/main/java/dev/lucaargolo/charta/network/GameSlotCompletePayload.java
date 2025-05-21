@@ -72,8 +72,6 @@ public class GameSlotCompletePayload implements CustomPacketPayload  {
         for (Card card : cards) {
             card.toBuf(buf);
         }
-        buf.writeInt(index);
-        buf.writeInt(cards.size());
         buf.writeFloat(x);
         buf.writeFloat(y);
         buf.writeFloat(z);
