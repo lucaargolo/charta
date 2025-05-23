@@ -9,12 +9,14 @@ import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.LeadItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Iterator;
 import java.util.List;
@@ -23,12 +25,18 @@ import java.util.List;
 public class LeadItemMixin {
 
     @Unique
+    private static Player charta$capturedPlayer;
+    @Unique
     private static Level charta$capturedLevel;
     @Unique
     private static BlockPos charta$capturedPos;
 
+    @Unique
+    private static boolean charta$flag;
+
     @Inject(at = @At("HEAD"), method = "bindPlayerMobs")
     private static void captureVariables(Player pPlayer, Level pLevel, BlockPos pPos, CallbackInfoReturnable<InteractionResult> cir) {
+        charta$capturedPlayer = pPlayer;
         charta$capturedLevel = pLevel;
         charta$capturedPos = pPos;
     }
@@ -37,9 +45,10 @@ public class LeadItemMixin {
     private static Iterator<Mob> ironBindPlayerMobs(List<Mob> instance) {
         LeashFenceKnotEntity leashfenceknotentity = null;
         Iterator<Mob> iterator = instance.iterator();
+        charta$flag = false;
         while (iterator.hasNext()) {
             Mob leashable = iterator.next();
-            if(leashable instanceof LeashableMixed mixed && mixed.charta_isIronLeash()) {
+            if(leashable.getLeashHolder() == charta$capturedPlayer && leashable instanceof LeashableMixed mixed && mixed.charta_isIronLeash()) {
                 if (leashfenceknotentity == null) {
                     leashfenceknotentity = IronLeashFenceKnotEntity.getOrCreateIronKnot(charta$capturedLevel, charta$capturedPos);
                     leashfenceknotentity.playPlacementSound();
@@ -48,14 +57,19 @@ public class LeadItemMixin {
                 leashable.setLeashedTo(leashfenceknotentity, true);
 
                 iterator.remove();
+
+                charta$flag = true;
             }
         }
-
-        return iterator;
+        return instance.iterator();
     }
 
-    @Inject(at = @At("TAIL"), method = "bindPlayerMobs")
-    private static void releaseVariables(Player pPlayer, Level pLevel, BlockPos pPos, CallbackInfoReturnable<InteractionResult> cir) {
+    @Inject(at = @At("TAIL"), method = "bindPlayerMobs", locals = LocalCapture.CAPTURE_FAILSOFT)
+    private static void releaseVariables(Player pPlayer, Level pLevel, BlockPos pPos, CallbackInfoReturnable<InteractionResult> cir, LeashFenceKnotEntity leashfenceknotentity, boolean flag) {
+        if(!flag && charta$flag) {
+            charta$capturedLevel.gameEvent(GameEvent.BLOCK_ATTACH, charta$capturedPos, GameEvent.Context.of(charta$capturedPlayer));
+        }
+        charta$capturedPlayer = null;
         charta$capturedLevel = null;
         charta$capturedPos = null;
     }

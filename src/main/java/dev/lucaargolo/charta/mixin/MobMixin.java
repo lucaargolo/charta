@@ -40,14 +40,11 @@ public abstract class MobMixin extends LivingEntity implements LeashableMixed {
         Charta.MOB_IRON_LEASH = SynchedEntityData.defineId(Mob.class, EntityDataSerializers.BOOLEAN);
     }
 
-    @Shadow
-    public abstract boolean canBeLeashed(Player pPlayer);
-
     @Shadow public abstract void setLeashedTo(Entity pLeashHolder, boolean pBroadcastPacket);
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z", ordinal = 0), method = "checkAndHandleImportantInteractions", cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
     public void interactIronLead(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir, ItemStack itemstack) {
-        if (itemstack.is(ModItems.IRON_LEAD.get()) && this.canBeLeashed(player)) {
+        if (itemstack.is(ModItems.IRON_LEAD.get())) {
             if (!this.level().isClientSide()) {
                 this.setLeashedTo(player, true);
                 charta_setIronLeash(true);
