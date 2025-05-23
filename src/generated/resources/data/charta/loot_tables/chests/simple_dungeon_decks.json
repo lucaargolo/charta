@@ -1,0 +1,500 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:fun_inverted\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:fun_classic\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:fun_neon\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:fun_minimal_neon\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 50
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/argentina\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/australia\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/belgium\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/brazil\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/canada\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/china\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/france\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/germany\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/india\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/indonesia\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/ireland\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/italy\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/japan\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/mexico\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/netherlands\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/philippines\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/poland\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/portugal\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/rainbow\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/russia\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/spain\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/thailand\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/ukraine\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/united_kingdom\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:flags/usa\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 120
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:metals/copper\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:metals/iron\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:metals/gold\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:gems/diamond\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:gems/emerald\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:gems/ruby\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:gems/sapphire\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:gems/amethyst\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/aqua\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/blue\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/green\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/orange\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/pink\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/red\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/yellow\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 10
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "charta:chests/simple_dungeon_decks"
+}

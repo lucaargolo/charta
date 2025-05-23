@@ -1,8 +1,8 @@
 {
-  "type": "neoforge:add_table",
+  "type": "charta:loot_table_addition",
   "conditions": [
     {
-      "condition": "neoforge:loot_table_id",
+      "condition": "forge:loot_table_id",
       "loot_table_id": "minecraft:chests/simple_dungeon"
     }
   ],

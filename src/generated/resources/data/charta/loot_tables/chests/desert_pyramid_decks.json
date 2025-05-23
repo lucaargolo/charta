@@ -1,0 +1,170 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:fun_inverted\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 80
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:fun_classic\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 80
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:fun_neon\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 15
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:fun_minimal_neon\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 15
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 50
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:metals/copper\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:metals/iron\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:metals/gold\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/aqua\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/blue\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/green\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/orange\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/pink\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/red\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{CardDeck:\"charta:neon/yellow\",Rarity:0}"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "charta:chests/desert_pyramid_decks"
+}

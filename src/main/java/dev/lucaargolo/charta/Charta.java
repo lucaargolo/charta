@@ -11,6 +11,7 @@ import dev.lucaargolo.charta.entity.ModVillagerProfessions;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.item.ModCreativeTabs;
 import dev.lucaargolo.charta.item.ModItems;
+import dev.lucaargolo.charta.loot.ModLootModifiers;
 import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.network.*;
 import dev.lucaargolo.charta.resources.CardDeckResource;
@@ -102,6 +103,7 @@ public class Charta {
         ModMenus.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
         ModSounds.register(modEventBus);
+        ModLootModifiers.register(modEventBus);
         Charta.registerPayloads();
     }
 
