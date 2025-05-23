@@ -2,31 +2,23 @@ package dev.lucaargolo.charta.block;
 
 import dev.lucaargolo.charta.Charta;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.entity.BannerPattern;
-
-import java.util.HashMap;
-import java.util.Map;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ModBannerPatterns {
 
-    private static final Map<ResourceKey<BannerPattern>, BannerPattern> PATTERNS = new HashMap<>();
+    private static final DeferredRegister<BannerPattern> PATTERNS = DeferredRegister.create(Registries.BANNER_PATTERN, Charta.MOD_ID);
 
-    public static final ResourceKey<BannerPattern> SPADES = register("spades");
-    public static final ResourceKey<BannerPattern> HEARTS = register("hearts");
-    public static final ResourceKey<BannerPattern> CLUBS = register("clubs");
-    public static final ResourceKey<BannerPattern> DIAMONDS = register("diamonds");
+    public static final RegistryObject<BannerPattern> SPADES = PATTERNS.register("spades", () -> new BannerPattern("charta:spades"));
+    public static final RegistryObject<BannerPattern> HEARTS = PATTERNS.register("hearts", () -> new BannerPattern("charta:hearts"));
+    public static final RegistryObject<BannerPattern> CLUBS = PATTERNS.register("clubs", () -> new BannerPattern("charta:clubs"));
+    public static final RegistryObject<BannerPattern> DIAMONDS = PATTERNS.register("diamonds", () -> new BannerPattern("charta:diamonds"));
 
-    private static ResourceKey<BannerPattern> register(String name) {
-        ResourceKey<BannerPattern> resourceKey = ResourceKey.create(Registries.BANNER_PATTERN, Charta.id(name));
-        BannerPattern pattern = new BannerPattern("block.minecraft.banner."+resourceKey.location().toShortLanguageKey());
-        PATTERNS.put(resourceKey, pattern);
-        return resourceKey;
+    public static void register(IEventBus bus) {
+        PATTERNS.register(bus);
     }
-
-//    public static void bootstrap(BootstrapContext<BannerPattern> context) {
-//        PATTERNS.forEach(context::register);
-//    }
 
 
 }

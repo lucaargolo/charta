@@ -2,6 +2,7 @@ package dev.lucaargolo.charta;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
+import dev.lucaargolo.charta.block.ModBannerPatterns;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
@@ -94,6 +95,7 @@ public class Charta {
 
     public Charta() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        ModBannerPatterns.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntityTypes.register(modEventBus);

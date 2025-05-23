@@ -22,10 +22,10 @@ public class ModBannerPatternTagsProvider extends TagsProvider<BannerPattern> {
     @Override
     protected void addTags(HolderLookup.@NotNull Provider provider) {
         this.tag(BannerPatternTags.NO_ITEM_REQUIRED).add(
-            ModBannerPatterns.SPADES,
-            ModBannerPatterns.HEARTS,
-            ModBannerPatterns.CLUBS,
-            ModBannerPatterns.DIAMONDS
+            ModBannerPatterns.SPADES.getKey(),
+            ModBannerPatterns.HEARTS.getKey(),
+            ModBannerPatterns.CLUBS.getKey(),
+            ModBannerPatterns.DIAMONDS.getKey()
         );
     }
 
