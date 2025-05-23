@@ -122,6 +122,7 @@ public abstract class GameOption<T> {
             Checkbox checkbox = new Checkbox(0, 0, width, height, this.getTitle(), this.get()) {
                 @Override
                 public void onPress() {
+                    super.onPress();
                     set(selected());
                 }
             };
@@ -161,9 +162,6 @@ public abstract class GameOption<T> {
         public Widget getWidget(Consumer<Integer> consumer, Font font, int width, int height, boolean showcase) {
             Function<Integer, Component> message = (i) -> this.getTitle().copy().append(": ").append(Integer.toString(i));
             AbstractSliderButton slider = new AbstractSliderButton(0, 0, width, height, message.apply(this.get()), this.get() * (1.0/(max - min))) {
-                //TODO: This
-                //private static final ResourceLocation SLIDER_HANDLE_SPRITE = new ResourceLocation("widget/slider_handle");
-
 
                 @Override
                 protected void updateMessage() {
