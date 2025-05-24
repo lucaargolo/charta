@@ -19,7 +19,7 @@ public class ModRenderType extends RenderType {
             "iron_leash",
             DefaultVertexFormat.POSITION_COLOR_LIGHTMAP,
             VertexFormat.Mode.TRIANGLE_STRIP,
-            1536,
+            256,
             false,
             false,
             RenderType.CompositeState.builder()
@@ -31,7 +31,7 @@ public class ModRenderType extends RenderType {
     );
 
     public static RenderType entityCard(ResourceLocation id) {
-        return create("entity_translucent", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536, true, true,
+        return create("entity_translucent", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true,
             RenderType.CompositeState.builder()
                 .setShaderState(ENTITY_CARD_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(id, false, false))
