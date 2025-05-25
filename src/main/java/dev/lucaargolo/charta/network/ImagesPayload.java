@@ -62,7 +62,7 @@ public class ImagesPayload implements CustomPacketPayload {
     public static void handleClient(ImagesPayload payload, NetworkEvent.Context context) {
         context.enqueueWork(() -> {
             ChartaClient.clearImages();
-            Charta.CARD_SUITS.setImages(payload.suitImages);
+            Charta.SUIT_IMAGES.setImages(payload.suitImages);
             Charta.CARD_IMAGES.setImages(payload.cardImages);
             Charta.DECK_IMAGES.setImages(payload.deckImages);
             ChartaClient.generateImages();
