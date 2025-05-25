@@ -218,7 +218,7 @@ public class CardTableBlock extends BaseEntityBlock {
                                 cardTable.centerOffset = offset;
                                 level.sendBlockUpdated(center, state, state, 3);
                             }
-                            if (stack.getItem() instanceof DeckItem && CardDeckItem.hasDeck(stack)) {
+                            if (stack.getItem() instanceof DeckItem && DeckItem.hasDeck(stack)) {
                                 if(!cardTable.getDeckStack().isEmpty()) {
                                     Vec3 c = center.getCenter();
                                     Containers.dropItemStack(level, c.x, c.y, c.z, cardTable.getDeckStack());

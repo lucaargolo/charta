@@ -12,22 +12,6 @@ public record Rank(ResourceLocation location, int ordinal) implements Comparable
 
     private static final LinkedHashSet<Rank> registry = new LinkedHashSet<>();
 
-    public Rank {
-        for(char c : location.toString().toCharArray()) {
-            if(c == '_' || c == '-' || c == '/' || c == '.') {
-                throw new IllegalStateException("Non [a-z0-9] character in rank location: " + location);
-            }
-        }
-        if(!registry.add(this)) {
-            throw new IllegalStateException("Duplicate rank: " + location);
-        }
-    }
-
-    public static DataResult<Rank> load(ResourceLocation location) {
-        Optional<Rank> rank = registry.stream().filter(r -> r.location.equals(location)).findFirst();
-        return rank.map(DataResult::success).orElseGet(() -> DataResult.error(() -> "No such rank: " + location));
-    }
-
     public static final Rank BLANK = new Rank(Charta.id("blank"), 0);
     public static final Rank ACE = new Rank(Charta.id("ace"), 1);
     public static final Rank TWO = new Rank(Charta.id("two"), 2);

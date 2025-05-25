@@ -12,7 +12,7 @@ public class CardDecksPayload implements CustomPacketPayload {
 
     private final LinkedHashMap<ResourceLocation, Deck> cardDecks;
 
-    public CardDecksPayload(LinkedHashMap<ResourceLocation, CardDeck> cardDecks) {
+    public CardDecksPayload(LinkedHashMap<ResourceLocation, Deck> cardDecks) {
         this.cardDecks = cardDecks;
     }
 
