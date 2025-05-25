@@ -50,7 +50,7 @@ public class DeckImageProvider implements DataProvider {
                         try (InputStream stream = Files.newInputStream(path)) {
                             CardImage.saveCards(ImageIO.read(stream), cardOutputFile, (fileToSave, cardImage) -> {
                                 CardImageUtils.saveImage(cardImage, fileToSave, cachedOutput);
-                            });
+                            }, String::valueOf, String::valueOf);
                         }catch (Exception e) {
                             Charta.LOGGER.error("Error loading image: {}", path, e);
                         }

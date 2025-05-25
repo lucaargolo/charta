@@ -35,7 +35,7 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
         super(deck.getName());
         this.parent = parent;
         this.deck = deck;
-        this.suits = this.deck.getCards().stream().map(Card::getSuit).collect(Collectors.toSet());
+        this.suits = this.deck.getCards().stream().map(Card::suit).collect(Collectors.toSet());
     }
 
     @Override
@@ -72,7 +72,7 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
 
         int i = 0;
         for(Suit suit : suits) {
-            List<Card> cards = deck.getCards().stream().filter(c -> c.getSuit().equals(suit)).sorted().toList();
+            List<Card> cards = deck.getCards().stream().filter(c -> c.suit().equals(suit)).sorted().toList();
 
             float leftOffset = cardWidth + Math.max(0f, maxWidth - (cards.size() * cardWidth)/(float) cards.size());
             float totalWidth = cardWidth + (leftOffset * (cards.size() - 1f));

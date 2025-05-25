@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-public class CardSuitResource implements ResourceManagerReloadListener {
+public class SuitImageResource implements ResourceManagerReloadListener {
 
     private HashMap<ResourceLocation, SuitImage> images = new HashMap<>();
 

@@ -9,6 +9,8 @@ import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.entity.ModPoiTypes;
 import dev.lucaargolo.charta.entity.ModVillagerProfessions;
 import dev.lucaargolo.charta.game.GameSlot;
+import dev.lucaargolo.charta.game.Rank;
+import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.item.ModCreativeTabs;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.item.ModItems;
@@ -16,7 +18,7 @@ import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.network.*;
 import dev.lucaargolo.charta.resources.CardDeckResource;
 import dev.lucaargolo.charta.resources.CardImageResource;
-import dev.lucaargolo.charta.resources.CardSuitResource;
+import dev.lucaargolo.charta.resources.SuitImageResource;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.PlayerOptionData;
 import net.minecraft.core.Holder;
@@ -50,16 +52,15 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 @Mod(Charta.MOD_ID)
 @SuppressWarnings("unused")
 public class Charta {
 
     private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, ResourceLocation.withDefaultNamespace( "empty"));
+    public static final Set<Suit> DEFAULT_SUITS = Set.of(Suit.SPADES, Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS);
+    public static final Set<Rank> DEFAULT_RANKS = Set.of(Rank.ACE, Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING);
 
     public static final String MOD_ID = "charta";
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -72,7 +73,7 @@ public class Charta {
     public static final ResourceLocation MISSING_CARD = Charta.id("missing_card");
     public static final ResourceLocation MISSING_GAME = Charta.id("missing_game");
 
-    public static final CardSuitResource CARD_SUITS = new CardSuitResource();
+    public static final SuitImageResource CARD_SUITS = new SuitImageResource();
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
     public static final CardDeckResource CARD_DECKS = new CardDeckResource();

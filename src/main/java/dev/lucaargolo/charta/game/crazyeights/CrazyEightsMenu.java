@@ -22,7 +22,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         public int get(int index) {
             return switch (index) {
                 case 0 -> game.drawsLeft;
-                case 1 -> game.currentSuit != null ? game.currentSuit.ordinal() : -1;
+                case 1 -> game.currentSuit != null ? game.currentSuit.id() : -1;
                 default -> 0;
             };
         }
@@ -31,7 +31,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         public void set(int index, int value) {
             switch (index) {
                 case 0 -> game.drawsLeft = (byte) value;
-                case 1 -> game.currentSuit = value >= 0 ? Suit.values()[value] : null;
+                case 1 -> game.currentSuit = value >= 0 ? Suit.getSuit(value) : null;
             }
         }
 
@@ -60,7 +60,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     }
 
     public Suit getCurrentSuit() {
-        return data.get(1) >= 0 ? Suit.values()[data.get(1)] : null;
+        return data.get(1) >= 0 ? Suit.getSuit(data.get(1)) : null;
     }
 
     @Override

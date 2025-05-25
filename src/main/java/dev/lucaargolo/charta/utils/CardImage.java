@@ -173,8 +173,8 @@ public class CardImage {
         return decompress(data, CardImage.WIDTH, CardImage.HEIGHT, CardImage::new);
     }
 
-    public static void saveCards(BufferedImage image, File outputFile, BiConsumer<File, CardImage> saveConsumer) {
-        saveImages(image, CardImage.WIDTH, CardImage.HEIGHT, outputFile, "mccard", saveConsumer);
+    public static void saveCards(BufferedImage image, File outputFile, BiConsumer<File, CardImage> saveConsumer, Function<Integer, String> columnNaming, Function<Integer, String> rowNaming) {
+        saveImages(image, CardImage.WIDTH, CardImage.HEIGHT, outputFile, "mccard", saveConsumer, columnNaming, rowNaming);
     }
 
     protected static <I extends CardImage> I loadFromFile(File file, int width, int height, Function<byte[], I> function) throws IOException {
@@ -198,7 +198,7 @@ public class CardImage {
         }
     }
 
-    protected static void saveImages(BufferedImage image, int width, int height, File outputFile, String extension, BiConsumer<File, CardImage> saveConsumer) {
+    protected static void saveImages(BufferedImage image, int width, int height, File outputFile, String extension, BiConsumer<File, CardImage> saveConsumer, Function<Integer, String> columnNaming, Function<Integer, String> rowNaming) {
         CardImage[] cards = generateImages(image, width, height);
         int rows = image.getWidth() / width;
         int cols = image.getHeight() / height;
@@ -213,7 +213,7 @@ public class CardImage {
                     if (!cardImage.isEmpty()) {
                         File folderToSave = new File(outputFile.getAbsolutePath());
                         folderToSave.mkdirs();
-                        File fileToSave = new File(outputFile.getAbsolutePath() + File.separator + (cols == 1 ? row : col + "_" + row) + "." + extension);
+                        File fileToSave = new File(outputFile.getAbsolutePath() + File.separator + (cols == 1 ? rowNaming.apply(row) : columnNaming.apply(col) + "_" + rowNaming.apply(row)) + "." + extension);
                         saveConsumer.accept(fileToSave, cardImage);
                     }
                 }

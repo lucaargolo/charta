@@ -134,7 +134,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
         PoseStack.Pose entry = poseStack.last();
 
         if(IrisCompat.isPresent()) {
-            ResourceLocation glowTexture = card.isFlipped() ? deck.getDeckTexture(true) : deck.getCardTexture(card, true);
+            ResourceLocation glowTexture = card.flipped() ? deck.getDeckTexture(true) : deck.getCardTexture(card, true);
             RenderType glowType = RenderType.entityTranslucentEmissive(glowTexture);
             VertexConsumer glowConsumer = bufferSource.getBuffer(glowType);
             glowConsumer.addVertex(entry.pose(), (x+CardImage.WIDTH)/160f, y/160f, 0).setColor(1f, 1f, 1f, 1f).setUv(1f, 1f).setOverlay(packedOverlay).setLight(LightTexture.FULL_BRIGHT).setNormal(entry, normal.x, normal.y, normal.z);
@@ -143,7 +143,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
             glowConsumer.addVertex(entry.pose(), x/160f, y/160f, 0).setColor(1f, 1f, 1f, 1f).setUv(0f, 1f).setOverlay(packedOverlay).setLight(LightTexture.FULL_BRIGHT).setNormal(entry, normal.x, normal.y, normal.z);
         }
 
-        ResourceLocation texture = card.isFlipped() ? deck.getDeckTexture(false) : deck.getCardTexture(card, false);
+        ResourceLocation texture = card.flipped() ? deck.getDeckTexture(false) : deck.getCardTexture(card, false);
         RenderType type = IrisCompat.isPresent() ? RenderType.entityTranslucent(texture) : ModRenderType.entityCard(texture);
         VertexConsumer consumer = bufferSource.getBuffer(type);
 
