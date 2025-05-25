@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.client.gui.screens.TableScreen;
-import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.Deck;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,10 +12,10 @@ import net.minecraftforge.network.NetworkEvent;
 public class TableScreenPayload implements CustomPacketPayload {
 
     private final BlockPos pos;
-    private final CardDeck deck;
+    private final Deck deck;
     private final int[] players;
 
-    public TableScreenPayload(BlockPos pos, CardDeck deck, int[] players) {
+    public TableScreenPayload(BlockPos pos, Deck deck, int[] players) {
         this.pos = pos;
         this.deck = deck;
         this.players = players;
@@ -23,7 +23,7 @@ public class TableScreenPayload implements CustomPacketPayload {
 
     public TableScreenPayload(FriendlyByteBuf buf) {
         this.pos = buf.readBlockPos();
-        this.deck = CardDeck.fromBuf(buf);
+        this.deck = Deck.fromBuf(buf);
         int size = buf.readInt();
         this.players = new int[size];
         for (int i = 0; i < players.length; i++) {
@@ -48,7 +48,7 @@ public class TableScreenPayload implements CustomPacketPayload {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void openScreen(BlockPos pos, CardDeck deck, int[] players) {
+    private static void openScreen(BlockPos pos, Deck deck, int[] players) {
         Minecraft.getInstance().setScreen(new TableScreen(pos, deck, players));
     }
 

@@ -2,9 +2,9 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
-import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardGames;
+import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.GameOption;
 import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
 import dev.lucaargolo.charta.network.PlayerOptionsPayload;
@@ -77,7 +77,7 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
             this.resetButton = this.addRenderableWidget(Button.builder(Component.translatable("button.charta.reset"), b -> {
                 boolean reset = CardGames.areOptionsChanged(gameFactory, game);
                 if(reset) {
-                    G defaultGame = gameFactory.create(List.of(), CardDeck.EMPTY);
+                    G defaultGame = gameFactory.create(List.of(), Deck.EMPTY);
                     this.game.setRawOptions(defaultGame.getRawOptions());
                 }
                 this.updateButtons(false);
@@ -102,7 +102,7 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
 
     public void updateButtons(boolean saved) {
         boolean reset = false;
-        G defaultGame = gameFactory.create(List.of(), CardDeck.EMPTY);
+        G defaultGame = gameFactory.create(List.of(), Deck.EMPTY);
         for(int i = 0; i < defaultGame.getOptions().size(); i++) {
             GameOption<?> defaultOption = defaultGame.getOptions().get(i);
             GameOption<?> modifiedOption = game.getOptions().get(i);

@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.Deck;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent;
@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 
 public class CardDecksPayload implements CustomPacketPayload {
 
-    private final LinkedHashMap<ResourceLocation, CardDeck> cardDecks;
+    private final LinkedHashMap<ResourceLocation, Deck> cardDecks;
 
     public CardDecksPayload(LinkedHashMap<ResourceLocation, CardDeck> cardDecks) {
         this.cardDecks = cardDecks;
@@ -20,7 +20,7 @@ public class CardDecksPayload implements CustomPacketPayload {
         this.cardDecks = new LinkedHashMap<>();
         int size = buf.readInt();
         for (int i = 0; i < size; i++) {
-            this.cardDecks.put(buf.readResourceLocation(), CardDeck.fromBuf(buf));
+            this.cardDecks.put(buf.readResourceLocation(), Deck.fromBuf(buf));
         }
     }
 

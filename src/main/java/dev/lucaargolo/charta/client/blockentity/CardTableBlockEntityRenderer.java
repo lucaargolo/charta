@@ -7,7 +7,7 @@ import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.client.ModRenderType;
 import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.client.renderer.LightTexture;
@@ -32,7 +32,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
 
     @Override
     public void render(@NotNull CardTableBlockEntity blockEntity, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        CardDeck deck = blockEntity.getDeck();
+        Deck deck = blockEntity.getDeck();
         ItemStack deckStack = blockEntity.getDeckStack();
         poseStack.pushPose();
         poseStack.translate(0.0, 0.85, 1.0);
@@ -130,7 +130,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
         poseStack.popPose();
     }
 
-    private void drawCard(CardDeck deck, Card card, int packedLight, int packedOverlay, PoseStack poseStack, MultiBufferSource bufferSource, float x, float y, Vector3f normal) {
+    public void drawCard(Deck deck, Card card, int packedLight, int packedOverlay, PoseStack poseStack, MultiBufferSource bufferSource, float x, float y, Vector3f normal) {
         PoseStack.Pose entry = poseStack.last();
 
         if(IrisCompat.isPresent()) {

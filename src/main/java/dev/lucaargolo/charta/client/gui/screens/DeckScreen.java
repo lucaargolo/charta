@@ -3,7 +3,7 @@ package dev.lucaargolo.charta.client.gui.screens;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.gui.components.CardWidget;
 import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
@@ -23,12 +23,12 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
 
     private final Screen parent;
 
-    private final CardDeck deck;
+    private final Deck deck;
 
     private int headerOffset = 10;
     private int footerOffset = 10;
 
-    public DeckScreen(@Nullable Screen parent, CardDeck deck) {
+    public DeckScreen(@Nullable Screen parent, Deck deck) {
         super(deck.getName());
         this.parent = parent;
         this.deck = deck;

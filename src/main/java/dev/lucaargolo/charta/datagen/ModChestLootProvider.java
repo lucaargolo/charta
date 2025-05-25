@@ -1,8 +1,7 @@
 package dev.lucaargolo.charta.datagen;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.game.CardDeck;
-import dev.lucaargolo.charta.game.CardDecks;
+import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.item.CardDeckItem;
 import dev.lucaargolo.charta.item.ModItems;
 import net.minecraft.data.loot.LootTableSubProvider;
@@ -38,10 +37,10 @@ public class ModChestLootProvider implements LootTableSubProvider {
     public void generate(@NotNull BiConsumer<ResourceLocation, LootTable.Builder> consumer) {
         LootPool.Builder mineshaftPool = LootPool.lootPool()
             .setRolls(ConstantValue.exactly(1))
-            .add(deck(CardDecks.FUN_INVERTED, 0.75))
-            .add(deck(CardDecks.FUN_CLASSIC, 0.75))
-            .add(deck(CardDecks.FUN_NEON, 0.25))
-            .add(deck(CardDecks.FUN_MINIMAL_NEON, 0.25))
+            .add(deck(DefaultDecks.FUN_INVERTED, 0.75))
+            .add(deck(DefaultDecks.FUN_CLASSIC, 0.75))
+            .add(deck(DefaultDecks.FUN_NEON, 0.25))
+            .add(deck(DefaultDecks.FUN_MINIMAL_NEON, 0.25))
             .add(EmptyLootItem.emptyItem().setWeight(50));
         addGroup(mineshaftPool, "metals", 1.25);
         addGroup(mineshaftPool, "gems", 1.0);
@@ -50,10 +49,10 @@ public class ModChestLootProvider implements LootTableSubProvider {
 
         LootPool.Builder pyramidPool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1))
-                .add(deck(CardDecks.FUN_INVERTED, 2.0))
-                .add(deck(CardDecks.FUN_CLASSIC, 2.0))
-                .add(deck(CardDecks.FUN_NEON, 0.75))
-                .add(deck(CardDecks.FUN_MINIMAL_NEON, 0.75))
+                .add(deck(DefaultDecks.FUN_INVERTED, 2.0))
+                .add(deck(DefaultDecks.FUN_CLASSIC, 2.0))
+                .add(deck(DefaultDecks.FUN_NEON, 0.75))
+                .add(deck(DefaultDecks.FUN_MINIMAL_NEON, 0.75))
                 .add(EmptyLootItem.emptyItem().setWeight(50));
         addGroup(pyramidPool, "metals", 0.25);
         addGroup(pyramidPool, "neon", 0.5);
@@ -61,10 +60,10 @@ public class ModChestLootProvider implements LootTableSubProvider {
 
         LootPool.Builder dungeonPool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1))
-                .add(deck(CardDecks.FUN_INVERTED, 0.5))
-                .add(deck(CardDecks.FUN_CLASSIC, 0.5))
-                .add(deck(CardDecks.FUN_NEON, 0.125))
-                .add(deck(CardDecks.FUN_MINIMAL_NEON, 0.125))
+                .add(deck(DefaultDecks.FUN_INVERTED, 0.5))
+                .add(deck(DefaultDecks.FUN_CLASSIC, 0.5))
+                .add(deck(DefaultDecks.FUN_NEON, 0.125))
+                .add(deck(DefaultDecks.FUN_MINIMAL_NEON, 0.125))
                 .add(EmptyLootItem.emptyItem().setWeight(50));
         addGroup(dungeonPool, "flags", 2.0);
         addGroup(dungeonPool, "metals", 0.5);
@@ -74,11 +73,11 @@ public class ModChestLootProvider implements LootTableSubProvider {
     }
 
     private static void addGroup(LootPool.Builder pool, String group, double chanceMultiplier) {
-        CardDecks.GROUPS.getOrDefault(group, List.of()).forEach(key -> Optional.ofNullable(CardDecks.DECKS.get(key)).ifPresent(deck -> pool.add(deck(deck, chanceMultiplier))));
+        DefaultDecks.GROUPS.getOrDefault(group, List.of()).forEach(key -> Optional.ofNullable(DefaultDecks.DECKS.get(key)).ifPresent(deck -> pool.add(deck(deck, chanceMultiplier))));
     }
 
-    private static LootPoolSingletonContainer.Builder<?> deck(CardDeck deck, double chanceMultiplier) {
-        ResourceLocation id = CardDecks.DECKS.entrySet().stream().filter(e -> e.getValue().equals(deck)).map(Map.Entry::getKey).findFirst().orElse(Charta.id("missing"));
+    private static LootPoolSingletonContainer.Builder<?> deck(Deck deck, double chanceMultiplier) {
+        ResourceLocation id = DefaultDecks.DECKS.entrySet().stream().filter(e -> e.getValue().equals(deck)).map(Map.Entry::getKey).findFirst().orElse(Charta.id("missing"));
         return LootItem.lootTableItem(ModItems.DECK.get())
                 .apply(SetNbtFunction.setTag(CardDeckItem.getDeck(id).getOrCreateTag()))
                 .setWeight(Mth.ceil((3 - deck.getRarity().ordinal()) * 20 * chanceMultiplier));

@@ -3,9 +3,9 @@ package dev.lucaargolo.charta.client.gui.screens;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
-import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardGames;
+import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import dev.lucaargolo.charta.utils.PacketUtils;
@@ -32,12 +32,12 @@ import java.util.stream.Stream;
 public class TableScreen extends Screen {
 
     private final BlockPos pos;
-    private final CardDeck deck;
+    private final Deck deck;
     private final int[] players;
 
     private GameWidget<?> widget;
 
-    public TableScreen(BlockPos pos, CardDeck deck, int[] players) {
+    public TableScreen(BlockPos pos, Deck deck, int[] players) {
         super(Component.translatable("message.charta.choose_game"));
         this.pos = pos;
         this.deck = deck;
@@ -106,7 +106,7 @@ public class TableScreen extends Screen {
             this.gameId = gameId;
             this.gameFactory = gameFactory;
             this.texture = gameId.withPrefix("textures/gui/game/").withSuffix(".png");
-            this.game = gameFactory.create(List.of(), CardDeck.EMPTY);
+            this.game = gameFactory.create(List.of(), Deck.EMPTY);
 
             boolean invalidDeck = !CardGame.canPlayGame(this.game, deck);
             boolean notEnoughPlayers = players.length < this.game.getMinPlayers();

@@ -35,7 +35,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
     public Suit currentSuit;
     public int drawsLeft;
 
-    public CrazyEightsGame(List<CardPlayer> players, CardDeck deck) {
+    public CrazyEightsGame(List<CardPlayer> players, Deck deck) {
         super(players, deck);
         this.drawsLeft = AVAILABLE_DRAWS.get();
 
@@ -73,12 +73,12 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
     }
 
     @Override
-    public AbstractCardMenu<CrazyEightsGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck) {
+    public AbstractCardMenu<CrazyEightsGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, Deck deck) {
         return new CrazyEightsMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray(), this.getRawOptions());
     }
 
     @Override
-    public Predicate<CardDeck> getDeckPredicate() {
+    public Predicate<Deck> getDeckPredicate() {
         return (deck) -> {
             return deck.getCards().size() >= 52 && Charta.DEFAULT_SUITS.containsAll(deck.getUniqueSuits()) && deck.getUniqueSuits().containsAll(Charta.DEFAULT_SUITS);
         };

@@ -45,7 +45,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
     public int moves = 0;
     public int time = 0;
 
-    public SolitaireGame(List<CardPlayer> players, CardDeck deck) {
+    public SolitaireGame(List<CardPlayer> players, Deck deck) {
         super(players, deck);
 
         float middleX = CardTableBlockEntity.TABLE_WIDTH/2f;
@@ -209,12 +209,12 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
     }
 
     @Override
-    public AbstractCardMenu<SolitaireGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck) {
+    public AbstractCardMenu<SolitaireGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, Deck deck) {
         return new SolitaireMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray(), this.getRawOptions());
     }
 
     @Override
-    public Predicate<CardDeck> getDeckPredicate() {
+    public Predicate<Deck> getDeckPredicate() {
         return (deck) -> {
             return deck.getCards().size() == 52 && Charta.DEFAULT_SUITS.containsAll(deck.getUniqueSuits()) && deck.getUniqueSuits().containsAll(Charta.DEFAULT_SUITS);
         };

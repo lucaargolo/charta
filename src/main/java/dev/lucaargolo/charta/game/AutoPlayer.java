@@ -69,7 +69,7 @@ public class AutoPlayer implements CardPlayer {
     }
 
     @Override
-    public void openScreen(CardGame<?> game, BlockPos pos, CardDeck deck) {
+    public void openScreen(CardGame<?> game, BlockPos pos, Deck deck) {
 
     }
 

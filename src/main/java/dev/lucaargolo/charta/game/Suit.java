@@ -18,10 +18,22 @@ public class Suit implements Comparable<Suit> {
     private static final LinkedHashSet<Suit> registry = new LinkedHashSet<>();
     private static final Int2ObjectMap<Suit> backing = new Int2ObjectArrayMap<>();
 
+    public static final Codec<Suit> CODEC = ResourceLocation.CODEC.comapFlatMap(Suit::load, r -> r.location);
+
+    public static final Suit BLANK = new Suit(Charta.id("blank"));
+
+    public static final Suit SPADES = new Suit(Charta.id("spades"));
+    public static final Suit HEARTS = new Suit(Charta.id("hearts"));
+    public static final Suit CLUBS = new Suit(Charta.id("clubs"));
+    public static final Suit DIAMONDS = new Suit(Charta.id("diamonds"));
+
+    public static final Suit RED = new Suit(Charta.id("red"));
+    public static final Suit YELLOW = new Suit(Charta.id("yellow"));
+    public static final Suit GREEN = new Suit(Charta.id("green"));
+    public static final Suit BLUE = new Suit(Charta.id("blue"));
+
     private final ResourceLocation location;
     private final int id;
-
-    public static final Codec<Suit> CODEC = ResourceLocation.CODEC.comapFlatMap(Suit::load, r -> r.location);
 
     public Suit(ResourceLocation location) {
         for(char c : location.toString().toCharArray()) {
@@ -42,18 +54,6 @@ public class Suit implements Comparable<Suit> {
         Optional<Suit> suit = registry.stream().filter(r -> r.location.equals(location)).findFirst();
         return suit.map(DataResult::success).orElseGet(() -> DataResult.error(() -> "No such suit: " + location));
     }
-
-    public static final Suit BLANK = new Suit(Charta.id("blank"));
-
-    public static final Suit SPADES = new Suit(Charta.id("spades"));
-    public static final Suit HEARTS = new Suit(Charta.id("hearts"));
-    public static final Suit CLUBS = new Suit(Charta.id("clubs"));
-    public static final Suit DIAMONDS = new Suit(Charta.id("diamonds"));
-
-    public static final Suit RED = new Suit(Charta.id("red"));
-    public static final Suit YELLOW = new Suit(Charta.id("yellow"));
-    public static final Suit GREEN = new Suit(Charta.id("green"));
-    public static final Suit BLUE = new Suit(Charta.id("blue"));
 
     public ResourceLocation location() {
         return location;

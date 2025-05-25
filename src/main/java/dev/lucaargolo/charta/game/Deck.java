@@ -24,21 +24,21 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class CardDeck {
+public class Deck {
 
-    public static final CardDeck EMPTY = new CardDeck(Rarity.COMMON, false, List.of(), s -> Charta.MISSING_SUIT, s -> "suit.charta.unknown", c -> Charta.MISSING_CARD, c -> "card.charta.unknown", () -> Charta.MISSING_DECK, () -> "deck.charta.unknown");
+    public static final Deck EMPTY = new Deck(Rarity.COMMON, false, List.of(), s -> Charta.MISSING_SUIT, s -> "suit.charta.unknown", c -> Charta.MISSING_CARD, c -> "card.charta.unknown", () -> Charta.MISSING_DECK, () -> "deck.charta.unknown");
 
-    public static final Codec<CardDeck> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Codec.STRING.comapFlatMap(CardDeck::readRarity, CardDeck::writeRarity).stable().fieldOf("rarity").forGetter(CardDeck::getRarity),
-        Codec.BOOL.fieldOf("tradeable").forGetter(CardDeck::isTradeable),
-        Card.CODEC.listOf().fieldOf("cards").forGetter(CardDeck::getCards),
-        Codec.unboundedMap(Suit.CODEC, ResourceLocation.CODEC).fieldOf("suits_images").forGetter(CardDeck::getSuitsLocation),
-        Codec.unboundedMap(Suit.CODEC, Codec.STRING).fieldOf("suits_keys").forGetter(CardDeck::getSuitsTranslatableKeys),
-        Codec.unboundedMap(Card.CODEC, ResourceLocation.CODEC).fieldOf("cards_images").forGetter(CardDeck::getCardsLocation),
-        Codec.unboundedMap(Card.CODEC, Codec.STRING).fieldOf("cards_keys").forGetter(CardDeck::getCardsTranslatableKeys),
-        ResourceLocation.CODEC.fieldOf("deck_image").forGetter(CardDeck::getDeckLocation),
-        Codec.STRING.fieldOf("deck_key").forGetter(CardDeck::getDeckTranslatableKey)
-    ).apply(instance, CardDeck::new));
+    public static final Codec<Deck> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        Codec.STRING.comapFlatMap(Deck::readRarity, Deck::writeRarity).stable().fieldOf("rarity").forGetter(Deck::getRarity),
+        Codec.BOOL.fieldOf("tradeable").forGetter(Deck::isTradeable),
+        Card.CODEC.listOf().fieldOf("cards").forGetter(Deck::getCards),
+        Codec.unboundedMap(Suit.CODEC, ResourceLocation.CODEC).fieldOf("suits_images").forGetter(Deck::getSuitsLocation),
+        Codec.unboundedMap(Suit.CODEC, Codec.STRING).fieldOf("suits_keys").forGetter(Deck::getSuitsTranslatableKeys),
+        Codec.unboundedMap(Card.CODEC, ResourceLocation.CODEC).fieldOf("cards_images").forGetter(Deck::getCardsLocation),
+        Codec.unboundedMap(Card.CODEC, Codec.STRING).fieldOf("cards_keys").forGetter(Deck::getCardsTranslatableKeys),
+        ResourceLocation.CODEC.fieldOf("deck_image").forGetter(Deck::getDeckLocation),
+        Codec.STRING.fieldOf("deck_key").forGetter(Deck::getDeckTranslatableKey)
+    ).apply(instance, Deck::new));
 
     public static String writeRarity(Rarity rarity) {
         return rarity.name().toLowerCase();
@@ -46,10 +46,10 @@ public class CardDeck {
 
     public static DataResult<Rarity> readRarity(String string) {
         try {
-            return DataResult.success(Rarity.valueOf(string.toUpperCase()));
+            return DataResult.success(Rarity.valueOf(string.toUpperCase(Locale.US)));
         } catch (Exception e) {
             return DataResult.error(() -> {
-                return "Not a valid card: " + string + " " + e.getMessage();
+                return "Not a valid rarity: " + string + " " + e.getMessage();
             });
         }
     }
@@ -69,11 +69,11 @@ public class CardDeck {
     private final Supplier<ResourceLocation> deckLocation;
     private final Supplier<String> deckTranslatableKey;
 
-    private CardDeck(Rarity rarity, boolean tradeable, List<Card> cards, Map<Suit, ResourceLocation> suitsLocation, Map<Suit, String> suitsTranslatableKey, Map<Card, ResourceLocation> cardsLocation, Map<Card, String> cardsTranslatableKey, ResourceLocation deckLocation, String deckTranslatableKey) {
+    private Deck(Rarity rarity, boolean tradeable, List<Card> cards, Map<Suit, ResourceLocation> suitsLocation, Map<Suit, String> suitsTranslatableKey, Map<Card, ResourceLocation> cardsLocation, Map<Card, String> cardsTranslatableKey, ResourceLocation deckLocation, String deckTranslatableKey) {
         this(rarity, tradeable, cards, suit -> suitsLocation.getOrDefault(suit, Charta.MISSING_SUIT), suit -> suitsTranslatableKey.getOrDefault(suit, "suit.charta.unknown"), card -> cardsLocation.getOrDefault(card, Charta.MISSING_CARD), card -> cardsTranslatableKey.getOrDefault(card, "card.charta.unknown"), () -> deckLocation, () -> deckTranslatableKey);
     }
 
-    public CardDeck(Rarity rarity, boolean tradeable, List<Card> cards, Function<Suit, ResourceLocation> suitsLocation, Function<Suit, String> suitsTranslatableKey, Function<Card, ResourceLocation> cardsLocation, Function<Card, String> cardsTranslatableKey, Supplier<ResourceLocation> deckLocation, Supplier<String> deckTranslatableKey) {
+    public Deck(Rarity rarity, boolean tradeable, List<Card> cards, Function<Suit, ResourceLocation> suitsLocation, Function<Suit, String> suitsTranslatableKey, Function<Card, ResourceLocation> cardsLocation, Function<Card, String> cardsTranslatableKey, Supplier<ResourceLocation> deckLocation, Supplier<String> deckTranslatableKey) {
         this.rarity = rarity;
         this.tradeable = tradeable;
         this.cards = ImmutableList.copyOf(cards);
@@ -173,7 +173,7 @@ public class CardDeck {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CardDeck deck = (CardDeck) o;
+        Deck deck = (Deck) o;
         return rarity == deck.rarity &&
             Objects.equals(cards, deck.cards) &&
             Objects.equals(getSuitsLocation(), deck.getSuitsLocation()) &&
@@ -198,11 +198,11 @@ public class CardDeck {
         );
     }
 
-    public static CardDeck simple(Rarity rarity, boolean canBeTraded, ResourceLocation cardLocation, ResourceLocation deckLocation) {
+    public static Deck simple(Rarity rarity, boolean canBeTraded, ResourceLocation cardLocation, ResourceLocation deckLocation) {
         return simple(rarity, canBeTraded, cardLocation, cardLocation, deckLocation);
     }
 
-    public static CardDeck simple(Rarity rarity, boolean canBeTraded, ResourceLocation suitLocation, ResourceLocation cardLocation, ResourceLocation deckLocation) {
+    public static Deck simple(Rarity rarity, boolean canBeTraded, ResourceLocation suitLocation, ResourceLocation cardLocation, ResourceLocation deckLocation) {
         List<Card> deck = new ArrayList<>();
         for (Suit suit : Charta.DEFAULT_SUITS) {
             for (Rank rank : Charta.DEFAULT_RANKS) {
@@ -214,14 +214,14 @@ public class CardDeck {
             translatableKey =  "deck." + deckLocation.getNamespace() + "." + deckLocation.getPath().replace("/", ".");
         }
         String deckTranslatableKey = translatableKey;
-        return new CardDeck(rarity, canBeTraded, deck, (suit) -> suitLocation.withSuffix("/" + suit.location().getPath()), (suit) -> "suit.charta."+suit.location().getPath(), (card) -> cardLocation.withSuffix( "/" + card.suit().location().getPath() + "_" + card.rank().location().getPath()), (card) -> "card.charta."+card.suit().location().getPath()+"."+card.rank().location().getPath(), () -> deckLocation, () -> deckTranslatableKey);
+        return new Deck(rarity, canBeTraded, deck, (suit) -> suitLocation.withSuffix("/" + suit.location().getPath()), (suit) -> "suit.charta."+suit.location().getPath(), (card) -> cardLocation.withSuffix( "/" + card.suit().location().getPath() + "_" + card.rank().location().getPath()), (card) -> "card.charta."+card.suit().location().getPath()+"."+card.rank().location().getPath(), () -> deckLocation, () -> deckTranslatableKey);
     }
 
-    public static CardDeck fun(Rarity rarity, boolean canBeTraded, ResourceLocation cardLocation, ResourceLocation deckLocation) {
+    public static Deck fun(Rarity rarity, boolean canBeTraded, ResourceLocation cardLocation, ResourceLocation deckLocation) {
         return fun(rarity, canBeTraded, cardLocation, cardLocation, deckLocation);
     }
 
-    public static CardDeck fun(Rarity rarity, boolean canBeTraded, ResourceLocation suitLocation, ResourceLocation cardLocation, ResourceLocation deckLocation) {
+    public static Deck fun(Rarity rarity, boolean canBeTraded, ResourceLocation suitLocation, ResourceLocation cardLocation, ResourceLocation deckLocation) {
         List<Card> deck = new ArrayList<>();
         for (Suit suit : FunGame.SUITS) {
             for (Rank rank : FunGame.RANKS) {
@@ -237,7 +237,7 @@ public class CardDeck {
             translatableKey =  "deck." + deckLocation.getNamespace() + "." + deckLocation.getPath().replace("/", ".");
         }
         String deckTranslatableKey = translatableKey;
-        return new CardDeck(rarity, canBeTraded, deck, (suit) -> suitLocation.withSuffix("/" + suit.location().getPath()), (suit) -> "suit.charta."+suit.location().getPath(), (card) -> cardLocation.withSuffix( "/" + card.suit().location().getPath() + "_" + card.rank().location().getPath()), (card) -> card.rank() == Rank.WILD || card.rank() == Rank.WILD_PLUS_4 ? "card.charta."+card.rank().location().getPath() : "card.charta."+card.suit().location().getPath()+"."+card.rank().location().getPath(), () -> deckLocation, () -> deckTranslatableKey);
+        return new Deck(rarity, canBeTraded, deck, (suit) -> suitLocation.withSuffix("/" + suit.location().getPath()), (suit) -> "suit.charta."+suit.location().getPath(), (card) -> cardLocation.withSuffix( "/" + card.suit().location().getPath() + "_" + card.rank().location().getPath()), (card) -> card.rank() == Rank.WILD || card.rank() == Rank.WILD_PLUS_4 ? "card.charta."+card.rank().location().getPath() : "card.charta."+card.suit().location().getPath()+"."+card.rank().location().getPath(), () -> deckLocation, () -> deckTranslatableKey);
     }
 
     public int getCardColor(Card card) {
@@ -272,11 +272,11 @@ public class CardDeck {
         buf.writeNbt(toTag());
     }
 
-    public static CardDeck fromTag(CompoundTag tag) {
+    public static Deck fromTag(CompoundTag tag) {
         return CODEC.parse(NbtOps.INSTANCE, tag).resultOrPartial(Charta.LOGGER::error).orElseThrow();
     }
 
-    public static CardDeck fromBuf(FriendlyByteBuf buf) {
+    public static Deck fromBuf(FriendlyByteBuf buf) {
         return fromTag(buf.readNbt());
     }
 }
