@@ -3,25 +3,29 @@ package dev.lucaargolo.charta.game;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
-public class Card implements Comparable<Card>, StringRepresentable {
+public class Card implements Comparable<Card> {
 
-    private static final Card[] CARDS = new Card[Suit.values().length * Rank.values().length];
-
-    static {
-        int i = 0;
-        for (Suit suit : Suit.values()) {
-            for (Rank rank : Rank.values()) {
-                CARDS[i++] = new Card(suit, rank);
+    public static final Codec<Card> CODEC = Codec.STRING.comapFlatMap(
+        card -> {
+            String[] elements = card.split("_");
+            try {
+                ResourceLocation suit = ResourceLocation.parse(elements[0]);
+                ResourceLocation rank;
+                if(elements[1].contains(":")) {
+                    rank = ResourceLocation.parse(elements[1]);
+                }else{
+                    rank = ResourceLocation.fromNamespaceAndPath(suit.getNamespace(), elements[1]);
+                }
+                return DataResult.success(new Card(Suit.load(suit).getOrThrow(), Rank.load(rank).getOrThrow()));
+            }catch (Exception e) {
+                return DataResult.error(() -> "Invalid card format: " + card);
             }
-        }
-    }
-
-    public static final Codec<Card> CODEC = Codec.STRING.comapFlatMap(Card::read, Card::toString).stable();
+        }, Card::toString
+    );
 
     public static final Card BLANK = new Card(Suit.BLANK, Rank.BLANK, true);
 
@@ -39,15 +43,15 @@ public class Card implements Comparable<Card>, StringRepresentable {
         this.flipped = flipped;
     }
 
-    public Suit getSuit() {
+    public Suit suit() {
         return suit;
     }
 
-    public Rank getRank() {
+    public Rank rank() {
         return rank;
     }
 
-    public boolean isFlipped() {
+    public boolean flipped() {
         return flipped;
     }
 
@@ -60,7 +64,7 @@ public class Card implements Comparable<Card>, StringRepresentable {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Card card = (Card) obj;
-        return flipped == card.flipped && suit == card.suit && rank == card.rank;
+        return flipped == card.flipped && suit.equals(card.suit) && rank.equals(card.rank);
     }
 
     @Override
@@ -77,28 +81,12 @@ public class Card implements Comparable<Card>, StringRepresentable {
 
     @Override
     public String toString() {
-        return suit.getSerializedName()+":"+rank.getSerializedName();
-    }
-
-    public static DataResult<Card> read(String string) {
-        try {
-            String[] in = string.split(":");
-            Card card = new Card(Suit.valueOf(in[0].toUpperCase()), Rank.valueOf(in[1].toUpperCase()));
-            return DataResult.success(card);
-        } catch (Exception e) {
-            return DataResult.error(() -> {
-                return "Not a valid card: " + string + " " + e.getMessage();
-            });
+        if(suit.location().getNamespace().equals(rank.location().getNamespace())) {
+            String namespace = suit.location().getNamespace();
+            return namespace + ":" + suit.location().getPath() + "_" + rank.location().getPath();
+        }else{
+            return suit + "_" + rank;
         }
-    }
-
-    @Override
-    public @NotNull String getSerializedName() {
-        return this.toString();
-    }
-
-    public static Card[] values() {
-        return CARDS;
     }
 
     public Card copy() {
@@ -106,14 +94,14 @@ public class Card implements Comparable<Card>, StringRepresentable {
     }
 
     public void toBuf(FriendlyByteBuf buf) {
-        buf.writeEnum(suit);
-        buf.writeEnum(rank);
+        buf.writeResourceLocation(suit.location());
+        buf.writeResourceLocation(rank.location());
         buf.writeBoolean(flipped);
     }
 
     public static Card fromBuf(FriendlyByteBuf buf) {
-        Suit suit = buf.readEnum(Suit.class);
-        Rank rank = buf.readEnum(Rank.class);
+        Suit suit = Suit.load(buf.readResourceLocation()).getOrThrow();
+        Rank rank = Rank.load(buf.readResourceLocation()).getOrThrow();
         boolean flipped = buf.readBoolean();
         return new Card(suit, rank, flipped);
     }

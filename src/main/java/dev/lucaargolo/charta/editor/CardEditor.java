@@ -343,7 +343,7 @@ public class CardEditor extends JFrame {
                     } catch (IOException e) {
                         LOGGER.log(Level.SEVERE, "Error saving file: "+fileToSave.getAbsoluteFile(), e);
                     }
-                });
+                }, String::valueOf, String::valueOf);
                 JOptionPane.showMessageDialog(this, "Finalized atlas conversion.");
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Error loading image: "+selectedFile.getAbsoluteFile(), e);

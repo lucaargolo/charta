@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.game;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -8,6 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.compat.IrisCompat;
+import dev.lucaargolo.charta.game.fun.FunGame;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import dev.lucaargolo.charta.utils.SuitImage;
 import net.minecraft.nbt.CompoundTag;
@@ -15,7 +17,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.phys.Vec3;
 
@@ -31,10 +32,10 @@ public class CardDeck {
         Codec.STRING.comapFlatMap(CardDeck::readRarity, CardDeck::writeRarity).stable().fieldOf("rarity").forGetter(CardDeck::getRarity),
         Codec.BOOL.fieldOf("tradeable").forGetter(CardDeck::isTradeable),
         Card.CODEC.listOf().fieldOf("cards").forGetter(CardDeck::getCards),
-        Codec.simpleMap(Suit.CODEC, ResourceLocation.CODEC, StringRepresentable.keys(Suit.values())).fieldOf("suits_images").forGetter(CardDeck::getSuitsLocation),
-        Codec.simpleMap(Suit.CODEC, Codec.STRING, StringRepresentable.keys(Suit.values())).fieldOf("suits_keys").forGetter(CardDeck::getSuitsTranslatableKeys),
-        Codec.simpleMap(Card.CODEC, ResourceLocation.CODEC, StringRepresentable.keys(Card.values())).fieldOf("cards_images").forGetter(CardDeck::getCardsLocation),
-        Codec.simpleMap(Card.CODEC, Codec.STRING, StringRepresentable.keys(Suit.values())).fieldOf("cards_keys").forGetter(CardDeck::getCardsTranslatableKeys),
+        Codec.unboundedMap(Suit.CODEC, ResourceLocation.CODEC).fieldOf("suits_images").forGetter(CardDeck::getSuitsLocation),
+        Codec.unboundedMap(Suit.CODEC, Codec.STRING).fieldOf("suits_keys").forGetter(CardDeck::getSuitsTranslatableKeys),
+        Codec.unboundedMap(Card.CODEC, ResourceLocation.CODEC).fieldOf("cards_images").forGetter(CardDeck::getCardsLocation),
+        Codec.unboundedMap(Card.CODEC, Codec.STRING).fieldOf("cards_keys").forGetter(CardDeck::getCardsTranslatableKeys),
         ResourceLocation.CODEC.fieldOf("deck_image").forGetter(CardDeck::getDeckLocation),
         Codec.STRING.fieldOf("deck_key").forGetter(CardDeck::getDeckTranslatableKey)
     ).apply(instance, CardDeck::new));
@@ -56,6 +57,8 @@ public class CardDeck {
     private final Rarity rarity;
     private final boolean tradeable;
     private final ImmutableList<Card> cards;
+    private final ImmutableSet<Card> uniqueCards;
+    private final ImmutableSet<Suit> uniqueSuits;
 
     private final Function<Suit, ResourceLocation> suitsLocation;
     private final Function<Suit, String> suitsTranslatableKeys;
@@ -74,6 +77,8 @@ public class CardDeck {
         this.rarity = rarity;
         this.tradeable = tradeable;
         this.cards = ImmutableList.copyOf(cards);
+        this.uniqueCards = ImmutableSet.copyOf(cards);
+        this.uniqueSuits = ImmutableSet.copyOf(cards.stream().map(Card::suit).iterator());
         this.suitsLocation = suitsLocation;
         this.suitsTranslatableKeys = suitsTranslatableKey;
         this.cardsLocation = cardsLocation;
@@ -132,20 +137,28 @@ public class CardDeck {
         return cards;
     }
 
+    public ImmutableSet<Card> getUniqueCards() {
+        return uniqueCards;
+    }
+
+    public ImmutableSet<Suit> getUniqueSuits() {
+        return uniqueSuits;
+    }
+
     private Map<Suit, ResourceLocation> getSuitsLocation() {
-        return Maps.asMap(new TreeSet<>(Arrays.asList(Suit.values())), suitsLocation::apply);
+        return Maps.asMap(uniqueSuits, suitsLocation::apply);
     }
 
     private Map<Suit, String> getSuitsTranslatableKeys() {
-        return Maps.asMap(new TreeSet<>(Arrays.asList(Suit.values())), suitsTranslatableKeys::apply);
+        return Maps.asMap(uniqueSuits, suitsTranslatableKeys::apply);
     }
 
     private Map<Card, ResourceLocation> getCardsLocation() {
-        return Maps.asMap(new TreeSet<>(Arrays.asList(Card.values())), cardsLocation::apply);
+        return Maps.asMap(uniqueCards, cardsLocation::apply);
     }
 
     private Map<Card, String> getCardsTranslatableKeys() {
-        return Maps.asMap(new TreeSet<>(Arrays.asList(Card.values())), cardsTranslatableKeys::apply);
+        return Maps.asMap(uniqueCards, cardsTranslatableKeys::apply);
     }
 
     public ResourceLocation getDeckLocation() {
@@ -191,13 +204,9 @@ public class CardDeck {
 
     public static CardDeck simple(Rarity rarity, boolean canBeTraded, ResourceLocation suitLocation, ResourceLocation cardLocation, ResourceLocation deckLocation) {
         List<Card> deck = new ArrayList<>();
-        for (Suit suit : Suit.values()) {
-            if(suit != Suit.BLANK) {
-                for (Rank rank : Rank.values()) {
-                    if (rank != Rank.BLANK && rank != Rank.JOKER) {
-                        deck.add(new Card(suit, rank));
-                    }
-                }
+        for (Suit suit : Charta.DEFAULT_SUITS) {
+            for (Rank rank : Charta.DEFAULT_RANKS) {
+                deck.add(new Card(suit, rank));
             }
         }
         String translatableKey = "deck." + deckLocation.getNamespace() + "." + cardLocation.getPath().replace("/", ".");
@@ -205,7 +214,7 @@ public class CardDeck {
             translatableKey =  "deck." + deckLocation.getNamespace() + "." + deckLocation.getPath().replace("/", ".");
         }
         String deckTranslatableKey = translatableKey;
-        return new CardDeck(rarity, canBeTraded, deck, (suit) -> suitLocation.withSuffix("/" + suit.ordinal()), (suit) -> "suit.charta."+(suit == Suit.BLANK ? "unknown" : suit.getSerializedName()), (card) -> cardLocation.withSuffix( "/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal()), (card) -> card.getRank() == Rank.BLANK ? "suit.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getSuit().getSerializedName()) : "card.charta."+(card.getSuit() == Suit.BLANK ? "unknown" : card.getSuit().getSerializedName()+"."+card.getRank().getSerializedName()), () -> deckLocation, () -> deckTranslatableKey);
+        return new CardDeck(rarity, canBeTraded, deck, (suit) -> suitLocation.withSuffix("/" + suit.location().getPath()), (suit) -> "suit.charta."+suit.location().getPath(), (card) -> cardLocation.withSuffix( "/" + card.suit().location().getPath() + "_" + card.rank().location().getPath()), (card) -> "card.charta."+card.suit().location().getPath()+"."+card.rank().location().getPath(), () -> deckLocation, () -> deckTranslatableKey);
     }
 
     public static CardDeck fun(Rarity rarity, boolean canBeTraded, ResourceLocation cardLocation, ResourceLocation deckLocation) {
@@ -214,56 +223,25 @@ public class CardDeck {
 
     public static CardDeck fun(Rarity rarity, boolean canBeTraded, ResourceLocation suitLocation, ResourceLocation cardLocation, ResourceLocation deckLocation) {
         List<Card> deck = new ArrayList<>();
-        for (Suit suit : Suit.values()) {
-            if(suit != Suit.BLANK) {
-                for (Rank rank : Rank.values()) {
+        for (Suit suit : FunGame.SUITS) {
+            for (Rank rank : FunGame.RANKS) {
+                deck.add(new Card(suit, rank));
+                if(rank != Rank.WILD && rank != Rank.WILD_PLUS_4 && rank != Rank.ZERO) {
                     deck.add(new Card(suit, rank));
-                    if(rank != Rank.BLANK && rank != Rank.JOKER && rank != Rank.TEN) {
-                        deck.add(new Card(suit, rank));
-                    }
                 }
             }
+
         }
         String translatableKey = "deck." + deckLocation.getNamespace() + "." + cardLocation.getPath().replace("/", ".");
         if(!cardLocation.getPath().equals(deckLocation.getPath())) {
             translatableKey =  "deck." + deckLocation.getNamespace() + "." + deckLocation.getPath().replace("/", ".");
         }
         String deckTranslatableKey = translatableKey;
-        return new CardDeck(rarity, canBeTraded, deck, (suit) -> suitLocation.withSuffix("/" + suit.ordinal()), (suit) -> "suit.charta."+getFunSuit(suit), (card) -> cardLocation.withSuffix( "/" + card.getSuit().ordinal() + "_" + card.getRank().ordinal()), (card) -> "card.charta."+getFunCardKey(card), () -> deckLocation, () -> deckTranslatableKey);
-    }
-
-    private static String getFunSuit(Suit suit) {
-        return switch (suit) {
-            case SPADES -> "red";
-            case HEARTS -> "yellow";
-            case CLUBS -> "green";
-            case DIAMONDS -> "blue";
-            default -> "unknown";
-        };
-    }
-
-    private static String getFunCardKey(Card card) {
-        if(card.getSuit() == Suit.BLANK) {
-            return "unknown";
-        }
-        String rank = switch (card.getRank()) {
-            case BLANK -> "wild";
-            case ACE -> "one";
-            case TEN -> "zero";
-            case JACK -> "block";
-            case QUEEN -> "reverse";
-            case KING -> "plus_two";
-            case JOKER -> "wild_plus_four";
-            default -> card.getRank().getSerializedName();
-        };
-        return switch (card.getRank()) {
-            case BLANK, JOKER -> rank;
-            default -> getFunSuit(card.getSuit())+"."+rank;
-        };
+        return new CardDeck(rarity, canBeTraded, deck, (suit) -> suitLocation.withSuffix("/" + suit.location().getPath()), (suit) -> "suit.charta."+suit.location().getPath(), (card) -> cardLocation.withSuffix( "/" + card.suit().location().getPath() + "_" + card.rank().location().getPath()), (card) -> card.rank() == Rank.WILD || card.rank() == Rank.WILD_PLUS_4 ? "card.charta."+card.rank().location().getPath() : "card.charta."+card.suit().location().getPath()+"."+card.rank().location().getPath(), () -> deckLocation, () -> deckTranslatableKey);
     }
 
     public int getCardColor(Card card) {
-        return getSuitColor(card.getSuit());
+        return getSuitColor(card.suit());
     }
 
     public int getSuitColor(Suit suit) {

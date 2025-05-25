@@ -34,9 +34,8 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
     @Override
     protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = 0;
-        for(Suit suit : Suit.values()) {
-            if(suit != Suit.BLANK) {
-                if (menu.getGame().getSlot(i + 2).isEmpty()) {
+        for(Suit suit : List.of(Suit.SPADES, Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS)) {
+            if (menu.getGame().getSlot(i + 2).isEmpty()) {
                     guiGraphics.pose().pushPose();
                     guiGraphics.pose().translate(leftPos + 140.5 + i * 42.5, topPos + 22, 0f);
                     guiGraphics.pose().translate(0.5f, 0f, 0f);
@@ -45,8 +44,7 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
                     RenderSystem.defaultBlendFunc();
                     guiGraphics.pose().popPose();
                 }
-                i++;
-            }
+            i++;
         }
 
         Component text = Component.literal("Solitaire");

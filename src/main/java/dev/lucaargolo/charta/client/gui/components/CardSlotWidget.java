@@ -159,7 +159,7 @@ public class CardSlotWidget<G extends CardGame<G>> extends AbstractCardWidget {
     @Override
     public @NotNull ResourceLocation getCardTexture(@Nullable ResourceLocation cardId, boolean glow) {
         Card card = cardSlot.getSlot().getLast();
-        if(card.isFlipped()) {
+        if(card.flipped()) {
             return parent.getDeck().getDeckTexture(glow);
         }else{
             return parent.getDeck().getCardTexture(card, glow);

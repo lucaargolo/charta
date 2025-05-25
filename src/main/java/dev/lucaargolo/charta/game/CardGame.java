@@ -57,7 +57,7 @@ public abstract class CardGame<G extends CardGame<G>> {
                 .map(Card::copy)
                 .collect(Collectors.toList());
         this.gameDeck.forEach(Card::flip);
-        this.gameSuits = this.gameDeck.stream().map(Card::getSuit).collect(Collectors.toSet());
+        this.gameSuits = this.gameDeck.stream().map(Card::suit).collect(Collectors.toSet());
     }
 
     public abstract AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck);
@@ -188,7 +188,7 @@ public abstract class CardGame<G extends CardGame<G>> {
 
         //Adds all suits to a map, and increases its value everytime it appears.
         for (Card c : this.getPlayerHand(player).getCards()) {
-            Suit suit = c.getSuit();
+            Suit suit = c.suit();
             suitCountMap.put(suit, suitCountMap.getOrDefault(suit, 0) + 1);
         }
 

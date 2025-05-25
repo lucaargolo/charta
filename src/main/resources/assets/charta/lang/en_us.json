@@ -297,7 +297,7 @@
   "card.charta.diamonds.joker": "Joker of Diamonds",
 
   "card.charta.wild": "§fWild Card",
-  "card.charta.wild_plus_four": "§fWild +4",
+  "card.charta.wildplusfour": "§fWild +4",
 
   "card.charta.red.zero": "Red Zero",
   "card.charta.red.one": "Red One",
@@ -311,7 +311,7 @@
   "card.charta.red.nine": "Red Nine",
   "card.charta.red.block": "Red Block",
   "card.charta.red.reverse": "Red Reverse",
-  "card.charta.red.plus_two": "Red +2",
+  "card.charta.red.plustwo": "Red +2",
 
   "card.charta.yellow.zero": "Yellow Zero",
   "card.charta.yellow.one": "Yellow One",
@@ -325,7 +325,7 @@
   "card.charta.yellow.nine": "Yellow Nine",
   "card.charta.yellow.block": "Yellow Block",
   "card.charta.yellow.reverse": "Yellow Reverse",
-  "card.charta.yellow.plus_two": "Yellow +2",
+  "card.charta.yellow.plustwo": "Yellow +2",
 
   "card.charta.green.zero": "Green Zero",
   "card.charta.green.one": "Green One",
@@ -339,7 +339,7 @@
   "card.charta.green.nine": "Green Nine",
   "card.charta.green.block": "Green Block",
   "card.charta.green.reverse": "Green Reverse",
-  "card.charta.green.plus_two": "Green +2",
+  "card.charta.green.plustwo": "Green +2",
 
   "card.charta.blue.zero": "Blue Zero",
   "card.charta.blue.one": "Blue One",
@@ -353,7 +353,7 @@
   "card.charta.blue.nine": "Blue Nine",
   "card.charta.blue.block": "Blue Block",
   "card.charta.blue.reverse": "Blue Reverse",
-  "card.charta.blue.plus_two": "Blue +2",
+  "card.charta.blue.plustwo": "Blue +2",
 
   "button.charta.reset": "Reset",
   "button.charta.save": "Save",

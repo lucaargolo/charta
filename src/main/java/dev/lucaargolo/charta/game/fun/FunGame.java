@@ -21,9 +21,13 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public class FunGame extends CardGame<FunGame> {
+
+    public static final Set<Suit> SUITS = Set.of(Suit.RED, Suit.YELLOW, Suit.GREEN, Suit.BLUE);
+    public static final Set<Rank> RANKS = Set.of(Rank.ONE, Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.ZERO, Rank.BLOCK, Rank.REVERSE, Rank.PLUS_2, Rank.WILD, Rank.WILD_PLUS_4);
 
     public static final int LAST_COOLDOWN = 30;
 
@@ -117,18 +121,13 @@ public class FunGame extends CardGame<FunGame> {
     @Override
     public Predicate<CardDeck> getDeckPredicate() {
         return (deck) -> {
-            boolean noEmpty = deck.getCards().stream().filter(c -> c.getSuit() == Suit.BLANK).findAny().isEmpty();
-            boolean red = deck.getSuitTranslatableKey(Suit.SPADES).contains("red");
-            boolean yellow = deck.getSuitTranslatableKey(Suit.HEARTS).contains("yellow");
-            boolean green = deck.getSuitTranslatableKey(Suit.CLUBS).contains("green");
-            boolean blue = deck.getSuitTranslatableKey(Suit.DIAMONDS).contains("blue");
-            return noEmpty && (red || yellow || green || blue);
+            return deck.getCards().size() >= 108 && SUITS.containsAll(deck.getUniqueSuits()) && deck.getUniqueSuits().containsAll(SUITS);
         };
     }
 
     @Override
     public Predicate<Card> getCardPredicate() {
-        return (card) -> true;
+        return (card) -> SUITS.contains(card.suit()) && RANKS.contains(card.rank());
     }
 
     @Override
@@ -156,7 +155,7 @@ public class FunGame extends CardGame<FunGame> {
         }
 
         Card last = drawPile.removeLast();
-        while (last != null && (last.getRank() == Rank.BLANK || last.getRank() == Rank.JACK || last.getRank() == Rank.QUEEN || last.getRank() == Rank.KING || last.getRank() == Rank.JOKER)) {
+        while (last != null && (last.rank() == Rank.WILD || last.rank() == Rank.JACK || last.rank() == Rank.QUEEN || last.rank() == Rank.PLUS_2 || last.rank() == Rank.WILD_PLUS_4)) {
             drawPile.add(last);
             drawPile.shuffle();
             last = drawPile.removeLast();
@@ -166,7 +165,7 @@ public class FunGame extends CardGame<FunGame> {
         Card startingCard = last;
         scheduledActions.add(() -> {
             playPile.addLast(startingCard);
-            currentSuit = startingCard.getSuit();
+            currentSuit = startingCard.suit();
         });
 
         currentPlayer = getNextPlayer();
@@ -249,7 +248,7 @@ public class FunGame extends CardGame<FunGame> {
                 //Player played a card (Since we already checked in the menu, we don't need to check again if the player is pre computed).]
                 Card card = play.cards().get(play.cards().size() - 1);
                 currentPlayer.playSound(ModSounds.CARD_PLAY.get());
-                currentSuit = card.getSuit();
+                currentSuit = card.suit();
 
                 if(isChoosingWild) {
                     //Player was choosing the suit from a wild card.
@@ -272,10 +271,10 @@ public class FunGame extends CardGame<FunGame> {
                 if(getFullHand(currentPlayer).findAny().isEmpty()) {
                     //If the player hand is empty, they win!
                     endGame();
-                }else if(card.getRank() == Rank.BLANK || card.getRank() == Rank.JOKER) {
+                }else if(card.rank() == Rank.WILD || card.rank() == Rank.WILD_PLUS_4) {
                     //If they played a wild card (Blank) or a wild plus four (Joker) we need to set up the suit choosing logic.
 
-                    if(card.getRank() == Rank.JOKER) {
+                    if(card.rank() == Rank.WILD_PLUS_4) {
                         //If they played a wild plus four (Joker), add 4 to the next player draw stack.
                         drawStack += 4;
                     }
@@ -289,7 +288,7 @@ public class FunGame extends CardGame<FunGame> {
                         //If the player is not a bot, we need to set the game state as choosing wild, and set up the suits hand for the player.
                         isChoosingWild = true;
                         suits.clear();
-                        suits.addAll(gameSuits.stream().map(s -> new Card(s, Rank.TEN)).toList());
+                        suits.addAll(gameSuits.stream().map(s -> new Card(s, Rank.ZERO)).toList());
                         //They also can't draw during the suit choosing phase, so that's important.
                         canDraw = false;
                         runGame();
@@ -297,20 +296,20 @@ public class FunGame extends CardGame<FunGame> {
                 } else {
                     //If the player did a regular play.
 
-                    if(card.getRank() == Rank.JACK) {
-                        //If the play was a block (Jack), we skip the player manually once, so it ends up happening twice.
+                    if(card.rank() == Rank.BLOCK) {
+                        //If the play was a block, we skip the player manually once, so it ends up happening twice.
                         currentPlayer = getNextPlayer();
                         table(Component.translatable("message.charta.player_was_skipped", currentPlayer.getColoredName()));
-                    }else if(card.getRank() == Rank.QUEEN) {
-                        //If the play was a reverse (Queen), we reverse the game order.
+                    }else if(card.rank() == Rank.REVERSE) {
+                        //If the play was a reverse, we reverse the game order.
                         reversed = !reversed;
                         if(players.size() == 2) {
                             //If there are only two players, we need to skip the next one so the reverse actually does something (It acts as a block)
                             currentPlayer = getNextPlayer();
                         }
                         table(Component.translatable("message.charta.game_reversed"));
-                    }else if(card.getRank() == Rank.KING) {
-                        //If the play was a plus 2 (King), we add 2 to the next player draw stack
+                    }else if(card.rank() == Rank.PLUS_2) {
+                        //If the play was a plus 2, we add 2 to the next player draw stack
                         drawStack += 2;
                     }
 
@@ -397,17 +396,17 @@ public class FunGame extends CardGame<FunGame> {
                 return false;
             }else {
                 //If the player didn't start drawing, they can stack another plus card if the rules allow it.
-                boolean isPlus4 = lastCard.getRank() == Rank.JOKER;
+                boolean isPlus4 = lastCard.rank() == Rank.WILD_PLUS_4;
                 if (isPlus4) {
-                    return (STACK_PLUS4_ON_PLUS4.get() && card.getRank() == Rank.JOKER) || (STACK_ANY_PLUS2_ON_PLUS4.get() && card.getRank() == Rank.KING) || (STACK_SAME_PLUS2_ON_PLUS4.get() && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
+                    return (STACK_PLUS4_ON_PLUS4.get() && card.rank() == Rank.WILD_PLUS_4) || (STACK_ANY_PLUS2_ON_PLUS4.get() && card.rank() == Rank.PLUS_2) || (STACK_SAME_PLUS2_ON_PLUS4.get() && card.rank() == Rank.PLUS_2 && card.suit() == currentSuit);
                 } else {
-                    return (STACK_PLUS4_ON_PLUS2.get() && card.getRank() == Rank.JOKER) || (STACK_ANY_PLUS2_ON_PLUS2.get() && card.getRank() == Rank.KING) || (STACK_SAME_PLUS2_ON_PLUS2.get() && card.getRank() == Rank.KING && card.getSuit() == currentSuit);
+                    return (STACK_PLUS4_ON_PLUS2.get() && card.rank() == Rank.WILD_PLUS_4) || (STACK_ANY_PLUS2_ON_PLUS2.get() && card.rank() == Rank.PLUS_2) || (STACK_SAME_PLUS2_ON_PLUS2.get() && card.rank() == Rank.PLUS_2 && card.suit() == currentSuit);
                 }
             }
         }
 
         //If there aren't any edge cases, we check if the card is a wild card, or if it matches the current rank or suit.
-        return card.getRank() == Rank.BLANK || card.getRank() == Rank.JOKER || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit;
+        return card.rank() == Rank.WILD || card.rank() == Rank.WILD_PLUS_4 || card.rank() == lastCard.rank() || card.suit() == currentSuit;
     }
 
     public void sayLast(CardPlayer current) {
