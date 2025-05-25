@@ -26,10 +26,10 @@ public class ModCreativeTabs {
 
     public static final RegistryObject<CreativeModeTab> DECKS = CREATIVE_MODE_TABS.register("decks", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.charta.decks"))
-            .icon(() -> CardDeckItem.getDeck(new ArrayList<>(Charta.CARD_DECKS.getDecks().keySet()).get(0)))
+            .icon(() -> DeckItem.getDeck(new ArrayList<>(Charta.CARD_DECKS.getDecks().keySet()).get(0)))
             .displayItems((parameters, output) -> {
                 Charta.CARD_DECKS.getDecks().forEach((id, deck) -> {
-                    output.accept(CardDeckItem.getDeck(id));
+                    output.accept(DeckItem.getDeck(id));
                 });
             })
             .build());

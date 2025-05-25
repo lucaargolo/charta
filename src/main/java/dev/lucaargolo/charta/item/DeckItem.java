@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class CardDeckItem extends Item {
+public class DeckItem extends Item {
 
-    public CardDeckItem(Properties properties) {
+    public DeckItem(Properties properties) {
         super(properties);
     }
 

@@ -26,7 +26,7 @@ public class DataGenerators {
         generator.addProvider(event.includeServer(), new SuitImageProvider(output));
         generator.addProvider(event.includeServer(), new CardImageProvider(output));
         generator.addProvider(event.includeServer(), new DeckImageProvider(output));
-        generator.addProvider(event.includeServer(), new CardDeckProvider(output));
+        generator.addProvider(event.includeServer(), new DeckProvider(output));
         generator.addProvider(event.includeServer(), new ModLootProvider(output));
         generator.addProvider(event.includeServer(), new ModBannerPatternTagsProvider(output, builtinProvider.getRegistryProvider(), exFileHelper));
         generator.addProvider(event.includeServer(), new ModBlockTagsProvider(output, builtinProvider.getRegistryProvider(), exFileHelper));

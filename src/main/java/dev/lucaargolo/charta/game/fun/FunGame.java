@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.game.fun;
 
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.game.*;
-import dev.lucaargolo.charta.item.CardDeckItem;
+import dev.lucaargolo.charta.item.DeckItem;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.LastFunPayload;
 import dev.lucaargolo.charta.sound.ModSounds;
@@ -440,7 +440,7 @@ public class FunGame extends CardGame<FunGame> {
                         players.forEach(p -> {
                             LivingEntity entity = p.getEntity();
                             if(entity instanceof ServerPlayer serverPlayer) {
-                                PacketUtils.sendToPlayer(serverPlayer, new LastFunPayload(CardDeckItem.getDeck(deck)));
+                                PacketUtils.sendToPlayer(serverPlayer, new LastFunPayload(DeckItem.getDeck(deck)));
                             }
                         });
                         table(Component.translatable("message.charta.player_automatically_drew_cards", player.getColoredName(), drawAmount));

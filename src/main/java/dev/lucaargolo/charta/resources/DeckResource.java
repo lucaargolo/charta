@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CardDeckResource implements ResourceManagerReloadListener {
+public class DeckResource implements ResourceManagerReloadListener {
 
     private static final Deck MISSING = Deck.simple(Rarity.COMMON, false, Charta.MISSING_CARD, Charta.MISSING_CARD);
 

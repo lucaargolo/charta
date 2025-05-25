@@ -38,7 +38,7 @@ public class ModItems {
         });
     }
 
-    public static final RegistryObject<CardDeckItem> DECK = ITEMS.register("deck", () -> new CardDeckItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<DeckItem> DECK = ITEMS.register("deck", () -> new DeckItem(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<LeadItem> IRON_LEAD = ITEMS.register("iron_lead", () -> new LeadItem(new Item.Properties()));
 
     public static void register(IEventBus bus) {

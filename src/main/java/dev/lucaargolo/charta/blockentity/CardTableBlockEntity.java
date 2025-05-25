@@ -6,7 +6,7 @@ import dev.lucaargolo.charta.block.GameChairBlock;
 import dev.lucaargolo.charta.block.SeatBlock;
 import dev.lucaargolo.charta.entity.SeatEntity;
 import dev.lucaargolo.charta.game.*;
-import dev.lucaargolo.charta.item.CardDeckItem;
+import dev.lucaargolo.charta.item.DeckItem;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.network.GameSlotCompletePayload;
 import dev.lucaargolo.charta.network.GameSlotPositionPayload;
@@ -84,7 +84,7 @@ public class CardTableBlockEntity extends BlockEntity {
 
     @Nullable
     public Deck getDeck() {
-        return CardDeckItem.getDeck(this.deckStack);
+        return DeckItem.getDeck(this.deckStack);
     }
 
     @Nullable

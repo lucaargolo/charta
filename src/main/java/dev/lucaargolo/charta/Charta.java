@@ -17,8 +17,8 @@ import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.loot.ModLootModifiers;
 import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.network.*;
-import dev.lucaargolo.charta.resources.CardDeckResource;
 import dev.lucaargolo.charta.resources.CardImageResource;
+import dev.lucaargolo.charta.resources.DeckResource;
 import dev.lucaargolo.charta.resources.SuitImageResource;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.PacketUtils;
@@ -81,7 +81,7 @@ public class Charta {
     public static final SuitImageResource SUIT_IMAGES = new SuitImageResource();
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
-    public static final CardDeckResource CARD_DECKS = new CardDeckResource();
+    public static final DeckResource CARD_DECKS = new DeckResource();
 
     public static EntityDataAccessor<Boolean> MOB_IRON_LEASH;
 
