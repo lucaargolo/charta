@@ -41,7 +41,7 @@ public class Deck {
     ).apply(instance, Deck::new));
 
     public static String writeRarity(Rarity rarity) {
-        return rarity.name().toLowerCase();
+        return rarity.name().toLowerCase(Locale.US);
     }
 
     public static DataResult<Rarity> readRarity(String string) {
