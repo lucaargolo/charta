@@ -28,13 +28,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public class CardDeckProvider implements DataProvider {
+public class DeckProvider implements DataProvider {
 
     private final PackOutput output;
     private final Gson gson;
 
     public static final Map<ResourceLocation, Deck> DECKS = new HashMap<>();
     public static final Map<String, List<ResourceLocation>> GROUPS = new HashMap<>();
+
+    public static final Deck FUN_INVERTED = register(Charta.id("fun_inverted"), Deck.fun(Rarity.UNCOMMON, false, Charta.id("fun_inverted"), Charta.id("fun_inverted")));
+    public static final Deck FUN_CLASSIC = register(Charta.id("fun_classic"), Deck.fun(Rarity.UNCOMMON, false, Charta.id("fun_classic"), Charta.id("fun_classic")));
+
+    public static final Deck FUN_NEON = register(Charta.id("fun_neon"), Deck.fun(Rarity.RARE, false, Charta.id("fun_neon"), Charta.id("fun_neon")));
+    public static final Deck FUN_MINIMAL_NEON = register(Charta.id("fun_minimal_neon"), Deck.fun(Rarity.RARE, false, Charta.id("fun_neon"), Charta.id("fun_minimal_neon"), Charta.id("fun_minimal_neon")));
 
     static {
         register(Charta.id("standard/black"), Deck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/black")));
@@ -99,12 +105,6 @@ public class CardDeckProvider implements DataProvider {
         register(Charta.id("neon/red"), Deck.simple(Rarity.UNCOMMON, false, Charta.id("neon"), Charta.id("neon/red")));
         register(Charta.id("neon/yellow"), Deck.simple(Rarity.UNCOMMON, false, Charta.id("neon"), Charta.id("neon/yellow")));
 
-        register(Charta.id("fun_inverted"), Deck.fun(Rarity.UNCOMMON, false, Charta.id("fun_inverted"), Charta.id("fun_inverted")));
-        register(Charta.id("fun_classic"), Deck.fun(Rarity.UNCOMMON, false, Charta.id("fun_classic"), Charta.id("fun_classic")));
-
-        register(Charta.id("fun_neon"), Deck.fun(Rarity.RARE, false, Charta.id("fun_neon"), Charta.id("fun_neon")));
-        register(Charta.id("fun_minimal_neon"), Deck.fun(Rarity.RARE, false, Charta.id("fun_neon"), Charta.id("fun_minimal_neon"), Charta.id("fun_minimal_neon")));
-
         register(Charta.id("metals/copper"), Deck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("metals/copper"), Charta.id("metals/copper")));
         register(Charta.id("metals/iron"), Deck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("metals/iron"), Charta.id("metals/iron")));
         register(Charta.id("metals/gold"), Deck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("metals/gold"), Charta.id("metals/gold")));
@@ -128,7 +128,7 @@ public class CardDeckProvider implements DataProvider {
         return deck;
     }
     
-    public CardDeckProvider(PackOutput output) {
+    public DeckProvider(PackOutput output) {
         this.output = output;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }

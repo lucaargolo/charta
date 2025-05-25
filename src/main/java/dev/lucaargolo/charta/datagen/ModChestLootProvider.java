@@ -43,10 +43,10 @@ public class ModChestLootProvider implements LootTableSubProvider {
     public void generate(@NotNull BiConsumer<ResourceKey<LootTable>, LootTable.Builder> consumer) {
         LootPool.Builder mineshaftPool = LootPool.lootPool()
             .setRolls(ConstantValue.exactly(1))
-            .add(deck(DefaultDecks.FUN_INVERTED, 0.75))
-            .add(deck(DefaultDecks.FUN_CLASSIC, 0.75))
-            .add(deck(DefaultDecks.FUN_NEON, 0.25))
-            .add(deck(DefaultDecks.FUN_MINIMAL_NEON, 0.25))
+            .add(deck(DeckProvider.FUN_INVERTED, 0.75))
+            .add(deck(DeckProvider.FUN_CLASSIC, 0.75))
+            .add(deck(DeckProvider.FUN_NEON, 0.25))
+            .add(deck(DeckProvider.FUN_MINIMAL_NEON, 0.25))
             .add(EmptyLootItem.emptyItem().setWeight(50));
         addGroup(mineshaftPool, "metals", 1.25);
         addGroup(mineshaftPool, "gems", 1.0);
@@ -55,10 +55,10 @@ public class ModChestLootProvider implements LootTableSubProvider {
 
         LootPool.Builder pyramidPool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1))
-                .add(deck(DefaultDecks.FUN_INVERTED, 2.0))
-                .add(deck(DefaultDecks.FUN_CLASSIC, 2.0))
-                .add(deck(DefaultDecks.FUN_NEON, 0.75))
-                .add(deck(DefaultDecks.FUN_MINIMAL_NEON, 0.75))
+                .add(deck(DeckProvider.FUN_INVERTED, 2.0))
+                .add(deck(DeckProvider.FUN_CLASSIC, 2.0))
+                .add(deck(DeckProvider.FUN_NEON, 0.75))
+                .add(deck(DeckProvider.FUN_MINIMAL_NEON, 0.75))
                 .add(EmptyLootItem.emptyItem().setWeight(50));
         addGroup(pyramidPool, "metals", 0.25);
         addGroup(pyramidPool, "neon", 0.5);
@@ -66,10 +66,10 @@ public class ModChestLootProvider implements LootTableSubProvider {
 
         LootPool.Builder dungeonPool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1))
-                .add(deck(DefaultDecks.FUN_INVERTED, 0.5))
-                .add(deck(DefaultDecks.FUN_CLASSIC, 0.5))
-                .add(deck(DefaultDecks.FUN_NEON, 0.125))
-                .add(deck(DefaultDecks.FUN_MINIMAL_NEON, 0.125))
+                .add(deck(DeckProvider.FUN_INVERTED, 0.5))
+                .add(deck(DeckProvider.FUN_CLASSIC, 0.5))
+                .add(deck(DeckProvider.FUN_NEON, 0.125))
+                .add(deck(DeckProvider.FUN_MINIMAL_NEON, 0.125))
                 .add(EmptyLootItem.emptyItem().setWeight(50));
         addGroup(dungeonPool, "flags", 2.0);
         addGroup(dungeonPool, "metals", 0.5);
@@ -79,11 +79,11 @@ public class ModChestLootProvider implements LootTableSubProvider {
     }
 
     private static void addGroup(LootPool.Builder pool, String group, double chanceMultiplier) {
-        DefaultDecks.GROUPS.getOrDefault(group, List.of()).forEach(key -> Optional.ofNullable(DefaultDecks.DECKS.get(key)).ifPresent(deck -> pool.add(deck(deck, chanceMultiplier))));
+        DeckProvider.GROUPS.getOrDefault(group, List.of()).forEach(key -> Optional.ofNullable(DeckProvider.DECKS.get(key)).ifPresent(deck -> pool.add(deck(deck, chanceMultiplier))));
     }
 
     private static LootPoolSingletonContainer.Builder<?> deck(Deck deck, double chanceMultiplier) {
-        ResourceLocation id = DefaultDecks.DECKS.entrySet().stream().filter(e -> e.getValue().equals(deck)).map(Map.Entry::getKey).findFirst().orElse(Charta.id("missing"));
+        ResourceLocation id = DeckProvider.DECKS.entrySet().stream().filter(e -> e.getValue().equals(deck)).map(Map.Entry::getKey).findFirst().orElse(Charta.id("missing"));
         return LootItem.lootTableItem(ModItems.DECK.get())
                 .apply(SetComponentsFunction.setComponent(ModDataComponentTypes.CARD_DECK.get(), id))
                 .setWeight(Mth.ceil((3 - deck.getRarity().ordinal()) * 20 * chanceMultiplier));

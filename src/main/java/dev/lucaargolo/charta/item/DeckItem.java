@@ -23,9 +23,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class CardDeckItem extends Item {
+public class DeckItem extends Item {
 
-    public CardDeckItem(Properties properties) {
+    public DeckItem(Properties properties) {
         super(properties);
     }
 

@@ -38,7 +38,7 @@ public class ModItems {
         });
     }
 
-    public static final DeferredHolder<Item, CardDeckItem> DECK = ITEMS.register("deck", () -> new CardDeckItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredHolder<Item, DeckItem> DECK = ITEMS.register("deck", () -> new DeckItem(new Item.Properties().stacksTo(1)));
     public static final DeferredHolder<Item, LeadItem> IRON_LEAD = ITEMS.register("iron_lead", () -> new LeadItem(new Item.Properties()));
 
     public static void register(IEventBus bus) {
