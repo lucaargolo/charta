@@ -73,7 +73,7 @@ public class Charta {
     public static final ResourceLocation MISSING_CARD = Charta.id("missing_card");
     public static final ResourceLocation MISSING_GAME = Charta.id("missing_game");
 
-    public static final SuitImageResource CARD_SUITS = new SuitImageResource();
+    public static final SuitImageResource SUIT_IMAGES = new SuitImageResource();
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
     public static final CardDeckResource CARD_DECKS = new CardDeckResource();
@@ -156,7 +156,7 @@ public class Charta {
 
         @SubscribeEvent
         public static void addReloadListeners(final AddReloadListenerEvent event) {
-            event.addListener(CARD_SUITS);
+            event.addListener(SUIT_IMAGES);
             event.addListener(CARD_IMAGES);
             event.addListener(DECK_IMAGES);
             event.addListener(CARD_DECKS);
@@ -183,7 +183,7 @@ public class Charta {
             Player player = event.getEntity();
             if(player instanceof ServerPlayer serverPlayer) {
                 PacketDistributor.sendToPlayer(serverPlayer, new ImagesPayload(
-                    new HashMap<>(Charta.CARD_SUITS.getImages()),
+                    new HashMap<>(Charta.SUIT_IMAGES.getImages()),
                     new HashMap<>(Charta.CARD_IMAGES.getImages()),
                     new HashMap<>(Charta.DECK_IMAGES.getImages())
                 ));
@@ -196,7 +196,7 @@ public class Charta {
         @SubscribeEvent
         public static void onDatapackReload(final OnDatapackSyncEvent event) {
             PacketDistributor.sendToAllPlayers(new ImagesPayload(
-                new HashMap<>(Charta.CARD_SUITS.getImages()),
+                new HashMap<>(Charta.SUIT_IMAGES.getImages()),
                 new HashMap<>(Charta.CARD_IMAGES.getImages()),
                 new HashMap<>(Charta.DECK_IMAGES.getImages())
             ));

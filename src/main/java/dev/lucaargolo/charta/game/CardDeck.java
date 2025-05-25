@@ -253,7 +253,7 @@ public class CardDeck {
     }
 
     public int getSuitColor(Suit suit) {
-        SuitImage image = Charta.CARD_SUITS.getImages().getOrDefault(suitsLocation.apply(suit), CardImageUtils.EMPTY_SUIT);
+        SuitImage image = Charta.SUIT_IMAGES.getImages().getOrDefault(suitsLocation.apply(suit), CardImageUtils.EMPTY_SUIT);
         if(image == CardImageUtils.EMPTY_SUIT) {
             return 0xFFFFFF;
         }
