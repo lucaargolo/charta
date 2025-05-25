@@ -189,19 +189,19 @@ public class Charta {
             Registry<StructureProcessorList> processorListRegistry = registryAccess.registry(Registries.PROCESSOR_LIST).orElseThrow();
 
             addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                    ResourceLocation.tryParse("minecraft:village/plains/houses"),
+                    new ResourceLocation("minecraft:village/plains/houses"),
                     "charta:plains_card_bar", 50);
 
             addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                    ResourceLocation.tryParse("minecraft:village/desert/houses"),
+                    new ResourceLocation("minecraft:village/desert/houses"),
                     "charta:desert_card_bar", 50);
 
             addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                    ResourceLocation.tryParse("minecraft:village/taiga/houses"),
+                    new ResourceLocation("minecraft:village/taiga/houses"),
                     "charta:taiga_card_bar", 40);
 
             addBuildingToPool(templatePoolRegistry, processorListRegistry,
-                    ResourceLocation.tryParse("minecraft:village/savanna/houses"),
+                    new ResourceLocation("minecraft:village/savanna/houses"),
                     "charta:savanna_card_bar", 60);
         }
 

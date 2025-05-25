@@ -50,7 +50,7 @@ public class PlayerOptionData extends SavedData {
             HashMap<ResourceLocation, byte[]> resourceMap = new HashMap<>();
 
             for (String resourceKey : playerTag.getAllKeys()) {
-                ResourceLocation resourceLocation = ResourceLocation.tryParse(resourceKey);
+                ResourceLocation resourceLocation = new ResourceLocation(resourceKey);
                 byte[] array = playerTag.getByteArray(resourceKey);
                 resourceMap.put(resourceLocation, array);
             }

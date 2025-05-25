@@ -14,10 +14,10 @@ public class Card implements Comparable<Card> {
         card -> {
             String[] elements = card.split("_");
             try {
-                ResourceLocation suit = ResourceLocation.tryParse(elements[0]);
+                ResourceLocation suit = new ResourceLocation(elements[0]);
                 ResourceLocation rank;
                 if(elements[1].contains(":")) {
-                    rank = ResourceLocation.tryParse(elements[1]);
+                    rank = new ResourceLocation(elements[1]);
                 }else{
                     rank = new ResourceLocation(suit.getNamespace(), elements[1]);
                 }
