@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.Deck;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 
 public class CardDeckResource implements ResourceManagerReloadListener {
 
-    private static final CardDeck MISSING = CardDeck.simple(Rarity.COMMON, false, Charta.MISSING_CARD, Charta.MISSING_CARD);
+    private static final Deck MISSING = Deck.simple(Rarity.COMMON, false, Charta.MISSING_CARD, Charta.MISSING_CARD);
 
-    private LinkedHashMap<ResourceLocation, CardDeck> decks = new LinkedHashMap<>();
+    private LinkedHashMap<ResourceLocation, Deck> decks = new LinkedHashMap<>();
 
     @Override
     public void onResourceManagerReload(ResourceManager manager) {
@@ -37,7 +37,7 @@ public class CardDeckResource implements ResourceManagerReloadListener {
                 ResourceLocation location = id.withPath(s -> s.replace("decks/", "").replace(".json", ""));
                 try(InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
                     JsonElement json = JsonParser.parseReader(reader);
-                    DataResult<CardDeck> cardDeck = CardDeck.CODEC.parse(JsonOps.INSTANCE, json);
+                    DataResult<Deck> cardDeck = Deck.CODEC.parse(JsonOps.INSTANCE, json);
                     decks.put(location, cardDeck.getOrThrow());
                 }
             }catch (IOException e) {
@@ -46,7 +46,7 @@ public class CardDeckResource implements ResourceManagerReloadListener {
         });
 
         //Sort it so it looks great in the creative menu.
-        decks = decks.entrySet().stream().sorted(Comparator.comparing((Map.Entry<ResourceLocation, CardDeck> entry) -> entry.getValue().isTradeable()).reversed()
+        decks = decks.entrySet().stream().sorted(Comparator.comparing((Map.Entry<ResourceLocation, Deck> entry) -> entry.getValue().isTradeable()).reversed()
             .thenComparing(entry -> entry.getValue().getRarity().ordinal())
             .thenComparing(entry -> entry.getValue().getCards().size())
             .thenComparing(Map.Entry::getKey)
@@ -55,15 +55,15 @@ public class CardDeckResource implements ResourceManagerReloadListener {
         Charta.LOGGER.info("Loaded {} decks", decks.size());
     }
 
-    public HashMap<ResourceLocation, CardDeck> getDecks() {
+    public HashMap<ResourceLocation, Deck> getDecks() {
         return decks;
     }
 
-    public void setDecks(LinkedHashMap<ResourceLocation, CardDeck> decks) {
+    public void setDecks(LinkedHashMap<ResourceLocation, Deck> decks) {
         this.decks = decks;
     }
 
-    public CardDeck getDeck(ResourceLocation id) {
+    public Deck getDeck(ResourceLocation id) {
         return decks.getOrDefault(id, MISSING);
     }
 

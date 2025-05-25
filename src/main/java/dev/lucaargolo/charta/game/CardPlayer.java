@@ -27,7 +27,7 @@ public interface CardPlayer {
 
     boolean shouldCompute();
 
-    void openScreen(CardGame<?> game, BlockPos pos, CardDeck deck);
+    void openScreen(CardGame<?> game, BlockPos pos, Deck deck);
 
     void sendMessage(Component message);
 

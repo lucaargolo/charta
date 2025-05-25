@@ -13,24 +13,7 @@ import java.util.Optional;
 public record Rank(ResourceLocation location, int ordinal) implements Comparable<Rank> {
 
     private static final LinkedHashSet<Rank> registry = new LinkedHashSet<>();
-
     public static final StreamCodec<ByteBuf, Rank> STREAM_CODEC = StreamCodec.composite(ResourceLocation.STREAM_CODEC, Rank::location, l -> Rank.load(l).getOrThrow());
-
-    public Rank {
-        for(char c : location.toString().toCharArray()) {
-            if(c == '_' || c == '-' || c == '/' || c == '.') {
-                throw new IllegalStateException("Non [a-z0-9] character in rank location: " + location);
-            }
-        }
-        if(!registry.add(this)) {
-            throw new IllegalStateException("Duplicate rank: " + location);
-        }
-    }
-
-    public static DataResult<Rank> load(ResourceLocation location) {
-        Optional<Rank> rank = registry.stream().filter(r -> r.location.equals(location)).findFirst();
-        return rank.map(DataResult::success).orElseGet(() -> DataResult.error(() -> "No such rank: " + location));
-    }
 
     public static final Rank BLANK = new Rank(Charta.id("blank"), 0);
     public static final Rank ACE = new Rank(Charta.id("ace"), 1);
@@ -55,6 +38,22 @@ public record Rank(ResourceLocation location, int ordinal) implements Comparable
     public static final Rank REVERSE = new Rank(Charta.id("reverse"), 11);
     public static final Rank PLUS_2 = new Rank(Charta.id("plustwo"), 13);
     public static final Rank WILD_PLUS_4 = new Rank(Charta.id("wildplusfour"), 14);
+
+    public Rank {
+        for(char c : location.toString().toCharArray()) {
+            if(c == '_' || c == '-' || c == '/' || c == '.') {
+                throw new IllegalStateException("Non [a-z0-9] character in rank location: " + location);
+            }
+        }
+        if(!registry.add(this)) {
+            throw new IllegalStateException("Duplicate rank: " + location);
+        }
+    }
+
+    public static DataResult<Rank> load(ResourceLocation location) {
+        Optional<Rank> rank = registry.stream().filter(r -> r.location.equals(location)).findFirst();
+        return rank.map(DataResult::success).orElseGet(() -> DataResult.error(() -> "No such rank: " + location));
+    }
 
     @Override
     public String toString() {

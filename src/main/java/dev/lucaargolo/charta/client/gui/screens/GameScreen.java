@@ -56,7 +56,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
         this.areOptionsChanged = CardGames.areOptionsChanged(menu.getGameFactory(), menu.getGame());
     }
 
-    public CardDeck getDeck() {
+    public Deck getDeck() {
         return menu.getDeck();
     }
 

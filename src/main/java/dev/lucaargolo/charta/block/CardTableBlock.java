@@ -4,8 +4,8 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
-import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGame;
+import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.item.CardDeckItem;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
@@ -232,7 +232,7 @@ public class CardTableBlock extends BaseEntityBlock {
                                 }
                                 level.sendBlockUpdated(center, state, state, 3);
                             } else {
-                                CardDeck deck = cardTable.getDeck();
+                                Deck deck = cardTable.getDeck();
                                 if(deck != null) {
                                     List<LivingEntity> satPlayers = cardTable.getPlayers();
                                     if (satPlayers.contains(player)){

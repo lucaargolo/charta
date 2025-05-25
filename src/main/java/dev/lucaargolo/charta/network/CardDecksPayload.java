@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.Deck;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,12 +12,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
 
-public record CardDecksPayload(LinkedHashMap<ResourceLocation, CardDeck> cardDecks) implements CustomPacketPayload {
+public record CardDecksPayload(LinkedHashMap<ResourceLocation, Deck> cardDecks) implements CustomPacketPayload {
 
     public static final Type<CardDecksPayload> TYPE = new Type<>(Charta.id("card_decks"));
 
     public static final StreamCodec<ByteBuf, CardDecksPayload> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.map(LinkedHashMap::new, ResourceLocation.STREAM_CODEC, CardDeck.STREAM_CODEC),
+        ByteBufCodecs.map(LinkedHashMap::new, ResourceLocation.STREAM_CODEC, Deck.STREAM_CODEC),
         CardDecksPayload::cardDecks,
         CardDecksPayload::new
     );

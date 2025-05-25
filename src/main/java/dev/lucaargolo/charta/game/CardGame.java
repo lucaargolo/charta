@@ -37,7 +37,7 @@ public abstract class CardGame<G extends CardGame<G>> {
     private final List<GameSlot> gameSlots = new ArrayList<>();
 
     protected final List<CardPlayer> players;
-    protected final CardDeck deck;
+    protected final Deck deck;
 
     protected final List<Card> gameDeck;
     protected final Set<Suit> gameSuits;
@@ -46,7 +46,7 @@ public abstract class CardGame<G extends CardGame<G>> {
     protected boolean isGameReady;
     protected boolean isGameOver;
 
-    public CardGame(List<CardPlayer> players, CardDeck deck) {
+    public CardGame(List<CardPlayer> players, Deck deck) {
         this.players = players;
         this.deck = deck;
 
@@ -59,9 +59,9 @@ public abstract class CardGame<G extends CardGame<G>> {
         this.gameSuits = this.gameDeck.stream().map(Card::suit).collect(Collectors.toSet());
     }
 
-    public abstract AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck);
+    public abstract AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, Deck deck);
 
-    public abstract Predicate<CardDeck> getDeckPredicate();
+    public abstract Predicate<Deck> getDeckPredicate();
 
     public abstract Predicate<Card> getCardPredicate();
 
@@ -216,7 +216,7 @@ public abstract class CardGame<G extends CardGame<G>> {
         return null;
     }
 
-    public void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, CardDeck deck) {
+    public void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, Deck deck) {
         serverPlayer.openMenu(new MenuProvider() {
             @Override
             public @NotNull Component getDisplayName() {
@@ -229,7 +229,7 @@ public abstract class CardGame<G extends CardGame<G>> {
             }
         }, buf -> {
             buf.writeBlockPos(pos);
-            CardDeck.STREAM_CODEC.encode(buf, deck);
+            Deck.STREAM_CODEC.encode(buf, deck);
             buf.writeVarIntArray(getPlayers().stream().mapToInt(CardPlayer::getId).toArray());
             buf.writeByteArray(this.getRawOptions());
         });
@@ -278,8 +278,8 @@ public abstract class CardGame<G extends CardGame<G>> {
         }
     }
 
-    public static boolean canPlayGame(CardGame<?> cardGame, CardDeck cardDeck) {
-        return cardGame.getDeckPredicate().test(cardDeck);
+    public static boolean canPlayGame(CardGame<?> cardGame, Deck deck) {
+        return cardGame.getDeckPredicate().test(deck);
     }
 
 }

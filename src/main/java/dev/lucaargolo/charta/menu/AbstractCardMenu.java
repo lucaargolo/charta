@@ -27,7 +27,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
 
     protected final Inventory inventory;
     protected final ContainerLevelAccess access;
-    protected final CardDeck deck;
+    protected final Deck deck;
     protected final Player player;
     protected final CardPlayer cardPlayer;
 
@@ -61,7 +61,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         }
     };
 
-    public AbstractCardMenu(MenuType<?> menuType, int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
+    public AbstractCardMenu(MenuType<?> menuType, int containerId, Inventory inventory, ContainerLevelAccess access, Deck deck, int[] players, byte[] options) {
         super(menuType, containerId);
         this.game = CardGames.getGameForMenu(this.getGameFactory(), access, deck, players, options);
         this.inventory = inventory;
@@ -98,7 +98,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         return data.get(2) == 1;
     }
 
-    public CardDeck getDeck() {
+    public Deck getDeck() {
         return deck;
     }
 

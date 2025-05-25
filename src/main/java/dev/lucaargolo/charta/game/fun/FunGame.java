@@ -62,7 +62,7 @@ public class FunGame extends CardGame<FunGame> {
 
     private final Random random = new Random();
 
-    public FunGame(List<CardPlayer> players, CardDeck deck) {
+    public FunGame(List<CardPlayer> players, Deck deck) {
         super(players, deck);
 
         this.saidLast = new boolean[players.size()];
@@ -114,12 +114,12 @@ public class FunGame extends CardGame<FunGame> {
     }
 
     @Override
-    public AbstractCardMenu<FunGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck) {
+    public AbstractCardMenu<FunGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, Deck deck) {
         return new FunMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray(), this.getRawOptions());
     }
 
     @Override
-    public Predicate<CardDeck> getDeckPredicate() {
+    public Predicate<Deck> getDeckPredicate() {
         return (deck) -> {
             return deck.getCards().size() >= 108 && SUITS.containsAll(deck.getUniqueSuits()) && deck.getUniqueSuits().containsAll(SUITS);
         };

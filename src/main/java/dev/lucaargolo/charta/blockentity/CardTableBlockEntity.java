@@ -83,7 +83,7 @@ public class CardTableBlockEntity extends BlockEntity {
     }
 
     @Nullable
-    public CardDeck getDeck() {
+    public Deck getDeck() {
         return CardDeckItem.getDeck(this.deckStack);
     }
 
@@ -93,7 +93,7 @@ public class CardTableBlockEntity extends BlockEntity {
     }
 
     public Component startGame(@Nullable ResourceLocation gameId, byte[] options) {
-        CardDeck deck = getDeck();
+        Deck deck = getDeck();
         if(deck != null) {
             if(gameId != null) {
                 List<CardPlayer> players = this.getOrderedPlayers();
