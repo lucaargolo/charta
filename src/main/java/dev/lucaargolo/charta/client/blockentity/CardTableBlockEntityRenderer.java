@@ -130,7 +130,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
         poseStack.popPose();
     }
 
-    public void drawCard(Deck deck, Card card, int packedLight, int packedOverlay, PoseStack poseStack, MultiBufferSource bufferSource, float x, float y, Vector3f normal) {
+    public static void drawCard(Deck deck, Card card, int packedLight, int packedOverlay, PoseStack poseStack, MultiBufferSource bufferSource, float x, float y, Vector3f normal) {
         PoseStack.Pose entry = poseStack.last();
 
         if(IrisCompat.isPresent()) {
