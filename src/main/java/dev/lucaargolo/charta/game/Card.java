@@ -2,6 +2,7 @@ package dev.lucaargolo.charta.game;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import dev.lucaargolo.charta.Charta;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
@@ -13,14 +14,14 @@ public class Card implements Comparable<Card> {
         card -> {
             String[] elements = card.split("_");
             try {
-                ResourceLocation suit = ResourceLocation.parse(elements[0]);
+                ResourceLocation suit = ResourceLocation.tryParse(elements[0]);
                 ResourceLocation rank;
                 if(elements[1].contains(":")) {
-                    rank = ResourceLocation.parse(elements[1]);
+                    rank = ResourceLocation.tryParse(elements[1]);
                 }else{
-                    rank = ResourceLocation.fromNamespaceAndPath(suit.getNamespace(), elements[1]);
+                    rank = new ResourceLocation(suit.getNamespace(), elements[1]);
                 }
-                return DataResult.success(new Card(Suit.load(suit).getOrThrow(), Rank.load(rank).getOrThrow()));
+                return DataResult.success(new Card(Suit.load(suit).getOrThrow(false, Charta.LOGGER::error), Rank.load(rank).getOrThrow(false, Charta.LOGGER::error)));
             }catch (Exception e) {
                 return DataResult.error(() -> "Invalid card format: " + card);
             }
@@ -100,8 +101,8 @@ public class Card implements Comparable<Card> {
     }
 
     public static Card fromBuf(FriendlyByteBuf buf) {
-        Suit suit = Suit.load(buf.readResourceLocation()).getOrThrow();
-        Rank rank = Rank.load(buf.readResourceLocation()).getOrThrow();
+        Suit suit = Suit.load(buf.readResourceLocation()).getOrThrow(false, Charta.LOGGER::error);
+        Rank rank = Rank.load(buf.readResourceLocation()).getOrThrow(false, Charta.LOGGER::error);
         boolean flipped = buf.readBoolean();
         return new Card(suit, rank, flipped);
     }
