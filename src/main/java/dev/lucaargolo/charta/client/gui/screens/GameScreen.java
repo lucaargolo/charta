@@ -40,8 +40,8 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
     public static final ResourceLocation WIDGETS = Charta.id("textures/gui/widgets.png");
 
     private final List<CardSlotWidget<G>> slotWidgets = new ArrayList<>();
-    private HoverableRenderable hoverable = null;
-    private CardSlot<G> hoveredCardSlot = null;
+    protected HoverableRenderable hoverable = null;
+    protected CardSlot<G> hoveredCardSlot = null;
     private int hoveredCardId = -1;
     private final boolean areOptionsChanged;
 

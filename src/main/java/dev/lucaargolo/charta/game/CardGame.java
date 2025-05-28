@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.game;
 
+import com.mojang.datafixers.util.Either;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.CardPlayPayload;
 import net.minecraft.ChatFormatting;
@@ -64,6 +65,10 @@ public abstract class CardGame<G extends CardGame<G>> {
     public abstract Predicate<Deck> getDeckPredicate();
 
     public abstract Predicate<Card> getCardPredicate();
+
+    public Either<CardGame<?>, Component> playerPredicate(List<CardPlayer> players) {
+        return Either.left(this);
+    }
 
     public abstract boolean canPlay(CardPlayer player, CardPlay play);
 
@@ -278,7 +283,7 @@ public abstract class CardGame<G extends CardGame<G>> {
         }
     }
 
-    public static boolean canPlayGame(CardGame<?> cardGame, Deck deck) {
+    public static boolean isValidDeck(CardGame<?> cardGame, Deck deck) {
         return cardGame.getDeckPredicate().test(deck);
     }
 
