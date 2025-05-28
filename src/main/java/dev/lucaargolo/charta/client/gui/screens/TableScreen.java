@@ -1,11 +1,14 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.datafixers.util.Either;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardGames;
+import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.Deck;
+import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import dev.lucaargolo.charta.utils.PacketUtils;
@@ -108,17 +111,28 @@ public class TableScreen extends Screen {
             this.texture = gameId.withPrefix("textures/gui/game/").withSuffix(".png");
             this.game = gameFactory.create(List.of(), Deck.EMPTY);
 
-            boolean invalidDeck = !CardGame.canPlayGame(this.game, deck);
+            List<CardPlayer> cardPlayers = new ArrayList<>();
+            for(int entityId : players) {
+                if(minecraft != null && minecraft.level != null && minecraft.level.getEntity(entityId) instanceof LivingEntityMixed mixed) {
+                    cardPlayers.add(mixed.charta_getCardPlayer());
+                }
+            }
+            Either<CardGame<?>, Component> either = this.game.playerPredicate(cardPlayers);
+
+            boolean invalidDeck = !CardGame.isValidDeck(this.game, deck);
             boolean notEnoughPlayers = players.length < this.game.getMinPlayers();
             boolean tooManyPlayers = players.length > this.game.getMaxPlayers();
+            boolean invalidPlayers = either.right().isPresent();
 
-            this.active = !(invalidDeck || notEnoughPlayers || tooManyPlayers);
+            this.active = !(invalidDeck || notEnoughPlayers || tooManyPlayers || invalidPlayers);
             if(invalidDeck) {
                 this.tooltip = Component.translatable("message.charta.cant_play_deck").append(" ").append(Component.translatable("message.charta.try_finding_another"));
             }else if(notEnoughPlayers) {
                 this.tooltip = Component.translatable("message.charta.not_enough_players", this.game.getMinPlayers());
             }else if(tooManyPlayers) {
                 this.tooltip = Component.translatable("message.charta.too_many_players", this.game.getMaxPlayers());
+            }else if(invalidPlayers) {
+                this.tooltip = either.right().orElseThrow();
             }else{
                 this.tooltip = null;
             }
