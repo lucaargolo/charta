@@ -73,11 +73,11 @@ public class GameSlot {
         return true;
     }
 
-    public void onInsert(CardPlayer player, List<Card> cards) {
+    public void onInsert(CardPlayer player, List<Card> cards, int index) {
         player.playSound(ModSounds.CARD_PLAY.get());
     }
 
-    public void onRemove(CardPlayer player, List<Card> cards) {
+    public void onRemove(CardPlayer player, List<Card> cards, int index) {
         player.playSound(ModSounds.CARD_DRAW.get());
     }
 

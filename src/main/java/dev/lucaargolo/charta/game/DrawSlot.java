@@ -26,8 +26,8 @@ public class DrawSlot extends GameSlot {
     }
 
     @Override
-    public void onRemove(CardPlayer player, List<Card> card) {
-        super.onRemove(player, card);
+    public void onRemove(CardPlayer player, List<Card> card, int index) {
+        super.onRemove(player, card, index);
         card.forEach(Card::flip);
         draw = true;
     }

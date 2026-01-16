@@ -42,7 +42,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
     private final List<CardSlotWidget<G>> slotWidgets = new ArrayList<>();
     protected HoverableRenderable hoverable = null;
     protected CardSlot<G> hoveredCardSlot = null;
-    private int hoveredCardId = -1;
+    protected int hoveredCardId = -1;
     private final boolean areOptionsChanged;
 
     private final ChatScreen chatScreen = new ChatScreen("");
@@ -271,7 +271,10 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
                 guiGraphics.pose().pushPose();
                 guiGraphics.pose().translate(0f, -25f, 0f);
                 double chatWidth = this.minecraft.options.chatWidth().get();
-                this.minecraft.options.chatWidth().set(Math.min(chatWidth * 280.0, (width / 2.0) - (imageWidth / 2.0) - 50.0) / 280.0);
+                double newChatWidth = Math.min(chatWidth * 280.0, (width / 2.0) - (imageWidth / 2.0) - 50.0) / 280.0;
+                if(newChatWidth > 0.0 && newChatWidth < 1) {
+                    this.minecraft.options.chatWidth().set(newChatWidth);
+                }
                 this.minecraft.gui.getChat().render(guiGraphics, this.minecraft.gui.getGuiTicks(), mouseX, mouseY + 25, false);
                 this.minecraft.options.chatWidth().set(chatWidth);
                 guiGraphics.pose().popPose();

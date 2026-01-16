@@ -61,8 +61,8 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
             }
 
             @Override
-            public void onRemove(CardPlayer player, List<Card> cards) {
-                super.onRemove(player, cards);
+            public void onRemove(CardPlayer player, List<Card> cards, int index) {
+                super.onRemove(player, cards, index);
                 lastStockCard = cards.getLast();
                 lastStockCard.flip();
             }
@@ -81,15 +81,15 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
             }
 
             @Override
-            public void onInsert(CardPlayer player, List<Card> cards) {
-                super.onInsert(player, cards);
+            public void onInsert(CardPlayer player, List<Card> cards, int index) {
+                super.onInsert(player, cards, index);
                 lastStockCard = null;
                 player.play(null);
             }
 
             @Override
-            public void onRemove(CardPlayer player, List<Card> cards) {
-                super.onRemove(player, cards);
+            public void onRemove(CardPlayer player, List<Card> cards, int index) {
+                super.onRemove(player, cards, index);
                 lastStockCard = cards.getLast();
             }
 
@@ -125,8 +125,8 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                 }
 
                 @Override
-                public void onInsert(CardPlayer player, List<Card> cards) {
-                    super.onInsert(player, cards);
+                public void onInsert(CardPlayer player, List<Card> cards, int index) {
+                    super.onInsert(player, cards, index);
                     lastStockCard = null;
                     if(lastTableauDraw >= 0) {
                         player.play(cards, lastTableauDraw);
@@ -167,8 +167,8 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                 }
 
                 @Override
-                public void onRemove(CardPlayer player, List<Card> cards) {
-                    super.onRemove(player, cards);
+                public void onRemove(CardPlayer player, List<Card> cards, int index) {
+                    super.onRemove(player, cards, index);
                     lastTableauDraw = s;
                 }
 
@@ -191,8 +191,8 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                 }
 
                 @Override
-                public void onInsert(CardPlayer player, List<Card> cards) {
-                    super.onInsert(player, cards);
+                public void onInsert(CardPlayer player, List<Card> cards, int index) {
+                    super.onInsert(player, cards, index);
                     lastStockCard = null;
                     if(lastTableauDraw != s && lastTableauDraw >= 0) {
                         player.play(cards, lastTableauDraw);

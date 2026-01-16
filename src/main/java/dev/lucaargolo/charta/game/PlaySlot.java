@@ -31,7 +31,7 @@ public class PlaySlot extends GameSlot {
     }
 
     @Override
-    public void onInsert(CardPlayer player, List<Card> cards) {
+    public void onInsert(CardPlayer player, List<Card> cards, int index) {
         player.play(cards, this.getIndex());
     }
 

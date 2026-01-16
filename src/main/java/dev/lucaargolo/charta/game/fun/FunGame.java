@@ -85,8 +85,8 @@ public class FunGame extends CardGame<FunGame> {
     protected GameSlot createPlayerHand(CardPlayer player) {
         return new GameSlot(player.hand()) {
             @Override
-            public void onInsert(CardPlayer player, List<Card> cards) {
-                super.onInsert(player, cards);
+            public void onInsert(CardPlayer player, List<Card> cards, int index) {
+                super.onInsert(player, cards, index);
                 if(drawPile.isDraw()) {
                     player.play(null);
                     drawPile.setDraw(false);

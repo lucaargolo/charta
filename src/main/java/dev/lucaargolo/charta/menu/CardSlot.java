@@ -75,12 +75,12 @@ public class CardSlot<G extends CardGame<G>> {
         this.game.preUpdate();
     }
 
-    public final void onInsert(CardPlayer player, List<Card> cards) {
-        getSlot().onInsert(player, cards);
+    public final void onInsert(CardPlayer player, List<Card> cards, int index) {
+        getSlot().onInsert(player, cards, index);
     }
 
-    public final void onRemove(CardPlayer player, List<Card> cards) {
-        getSlot().onRemove(player, cards);
+    public final void onRemove(CardPlayer player, List<Card> cards, int index) {
+        getSlot().onRemove(player, cards, index);
     }
 
     public void postUpdate() {
