@@ -8,7 +8,7 @@ version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = mod_id + "-" + minecraft_version + "-" + "neoforge"
+    archivesName = mod_id + "-" + minecraft_version + "-" + "fabric"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -143,7 +143,7 @@ publishing {
         register('mavenJava', MavenPublication) {
             from components.java
             artifact(tasks.named('sourcesJar'))
-            artifactId = mod_id + "-" + minecraft_version + "-" + "neoforge"
+            artifactId = mod_id + "-" + minecraft_version + "-" + "fabric"
         }
     }
     repositories {
