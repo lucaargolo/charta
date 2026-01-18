@@ -12,7 +12,7 @@ version = mod_version
 group = mod_group_id
 
 base {
-    archivesName = mod_id
+    archivesName = mod_id + "-" + minecraft_version + "-" + "neoforge"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -118,26 +118,11 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
 
-// Example configuration to allow publishing using the maven-publish plugin
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            from components.java
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/repo"
-        }
-    }
-}
-
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
 tasks.withType(Jar).configureEach {
-    archiveClassifier = "neoforge-"+minecraft_version
     manifest {
         attributes["Main-Class"] = "dev.lucaargolo.charta.editor.CardEditor"
     }
@@ -148,11 +133,30 @@ tasks.withType(Jar).configureEach {
 
 task sourcesJar(type: Jar) {
     archiveClassifier.set('sources')
-    from sourceSets.main.allSource
+    from sourceSets.main.java
 }
 
 artifacts {
     archives sourcesJar
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            from components.java
+            artifact(tasks.named('sourcesJar'))
+            artifactId = mod_id + "-" + minecraft_version + "-" + "neoforge"
+        }
+    }
+    repositories {
+        maven {
+            url = uri("https://maven.cafeteria.dev/releases")
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
 }
 
 idea {
