@@ -61,6 +61,7 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import org.slf4j.Logger;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 @SuppressWarnings("unused")
 public class Charta implements ModInitializer {

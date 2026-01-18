@@ -9,9 +9,9 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.game.Deck;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Rarity;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class DeckProvider implements DataProvider {
 
-    private final PackOutput output;
+    private final FabricDataOutput output;
     private final Gson gson;
 
     public static final Map<ResourceLocation, Deck> DECKS = new HashMap<>();
@@ -128,7 +128,7 @@ public class DeckProvider implements DataProvider {
         return deck;
     }
     
-    public DeckProvider(PackOutput output) {
+    public DeckProvider(FabricDataOutput output) {
         this.output = output;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }

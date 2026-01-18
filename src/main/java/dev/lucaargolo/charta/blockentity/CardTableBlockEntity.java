@@ -108,7 +108,7 @@ public class CardTableBlockEntity extends BlockEntity {
                             if (players.size() <= game.getMaxPlayers()) {
                                 Either<CardGame<?>, Component> either = game.playerPredicate(players);
                                 if(either.left().isPresent()) {
-                                    PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), new GameSlotResetPayload(worldPosition));
+                                    sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), new GameSlotResetPayload(worldPosition));
                                     for(CardPlayer player : players) {
                                         LivingEntity entity = player.getEntity();
                                         if (entity instanceof ServerPlayer serverPlayer) {
