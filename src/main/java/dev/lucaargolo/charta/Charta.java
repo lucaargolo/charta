@@ -10,14 +10,16 @@ import dev.lucaargolo.charta.entity.ModEntityTypes;
 import dev.lucaargolo.charta.entity.ModPoiTypes;
 import dev.lucaargolo.charta.entity.ModVillagerProfessions;
 import dev.lucaargolo.charta.game.GameSlot;
+import dev.lucaargolo.charta.game.Rank;
+import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.item.ModCreativeTabs;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.ModMenus;
 import dev.lucaargolo.charta.network.*;
-import dev.lucaargolo.charta.resources.CardDeckResource;
 import dev.lucaargolo.charta.resources.CardImageResource;
-import dev.lucaargolo.charta.resources.CardSuitResource;
+import dev.lucaargolo.charta.resources.DeckResource;
+import dev.lucaargolo.charta.resources.SuitImageResource;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.PlayerOptionData;
 import io.netty.buffer.ByteBuf;
@@ -59,12 +61,13 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import org.slf4j.Logger;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 
 @SuppressWarnings("unused")
 public class Charta implements ModInitializer {
 
     private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, ResourceLocation.withDefaultNamespace( "empty"));
+    public static final Set<Suit> DEFAULT_SUITS = Set.of(Suit.SPADES, Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS);
+    public static final Set<Rank> DEFAULT_RANKS = Set.of(Rank.ACE, Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING);
 
     public static final String MOD_ID = "charta";
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -77,10 +80,10 @@ public class Charta implements ModInitializer {
     public static final ResourceLocation MISSING_CARD = Charta.id("missing_card");
     public static final ResourceLocation MISSING_GAME = Charta.id("missing_game");
 
-    public static final CardSuitResource CARD_SUITS = new CardSuitResource();
+    public static final SuitImageResource SUIT_IMAGES = new SuitImageResource();
     public static final CardImageResource CARD_IMAGES = new CardImageResource("card");
     public static final CardImageResource DECK_IMAGES = new CardImageResource("deck");
-    public static final CardDeckResource CARD_DECKS = new CardDeckResource();
+    public static final DeckResource CARD_DECKS = new DeckResource();
 
     public static EntityDataAccessor<Boolean> MOB_IRON_LEASH;
 
@@ -215,7 +218,7 @@ public class Charta implements ModInitializer {
         }
 
         public static void addReloadListeners(ResourceManagerHelper event) {
-            event.registerReloadListener(CARD_SUITS);
+            event.registerReloadListener(SUIT_IMAGES);
             event.registerReloadListener(CARD_IMAGES);
             event.registerReloadListener(DECK_IMAGES);
             event.registerReloadListener(CARD_DECKS);
@@ -238,7 +241,7 @@ public class Charta implements ModInitializer {
         public static void onPlayerJoined(ServerGamePacketListenerImpl handler, PacketSender sender, MinecraftServer server) {
             ServerPlayer serverPlayer = handler.getPlayer();
             ServerPlayNetworking.send(serverPlayer, new ImagesPayload(
-                    new HashMap<>(Charta.CARD_SUITS.getImages()),
+                    new HashMap<>(Charta.SUIT_IMAGES.getImages()),
                     new HashMap<>(Charta.CARD_IMAGES.getImages()),
                     new HashMap<>(Charta.DECK_IMAGES.getImages())
             ));
@@ -250,7 +253,7 @@ public class Charta implements ModInitializer {
 
         public static void onDatapackReload(ServerPlayer player, boolean joined) {
             ServerPlayNetworking.send(player, new ImagesPayload(
-                new HashMap<>(Charta.CARD_SUITS.getImages()),
+                new HashMap<>(Charta.SUIT_IMAGES.getImages()),
                 new HashMap<>(Charta.CARD_IMAGES.getImages()),
                 new HashMap<>(Charta.DECK_IMAGES.getImages())
             ));

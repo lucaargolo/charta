@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.compat.IrisCompat;
-import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.Suit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -13,7 +13,7 @@ import org.joml.Matrix4f;
 
 public class ChartaGuiGraphics {
 
-    public static void blitSuitAndGlow(GuiGraphics parent, CardDeck deck, Suit suit, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
+    public static void blitSuitAndGlow(GuiGraphics parent, Deck deck, Suit suit, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
         ResourceLocation textureLocation = deck.getSuitTexture(suit, false);
         ResourceLocation glowLocation = deck.getSuitTexture(suit, true);
         ChartaGuiGraphics.blitImage(parent, textureLocation, x, y, u, v, width, height, textureWidth, textureHeight);
@@ -25,7 +25,7 @@ public class ChartaGuiGraphics {
         Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
     }
 
-    public static void blitWhiteSuitAndGlow(GuiGraphics parent, CardDeck deck, Suit suit, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
+    public static void blitWhiteSuitAndGlow(GuiGraphics parent, Deck deck, Suit suit, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
         ResourceLocation textureLocation = deck.getSuitTexture(suit, false);
         ResourceLocation glowLocation = deck.getSuitTexture(suit, true);
         ChartaGuiGraphics.blitWhiteImage(parent, textureLocation, x, y, u, v, width, height, textureWidth, textureHeight);

@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.game.solitaire;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
+import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
@@ -44,7 +45,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
     public int moves = 0;
     public int time = 0;
 
-    public SolitaireGame(List<CardPlayer> players, CardDeck deck) {
+    public SolitaireGame(List<CardPlayer> players, Deck deck) {
         super(players, deck);
 
         float middleX = CardTableBlockEntity.TABLE_WIDTH/2f;
@@ -60,8 +61,8 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
             }
 
             @Override
-            public void onRemove(CardPlayer player, List<Card> cards) {
-                super.onRemove(player, cards);
+            public void onRemove(CardPlayer player, List<Card> cards, int index) {
+                super.onRemove(player, cards, index);
                 lastStockCard = cards.getLast();
                 lastStockCard.flip();
             }
@@ -80,15 +81,15 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
             }
 
             @Override
-            public void onInsert(CardPlayer player, List<Card> cards) {
-                super.onInsert(player, cards);
+            public void onInsert(CardPlayer player, List<Card> cards, int index) {
+                super.onInsert(player, cards, index);
                 lastStockCard = null;
                 player.play(null);
             }
 
             @Override
-            public void onRemove(CardPlayer player, List<Card> cards) {
-                super.onRemove(player, cards);
+            public void onRemove(CardPlayer player, List<Card> cards, int index) {
+                super.onRemove(player, cards, index);
                 lastStockCard = cards.getLast();
             }
 
@@ -104,13 +105,18 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         for(Suit suit : List.of(Suit.SPADES, Suit.HEARTS, Suit.CLUBS, Suit.DIAMONDS)) {
             GameSlot slot = addSlot(new GameSlot(new LinkedList<>(), leftX + (CardImage.WIDTH + 5)*(3+i++), topY, 0f, 0f) {
                 @Override
+                public boolean canRemoveCard(CardPlayer player, int index) {
+                    return index == size()-1 || index == -1;
+                }
+
+                @Override
                 public boolean canInsertCard(CardPlayer player, List<Card> cards, int index) {
                     if(index != -1 && index != this.size()) {
                         return false;
                     }else{
-                        int i = this.isEmpty() ? 0 : this.getLast().getRank().ordinal();
+                        int i = this.isEmpty() ? 0 : this.getLast().rank().ordinal();
                         for(Card card : cards) {
-                            if(card.getSuit() != suit || card.getRank().ordinal() != 1 + i++) {
+                            if(card.suit() != suit || card.rank().ordinal() != 1 + i++) {
                                 return false;
                             }
                         }
@@ -119,8 +125,8 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                 }
 
                 @Override
-                public void onInsert(CardPlayer player, List<Card> cards) {
-                    super.onInsert(player, cards);
+                public void onInsert(CardPlayer player, List<Card> cards, int index) {
+                    super.onInsert(player, cards, index);
                     lastStockCard = null;
                     if(lastTableauDraw >= 0) {
                         player.play(cards, lastTableauDraw);
@@ -130,6 +136,10 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                     lastTableauDraw = -1;
                 }
 
+                @Override
+                public boolean removeAll() {
+                    return false;
+                }
             });
             slot.highlightColor = 0x93ff9c;
             map.put(suit, slot);
@@ -148,7 +158,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                     Card last = null;
                     for(int i = index; i < this.size(); i++) {
                         Card current = this.get(i);
-                        if(last != null && (last.isFlipped() || !SolitaireGame.isAlternate(last, current))) {
+                        if(last != null && (last.flipped() || !SolitaireGame.isAlternate(last, current))) {
                             return false;
                         }
                         last = current;
@@ -157,8 +167,8 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                 }
 
                 @Override
-                public void onRemove(CardPlayer player, List<Card> cards) {
-                    super.onRemove(player, cards);
+                public void onRemove(CardPlayer player, List<Card> cards, int index) {
+                    super.onRemove(player, cards, index);
                     lastTableauDraw = s;
                 }
 
@@ -172,7 +182,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                     }
                     Card last = this.isEmpty() ? null : this.getLast();
                     for(Card current : cards) {
-                        if((last == null && current.getRank() != Rank.KING) || ((last != null && !SolitaireGame.isAlternate(last, current)) || (last != null && current.getRank().ordinal()+1 != last.getRank().ordinal()))) {
+                        if((last == null && current.rank() != Rank.KING) || ((last != null && !SolitaireGame.isAlternate(last, current)) || (last != null && current.rank().ordinal()+1 != last.rank().ordinal()))) {
                             return false;
                         }
                         last = current;
@@ -181,8 +191,8 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
                 }
 
                 @Override
-                public void onInsert(CardPlayer player, List<Card> cards) {
-                    super.onInsert(player, cards);
+                public void onInsert(CardPlayer player, List<Card> cards, int index) {
+                    super.onInsert(player, cards, index);
                     lastStockCard = null;
                     if(lastTableauDraw != s && lastTableauDraw >= 0) {
                         player.play(cards, lastTableauDraw);
@@ -199,27 +209,20 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
     }
 
     @Override
-    public AbstractCardMenu<SolitaireGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck) {
+    public AbstractCardMenu<SolitaireGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, Deck deck) {
         return new SolitaireMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray(), this.getRawOptions());
     }
 
     @Override
-    public Predicate<CardDeck> getDeckPredicate() {
-        return deck -> {
-            for(Suit suit : Suit.values()) {
-                for(Rank rank : Rank.values()) {
-                    if(suit != Suit.BLANK && rank != Rank.BLANK && rank != Rank.JOKER && !deck.getCards().contains(new Card(suit, rank))) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+    public Predicate<Deck> getDeckPredicate() {
+        return (deck) -> {
+            return deck.getCards().size() == 52 && Charta.DEFAULT_SUITS.containsAll(deck.getUniqueSuits()) && deck.getUniqueSuits().containsAll(Charta.DEFAULT_SUITS);
         };
     }
 
     @Override
     public Predicate<Card> getCardPredicate() {
-        return card -> card.getSuit() != Suit.BLANK && card.getRank() != Rank.BLANK && card.getRank() != Rank.JOKER;
+        return (card) -> Charta.DEFAULT_SUITS.contains(card.suit()) && Charta.DEFAULT_RANKS.contains(card.rank());
     }
 
 
@@ -293,7 +296,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
             if(play != null) {
                 //If they successfully did a play, unflip the last card from the tableau
                 GameSlot s = this.getSlot(play.slot());
-                if(!s.isEmpty() && s.getLast().isFlipped()) {
+                if(!s.isEmpty() && s.getLast().flipped()) {
                     s.getLast().flip();
                     s.setDirty(true);
                     play(currentPlayer, Component.translatable("message.charta.revealed_a_card", Component.translatable(deck.getCardTranslatableKey(s.getLast())), play.slot()-5));
@@ -404,8 +407,8 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
     }
 
     public static boolean isAlternate(Card c1, Card c2) {
-        boolean v1 = (c1.getSuit() == Suit.HEARTS || c1.getSuit() == Suit.DIAMONDS);
-        boolean v2 = (c2.getSuit() == Suit.HEARTS || c2.getSuit() == Suit.DIAMONDS);
+        boolean v1 = (c1.suit() == Suit.HEARTS || c1.suit() == Suit.DIAMONDS);
+        boolean v2 = (c2.suit() == Suit.HEARTS || c2.suit() == Suit.DIAMONDS);
         return v1 != v2;
     }
 
@@ -414,10 +417,10 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         for (GameSlot slot : tableauPiles) {
             if (!slot.isEmpty()) {
                 Card card = slot.getLast();
-                if (foundationPiles.get(card.getSuit()).canInsertCard(currentPlayer, List.of(card), -1)) {
+                if (foundationPiles.get(card.suit()).canInsertCard(currentPlayer, List.of(card), -1)) {
                     return Pair.of(
                         Component.translatable("message.charta.move_card_from_tableau_to_foundation", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))),
-                        List.of(slot, foundationPiles.get(card.getSuit()))
+                        List.of(slot, foundationPiles.get(card.suit()))
                     );
                 }
             }
@@ -426,10 +429,10 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         // Check if any card from waste can be moved to foundation
         if (!wastePile.isEmpty()) {
             Card card = wastePile.getLast();
-            if (foundationPiles.get(card.getSuit()).canInsertCard(currentPlayer, List.of(card), -1)) {
+            if (foundationPiles.get(card.suit()).canInsertCard(currentPlayer, List.of(card), -1)) {
                 return Pair.of(
                     Component.translatable("message.charta.move_card_from_waste_to_foundation", Component.translatable(deck.getCardTranslatableKey(card)).withColor(deck.getCardColor(card))),
-                    List.of(wastePile, foundationPiles.get(card.getSuit()))
+                    List.of(wastePile, foundationPiles.get(card.suit()))
                 );
             }
         }
@@ -438,7 +441,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
         for (GameSlot fromSlot : tableauPiles) {
             for (int i = 0; i < fromSlot.size(); i++) {
                 Card card = fromSlot.get(i);
-                if (card.isFlipped()) continue;
+                if (card.flipped()) continue;
 
                 for (GameSlot toSlot : tableauPiles) {
                     if (fromSlot == toSlot) continue;
@@ -497,7 +500,7 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
             str.append("-");
 
             foundationPiles.forEach((suit, cards) -> {
-                str.append(suit.name());
+                str.append(suit);
                 str.append("-");
                 str.append(cards.size());
                 str.append("-");

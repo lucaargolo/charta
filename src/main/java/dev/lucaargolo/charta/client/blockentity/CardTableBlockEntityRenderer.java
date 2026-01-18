@@ -7,7 +7,7 @@ import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.client.ModRenderType;
 import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.client.renderer.LightTexture;
@@ -32,7 +32,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
 
     @Override
     public void render(@NotNull CardTableBlockEntity blockEntity, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        CardDeck deck = blockEntity.getDeck();
+        Deck deck = blockEntity.getDeck();
         ItemStack deckStack = blockEntity.getDeckStack();
         poseStack.pushPose();
         poseStack.translate(0.0, 0.85, 1.0);
@@ -130,11 +130,11 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
         poseStack.popPose();
     }
 
-    private void drawCard(CardDeck deck, Card card, int packedLight, int packedOverlay, PoseStack poseStack, MultiBufferSource bufferSource, float x, float y, Vector3f normal) {
+    public static void drawCard(Deck deck, Card card, int packedLight, int packedOverlay, PoseStack poseStack, MultiBufferSource bufferSource, float x, float y, Vector3f normal) {
         PoseStack.Pose entry = poseStack.last();
 
         if(IrisCompat.isPresent()) {
-            ResourceLocation glowTexture = card.isFlipped() ? deck.getDeckTexture(true) : deck.getCardTexture(card, true);
+            ResourceLocation glowTexture = card.flipped() ? deck.getDeckTexture(true) : deck.getCardTexture(card, true);
             RenderType glowType = RenderType.entityTranslucentEmissive(glowTexture);
             VertexConsumer glowConsumer = bufferSource.getBuffer(glowType);
             glowConsumer.addVertex(entry.pose(), (x+CardImage.WIDTH)/160f, y/160f, 0).setColor(1f, 1f, 1f, 1f).setUv(1f, 1f).setOverlay(packedOverlay).setLight(LightTexture.FULL_BRIGHT).setNormal(entry, normal.x, normal.y, normal.z);
@@ -143,7 +143,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
             glowConsumer.addVertex(entry.pose(), x/160f, y/160f, 0).setColor(1f, 1f, 1f, 1f).setUv(0f, 1f).setOverlay(packedOverlay).setLight(LightTexture.FULL_BRIGHT).setNormal(entry, normal.x, normal.y, normal.z);
         }
 
-        ResourceLocation texture = card.isFlipped() ? deck.getDeckTexture(false) : deck.getCardTexture(card, false);
+        ResourceLocation texture = card.flipped() ? deck.getDeckTexture(false) : deck.getCardTexture(card, false);
         RenderType type = IrisCompat.isPresent() ? RenderType.entityTranslucent(texture) : ModRenderType.entityCard(texture);
         VertexConsumer consumer = bufferSource.getBuffer(type);
 

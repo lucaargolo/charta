@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.entity;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.block.ModBlocks;
-import dev.lucaargolo.charta.item.CardDeckItem;
+import dev.lucaargolo.charta.item.DeckItem;
 import dev.lucaargolo.charta.item.ModItems;
 import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.util.RandomSource;
@@ -54,7 +54,7 @@ public class ModItemListings {
 
     private static ItemListing getDecksByRarity(Rarity rarity) {
         return (trader, random) -> {
-            List<ItemStack> decks = Charta.CARD_DECKS.getDecks().entrySet().stream().filter(c -> c.getValue().isTradeable() && c.getValue().getRarity() == rarity).map(Map.Entry::getKey).map(CardDeckItem::getDeck).toList();
+            List<ItemStack> decks = Charta.CARD_DECKS.getDecks().entrySet().stream().filter(c -> c.getValue().isTradeable() && c.getValue().getRarity() == rarity).map(Map.Entry::getKey).map(DeckItem::getDeck).toList();
             return decks.isEmpty() ? null : new MerchantOffer(new ItemCost(Items.EMERALD, (6 + random.nextInt(11)) * (rarity.ordinal() + 1)), decks.get(random.nextInt(decks.size())), 4, 25, 1f);
         };
     }

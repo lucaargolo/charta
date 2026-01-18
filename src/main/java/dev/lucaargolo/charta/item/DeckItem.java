@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.item;
 
 import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.client.gui.screens.DeckScreen;
-import dev.lucaargolo.charta.game.CardDeck;
+import dev.lucaargolo.charta.game.Deck;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
@@ -23,15 +23,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class CardDeckItem extends Item {
+public class DeckItem extends Item {
 
-    public CardDeckItem(Properties properties) {
+    public DeckItem(Properties properties) {
         super(properties);
     }
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        CardDeck deck = getDeck(stack);
+        Deck deck = getDeck(stack);
         return deck != null ? deck.getName() : super.getName(stack);
     }
 
@@ -39,7 +39,7 @@ public class CardDeckItem extends Item {
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
         ItemStack stack = player.getItemInHand(usedHand);
         if(level.isClientSide()) {
-            CardDeck deck = getDeck(stack);
+            Deck deck = getDeck(stack);
             if(deck != null)
                 openScreen(deck);
         }
@@ -47,7 +47,7 @@ public class CardDeckItem extends Item {
     }
 
     @Environment(EnvType.CLIENT)
-    private static void openScreen(CardDeck deck) {
+    private static void openScreen(Deck deck) {
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.setScreen(new DeckScreen(null, deck));
     }
@@ -55,23 +55,23 @@ public class CardDeckItem extends Item {
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        CardDeck deck = getDeck(stack);
+        Deck deck = getDeck(stack);
         if(deck != null) {
             tooltipComponents.add(Component.literal(String.valueOf(deck.getCards().size())).append(" ").append(Component.translatable("charta.cards")).withStyle(ChatFormatting.DARK_PURPLE));
         }
     }
 
     @Nullable
-    public static CardDeck getDeck(ItemStack stack) {
+    public static Deck getDeck(ItemStack stack) {
         ResourceLocation deckId = stack.get(ModDataComponentTypes.CARD_DECK);
         return deckId != null ? Charta.CARD_DECKS.getDeck(deckId) : null;
     }
 
-    public static ItemStack getDeck(CardDeck cardDeck) {
+    public static ItemStack getDeck(Deck deck) {
         ResourceLocation deckId = Charta.CARD_DECKS.getDecks()
             .entrySet()
             .stream()
-            .filter(e -> e.getValue() == cardDeck)
+            .filter(e -> e.getValue() == deck)
             .map(Map.Entry::getKey)
             .findFirst()
             .orElse(Charta.id("missing"));
@@ -79,7 +79,7 @@ public class CardDeckItem extends Item {
     }
 
     public static ItemStack getDeck(ResourceLocation deckId) {
-        CardDeck deck = Charta.CARD_DECKS.getDeck(deckId);
+        Deck deck = Charta.CARD_DECKS.getDeck(deckId);
         ItemStack stack = ModItems.DECK.getDefaultInstance();
         stack.set(ModDataComponentTypes.CARD_DECK, deckId);
         stack.set(DataComponents.RARITY, deck.getRarity());

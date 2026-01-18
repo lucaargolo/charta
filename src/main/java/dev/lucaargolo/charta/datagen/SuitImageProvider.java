@@ -50,6 +50,14 @@ public class SuitImageProvider implements DataProvider {
                         try (InputStream stream = Files.newInputStream(path)) {
                             SuitImage.saveSuits(ImageIO.read(stream), cardOutputFolder, (fileToSave, suitImage) -> {
                                 CardImageUtils.saveImage(suitImage, fileToSave, cachedOutput);
+                            }, String::valueOf, row -> {
+                                return switch (row) {
+                                    case 1 -> fileName.contains("fun") ? "red" : "spades";
+                                    case 2 -> fileName.contains("fun") ? "yellow" : "hearts";
+                                    case 3 -> fileName.contains("fun") ? "green" : "clubs";
+                                    case 4 -> fileName.contains("fun") ? "blue" : "diamonds";
+                                    default -> "";
+                                };
                             });
                         }catch (Exception e) {
                             Charta.LOGGER.error("Error loading image: {}", path, e);

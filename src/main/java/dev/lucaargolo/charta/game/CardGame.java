@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.game;
 
+import com.mojang.datafixers.util.Either;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.CardPlayPayload;
 import io.netty.buffer.Unpooled;
@@ -39,7 +40,7 @@ public abstract class CardGame<G extends CardGame<G>> {
     private final List<GameSlot> gameSlots = new ArrayList<>();
 
     protected final List<CardPlayer> players;
-    protected final CardDeck deck;
+    protected final Deck deck;
 
     protected final List<Card> gameDeck;
     protected final Set<Suit> gameSuits;
@@ -48,7 +49,7 @@ public abstract class CardGame<G extends CardGame<G>> {
     protected boolean isGameReady;
     protected boolean isGameOver;
 
-    public CardGame(List<CardPlayer> players, CardDeck deck) {
+    public CardGame(List<CardPlayer> players, Deck deck) {
         this.players = players;
         this.deck = deck;
 
@@ -58,14 +59,18 @@ public abstract class CardGame<G extends CardGame<G>> {
                 .map(Card::copy)
                 .collect(Collectors.toList());
         this.gameDeck.forEach(Card::flip);
-        this.gameSuits = this.gameDeck.stream().map(Card::getSuit).collect(Collectors.toSet());
+        this.gameSuits = this.gameDeck.stream().map(Card::suit).collect(Collectors.toSet());
     }
 
-    public abstract AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck);
+    public abstract AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, Deck deck);
 
-    public abstract Predicate<CardDeck> getDeckPredicate();
+    public abstract Predicate<Deck> getDeckPredicate();
 
     public abstract Predicate<Card> getCardPredicate();
+
+    public Either<CardGame<?>, Component> playerPredicate(List<CardPlayer> players) {
+        return Either.left(this);
+    }
 
     public abstract boolean canPlay(CardPlayer player, CardPlay play);
 
@@ -189,7 +194,7 @@ public abstract class CardGame<G extends CardGame<G>> {
 
         //Adds all suits to a map, and increases its value everytime it appears.
         for (Card c : this.getPlayerHand(player).getCards()) {
-            Suit suit = c.getSuit();
+            Suit suit = c.suit();
             suitCountMap.put(suit, suitCountMap.getOrDefault(suit, 0) + 1);
         }
 
@@ -218,18 +223,17 @@ public abstract class CardGame<G extends CardGame<G>> {
         return null;
     }
 
-    public void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, CardDeck deck) {
+    public void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, Deck deck) {
         serverPlayer.openMenu(new ExtendedScreenHandlerFactory<RegistryFriendlyByteBuf>() {
             @Override
             public RegistryFriendlyByteBuf getScreenOpeningData(ServerPlayer serverPlayer) {
                 RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), serverPlayer.registryAccess());
                 buf.writeBlockPos(pos);
-                CardDeck.STREAM_CODEC.encode(buf, deck);
+                Deck.STREAM_CODEC.encode(buf, deck);
                 buf.writeVarIntArray(getPlayers().stream().mapToInt(CardPlayer::getId).toArray());
                 buf.writeByteArray(CardGame.this.getRawOptions());
                 return buf;
             }
-
             @Override
             public @NotNull Component getDisplayName() {
                 return Component.empty();
@@ -285,8 +289,8 @@ public abstract class CardGame<G extends CardGame<G>> {
         }
     }
 
-    public static boolean canPlayGame(CardGame<?> cardGame, CardDeck cardDeck) {
-        return cardGame.getDeckPredicate().test(cardDeck);
+    public static boolean isValidDeck(CardGame<?> cardGame, Deck deck) {
+        return cardGame.getDeckPredicate().test(deck);
     }
 
 }

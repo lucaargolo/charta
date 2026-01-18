@@ -16,7 +16,7 @@ public class DataGenerators implements DataGeneratorEntrypoint {
         pack.addProvider(SuitImageProvider::new);
         pack.addProvider(CardImageProvider::new);
         pack.addProvider(DeckImageProvider::new);
-        pack.addProvider(CardDeckProvider::new);
+        pack.addProvider(DeckProvider::new);
         pack.addProvider(ModBlockLootProvider::new);
         pack.addProvider(ModLootProvider::new);
         pack.addProvider(ModBannerPatternTagsProvider::new);

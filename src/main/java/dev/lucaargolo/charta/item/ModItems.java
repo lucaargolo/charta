@@ -36,7 +36,7 @@ public class ModItems {
         });
     }
 
-    public static final CardDeckItem DECK = register("deck", () -> new CardDeckItem(new Item.Properties().stacksTo(1)));
+    public static final DeckItem DECK = register("deck", () -> new DeckItem(new Item.Properties().stacksTo(1)));
     public static final LeadItem IRON_LEAD = register("iron_lead", () -> new LeadItem(new Item.Properties()));
 
     private static <T extends Item> T register(String id, Supplier<T> item) {

@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-public class CardSuitResource implements SimpleSynchronousResourceReloadListener {
+public class SuitImageResource implements SimpleSynchronousResourceReloadListener {
 
     private HashMap<ResourceLocation, SuitImage> images = new HashMap<>();
 

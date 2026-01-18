@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.game.fun;
 
-import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGames;
+import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
@@ -25,7 +25,7 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
             return switch (index) {
                 case 0 -> game.canDoLast() ? 1 : canDoLast;
                 case 1 -> game.didntSayLast(cardPlayer) ? 1 : didntSayLast;
-                case 2 -> game.currentSuit != null ? game.currentSuit.ordinal() : -1;
+                case 2 -> game.currentSuit != null ? game.currentSuit.id() : -1;
                 case 3 -> game.reversed ? 1 : 0;
                 case 4 -> game.drawStack;
                 case 5 -> game.canDraw ? 1 : 0;
@@ -38,7 +38,7 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
             switch (index) {
                 case 0 -> canDoLast = value;
                 case 1 -> didntSayLast = value;
-                case 2 -> game.currentSuit = value >= 0 ? Suit.values()[value] : null;
+                case 2 -> game.currentSuit = value >= 0 ? Suit.getSuit(value) : null;
                 case 3 -> game.reversed = value > 0;
                 case 4 -> game.drawStack = value;
                 case 5 -> game.canDraw = value > 0;
@@ -52,10 +52,10 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
     };
 
     public FunMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buf) {
-        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), CardDeck.STREAM_CODEC.decode(buf), buf.readVarIntArray(), buf.readByteArray());
+        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), Deck.STREAM_CODEC.decode(buf), buf.readVarIntArray(), buf.readByteArray());
     }
 
-    public FunMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
+    public FunMenu(int containerId, Inventory inventory, ContainerLevelAccess access, Deck deck, int[] players, byte[] options) {
         super(ModMenus.FUN, containerId, inventory, access, deck, players, options);
 
         this.addTopPreview(players);
@@ -74,7 +74,7 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
     }
 
     public Suit getCurrentSuit() {
-        return data.get(2) >= 0 ? Suit.values()[data.get(2)] : null;
+        return data.get(2) >= 0 ? Suit.getSuit(data.get(2)) : null;
     }
 
     public boolean isReversed() {

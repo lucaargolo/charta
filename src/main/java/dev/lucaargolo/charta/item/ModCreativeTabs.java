@@ -28,10 +28,10 @@ public class ModCreativeTabs {
 
     public static final CreativeModeTab DECKS = register("decks", () -> FabricItemGroup.builder()
             .title(Component.translatable("itemGroup.charta.decks"))
-            .icon(() -> CardDeckItem.getDeck(new ArrayList<>(Charta.CARD_DECKS.getDecks().keySet()).getFirst()))
+            .icon(() -> DeckItem.getDeck(new ArrayList<>(Charta.CARD_DECKS.getDecks().keySet()).getFirst()))
             .displayItems((parameters, output) -> {
                 Charta.CARD_DECKS.getDecks().forEach((id, deck) -> {
-                    output.accept(CardDeckItem.getDeck(id));
+                    output.accept(DeckItem.getDeck(id));
                 });
             })
             .build());

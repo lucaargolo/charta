@@ -99,7 +99,7 @@ public class ChartaClient implements ClientModInitializer {
         Minecraft client = Minecraft.getInstance();
         TextureManager manager = client.getTextureManager();
         manager.register(Charta.MISSING_SUIT, CardImageUtils.convertImage(CardImageUtils.EMPTY_SUIT, IrisCompat.isPresent(), false));
-        Charta.CARD_SUITS.getImages().forEach((id, image) -> {
+        Charta.SUIT_IMAGES.getImages().forEach((id, image) -> {
             ResourceLocation suitId = ChartaClient.getSuitTexture(id);
             manager.register(suitId, CardImageUtils.convertImage(image, IrisCompat.isPresent(), false));
         });
@@ -116,7 +116,7 @@ public class ChartaClient implements ClientModInitializer {
     }
 
     public static ResourceLocation getSuitTexture(ResourceLocation location) {
-        if (Charta.CARD_SUITS.getImages().containsKey(location)) {
+        if (Charta.SUIT_IMAGES.getImages().containsKey(location)) {
             return location.withPrefix("suit/");
         }else{
             return Charta.MISSING_SUIT;
@@ -143,8 +143,8 @@ public class ChartaClient implements ClientModInitializer {
         Minecraft client = Minecraft.getInstance();
         TextureManager manager = client.getTextureManager();
         manager.release(Charta.MISSING_SUIT);
-        Charta.CARD_SUITS.getImages().keySet().stream().map(ChartaClient::getSuitTexture).forEach(manager::release);
-        Charta.CARD_SUITS.getImages().clear();
+        Charta.SUIT_IMAGES.getImages().keySet().stream().map(ChartaClient::getSuitTexture).forEach(manager::release);
+        Charta.SUIT_IMAGES.getImages().clear();
         manager.release(Charta.MISSING_CARD);
         Charta.CARD_IMAGES.getImages().keySet().stream().map(ChartaClient::getCardTexture).forEach(manager::release);
         Charta.DECK_IMAGES.getImages().keySet().stream().map(ChartaClient::getDeckTexture).forEach(manager::release);

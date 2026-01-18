@@ -47,7 +47,7 @@ public class CardGames {
     }
 
     @SuppressWarnings({"OptionalGetWithoutIsPresent", "unchecked"})
-    public static <G extends CardGame<G>> G getGameForMenu(Factory<G> factory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
+    public static <G extends CardGame<G>> G getGameForMenu(Factory<G> factory, ContainerLevelAccess access, Deck deck, int[] players, byte[] options) {
         try{
             return access.evaluate((level, pos) -> level.getBlockEntity(pos, ModBlockEntityTypes.CARD_TABLE).get()).map(table -> (G) table.getGame()).get();
         }catch (Exception e) {
@@ -71,7 +71,7 @@ public class CardGames {
     }
 
     public static <G extends CardGame<G>> boolean areOptionsChanged(Factory<G> factory, G game) {
-        G defaultGame = factory.create(List.of(), CardDeck.EMPTY);
+        G defaultGame = factory.create(List.of(), Deck.EMPTY);
         for(int i = 0; i < defaultGame.getOptions().size(); i++) {
             GameOption<?> defaultOption = defaultGame.getOptions().get(i);
             GameOption<?> modifiedOption = game.getOptions().get(i);
@@ -85,7 +85,7 @@ public class CardGames {
     @FunctionalInterface
     public interface Factory<G extends CardGame<G>> {
 
-        G create(List<CardPlayer> players, CardDeck deck);
+        G create(List<CardPlayer> players, Deck deck);
 
     }
 

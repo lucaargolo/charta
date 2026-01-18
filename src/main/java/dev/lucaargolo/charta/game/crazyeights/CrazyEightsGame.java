@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.game.crazyeights;
 
+import dev.lucaargolo.charta.Charta;
 import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
@@ -34,7 +35,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
     public Suit currentSuit;
     public int drawsLeft;
 
-    public CrazyEightsGame(List<CardPlayer> players, CardDeck deck) {
+    public CrazyEightsGame(List<CardPlayer> players, Deck deck) {
         super(players, deck);
         this.drawsLeft = AVAILABLE_DRAWS.get();
 
@@ -51,8 +52,8 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
     protected GameSlot createPlayerHand(CardPlayer player) {
         return new GameSlot(player.hand()) {
             @Override
-            public void onInsert(CardPlayer player, List<Card> cards) {
-                super.onInsert(player, cards);
+            public void onInsert(CardPlayer player, List<Card> cards, int index) {
+                super.onInsert(player, cards, index);
                 if(drawPile.isDraw()) {
                     player.play(null);
                     drawPile.setDraw(false);
@@ -72,18 +73,20 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
     }
 
     @Override
-    public AbstractCardMenu<CrazyEightsGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, CardDeck deck) {
+    public AbstractCardMenu<CrazyEightsGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, Deck deck) {
         return new CrazyEightsMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray(), this.getRawOptions());
     }
 
     @Override
-    public Predicate<CardDeck> getDeckPredicate() {
-        return (deck) -> deck.getCards().stream().filter(c -> c.getSuit() == Suit.BLANK || c.getRank() == Rank.BLANK).findAny().isEmpty();
+    public Predicate<Deck> getDeckPredicate() {
+        return (deck) -> {
+            return deck.getCards().size() >= 52 && Charta.DEFAULT_SUITS.containsAll(deck.getUniqueSuits()) && deck.getUniqueSuits().containsAll(Charta.DEFAULT_SUITS);
+        };
     }
 
     @Override
     public Predicate<Card> getCardPredicate() {
-        return (card) -> card.getRank() != Rank.JOKER;
+        return (card) -> Charta.DEFAULT_SUITS.contains(card.suit()) && Charta.DEFAULT_RANKS.contains(card.rank());
     }
 
     private CardPlayer getNextPlayer() {
@@ -120,7 +123,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
         }
 
         Card last = drawPile.removeLast();
-        while (last != null && last.getRank() == Rank.EIGHT) {
+        while (last != null && last.rank() == Rank.EIGHT) {
             drawPile.add(last);
             drawPile.shuffle();
             last = drawPile.removeLast();
@@ -130,7 +133,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
         Card startingCard = last;
         scheduledActions.add(() -> {
             playPile.addLast(startingCard);
-            currentSuit = startingCard.getSuit();
+            currentSuit = startingCard.suit();
         });
 
         currentPlayer = getNextPlayer();
@@ -192,7 +195,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
             }else if(!currentPlayer.shouldCompute() || canPlay(currentPlayer, play)) {
                 Card card = play.cards().getLast();
                 currentPlayer.playSound(ModSounds.CARD_PLAY);
-                currentSuit = card.getSuit();
+                currentSuit = card.suit();
 
                 if(isChoosingWild) {
                     //Player was choosing the suit from a wild card.
@@ -215,7 +218,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
                 if(getFullHand(currentPlayer).findAny().isEmpty()) {
                     //If the player hand is empty, they win!
                     endGame();
-                }else if(card.getRank() == Rank.EIGHT) {
+                }else if(card.rank() == Rank.EIGHT) {
                     //If they played a wild card (Eight) we need to set up the suit choosing logic.
                     if(currentPlayer.shouldCompute()) {
                         //If the player is a bot, we need to manually select the most frequent suit of that bot.
@@ -226,7 +229,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
                         //If the player is not a bot, we need to set the game state as choosing wild, and set up the suits hand for the player.
                         isChoosingWild = true;
                         suits.clear();
-                        suits.addAll(gameSuits.stream().map(s -> new Card(s, Rank.BLANK)).toList());
+                        suits.addAll(gameSuits.stream().map(s -> new Card(s, Rank.EIGHT)).toList());
                         //They also can't draw during the suit choosing phase, so that's important.
                         drawsLeft = 0;
                         runGame();
@@ -268,7 +271,7 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
         }
         Card card = cards.getLast();
         Card lastCard = playPile.getLast();
-        return isGameReady && lastCard != null && ((isChoosingWild && card.getRank() == Rank.BLANK) || card.getRank() == Rank.EIGHT || card.getRank() == lastCard.getRank() || card.getSuit() == currentSuit);
+        return isGameReady && lastCard != null && ((isChoosingWild && card.rank() == Rank.EIGHT) || card.rank() == Rank.EIGHT || card.rank() == lastCard.rank() || card.suit() == currentSuit);
     }
 
 }

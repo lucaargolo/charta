@@ -1,12 +1,13 @@
 package dev.lucaargolo.charta.blockentity;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import dev.lucaargolo.charta.block.CardTableBlock;
 import dev.lucaargolo.charta.block.GameChairBlock;
 import dev.lucaargolo.charta.block.SeatBlock;
 import dev.lucaargolo.charta.entity.SeatEntity;
 import dev.lucaargolo.charta.game.*;
-import dev.lucaargolo.charta.item.CardDeckItem;
+import dev.lucaargolo.charta.item.DeckItem;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.network.GameSlotCompletePayload;
 import dev.lucaargolo.charta.network.GameSlotPositionPayload;
@@ -84,8 +85,8 @@ public class CardTableBlockEntity extends BlockEntity {
     }
 
     @Nullable
-    public CardDeck getDeck() {
-        return CardDeckItem.getDeck(this.deckStack);
+    public Deck getDeck() {
+        return DeckItem.getDeck(this.deckStack);
     }
 
     @Nullable
@@ -94,7 +95,7 @@ public class CardTableBlockEntity extends BlockEntity {
     }
 
     public Component startGame(@Nullable ResourceLocation gameId, byte[] options) {
-        CardDeck deck = getDeck();
+        Deck deck = getDeck();
         if(deck != null) {
             if(gameId != null) {
                 List<CardPlayer> players = this.getOrderedPlayers();
@@ -102,65 +103,71 @@ public class CardTableBlockEntity extends BlockEntity {
                 if(factory != null) {
                     CardGame<?> game = factory.create(players, this.getDeck());
                     game.setRawOptions(options);
-                    if(CardGame.canPlayGame(game, this.getDeck())) {
+                    if(CardGame.isValidDeck(game, this.getDeck())) {
                         if (players.size() >= game.getMinPlayers()) {
                             if (players.size() <= game.getMaxPlayers()) {
-                                sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), new GameSlotResetPayload(worldPosition));
-                                for(CardPlayer player : players) {
-                                    LivingEntity entity = player.getEntity();
-                                    if (entity instanceof ServerPlayer serverPlayer) {
-                                        ServerPlayNetworking.send(serverPlayer, new GameStartPayload());
-                                    }
-                                }
-                                this.resetSlots();
-                                this.game = game;
-                                this.game.startGame();
-                                this.game.runGame();
-                                for(GameSlot slot : this.game.getSlots()) {
-                                    slot.setX(slot.getX() + centerOffset.x * 160f);
-                                    slot.setY(slot.getY() + centerOffset.y * 160f);
-                                    slot.setParent(this);
-                                    addSlot(slot);
-                                }
-                                for(CardPlayer player : players) {
-                                    LivingEntity entity = player.getEntity();
-                                    if(entity != null) {
-                                        Vector3f offset = entity.position().subtract(worldPosition.getX() + 0.5, entity.getY(), worldPosition.getZ() + 0.5).toVector3f();
-                                        Direction direction = GameChairBlock.getSeatedDirection(entity);
-                                        if(direction != null) {
-                                            float angle = switch (direction) {
-                                                case EAST -> 90;
-                                                case SOUTH -> 180;
-                                                case WEST -> 270;
-                                                default -> 0;
-                                            };
-                                            float x = switch (direction) {
-                                                case NORTH -> 40f + (160f * offset.x);
-                                                case EAST -> -147.5f + (160f * (offset.x + 2));
-                                                case SOUTH -> 160f - 40f + (160f * offset.x);
-                                                case WEST -> 160f + 147.5f + (160f * (offset.x - 2));
-                                                default -> 0;
-                                            };
-                                            float y = switch (direction) {
-                                                case NORTH -> -147.5f - (160f * (offset.z - 2));
-                                                case EAST -> 160f - 40f - (160f * offset.z);
-                                                case SOUTH -> 160f + 147.5f - (160f * (offset.z + 2));
-                                                case WEST -> 160f - 147.5f - (160f * offset.z) + (CardImage.WIDTH + CardImage.WIDTH/10f);
-                                                default -> 0;
-                                            };
-                                            GameSlot slot = game.getCensoredHand(player);
-                                            slot.setX(x);
-                                            slot.setY(y);
-                                            slot.setAngle(angle);
-                                            slot.setStackDirection(direction.getClockWise());
-                                            slot.setParent(this);
-                                            slot.setIndex(this.getSlotCount());
-                                            addSlot(slot);
+                                Either<CardGame<?>, Component> either = game.playerPredicate(players);
+                                if(either.left().isPresent()) {
+                                    PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), new GameSlotResetPayload(worldPosition));
+                                    for(CardPlayer player : players) {
+                                        LivingEntity entity = player.getEntity();
+                                        if (entity instanceof ServerPlayer serverPlayer) {
+                                            ServerPlayNetworking.send(serverPlayer, new GameStartPayload());
                                         }
                                     }
-                                    player.openScreen(this.game, this.worldPosition, deck);
+                                    this.resetSlots();
+                                    this.game = game;
+                                    this.game.startGame();
+                                    this.game.runGame();
+                                    for(GameSlot slot : this.game.getSlots()) {
+                                        slot.setX(slot.getX() + centerOffset.x * 160f);
+                                        slot.setY(slot.getY() + centerOffset.y * 160f);
+                                        slot.setParent(this);
+                                        addSlot(slot);
+                                    }
+                                    for(CardPlayer player : players) {
+                                        LivingEntity entity = player.getEntity();
+                                        if(entity != null) {
+                                            Vector3f offset = entity.position().subtract(worldPosition.getX() + 0.5, entity.getY(), worldPosition.getZ() + 0.5).toVector3f();
+                                            Direction direction = GameChairBlock.getSeatedDirection(entity);
+                                            if(direction != null) {
+                                                float angle = switch (direction) {
+                                                    case EAST -> 90;
+                                                    case SOUTH -> 180;
+                                                    case WEST -> 270;
+                                                    default -> 0;
+                                                };
+                                                float x = switch (direction) {
+                                                    case NORTH -> 40f + (160f * offset.x);
+                                                    case EAST -> -147.5f + (160f * (offset.x + 2));
+                                                    case SOUTH -> 160f - 40f + (160f * offset.x);
+                                                    case WEST -> 160f + 147.5f + (160f * (offset.x - 2));
+                                                    default -> 0;
+                                                };
+                                                float y = switch (direction) {
+                                                    case NORTH -> -147.5f - (160f * (offset.z - 2));
+                                                    case EAST -> 160f - 40f - (160f * offset.z);
+                                                    case SOUTH -> 160f + 147.5f - (160f * (offset.z + 2));
+                                                    case WEST -> 160f - 147.5f - (160f * offset.z) + (CardImage.WIDTH + CardImage.WIDTH/10f);
+                                                    default -> 0;
+                                                };
+                                                GameSlot slot = game.getCensoredHand(player);
+                                                slot.setX(x);
+                                                slot.setY(y);
+                                                slot.setAngle(angle);
+                                                slot.setStackDirection(direction.getClockWise());
+                                                slot.setParent(this);
+                                                slot.setIndex(this.getSlotCount());
+                                                addSlot(slot);
+                                            }
+                                        }
+                                        player.openScreen(this.game, this.worldPosition, deck);
+                                    }
+                                    return Component.translatable("message.charta.game_started").withStyle(ChatFormatting.GREEN);
+                                }else{
+                                    this.game = null;
+                                    return either.right().orElse(Component.translatable("message.charta.invalid_players")).copy().withStyle(ChatFormatting.RED);
                                 }
-                                return Component.translatable("message.charta.game_started").withStyle(ChatFormatting.GREEN);
                             } else {
                                 this.game = null;
                                 return Component.translatable("message.charta.too_many_players", game.getMaxPlayers()).withStyle(ChatFormatting.RED);

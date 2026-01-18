@@ -5,30 +5,34 @@ import com.mojang.serialization.DataResult;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
-public class Card implements Comparable<Card>, StringRepresentable {
+public class Card implements Comparable<Card> {
 
-    private static final Card[] CARDS = new Card[Suit.values().length * Rank.values().length];
-
-    static {
-        int i = 0;
-        for (Suit suit : Suit.values()) {
-            for (Rank rank : Rank.values()) {
-                CARDS[i++] = new Card(suit, rank);
+    public static final Codec<Card> CODEC = Codec.STRING.comapFlatMap(
+        card -> {
+            String[] elements = card.split("_");
+            try {
+                ResourceLocation suit = ResourceLocation.parse(elements[0]);
+                ResourceLocation rank;
+                if(elements[1].contains(":")) {
+                    rank = ResourceLocation.parse(elements[1]);
+                }else{
+                    rank = ResourceLocation.fromNamespaceAndPath(suit.getNamespace(), elements[1]);
+                }
+                return DataResult.success(new Card(Suit.load(suit).getOrThrow(), Rank.load(rank).getOrThrow()));
+            }catch (Exception e) {
+                return DataResult.error(() -> "Invalid card format: " + card);
             }
-        }
-    }
-
-    public static final Codec<Card> CODEC = Codec.STRING.comapFlatMap(Card::read, Card::toString).stable();
+        }, Card::toString
+    );
 
     public static final StreamCodec<ByteBuf, Card> STREAM_CODEC = StreamCodec.composite(
-            Suit.STREAM_CODEC, Card::getSuit,
-            Rank.STREAM_CODEC, Card::getRank,
-            ByteBufCodecs.BOOL, Card::isFlipped,
+            Suit.STREAM_CODEC, Card::suit,
+            Rank.STREAM_CODEC, Card::rank,
+            ByteBufCodecs.BOOL, Card::flipped,
             Card::new
     );
 
@@ -48,15 +52,15 @@ public class Card implements Comparable<Card>, StringRepresentable {
         this.flipped = flipped;
     }
 
-    public Suit getSuit() {
+    public Suit suit() {
         return suit;
     }
 
-    public Rank getRank() {
+    public Rank rank() {
         return rank;
     }
 
-    public boolean isFlipped() {
+    public boolean flipped() {
         return flipped;
     }
 
@@ -69,7 +73,7 @@ public class Card implements Comparable<Card>, StringRepresentable {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Card card = (Card) obj;
-        return flipped == card.flipped && suit == card.suit && rank == card.rank;
+        return flipped == card.flipped && suit.equals(card.suit) && rank.equals(card.rank);
     }
 
     @Override
@@ -86,28 +90,12 @@ public class Card implements Comparable<Card>, StringRepresentable {
 
     @Override
     public String toString() {
-        return suit.getSerializedName()+":"+rank.getSerializedName();
-    }
-
-    public static DataResult<Card> read(String string) {
-        try {
-            String[] in = string.split(":");
-            Card card = new Card(Suit.valueOf(in[0].toUpperCase()), Rank.valueOf(in[1].toUpperCase()));
-            return DataResult.success(card);
-        } catch (Exception e) {
-            return DataResult.error(() -> {
-                return "Not a valid card: " + string + " " + e.getMessage();
-            });
+        if(suit.location().getNamespace().equals(rank.location().getNamespace())) {
+            String namespace = suit.location().getNamespace();
+            return namespace + ":" + suit.location().getPath() + "_" + rank.location().getPath();
+        }else{
+            return suit + "_" + rank;
         }
-    }
-
-    @Override
-    public @NotNull String getSerializedName() {
-        return this.toString();
-    }
-
-    public static Card[] values() {
-        return CARDS;
     }
 
     public Card copy() {

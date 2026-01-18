@@ -50,6 +50,33 @@ public class CardImageProvider implements DataProvider {
                         try (InputStream stream = Files.newInputStream(path)) {
                             CardImage.saveCards(ImageIO.read(stream), cardOutputFolder, (fileToSave, cardImage) -> {
                                 CardImageUtils.saveImage(cardImage, fileToSave, cachedOutput);
+                            }, col -> {
+                                return switch (col) {
+                                    case 1 -> fileName.contains("fun") ? "red" : "spades";
+                                    case 2 -> fileName.contains("fun") ? "yellow" : "hearts";
+                                    case 3 -> fileName.contains("fun") ? "green" : "clubs";
+                                    case 4 -> fileName.contains("fun") ? "blue" : "diamonds";
+                                    default -> "";
+                                };
+                            }, col -> {
+                                return switch (col) {
+                                    case 0 -> fileName.contains("fun") ? "wild" : "blank";
+                                    case 1 -> fileName.contains("fun") ? "one" : "ace";
+                                    case 2 -> "two";
+                                    case 3 -> "three";
+                                    case 4 -> "four";
+                                    case 5 -> "five";
+                                    case 6 -> "six";
+                                    case 7 -> "seven";
+                                    case 8 -> "eight";
+                                    case 9 -> "nine";
+                                    case 10 -> fileName.contains("fun") ? "zero" : "ten";
+                                    case 11 -> fileName.contains("fun") ? "block" : "jack";
+                                    case 12 -> fileName.contains("fun") ? "reverse" : "queen";
+                                    case 13 -> fileName.contains("fun") ? "plustwo" : "king";
+                                    case 14 -> fileName.contains("fun") ? "wildplusfour" : "joker";
+                                    default -> "";
+                                };
                             });
                         }catch (Exception e) {
                             Charta.LOGGER.error("Error loading image: {}", path, e);

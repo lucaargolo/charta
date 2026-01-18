@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.game.crazyeights;
 
-import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGames;
+import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
@@ -22,7 +22,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         public int get(int index) {
             return switch (index) {
                 case 0 -> game.drawsLeft;
-                case 1 -> game.currentSuit != null ? game.currentSuit.ordinal() : -1;
+                case 1 -> game.currentSuit != null ? game.currentSuit.id() : -1;
                 default -> 0;
             };
         }
@@ -31,7 +31,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
         public void set(int index, int value) {
             switch (index) {
                 case 0 -> game.drawsLeft = (byte) value;
-                case 1 -> game.currentSuit = value >= 0 ? Suit.values()[value] : null;
+                case 1 -> game.currentSuit = value >= 0 ? Suit.getSuit(value) : null;
             }
         }
 
@@ -42,10 +42,10 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     };
 
     public CrazyEightsMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buf) {
-        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), CardDeck.STREAM_CODEC.decode(buf), buf.readVarIntArray(), buf.readByteArray());
+        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), Deck.STREAM_CODEC.decode(buf), buf.readVarIntArray(), buf.readByteArray());
     }
 
-    public CrazyEightsMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
+    public CrazyEightsMenu(int containerId, Inventory inventory, ContainerLevelAccess access, Deck deck, int[] players, byte[] options) {
         super(ModMenus.CRAZY_EIGHTS, containerId, inventory, access, deck, players, options);
 
         this.addTopPreview(players);
@@ -60,7 +60,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     }
 
     public Suit getCurrentSuit() {
-        return data.get(1) >= 0 ? Suit.values()[data.get(1)] : null;
+        return data.get(1) >= 0 ? Suit.getSuit(data.get(1)) : null;
     }
 
     @Override

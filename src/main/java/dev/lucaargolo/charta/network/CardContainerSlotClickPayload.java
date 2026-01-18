@@ -39,12 +39,12 @@ public record CardContainerSlotClickPayload(int containerId, int slotId, int car
                 slot.preUpdate();
                 List<Card> cards = slot.removeCards(payload.cardId);
                 cardMenu.setCarriedCards(new GameSlot(cards));
-                slot.onRemove(cardPlayer, cards);
+                slot.onRemove(cardPlayer, cards, payload.cardId);
                 slot.postUpdate();
             }else if(!carriedCards.isEmpty() && slot.canInsertCard(cardPlayer, carriedCards.stream().toList(), payload.cardId) && slot.insertCards(carriedCards, payload.cardId)) {
                 slot.preUpdate();
                 cardMenu.setCarriedCards(new GameSlot());
-                slot.onInsert(cardPlayer, carriedCards.stream().toList());
+                slot.onInsert(cardPlayer, carriedCards.stream().toList(), payload.cardId);
                 slot.postUpdate();
             }
         }

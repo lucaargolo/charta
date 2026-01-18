@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.game.solitaire;
 
-import dev.lucaargolo.charta.game.CardDeck;
 import dev.lucaargolo.charta.game.CardGames;
+import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
@@ -46,10 +46,10 @@ public class SolitaireMenu extends AbstractCardMenu<SolitaireGame> {
     };
 
     public SolitaireMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buf) {
-        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), CardDeck.STREAM_CODEC.decode(buf), buf.readVarIntArray(), buf.readByteArray());
+        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), Deck.STREAM_CODEC.decode(buf), buf.readVarIntArray(), buf.readByteArray());
     }
 
-    public SolitaireMenu(int containerId, Inventory inventory, ContainerLevelAccess access, CardDeck deck, int[] players, byte[] options) {
+    public SolitaireMenu(int containerId, Inventory inventory, ContainerLevelAccess access, Deck deck, int[] players, byte[] options) {
         super(ModMenus.SOLITAIRE, containerId, inventory, access, deck, players, options);
 
         //Fix carried cards being lost forever when the screen was closed :)
