@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class HandSlot<G extends CardGame<G>> extends CardSlot<G> {
+public class HandSlot<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends CardSlot<G, M> {
 
     protected final Function<G, GameSlot> censored;
     protected final Predicate<G> shouldUpdate;

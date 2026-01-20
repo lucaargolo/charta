@@ -4,20 +4,19 @@ import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.menu.ModMenuTypes;
+import dev.lucaargolo.charta.registry.ModMenuTypeRegistry;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
+public class CrazyEightsGame extends CardGame<CrazyEightsGame, CrazyEightsMenu> {
 
     private final GameOption.Number AVAILABLE_DRAWS = new GameOption.Number(3, 1, 5, Component.translatable("rule.charta.available_draws"), Component.translatable("rule.charta.available_draws.description"));
 
@@ -73,8 +72,13 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
     }
 
     @Override
-    public AbstractCardMenu<CrazyEightsGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, Deck deck) {
-        return new CrazyEightsMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray(), this.getRawOptions());
+    public ModMenuTypeRegistry.AdvancedMenuTypeEntry<CrazyEightsMenu, AbstractCardMenu.Definition> getMenuType() {
+        return ModMenuTypes.CRAZY_EIGHTS;
+    }
+
+    @Override
+    public CrazyEightsMenu createMenu(int containerId, Inventory playerInventory, AbstractCardMenu.Definition definition) {
+        return new CrazyEightsMenu(containerId, playerInventory, definition);
     }
 
     @Override

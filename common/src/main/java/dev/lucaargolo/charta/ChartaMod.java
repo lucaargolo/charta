@@ -35,8 +35,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Inventory;
@@ -47,7 +45,6 @@ import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,27 +121,9 @@ public abstract class ChartaMod {
 
     public abstract <M extends AbstractContainerMenu, D> void openMenu(ModMenuTypeRegistry.AdvancedMenuTypeEntry<M, D> entry, BiFunction<Integer, Inventory, M> constructor, Player player, D data, Component title);
 
-    public <M extends AbstractContainerMenu, D> void openMenu(ModMenuTypeRegistry.AdvancedMenuTypeEntry<M, D> entry, QuadFunction<Integer, Inventory, Container, D, M> constructor, Player player, Container container, D data, Component title) {
-        this.openMenu(entry, (syncId, inventory) -> constructor.apply(syncId, inventory, container, data), player, data, title);
+    public <M extends AbstractContainerMenu, D> void openMenu(ModMenuTypeRegistry.AdvancedMenuTypeEntry<M, D> entry, TriFunction<Integer, Inventory, D, M> constructor, Player player, D data, Component title) {
+        this.openMenu(entry, (syncId, inventory) -> constructor.apply(syncId, inventory, data), player, data, title);
     }
-
-    public <M extends AbstractContainerMenu> void openMenu(TriFunction<Integer, Inventory, Container, M> constructor, Player player, Container container, Component title) {
-        this.openMenu((syncId, inventory) -> constructor.apply(syncId, inventory, container), player, title);
-    }
-
-    public <M extends AbstractContainerMenu> void openMenu(BiFunction<Integer, Inventory, M> constructor, Player player, Component title) {
-        player.openMenu(new MenuProvider() {
-            @Override
-            public @NotNull Component getDisplayName() {
-                return title;
-            }
-
-            @Override
-            public AbstractContainerMenu createMenu(int containerId, @NotNull Inventory playerInventory, @NotNull Player player) {
-                return constructor.apply(containerId, playerInventory);
-            }
-        });
-    };
 
     public final void onServerAboutToStart(MinecraftServer server) {
         RegistryAccess registryAccess = server.registryAccess();

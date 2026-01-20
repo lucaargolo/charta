@@ -8,6 +8,7 @@ import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardGames;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.Deck;
+import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
 import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
@@ -37,7 +38,7 @@ public class TableScreen extends Screen {
     private final Deck deck;
     private final int[] players;
 
-    private GameWidget<?> widget;
+    private GameWidget<?, ?> widget;
 
     public TableScreen(BlockPos pos, Deck deck, int[] players) {
         super(Component.translatable("message.charta.choose_game"));
@@ -61,7 +62,7 @@ public class TableScreen extends Screen {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.drawCenteredString(font, title, width/2, 10, 0xFFFFFFFF);
         if(this.minecraft != null) {
-            guiGraphics.drawCenteredString(font, Component.translatable("message.charta.hold_to_options", this.minecraft.options.keyShift.getKey().getDisplayName()), width / 2, height - 20, 0xFFFFFFFF);
+            guiGraphics.drawCenteredString(font, Component.translatable("message.charta.hold_to_options", this.minecraft.options.keyShift.key.getDisplayName()), width / 2, height - 20, 0xFFFFFFFF);
         }
     }
 
@@ -83,10 +84,10 @@ public class TableScreen extends Screen {
         return false;
     }
 
-    public class Game<G extends CardGame<G>> extends Button implements TickableWidget {
+    public class Game<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends Button implements TickableWidget {
 
         private final ResourceLocation gameId;
-        private final CardGames.Factory<G> gameFactory;
+        private final CardGames.Factory<G, M> gameFactory;
 
         private final ResourceLocation texture;
         private final G game;
@@ -99,9 +100,9 @@ public class TableScreen extends Screen {
         private float lastFov = 30f;
         private float fov = 37f;
 
-        public Game(ResourceLocation gameId, CardGames.Factory<G> gameFactory) {
+        public Game(ResourceLocation gameId, CardGames.Factory<G, M> gameFactory) {
             super(0, 0, 70, 70, Component.translatable(gameId.toLanguageKey()), (button) -> {
-                PacketDistributor.sendToServer(new CardTableSelectGamePayload(pos, gameId, ChartaModClient.LOCAL_OPTIONS.getOrDefault(gameId, new byte[0])));
+                ChartaMod.getPacketManager().sendToServer(new CardTableSelectGamePayload(pos, gameId, ChartaModClient.LOCAL_OPTIONS.getOrDefault(gameId, new byte[0])));
                 onClose();
             }, Button.DEFAULT_NARRATION);
 
@@ -116,7 +117,7 @@ public class TableScreen extends Screen {
                     cardPlayers.add(mixed.charta_getCardPlayer());
                 }
             }
-            Either<CardGame<?>, Component> either = this.game.playerPredicate(cardPlayers);
+            Either<CardGame<?, ?>, Component> either = this.game.playerPredicate(cardPlayers);
 
             boolean invalidDeck = !CardGame.isValidDeck(this.game, deck);
             boolean notEnoughPlayers = players.length < this.game.getMinPlayers();
@@ -147,10 +148,10 @@ public class TableScreen extends Screen {
                 float inset = Mth.lerp(partialTick, this.lastInset, this.inset);
                 float fov = Mth.lerp(partialTick, this.lastFov, this.fov);
 
-                ChartaModClient.CARD_INSET.accept(inset);
-                ChartaModClient.CARD_FOV.accept(fov);
-                ChartaModClient.CARD_X_ROT.accept(0f);
-                ChartaModClient.CARD_Y_ROT.accept(0f);
+                ChartaModClient.getShaderManager().getCardInset().accept(inset);
+                ChartaModClient.getShaderManager().getCardFov().accept(fov);
+                ChartaModClient.getShaderManager().getCardXRot().accept(0f);
+                ChartaModClient.getShaderManager().getCardYRot().accept(0f);
 
                 float xOffset = (this.getWidth()*1.333333f - this.getWidth())/2f;
                 float yOffset = (this.getHeight()*1.333333f - this.getHeight())/2f;
@@ -181,16 +182,16 @@ public class TableScreen extends Screen {
 
     }
 
-    public class GameRow<G extends CardGame<G>> extends ContainerObjectSelectionList.Entry<GameRow<G>> {
+    public class GameRow<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends ContainerObjectSelectionList.Entry<GameRow<G, M>> {
 
-        protected List<Game<G>> games = new ArrayList<>();
+        protected List<Game<G, M>> games = new ArrayList<>();
         protected List<Button> plays = new ArrayList<>();
         protected List<Button> configs = new ArrayList<>();
 
         @Override
         public void render(@NotNull GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
             int i = 0;
-            for(Game<G> game : games) {
+            for(Game<G, M> game : games) {
                 game.setX(left + i*75);
                 game.setY(top);
                 game.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -229,7 +230,7 @@ public class TableScreen extends Screen {
 
     }
 
-    public class GameWidget<G extends CardGame<G>> extends ContainerObjectSelectionList<GameRow<G>> implements TickableWidget {
+    public class GameWidget<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends ContainerObjectSelectionList<GameRow<G, M>> implements TickableWidget {
 
         private final int amount;
 
@@ -239,7 +240,7 @@ public class TableScreen extends Screen {
             this.amount = margin/75;
         }
 
-        public void addEntry(@NotNull Game<G> entry) {
+        public void addEntry(@NotNull Game<G, M> entry) {
             if(this.children().isEmpty() || this.children().getLast().games.size() >= amount) {
                 this.addEntry(new GameRow<>());
             }
@@ -267,8 +268,8 @@ public class TableScreen extends Screen {
 
         @Override
         public void tick(int mouseX, int mouseY) {
-            for (GameRow<G> row : this.children()) {
-                for(Game<G> game : row.games) {
+            for (GameRow<G, M> row : this.children()) {
+                for(Game<G, M> game : row.games) {
                     game.tick(mouseX, mouseY);
                 }
             }
@@ -277,7 +278,7 @@ public class TableScreen extends Screen {
 
     private boolean isShiftDown() {
         assert minecraft != null;
-        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), minecraft.options.keyShift.getKey().getValue());
+        return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), minecraft.options.keyShift.key.getValue());
     }
 
 }

@@ -12,7 +12,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
+public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame, CrazyEightsMenu> {
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -42,7 +42,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     public CrazyEightsMenu(int containerId, Inventory inventory, Definition definition) {
         super(ModMenuTypes.CRAZY_EIGHTS.get(), containerId, inventory, definition);
 
-        this.addTopPreview(players);
+        this.addTopPreview(definition.players());
         addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(0), 16, 30));
         addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(1), 87, 30));
         addCardSlot(new HandSlot<>(this.game, g -> !g.isChoosingWild, this.getCardPlayer(), 140/2f - CardSlot.getWidth(CardSlot.Type.HORIZONTAL)/2f, -5, CardSlot.Type.HORIZONTAL));
@@ -58,7 +58,7 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame> {
     }
 
     @Override
-    public CardGames.Factory<CrazyEightsGame> getGameFactory() {
+    public CardGames.Factory<CrazyEightsGame, CrazyEightsMenu> getGameFactory() {
         return CardGames.CRAZY_EIGHTS;
     }
 

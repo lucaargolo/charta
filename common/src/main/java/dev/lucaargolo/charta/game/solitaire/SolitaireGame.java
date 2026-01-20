@@ -7,15 +7,14 @@ import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.menu.ModMenuTypes;
+import dev.lucaargolo.charta.registry.ModMenuTypeRegistry;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class SolitaireGame extends CardGame<SolitaireGame> {
+public class SolitaireGame extends CardGame<SolitaireGame, SolitaireMenu> {
 
     private final List<Snapshot> snapshots = new ArrayList<>();
 
@@ -209,8 +208,13 @@ public class SolitaireGame extends CardGame<SolitaireGame> {
     }
 
     @Override
-    public AbstractCardMenu<SolitaireGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, Deck deck) {
-        return new SolitaireMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray(), this.getRawOptions());
+    public ModMenuTypeRegistry.AdvancedMenuTypeEntry<SolitaireMenu, AbstractCardMenu.Definition> getMenuType() {
+        return ModMenuTypes.SOLITAIRE;
+    }
+
+    @Override
+    public SolitaireMenu createMenu(int containerId, Inventory playerInventory, AbstractCardMenu.Definition definition) {
+        return new SolitaireMenu(containerId, playerInventory, definition);
     }
 
     @Override

@@ -46,9 +46,9 @@ public class BeerGlassBlock extends TransparentBlock {
     public static final FoodProperties FOOD = new FoodProperties.Builder()
             .nutrition(1)
             .saturationModifier(0.1F)
-            .effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 1200, 1), 1.0F)
-            .effect(() -> new MobEffectInstance(MobEffects.HUNGER, 300, 2), 1.0F)
-            .effect(() -> new MobEffectInstance(MobEffects.CONFUSION, 300, 0), 1.0F)
+            .effect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 1200, 1), 1.0F)
+            .effect(new MobEffectInstance(MobEffects.HUNGER, 300, 2), 1.0F)
+            .effect(new MobEffectInstance(MobEffects.CONFUSION, 300, 0), 1.0F)
             .build();
 
     public BeerGlassBlock(Properties properties) {
@@ -65,7 +65,7 @@ public class BeerGlassBlock extends TransparentBlock {
 
     @Override
     protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
-        if(!state.is(ModBlocks.EMPTY_BEER_GLASS)) {
+        if(!state.is(ModBlocks.EMPTY_BEER_GLASS.get())) {
             if(!level.isClientSide()) {
                 player.eat(level, this.asItem().getDefaultInstance(), FOOD);
                 level.setBlockAndUpdate(pos, ModBlocks.EMPTY_BEER_GLASS.get().defaultBlockState().setValue(FACING, state.getValue(FACING)));

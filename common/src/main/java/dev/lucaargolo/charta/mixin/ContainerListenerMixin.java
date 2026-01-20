@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public abstract class ContainerListenerMixin implements CardContainerListenerMixed {
 
     @Override
-    public void charta_cardChanged(AbstractCardMenu<?> cardMenu, int cardSlotIndex, GameSlot cards) {
+    public void charta_cardChanged(AbstractCardMenu<?, ?> cardMenu, int cardSlotIndex, GameSlot cards) {
 
     }
 

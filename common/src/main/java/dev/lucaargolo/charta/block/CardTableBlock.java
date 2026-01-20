@@ -221,7 +221,7 @@ public class CardTableBlock extends BaseEntityBlock {
                                 cardTable.centerOffset = offset;
                                 level.sendBlockUpdated(center, state, state, 3);
                             }
-                            if (stack.getItem() instanceof DeckItem && stack.has(ModDataComponentTypes.CARD_DECK)) {
+                            if (stack.getItem() instanceof DeckItem && stack.has(ModDataComponentTypes.CARD_DECK.get())) {
                                 if(!cardTable.getDeckStack().isEmpty()) {
                                     Vec3 c = center.getCenter();
                                     Containers.dropItemStack(level, c.x, c.y, c.z, cardTable.getDeckStack());
@@ -236,11 +236,11 @@ public class CardTableBlock extends BaseEntityBlock {
                                 if(deck != null) {
                                     List<LivingEntity> satPlayers = cardTable.getPlayers();
                                     if (satPlayers.contains(player)){
-                                        CardGame<?> game = cardTable.getGame();
+                                        CardGame<?, ?> game = cardTable.getGame();
                                         if (game == null || game.isGameOver()) {
                                             ChartaMod.getPacketManager().sendToPlayer(serverPlayer, new TableScreenPayload(center, deck, satPlayers.stream().mapToInt(LivingEntity::getId).toArray()));
                                         }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
-                                            game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
+                                            game.openScreen(serverPlayer, center, cardTable.getDeck());
                                         }else{
                                             player.displayClientMessage(Component.translatable("message.charta.not_playing_current").withStyle(ChatFormatting.RED), true);
                                         }

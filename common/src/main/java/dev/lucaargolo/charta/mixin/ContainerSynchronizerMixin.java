@@ -35,7 +35,7 @@ public abstract class ContainerSynchronizerMixin implements CardContainerSynchro
 
     @Inject(at = @At("TAIL"), method = "sendInitialData")
     public void charta_injectCardData(AbstractContainerMenu container, NonNullList<ItemStack> items, ItemStack carriedItem, int[] initialData, CallbackInfo ci) {
-        if(container instanceof AbstractCardMenu<?> menu) {
+        if(container instanceof AbstractCardMenu<?, ?> menu) {
             int i = 0;
             for(int j = menu.cardSlots.size(); i < j; i++) {
                 ChartaMod.getPacketManager().sendToPlayer(this$0, new UpdateCardContainerSlotPayload(container.containerId, container.stateId, i, menu.getRemoteCards(i).stream().toList()));

@@ -20,7 +20,7 @@ public class FenceBlockMixin {
 
     @Inject(at = @At("HEAD"), method = "useItemOn", cancellable = true)
     public void useIronLeashOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<ItemInteractionResult> cir) {
-        if (level.isClientSide && stack.is(ModItems.IRON_LEAD)) {
+        if (level.isClientSide && stack.is(ModItems.IRON_LEAD.get())) {
             cir.setReturnValue(ItemInteractionResult.SUCCESS);
         }
     }

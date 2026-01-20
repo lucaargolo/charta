@@ -6,6 +6,7 @@ import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardGames;
 import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.GameOption;
+import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
 import dev.lucaargolo.charta.network.PlayerOptionsPayload;
 import dev.lucaargolo.charta.utils.CustomOptionTooltip;
@@ -26,21 +27,21 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-public class OptionsScreen<G extends CardGame<G>> extends Screen {
+public class OptionsScreen<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends Screen {
 
     private final Screen parent;
     private final BlockPos pos;
     private final G game;
 
     private final ResourceLocation gameId;
-    private final CardGames.Factory<G> gameFactory;
+    private final CardGames.Factory<G, M> gameFactory;
     private final boolean showcase;
 
     private OptionsWidget widget;
     private Button resetButton;
     private Button saveButton;
 
-    public OptionsScreen(Screen parent, BlockPos pos, G game, ResourceLocation gameId, CardGames.Factory<G> gameFactory, boolean showcase) {
+    public OptionsScreen(Screen parent, BlockPos pos, G game, ResourceLocation gameId, CardGames.Factory<G, M> gameFactory, boolean showcase) {
         super(Component.translatable("message.charta.this_game_options", Component.translatable(gameId.toLanguageKey())));
         this.parent = parent;
         this.pos = pos;

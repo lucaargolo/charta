@@ -1,0 +1,34 @@
+accessWidener v1 named
+extendable method net/minecraft/client/gui/components/AbstractWidget render (Lnet/minecraft/client/gui/GuiGraphics;IIF)V
+accessible field net/minecraft/client/gui/components/AbstractWidget isHovered Z
+accessible field net/minecraft/world/inventory/AbstractContainerMenu stateId I
+accessible field net/minecraft/world/inventory/AbstractContainerMenu synchronizer Lnet/minecraft/world/inventory/ContainerSynchronizer;
+accessible field net/minecraft/world/inventory/AbstractContainerMenu suppressRemoteUpdates Z
+accessible field net/minecraft/world/inventory/AbstractContainerMenu containerListeners Ljava/util/List;
+accessible field net/minecraft/client/model/geom/ModelPart cubes Ljava/util/List;
+accessible field net/minecraft/client/model/geom/ModelPart children Ljava/util/Map;
+accessible field net/minecraft/client/model/geom/ModelPart$Cube polygons [Lnet/minecraft/client/model/geom/ModelPart$Polygon;
+accessible class net/minecraft/client/model/geom/ModelPart$Polygon
+accessible class net/minecraft/client/model/geom/ModelPart$Vertex
+accessible field net/minecraft/client/renderer/entity/LeashKnotRenderer model Lnet/minecraft/client/model/LeashKnotModel;
+accessible field net/minecraft/world/level/levelgen/structure/pools/StructureTemplatePool rawTemplates Ljava/util/List;
+mutable field net/minecraft/world/level/levelgen/structure/pools/StructureTemplatePool rawTemplates Ljava/util/List;
+accessible field net/minecraft/world/level/levelgen/structure/pools/StructureTemplatePool templates Lit/unimi/dsi/fastutil/objects/ObjectArrayList;
+accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (Lnet/minecraft/client/gui/GuiGraphics;F)V # renderItemActivationAnimation
+accessible method net/minecraft/client/gui/components/AbstractSliderButton setValue (D)V # setValue
+accessible field net/minecraft/client/gui/screens/ChatScreen input Lnet/minecraft/client/gui/components/EditBox;
+accessible method net/minecraft/client/gui/components/Tooltip <init> (Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;)V # init
+accessible field net/minecraft/client/gui/components/Tooltip message Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/components/Tooltip cachedTooltip Ljava/util/List;
+accessible field net/minecraft/client/gui/components/Tooltip splitWithLanguage Lnet/minecraft/locale/Language;
+accessible field net/minecraft/client/gui/components/Tooltip narration Lnet/minecraft/network/chat/Component;
+accessible method net/minecraft/client/renderer/entity/ItemRenderer renderQuadList (Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Ljava/util/List;Lnet/minecraft/world/item/ItemStack;II)V
+accessible method net/minecraft/client/gui/components/AbstractSliderButton getHandleSprite ()Lnet/minecraft/resources/ResourceLocation;
+extendable method net/minecraft/client/gui/components/AbstractSliderButton getHandleSprite ()Lnet/minecraft/resources/ResourceLocation;
+accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;
+accessible method net/minecraft/client/gui/components/AbstractWidget renderScrollingString (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIII)V
+accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen leftPos I
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen topPos I
+accessible field net/minecraft/world/level/storage/loot/LootTable$Builder pools Lcom/google/common/collect/ImmutableList$Builder;
+accessible field net/minecraft/world/level/storage/loot/LootTable$Builder functions Lcom/google/common/collect/ImmutableList$Builder;

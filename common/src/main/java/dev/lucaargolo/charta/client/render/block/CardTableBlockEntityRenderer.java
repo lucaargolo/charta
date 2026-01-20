@@ -4,8 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
+import dev.lucaargolo.charta.client.ChartaModClient;
 import dev.lucaargolo.charta.client.compat.IrisCompat;
-import dev.lucaargolo.charta.client.render.ModRenderTypeManager;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.GameSlot;
@@ -144,7 +144,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
         }
 
         ResourceLocation texture = card.flipped() ? deck.getDeckTexture(false) : deck.getCardTexture(card, false);
-        RenderType type = IrisCompat.isPresent() ? RenderType.entityTranslucent(texture) : ModRenderTypeManager.entityCard(texture);
+        RenderType type = IrisCompat.isPresent() ? RenderType.entityTranslucent(texture) : ChartaModClient.getRenderTypeManager().entityCard(texture);
         VertexConsumer consumer = bufferSource.getBuffer(type);
 
         consumer.addVertex(entry.pose(), (x+CardImage.WIDTH)/160f, y/160f, 0).setColor(1f, 1f, 1f, 1f).setUv(1f, 1f).setOverlay(packedOverlay).setLight(packedLight).setNormal(entry, normal.x, normal.y, normal.z);

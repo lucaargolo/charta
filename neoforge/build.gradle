@@ -21,7 +21,7 @@ dependencies {
     compileOnly("me.shedaniel:RoughlyEnoughItems-api-neoforge:$rei_version")
     runtimeOnly("me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version")
 
-    jarJar("org.commonmark:commonmark") {
+    jarJar(implementation "org.commonmark:commonmark") {
         version {
             strictly '[0.1, 1.0)'
             prefer '0.24.0'

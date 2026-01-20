@@ -75,15 +75,15 @@ public abstract class CardScreen extends Screen implements HoverableRenderable {
     }
 
     public static void renderGlowBlur(Screen screen, GuiGraphics guiGraphics, float partialTick) {
-        ChartaModClient.processBlurEffect(partialTick);
-        RenderTarget glowTarget = ChartaModClient.getGlowRenderTarget();
+        ChartaModClient.getShaderManager().processBlurEffect(partialTick);
+        RenderTarget glowTarget = ChartaModClient.getShaderManager().getGlowRenderTarget();
         Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, glowTarget.getColorTextureId());
         RenderSystem.blendFunc(GL11.GL_ONE, GL11.GL_ONE);
         ChartaGuiGraphics.innerBlit(guiGraphics, 0, screen.width, 0, screen.height, 0, 1, 1, 0);
         RenderSystem.defaultBlendFunc();
-        ChartaModClient.getGlowRenderTarget().clear(Minecraft.ON_OSX);
+        ChartaModClient.getShaderManager().getGlowRenderTarget().clear(Minecraft.ON_OSX);
         Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
     }
 

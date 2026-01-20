@@ -1,8 +1,7 @@
-package dev.lucaargolo.charta.client.data;
+package dev.lucaargolo.charta.data;
 
 import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.client.data.fabric.FabricLikeDataOutput;
-import dev.lucaargolo.charta.data.*;
+import dev.lucaargolo.charta.data.fabric.FabricLikeDataOutput;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;

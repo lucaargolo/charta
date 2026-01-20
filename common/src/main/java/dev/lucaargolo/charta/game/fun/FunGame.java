@@ -1,21 +1,21 @@
 package dev.lucaargolo.charta.game.fun;
 
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.item.DeckItem;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.menu.ModMenuTypes;
 import dev.lucaargolo.charta.network.LastFunPayload;
+import dev.lucaargolo.charta.registry.ModMenuTypeRegistry;
 import dev.lucaargolo.charta.sound.ModSounds;
 import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class FunGame extends CardGame<FunGame> {
+public class FunGame extends CardGame<FunGame, FunMenu> {
 
     public static final Set<Suit> SUITS = Set.of(Suit.RED, Suit.YELLOW, Suit.GREEN, Suit.BLUE);
     public static final Set<Rank> RANKS = Set.of(Rank.ONE, Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.ZERO, Rank.BLOCK, Rank.REVERSE, Rank.PLUS_2, Rank.WILD, Rank.WILD_PLUS_4);
@@ -113,8 +113,13 @@ public class FunGame extends CardGame<FunGame> {
     }
 
     @Override
-    public AbstractCardMenu<FunGame> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, Deck deck) {
-        return new FunMenu(containerId, playerInventory, ContainerLevelAccess.create(level, pos), deck, players.stream().mapToInt(CardPlayer::getId).toArray(), this.getRawOptions());
+    public ModMenuTypeRegistry.AdvancedMenuTypeEntry<FunMenu, AbstractCardMenu.Definition> getMenuType() {
+        return ModMenuTypes.FUN;
+    }
+
+    @Override
+    public FunMenu createMenu(int containerId, Inventory playerInventory, AbstractCardMenu.Definition definition) {
+        return new FunMenu(containerId, playerInventory, definition);
     }
 
     @Override
@@ -439,7 +444,7 @@ public class FunGame extends CardGame<FunGame> {
                         players.forEach(p -> {
                             LivingEntity entity = p.getEntity();
                             if(entity instanceof ServerPlayer serverPlayer) {
-                                PacketDistributor.sendToPlayer(serverPlayer, new LastFunPayload(DeckItem.getDeck(deck)));
+                                ChartaMod.getPacketManager().sendToPlayer(serverPlayer, new LastFunPayload(DeckItem.getDeck(deck)));
                             }
                         });
                         table(Component.translatable("message.charta.player_automatically_drew_cards", player.getColoredName(), drawAmount));

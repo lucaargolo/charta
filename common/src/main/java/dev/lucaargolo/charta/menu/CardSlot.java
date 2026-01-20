@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class CardSlot<G extends CardGame<G>> {
+public class CardSlot<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> {
 
     public int index = -1;
 
@@ -124,7 +124,7 @@ public class CardSlot<G extends CardGame<G>> {
         };
     }
 
-    public static float getWidth(CardSlot<?> slot) {
+    public static float getWidth(CardSlot<?, ?> slot) {
         return getWidth(slot.getType());
     }
 
@@ -136,7 +136,7 @@ public class CardSlot<G extends CardGame<G>> {
         };
     }
 
-    public static float getHeight(CardSlot<?> slot) {
+    public static float getHeight(CardSlot<?, ?> slot) {
         return getHeight(slot.getType());
     }
 

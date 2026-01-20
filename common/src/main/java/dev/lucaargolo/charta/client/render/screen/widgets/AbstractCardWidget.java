@@ -54,15 +54,15 @@ public abstract class AbstractCardWidget extends AbstractPreciseWidget implement
         float xRot = Mth.lerp(partialTick, this.lastXRot, this.xRot);
         float yRot = Mth.lerp(partialTick, this.lastYRot, this.yRot);
 
-        ChartaModClient.CARD_INSET.accept(inset);
-        ChartaModClient.CARD_FOV.accept(fov);
-        ChartaModClient.CARD_X_ROT.accept(xRot);
-        ChartaModClient.CARD_Y_ROT.accept(yRot);
+        ChartaModClient.getShaderManager().getCardInset().accept(inset);
+        ChartaModClient.getShaderManager().getCardFov().accept(fov);
+        ChartaModClient.getShaderManager().getCardXRot().accept(xRot);
+        ChartaModClient.getShaderManager().getCardYRot().accept(yRot);
 
         float xOffset = (this.getPreciseWidth()*1.333333f - this.getPreciseWidth())/2f;
         float yOffset = (this.getPreciseHeight()*1.333333f - this.getPreciseHeight())/2f;
         ChartaGuiGraphics.blitCard(guiGraphics, this.getCardTexture(cardId, false), this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseWidth()+(xOffset*2f), this.getPreciseHeight()+(yOffset*2f));
-        ChartaModClient.getGlowRenderTarget().bindWrite(false);
+        ChartaModClient.getShaderManager().getGlowRenderTarget().bindWrite(false);
         RenderSystem.setShaderColor(0f, 0f, 0f, 1f);
         ChartaGuiGraphics.blitCard(guiGraphics, this.getCardTexture(cardId, false), this.getPreciseX()-xOffset, this.getPreciseY()-yOffset, this.getPreciseWidth()+(xOffset*2f), this.getPreciseHeight()+(yOffset*2f));
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);

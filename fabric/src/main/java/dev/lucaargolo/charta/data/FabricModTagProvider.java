@@ -1,11 +1,11 @@
 package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.furniture.block.ModBlocks;
-import dev.lucaargolo.furniture.item.ModItems;
-import dev.lucaargolo.furniture.registry.ModBlockRegistry;
-import dev.lucaargolo.furniture.registry.ModItemRegistry;
-import dev.lucaargolo.furniture.registry.minecraft.MinecraftEntry;
-import dev.lucaargolo.furniture.registry.minecraft.MinecraftRegistry;
+import dev.lucaargolo.charta.block.ModBlocks;
+import dev.lucaargolo.charta.item.ModItems;
+import dev.lucaargolo.charta.registry.ModBlockRegistry;
+import dev.lucaargolo.charta.registry.ModItemRegistry;
+import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
+import dev.lucaargolo.charta.registry.minecraft.MinecraftRegistry;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;

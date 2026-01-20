@@ -60,7 +60,7 @@ public class DeckItem extends Item {
 
     @Nullable
     public static Deck getDeck(ItemStack stack) {
-        ResourceLocation deckId = stack.get(ModDataComponentTypes.CARD_DECK);
+        ResourceLocation deckId = stack.get(ModDataComponentTypes.CARD_DECK.get());
         return deckId != null ? ChartaMod.CARD_DECKS.getDeck(deckId) : null;
     }
 
@@ -78,7 +78,7 @@ public class DeckItem extends Item {
     public static ItemStack getDeck(ResourceLocation deckId) {
         Deck deck = ChartaMod.CARD_DECKS.getDeck(deckId);
         ItemStack stack = ModItems.DECK.get().getDefaultInstance();
-        stack.set(ModDataComponentTypes.CARD_DECK, deckId);
+        stack.set(ModDataComponentTypes.CARD_DECK.get(), deckId);
         stack.set(DataComponents.RARITY, deck.getRarity());
         return stack;
     }

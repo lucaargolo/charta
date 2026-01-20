@@ -1,21 +1,18 @@
 package dev.lucaargolo.charta.game.solitaire;
 
 import dev.lucaargolo.charta.game.CardGames;
-import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.menu.ModMenuTypes;
 import dev.lucaargolo.charta.utils.CardImage;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class SolitaireMenu extends AbstractCardMenu<SolitaireGame> {
+public class SolitaireMenu extends AbstractCardMenu<SolitaireGame, SolitaireMenu> {
 
     private int canRestore = 0;
     private final ContainerData data = new ContainerData() {
@@ -45,12 +42,8 @@ public class SolitaireMenu extends AbstractCardMenu<SolitaireGame> {
         }
     };
 
-    public SolitaireMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buf) {
-        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), Deck.STREAM_CODEC.decode(buf), buf.readVarIntArray(), buf.readByteArray());
-    }
-
-    public SolitaireMenu(int containerId, Inventory inventory, ContainerLevelAccess access, Deck deck, int[] players, byte[] options) {
-        super(ModMenuTypes.SOLITAIRE.get(), containerId, inventory, access, deck, players, options);
+    public SolitaireMenu(int containerId, Inventory inventory, Definition definition) {
+        super(ModMenuTypes.SOLITAIRE.get(), containerId, inventory, definition);
 
         //Fix carried cards being lost forever when the screen was closed :)
         GameSlot playerHand = this.game.getPlayerHand(this.cardPlayer);
@@ -94,7 +87,7 @@ public class SolitaireMenu extends AbstractCardMenu<SolitaireGame> {
     }
 
     @Override
-    public CardGames.Factory<SolitaireGame> getGameFactory() {
+    public CardGames.Factory<SolitaireGame, SolitaireMenu> getGameFactory() {
         return CardGames.SOLITAIRE;
     }
 

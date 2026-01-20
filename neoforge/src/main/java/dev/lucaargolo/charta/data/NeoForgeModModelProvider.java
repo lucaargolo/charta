@@ -1,8 +1,7 @@
-package dev.lucaargolo.charta.client.data;
+package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.charta.client.data.fabric.FabricLikeDataOutput;
-import dev.lucaargolo.charta.client.data.fabric.FabricLikeModelProvider;
-import dev.lucaargolo.charta.data.ModBlockModelProvider;
+import dev.lucaargolo.charta.data.fabric.FabricLikeDataOutput;
+import dev.lucaargolo.charta.data.fabric.FabricLikeModelProvider;
 import net.minecraft.data.models.BlockModelGenerators;
 import net.minecraft.data.models.ItemModelGenerators;
 

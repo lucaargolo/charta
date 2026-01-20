@@ -23,7 +23,7 @@ public abstract class EntityMixin {
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"), method = "interact", cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
     public void interactIronLead(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir, Leashable leashable, ItemStack itemstack) {
-        if (itemstack.is(ModItems.IRON_LEAD) && !leashable.isLeashed() && leashable instanceof LeashableMixed mixed) {
+        if (itemstack.is(ModItems.IRON_LEAD.get()) && !leashable.isLeashed() && leashable instanceof LeashableMixed mixed) {
             if (!this.level().isClientSide()) {
                 leashable.setLeashedTo(player, true);
                 mixed.charta_setIronLeash(true);

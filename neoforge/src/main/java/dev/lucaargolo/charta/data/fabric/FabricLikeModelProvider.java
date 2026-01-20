@@ -1,4 +1,4 @@
-package dev.lucaargolo.charta.client.data.fabric;
+package dev.lucaargolo.charta.data.fabric;
 
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.models.BlockModelGenerators;

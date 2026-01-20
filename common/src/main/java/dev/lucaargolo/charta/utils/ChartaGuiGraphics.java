@@ -7,7 +7,10 @@ import dev.lucaargolo.charta.client.compat.IrisCompat;
 import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.Suit;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 
@@ -121,4 +124,13 @@ public class ChartaGuiGraphics {
         RenderSystem.disableBlend();
     }
 
+    public static void drawScrollingString(GuiGraphics parent, Font font, Component text, int minX, int maxX, int y, int color) {
+        int maxWidth = maxX - minX;
+        int textWidth = font.width(text.getVisualOrderText());
+        if (textWidth <= maxWidth) {
+            parent.drawString(font, text, minX, y, color);
+        } else {
+            AbstractWidget.renderScrollingString(parent, font, text, minX, y, maxX, y + 9, color);
+        }
+    }
 }

@@ -1,12 +1,12 @@
-package dev.lucaargolo.charta.client.data;
+package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.furniture.FurnitureMod;
-import dev.lucaargolo.furniture.block.ModBlocks;
-import dev.lucaargolo.furniture.item.ModItems;
-import dev.lucaargolo.furniture.registry.ModBlockRegistry;
-import dev.lucaargolo.furniture.registry.ModItemRegistry;
-import dev.lucaargolo.furniture.registry.minecraft.MinecraftEntry;
-import dev.lucaargolo.furniture.registry.minecraft.MinecraftRegistry;
+import dev.lucaargolo.charta.ChartaMod;
+import dev.lucaargolo.charta.block.ModBlocks;
+import dev.lucaargolo.charta.item.ModItems;
+import dev.lucaargolo.charta.registry.ModBlockRegistry;
+import dev.lucaargolo.charta.registry.ModItemRegistry;
+import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
+import dev.lucaargolo.charta.registry.minecraft.MinecraftRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
@@ -22,7 +22,7 @@ public class NeoForgeModTagProvider<T, M extends MinecraftEntry<? extends T>> ex
     private final MinecraftRegistry<T, M> registry;
 
     protected NeoForgeModTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper, MinecraftRegistry<T, M> registry) {
-        super(output, registry.getRegistryKey(), lookupProvider, FurnitureMod.MOD_ID, existingFileHelper);
+        super(output, registry.getRegistryKey(), lookupProvider, ChartaMod.MOD_ID, existingFileHelper);
         this.registry = registry;
     }
 

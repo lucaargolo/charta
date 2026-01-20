@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.lucaargolo.charta.client.render.ModRenderTypeManager;
+import dev.lucaargolo.charta.client.ChartaModClient;
 import dev.lucaargolo.charta.mixed.LeashableMixed;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -28,7 +28,7 @@ public class EntityRendererMixin<T extends Entity> {
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource;getBuffer(Lnet/minecraft/client/renderer/RenderType;)Lcom/mojang/blaze3d/vertex/VertexConsumer;"), method = "renderLeash")
     public RenderType getIronLeash(RenderType renderType) {
         if(charta_capturedLeashable instanceof LeashableMixed mixed && mixed.charta_isIronLeash()) {
-            return ModRenderTypeManager.ironLeash();
+            return ChartaModClient.getRenderTypeManager().ironLeash();
         }
         return renderType;
     }

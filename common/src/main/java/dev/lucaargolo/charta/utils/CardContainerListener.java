@@ -6,6 +6,6 @@ import net.minecraft.world.inventory.ContainerListener;
 
 public interface CardContainerListener extends ContainerListener {
 
-    void cardChanged(AbstractCardMenu<?> cardMenu, int cardSlotIndex, GameSlot cards);
+    void cardChanged(AbstractCardMenu<?, ?> cardMenu, int cardSlotIndex, GameSlot cards);
 
 }

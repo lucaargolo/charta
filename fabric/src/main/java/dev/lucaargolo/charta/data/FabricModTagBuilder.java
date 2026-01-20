@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.furniture.data.builder.ModTagBuilder;
+import dev.lucaargolo.charta.data.builder.ModTagBuilder;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;

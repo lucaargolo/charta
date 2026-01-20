@@ -1,21 +1,18 @@
 package dev.lucaargolo.charta.game.fun;
 
 import dev.lucaargolo.charta.game.CardGames;
-import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.menu.HandSlot;
 import dev.lucaargolo.charta.menu.ModMenuTypes;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class FunMenu extends AbstractCardMenu<FunGame> {
+public class FunMenu extends AbstractCardMenu<FunGame, FunMenu> {
 
     private int canDoLast = 0;
     private int didntSayLast = 0;
@@ -51,14 +48,10 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
         }
     };
 
-    public FunMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf buf) {
-        this(containerId, inventory, ContainerLevelAccess.create(inventory.player.level(), buf.readBlockPos()), Deck.STREAM_CODEC.decode(buf), buf.readVarIntArray(), buf.readByteArray());
-    }
+    public FunMenu(int containerId, Inventory inventory, Definition definition) {
+        super(ModMenuTypes.FUN.get(), containerId, inventory, definition);
 
-    public FunMenu(int containerId, Inventory inventory, ContainerLevelAccess access, Deck deck, int[] players, byte[] options) {
-        super(ModMenuTypes.FUN.get(), containerId, inventory, access, deck, players, options);
-
-        this.addTopPreview(players);
+        this.addTopPreview(definition.players());
         addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(0), 16, 30));
         addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(1), 87, 30));
         addCardSlot(new HandSlot<>(this.game, g -> !g.isChoosingWild, this.getCardPlayer(), 140/2f - CardSlot.getWidth(CardSlot.Type.HORIZONTAL)/2f, -5, CardSlot.Type.HORIZONTAL));
@@ -90,7 +83,7 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
     }
 
     @Override
-    public CardGames.Factory<FunGame> getGameFactory() {
+    public CardGames.Factory<FunGame, FunMenu> getGameFactory() {
         return CardGames.FUN;
     }
 

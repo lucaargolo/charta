@@ -10,8 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,12 +143,10 @@ public abstract class ModShaderManager {
         return cardFov;
     }
 
-    @Nullable
     public RenderTarget getGlowRenderTarget() {
         return this.glowRenderTarget;
     }
 
-    @Nullable
     public PostChain getGlowBlurEffect() {
         return this.glowBlurEffect;
     }

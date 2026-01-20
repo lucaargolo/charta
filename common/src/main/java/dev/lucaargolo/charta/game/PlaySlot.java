@@ -6,11 +6,11 @@ import java.util.List;
 
 public class PlaySlot extends GameSlot {
 
-    private final CardGame<?> game;
+    private final CardGame<?, ?> game;
     @Nullable
     private final DrawSlot drawSlot;
 
-    public PlaySlot(CardGame<?> game, List<Card> cards, float x, float y, float z, float angle, @Nullable DrawSlot drawSlot) {
+    public PlaySlot(CardGame<?, ?> game, List<Card> cards, float x, float y, float z, float angle, @Nullable DrawSlot drawSlot) {
         super(cards, x, y, z, angle);
         this.game = game;
         this.drawSlot = drawSlot;

@@ -32,14 +32,13 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     @Override
-    protected void buildRecipes(@NotNull RecipeOutput recipeOutput) {
+    public void buildRecipes(@NotNull RecipeOutput recipeOutput) {
         this.registries.thenAcceptAsync(provider -> {
-            buildRecipes(recipeOutput, provider);
+            this.innerBuildRecipes(recipeOutput, provider);
         });
     }
 
-
-    private void buildRecipes(@NotNull RecipeOutput recipeOutput, HolderLookup.Provider provider) {
+    private void innerBuildRecipes(@NotNull RecipeOutput recipeOutput, HolderLookup.Provider provider) {
         HolderLookup.RegistryLookup<Item> itemLookup = provider.lookupOrThrow(Registries.ITEM);
 
         ModBlocks.CARD_TABLE_MAP.forEach((woodType, holder) -> {

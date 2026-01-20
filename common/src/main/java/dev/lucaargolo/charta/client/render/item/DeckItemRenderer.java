@@ -2,8 +2,8 @@ package dev.lucaargolo.charta.client.render.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.lucaargolo.charta.ChartaMod;
+import dev.lucaargolo.charta.client.ChartaModClient;
 import dev.lucaargolo.charta.client.compat.IrisCompat;
-import dev.lucaargolo.charta.client.render.ModRenderTypeManager;
 import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.item.DeckItem;
 import net.minecraft.client.Minecraft;
@@ -47,7 +47,7 @@ public class DeckItemRenderer extends BlockEntityWithoutLevelRenderer {
         }
 
         ResourceLocation deckTexture = deck != null ? deck.getDeckTexture(false) : ChartaMod.MISSING_CARD;
-        RenderType renderType = IrisCompat.isPresent() ? RenderType.entityTranslucent(deckTexture) : ModRenderTypeManager.entityCard(deckTexture);
+        RenderType renderType = IrisCompat.isPresent() ? RenderType.entityTranslucent(deckTexture) : ChartaModClient.getRenderTypeManager().entityCard(deckTexture);
         this.minecraft.getItemRenderer().renderQuadList(poseStack, buffer.getBuffer(renderType), transformedQuads, stack, packedLight, packedOverlay);
 
         if(IrisCompat.isPresent()) {

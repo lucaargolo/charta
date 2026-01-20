@@ -19,10 +19,10 @@ public class MinecraftMixin {
 
     @Inject(at = @At("TAIL"), method = "resizeDisplay")
     public void resizeDisplay(CallbackInfo ci) {
-        RenderTarget rendertarget = ChartaModClient.getGlowRenderTarget();
+        RenderTarget rendertarget = ChartaModClient.getShaderManager().getGlowRenderTarget();
         if(rendertarget != null)
             rendertarget.resize(this.window.getWidth(), this.window.getHeight(), Minecraft.ON_OSX);
-        PostChain postChain = ChartaModClient.getGlowBlurEffect();
+        PostChain postChain = ChartaModClient.getShaderManager().getGlowBlurEffect();
         if(postChain != null)
             postChain.resize(this.window.getWidth(), this.window.getHeight());
     }

@@ -19,11 +19,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Supplier;
 
-public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractContainerMenu {
+public abstract class AbstractCardMenu<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends AbstractContainerMenu {
 
     protected final G game;
 
-    public final NonNullList<CardSlot<G>> cardSlots = NonNullList.create();
+    public final NonNullList<CardSlot<G, M>> cardSlots = NonNullList.create();
     private final NonNullList<GameSlot> lastCardSlots = NonNullList.create();
     private final NonNullList<GameSlot> remoteCardSlots = NonNullList.create();
 
@@ -108,7 +108,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         return deck;
     }
 
-    public abstract CardGames.Factory<G> getGameFactory();
+    public abstract CardGames.Factory<G, M> getGameFactory();
 
     public G getGame() {
         return game;
@@ -140,14 +140,14 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         return this.remoteCardSlots.get(slotId);
     }
 
-    protected <C extends CardSlot<G>> void addCardSlot(C slot) {
+    protected <C extends CardSlot<G, M>> void addCardSlot(C slot) {
         slot.index = this.cardSlots.size();
         this.cardSlots.add(slot);
         this.lastCardSlots.add(new GameSlot());
         this.remoteCardSlots.add(new GameSlot());
     }
 
-    public CardSlot<G> getCardSlot(int slotId) {
+    public CardSlot<G, M> getCardSlot(int slotId) {
         return this.cardSlots.get(slotId);
     }
 
@@ -225,7 +225,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
     @Override
     public void transferState(@NotNull AbstractContainerMenu menu) {
         super.transferState(menu);
-        if(menu instanceof AbstractCardMenu<?> cardMenu) {
+        if(menu instanceof AbstractCardMenu<?, ?> cardMenu) {
             for (int j = 0; j < this.cardSlots.size(); j++) {
                 this.lastCardSlots.set(j, cardMenu.lastCardSlots.get(j));
                 this.remoteCardSlots.set(j, cardMenu.remoteCardSlots.get(j));

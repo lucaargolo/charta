@@ -1,6 +1,6 @@
-package dev.lucaargolo.charta.client.data;
+package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.furniture.data.builder.ModTagBuilder;
+import dev.lucaargolo.charta.data.builder.ModTagBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;

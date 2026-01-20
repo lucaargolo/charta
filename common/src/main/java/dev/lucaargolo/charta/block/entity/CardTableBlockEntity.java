@@ -2,6 +2,7 @@ package dev.lucaargolo.charta.block.entity;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.block.CardTableBlock;
 import dev.lucaargolo.charta.block.GameChairBlock;
 import dev.lucaargolo.charta.block.SeatBlock;
@@ -74,7 +75,7 @@ public class CardTableBlockEntity extends BlockEntity {
     public Vector2f centerOffset = new Vector2f();
 
     @Nullable
-    private CardGame<?> game = null;
+    private CardGame<?, ?> game = null;
     private int age = 0;
     public boolean playersDirty = true;
 
@@ -88,7 +89,7 @@ public class CardTableBlockEntity extends BlockEntity {
     }
 
     @Nullable
-    public CardGame<?> getGame() {
+    public CardGame<?, ?> getGame() {
         return game;
     }
 
@@ -97,20 +98,20 @@ public class CardTableBlockEntity extends BlockEntity {
         if(deck != null) {
             if(gameId != null) {
                 List<CardPlayer> players = this.getOrderedPlayers();
-                CardGames.Factory<?> factory = CardGames.getGame(gameId);
+                CardGames.Factory<?, ?> factory = CardGames.getGame(gameId);
                 if(factory != null) {
-                    CardGame<?> game = factory.create(players, this.getDeck());
+                    CardGame<?, ?> game = factory.create(players, this.getDeck());
                     game.setRawOptions(options);
                     if(CardGame.isValidDeck(game, this.getDeck())) {
                         if (players.size() >= game.getMinPlayers()) {
                             if (players.size() <= game.getMaxPlayers()) {
-                                Either<CardGame<?>, Component> either = game.playerPredicate(players);
+                                Either<CardGame<?, ?>, Component> either = game.playerPredicate(players);
                                 if(either.left().isPresent()) {
-                                    PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), new GameSlotResetPayload(worldPosition));
+                                    ChartaMod.getPacketManager().sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), new GameSlotResetPayload(worldPosition));
                                     for(CardPlayer player : players) {
                                         LivingEntity entity = player.getEntity();
                                         if (entity instanceof ServerPlayer serverPlayer) {
-                                            PacketDistributor.sendToPlayer(serverPlayer, new GameStartPayload());
+                                            ChartaMod.getPacketManager().sendToPlayer(serverPlayer, new GameStartPayload());
                                         }
                                     }
                                     this.resetSlots();
@@ -218,12 +219,6 @@ public class CardTableBlockEntity extends BlockEntity {
         }
         centerOffset.x = tag.getFloat("centerOffsetX");
         centerOffset.y = tag.getFloat("centerOffsetY");
-    }
-
-    @Override
-    public void handleUpdateTag(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider lookupProvider) {
-        this.resetSlots();
-        super.handleUpdateTag(tag, lookupProvider);
     }
 
     @Override
@@ -360,7 +355,7 @@ public class CardTableBlockEntity extends BlockEntity {
         while (updateIterator.hasNext()) {
             int index = updateIterator.next();
             GameSlot slot = blockEntity.trackedSlots.get(index);
-            PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotCompletePayload(pos, index, slot));
+            ChartaMod.getPacketManager().sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotCompletePayload(pos, index, slot));
             blockEntity.dirtySlotPositions.remove(index);
             updateIterator.remove();
         }
@@ -368,7 +363,7 @@ public class CardTableBlockEntity extends BlockEntity {
         while (updateIterator.hasNext()) {
             int index = updateIterator.next();
             GameSlot slot = blockEntity.trackedSlots.get(index);
-            PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotPositionPayload(pos, index, slot.getX(), slot.getY(), slot.getZ(), slot.getAngle()));
+            ChartaMod.getPacketManager().sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotPositionPayload(pos, index, slot.getX(), slot.getY(), slot.getZ(), slot.getAngle()));
             updateIterator.remove();
         }
         if(!state.getValue(CardTableBlock.CLOTH) && !blockEntity.getDeckStack().isEmpty()) {
@@ -378,7 +373,7 @@ public class CardTableBlockEntity extends BlockEntity {
             level.sendBlockUpdated(pos, state, state, 3);
         }
         if(blockEntity.game != null) {
-            CardGame<?> game = blockEntity.game;
+            CardGame<?, ?> game = blockEntity.game;
             if(!game.isGameOver()) {
                 if (blockEntity.age++ % 100 == 0 || blockEntity.playersDirty) {
                     List<CardPlayer> players = blockEntity.getOrderedPlayers();
@@ -389,7 +384,7 @@ public class CardTableBlockEntity extends BlockEntity {
                 }
                 game.tick();
             }else{
-                PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotResetPayload(pos));
+                ChartaMod.getPacketManager().sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(pos), new GameSlotResetPayload(pos));
                 blockEntity.resetSlots();
                 blockEntity.game = null;
             }

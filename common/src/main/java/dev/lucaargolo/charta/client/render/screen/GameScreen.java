@@ -34,13 +34,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMenu<G>> extends AbstractContainerScreen<T> implements HoverableRenderable {
+public abstract class GameScreen<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends AbstractContainerScreen<M> implements HoverableRenderable {
 
     public static final ResourceLocation WIDGETS = ChartaMod.id("textures/gui/widgets.png");
 
-    private final List<CardSlotWidget<G>> slotWidgets = new ArrayList<>();
+    private final List<CardSlotWidget<G, M>> slotWidgets = new ArrayList<>();
     protected HoverableRenderable hoverable = null;
-    protected CardSlot<G> hoveredCardSlot = null;
+    protected CardSlot<G, M> hoveredCardSlot = null;
     protected int hoveredCardId = -1;
     private final boolean areOptionsChanged;
 
@@ -50,7 +50,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
 
     private Button optionsButton;
 
-    public GameScreen(T menu, Inventory playerInventory, Component title) {
+    public GameScreen(M menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.areOptionsChanged = CardGames.areOptionsChanged(menu.getGameFactory(), menu.getGame());
     }
@@ -216,7 +216,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
 
         this.hoveredCardSlot = null;
         for (int k = 0; k < this.menu.cardSlots.size(); k++) {
-            CardSlot<G> slot = this.menu.cardSlots.get(k);
+            CardSlot<G, M> slot = this.menu.cardSlots.get(k);
 
             if (this.isHoveringPrecise(slot, mouseX, mouseY)) {
                 this.hoveredCardSlot = slot;
@@ -227,7 +227,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
             }
 
             if(!slot.getSlot().isEmpty()) {
-                CardSlotWidget<G> slotWidget = this.slotWidgets.get(k);
+                CardSlotWidget<G, M> slotWidget = this.slotWidgets.get(k);
                 slotWidget.setPreciseX(slot.x + this.leftPos);
                 if(slot.getType() == CardSlot.Type.HORIZONTAL) {
                     slotWidget.setPreciseY(slot.y + this.height - slotWidget.getPreciseHeight());
@@ -291,7 +291,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
             }
         }
 
-        if(this.hoveredCardSlot != null && this.hoverable instanceof CardSlotWidget<?> cardSlotWidget) {
+        if(this.hoveredCardSlot != null && this.hoverable instanceof CardSlotWidget<?, ?> cardSlotWidget) {
             this.hoveredCardId = cardSlotWidget.getHoveredId();
         }else{
             this.hoveredCardId = -1;
@@ -301,7 +301,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
         guiGraphics.pose().translate(0f, 0f, 100f);
         GameSlot cards = this.menu.getCarriedCards();
         if (!cards.isEmpty()) {
-            CardSlotWidget<G> carriedWidget = new CardSlotWidget<>(this, new CardSlot<>(this.menu.getGame(), g -> cards, mouseX-leftPos-(CardImage.WIDTH * 0.75f), mouseY-topPos-(CardImage.HEIGHT * 0.75f), CardSlot.Type.VERTICAL));
+            CardSlotWidget<G, M> carriedWidget = new CardSlotWidget<>(this, new CardSlot<>(this.menu.getGame(), g -> cards, mouseX-leftPos-(CardImage.WIDTH * 0.75f), mouseY-topPos-(CardImage.HEIGHT * 0.75f), CardSlot.Type.VERTICAL));
             carriedWidget.render(guiGraphics, mouseX, mouseY, partialTick);
         }
         CardScreen.renderGlowBlur(this, guiGraphics, partialTick);
@@ -318,11 +318,11 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
         setTooltipForNextRenderPass(component);
     }
 
-    public boolean isHoveredCardSlot(CardSlot<G> slot) {
+    public boolean isHoveredCardSlot(CardSlot<G, M> slot) {
         return this.hoveredCardSlot == slot;
     }
 
-    private boolean isHoveringPrecise(CardSlot<G> slot, float mouseX, float mouseY) {
+    private boolean isHoveringPrecise(CardSlot<G, M> slot, float mouseX, float mouseY) {
         return switch (slot.getType()) {
             case HORIZONTAL -> this.isHoveringPrecise(slot.x, slot.y - topPos + height - CardSlot.getHeight(slot), CardSlot.getWidth(slot), CardSlot.getHeight(slot), mouseX, mouseY);
             case PREVIEW -> this.isHoveringPrecise(slot.x, slot.y - topPos, CardSlot.getWidth(slot), CardSlot.getHeight(slot), mouseX, mouseY);
@@ -342,7 +342,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
     public void containerTick() {
         super.containerTick();
         this.prevChatFocused = this.chatFocused;
-        if(this.minecraft != null) {
+        if (this.minecraft != null) {
             int mouseX = (int) (this.minecraft.mouseHandler.xpos() * (double) this.minecraft.getWindow().getGuiScaledWidth() / (double) this.minecraft.getWindow().getScreenWidth());
             int mouseY = (int) (this.minecraft.mouseHandler.ypos() * (double) this.minecraft.getWindow().getGuiScaledHeight() / (double) this.minecraft.getWindow().getScreenHeight());
             for (GuiEventListener widget : this.children()) {
@@ -350,16 +350,23 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
                     tickable.tick(mouseX, mouseY);
                 }
             }
-            for(CardSlotWidget<G> widget : this.slotWidgets) {
+            for (CardSlotWidget<G, M> widget : this.slotWidgets) {
                 widget.tick(mouseX, mouseY);
             }
         }
     }
 
-
     @Override
     public @Nullable HoverableRenderable getHoverable() {
         return this.hoverable;
+    }
+
+    public int getLeftPos() {
+        return this.leftPos;
+    }
+
+    public int getTopPos() {
+        return this.topPos;
     }
 
 }

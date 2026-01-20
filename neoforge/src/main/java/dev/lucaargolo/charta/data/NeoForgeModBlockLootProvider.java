@@ -1,7 +1,7 @@
-package dev.lucaargolo.charta.client.data;
+package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.furniture.block.ModBlocks;
-import dev.lucaargolo.furniture.data.builder.ModBlockLootBuilder;
+import dev.lucaargolo.charta.block.ModBlocks;
+import dev.lucaargolo.charta.data.builder.ModBlockLootBuilder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;

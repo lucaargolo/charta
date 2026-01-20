@@ -4,25 +4,21 @@ import com.mojang.datafixers.util.Either;
 import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.CardPlayPayload;
+import dev.lucaargolo.charta.registry.ModMenuTypeRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class CardGame<G extends CardGame<G>> {
+public abstract class CardGame<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> {
 
     public static CardPlayer TABLE = new AutoPlayer(0f) {
         @Override
@@ -60,13 +56,15 @@ public abstract class CardGame<G extends CardGame<G>> {
         this.gameSuits = this.gameDeck.stream().map(Card::suit).collect(Collectors.toSet());
     }
 
-    public abstract AbstractCardMenu<G> createMenu(int containerId, Inventory playerInventory, ServerLevel level, BlockPos pos, Deck deck);
+    public abstract ModMenuTypeRegistry.AdvancedMenuTypeEntry<M, AbstractCardMenu.Definition> getMenuType();
+
+    public abstract M createMenu(int containerId, Inventory playerInventory, AbstractCardMenu.Definition definition);
 
     public abstract Predicate<Deck> getDeckPredicate();
 
     public abstract Predicate<Card> getCardPredicate();
 
-    public Either<CardGame<?>, Component> playerPredicate(List<CardPlayer> players) {
+    public Either<CardGame<?, ?>, Component> playerPredicate(List<CardPlayer> players) {
         return Either.left(this);
     }
 
@@ -180,7 +178,7 @@ public abstract class CardGame<G extends CardGame<G>> {
 
     protected Stream<Card> getFullHand(CardPlayer player) {
         LivingEntity entity = player.getEntity();
-        if(entity instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof AbstractCardMenu<?> menu && !menu.getCarriedCards().isEmpty()) {
+        if(entity instanceof ServerPlayer serverPlayer && serverPlayer.containerMenu instanceof AbstractCardMenu<?, ?> menu && !menu.getCarriedCards().isEmpty()) {
             return Stream.concat(this.getPlayerHand(player).stream(), menu.getCarriedCards().stream());
         }else{
             return this.getPlayerHand(player).stream();
@@ -221,23 +219,8 @@ public abstract class CardGame<G extends CardGame<G>> {
         return null;
     }
 
-    public void openScreen(ServerPlayer serverPlayer, ServerLevel level, BlockPos pos, Deck deck) {
-        serverPlayer.openMenu(new MenuProvider() {
-            @Override
-            public @NotNull Component getDisplayName() {
-                return Component.empty();
-            }
-
-            @Override
-            public @NotNull AbstractContainerMenu createMenu(int containerId, @NotNull Inventory playerInventory, @NotNull Player player) {
-                return CardGame.this.createMenu(containerId, playerInventory, level, pos, deck);
-            }
-        }, buf -> {
-            buf.writeBlockPos(pos);
-            Deck.STREAM_CODEC.encode(buf, deck);
-            buf.writeVarIntArray(getPlayers().stream().mapToInt(CardPlayer::getId).toArray());
-            buf.writeByteArray(this.getRawOptions());
-        });
+    public void openScreen(ServerPlayer player, BlockPos pos, Deck deck) {
+        ChartaMod.getInstance().openMenu(this.getMenuType(), this::createMenu, player, new AbstractCardMenu.Definition(pos, deck, players.stream().mapToInt(CardPlayer::getId).toArray(), this.getRawOptions()), Component.empty());
     }
 
     public void tick() {
@@ -283,7 +266,7 @@ public abstract class CardGame<G extends CardGame<G>> {
         }
     }
 
-    public static boolean isValidDeck(CardGame<?> cardGame, Deck deck) {
+    public static boolean isValidDeck(CardGame<?, ?> cardGame, Deck deck) {
         return cardGame.getDeckPredicate().test(deck);
     }
 

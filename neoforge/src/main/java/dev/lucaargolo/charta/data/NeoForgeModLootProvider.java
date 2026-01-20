@@ -1,4 +1,4 @@
-package dev.lucaargolo.charta.client.data;
+package dev.lucaargolo.charta.data;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;

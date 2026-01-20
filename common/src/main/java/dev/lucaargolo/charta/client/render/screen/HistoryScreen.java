@@ -2,6 +2,7 @@ package dev.lucaargolo.charta.client.render.screen;
 
 import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaModClient;
+import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -73,7 +74,7 @@ public class HistoryScreen extends Screen {
                 guiGraphics.drawString(font, player, left-12, top, 0xFFFFFFFF);
                 guiGraphics.drawString(font, Component.literal(Integer.toString(cards)).append(" ").append(cards > 1 ? Component.translatable("charta.cards") : Component.translatable("charta.card")), left-12 + width - 101, top, 0xFFFFFFFF);
             }
-            guiGraphics.drawScrollingString(font, play, left-12 + 108, left-12+width-108, top, 0xFFFFFFFF);
+            ChartaGuiGraphics.drawScrollingString(guiGraphics, font, play, left-12 + 108, left-12+width-108, top, 0xFFFFFFFF);
 
         }
 

@@ -33,9 +33,9 @@ public record CardContainerSlotClickPayload(int containerId, int slotId, int car
 
     public static void handleServer(CardContainerSlotClickPayload payload, ServerPlayer player, Executor executor) {
         executor.execute(() -> {
-            if(player instanceof LivingEntityMixed mixed && player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
+            if(player instanceof LivingEntityMixed mixed && player.containerMenu instanceof AbstractCardMenu<?, ?> cardMenu && cardMenu.containerId == payload.containerId) {
                 CardPlayer cardPlayer = mixed.charta_getCardPlayer();
-                CardSlot<?> slot = cardMenu.getCardSlot(payload.slotId);
+                CardSlot<?, ?> slot = cardMenu.getCardSlot(payload.slotId);
                 GameSlot carriedCards = cardMenu.getCarriedCards();
                 if(carriedCards.isEmpty() && slot.canRemoveCard(cardPlayer, payload.cardId)) {
                     slot.preUpdate();

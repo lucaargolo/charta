@@ -12,6 +12,7 @@
     "FenceBlockMixin",
     "LeadItemMixin",
     "LeashableMixin",
+    "LevelChunkMixin",
     "LivingEntityMixin",
     "MobMixin",
     "PlayerMixin",

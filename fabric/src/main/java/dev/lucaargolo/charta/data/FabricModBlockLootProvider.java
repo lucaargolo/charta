@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.furniture.data.builder.ModBlockLootBuilder;
+import dev.lucaargolo.charta.data.builder.ModBlockLootBuilder;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
 import net.minecraft.core.HolderLookup;

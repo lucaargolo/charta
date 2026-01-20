@@ -158,7 +158,8 @@ public abstract class GameOption<T> {
                 private static final ResourceLocation SLIDER_HANDLE_SPRITE = ResourceLocation.withDefaultNamespace("widget/slider_handle");
 
                 @Override
-                protected @NotNull ResourceLocation getHandleSprite() {
+                @NotNull
+                public ResourceLocation getHandleSprite() {
                     return showcase ? SLIDER_HANDLE_SPRITE : super.getHandleSprite();
                 }
 

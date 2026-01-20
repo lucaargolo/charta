@@ -35,7 +35,7 @@ public record UpdateCardContainerSlotPayload(int containerId, int stateId, int s
         executor.execute(() -> {
             Minecraft minecraft = Minecraft.getInstance();
             Player player = minecraft.player;
-            if(player != null && player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
+            if(player != null && player.containerMenu instanceof AbstractCardMenu<?, ?> cardMenu && cardMenu.containerId == payload.containerId) {
                 cardMenu.setCards(payload.slotId, payload.stateId, payload.cards);
             }
         });

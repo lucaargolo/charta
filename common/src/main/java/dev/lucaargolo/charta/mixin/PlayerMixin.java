@@ -44,7 +44,7 @@ public abstract class PlayerMixin extends LivingEntity {
                     Optional<CardTableBlockEntity> optional = level.getBlockEntity(center, ModBlockEntityTypes.CARD_TABLE.get());
                     if(optional.isPresent()) {
                         CardTableBlockEntity blockEntity = optional.get();
-                        CardGame<?> currentGame = blockEntity.getGame();
+                        CardGame<?, ?> currentGame = blockEntity.getGame();
                         if(currentGame != null && !currentGame.isGameOver()) {
                             if((Object) this instanceof ServerPlayer serverPlayer) {
                                 ChartaMod.getPacketManager().sendToPlayer(serverPlayer, new GameLeavePayload());
