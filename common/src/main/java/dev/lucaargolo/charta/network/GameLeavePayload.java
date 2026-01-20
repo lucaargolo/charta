@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.client.gui.screens.ConfirmScreen;
+import dev.lucaargolo.charta.client.render.screen.ConfirmScreen;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;

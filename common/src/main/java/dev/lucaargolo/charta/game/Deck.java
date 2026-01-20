@@ -6,8 +6,8 @@ import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.client.ChartaClient;
-import dev.lucaargolo.charta.compat.IrisCompat;
+import dev.lucaargolo.charta.client.ChartaModClient;
+import dev.lucaargolo.charta.client.compat.IrisCompat;
 import dev.lucaargolo.charta.game.fun.FunGame;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import dev.lucaargolo.charta.utils.ExpandedStreamCodec;
@@ -103,7 +103,7 @@ public class Deck {
         if(glow && IrisCompat.isPresent()) {
             return IrisCompat.getSuitGlowTexture(suitsLocation.apply(suit));
         }else {
-            return ChartaClient.getSuitTexture(suitsLocation.apply(suit));
+            return ChartaModClient.getSuitTexture(suitsLocation.apply(suit));
         }
     }
 
@@ -115,7 +115,7 @@ public class Deck {
         if(glow && IrisCompat.isPresent()) {
             return IrisCompat.getCardGlowTexture(cardsLocation.apply(card));
         }else {
-            return ChartaClient.getCardTexture(cardsLocation.apply(card));
+            return ChartaModClient.getCardTexture(cardsLocation.apply(card));
         }
     }
 
@@ -127,7 +127,7 @@ public class Deck {
         if(glow && IrisCompat.isPresent()) {
             return IrisCompat.getDeckGlowTexture(deckLocation.get());
         }else{
-            return ChartaClient.getDeckTexture(deckLocation.get());
+            return ChartaModClient.getDeckTexture(deckLocation.get());
         }
     }
 

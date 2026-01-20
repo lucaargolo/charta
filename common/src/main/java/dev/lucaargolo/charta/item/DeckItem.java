@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.item;
 
 import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.client.gui.screens.DeckScreen;
+import dev.lucaargolo.charta.client.render.screen.DeckScreen;
 import dev.lucaargolo.charta.game.Deck;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

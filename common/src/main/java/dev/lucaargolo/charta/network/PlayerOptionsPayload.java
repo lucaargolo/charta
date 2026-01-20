@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.client.ChartaModClient;
 import dev.lucaargolo.charta.utils.PlayerOptionData;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -26,8 +26,8 @@ public record PlayerOptionsPayload(HashMap<ResourceLocation, byte[]> playerOptio
 
     public static void handleClient(PlayerOptionsPayload payload, Executor executor) {
         executor.execute(() -> {
-            ChartaClient.LOCAL_OPTIONS.clear();
-            ChartaClient.LOCAL_OPTIONS.putAll(payload.playerOptions);
+            ChartaModClient.LOCAL_OPTIONS.clear();
+            ChartaModClient.LOCAL_OPTIONS.putAll(payload.playerOptions);
         });
     }
 

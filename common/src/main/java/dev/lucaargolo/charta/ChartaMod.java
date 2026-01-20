@@ -1,11 +1,11 @@
 package dev.lucaargolo.charta;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
 import dev.lucaargolo.charta.block.entity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.entity.ModEntityTypes;
+import dev.lucaargolo.charta.entity.ModItemListings;
 import dev.lucaargolo.charta.entity.ModPoiTypes;
 import dev.lucaargolo.charta.entity.ModVillagerProfessions;
 import dev.lucaargolo.charta.game.GameSlot;
@@ -17,6 +17,7 @@ import dev.lucaargolo.charta.item.ModItems;
 import dev.lucaargolo.charta.menu.ModMenuTypes;
 import dev.lucaargolo.charta.network.*;
 import dev.lucaargolo.charta.registry.*;
+import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
 import dev.lucaargolo.charta.resources.CardImageResource;
 import dev.lucaargolo.charta.resources.DeckResource;
 import dev.lucaargolo.charta.resources.SuitImageResource;
@@ -36,6 +37,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -46,6 +49,7 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -58,7 +62,8 @@ public abstract class ChartaMod {
     public static final Set<Rank> DEFAULT_RANKS = Set.of(Rank.ACE, Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN, Rank.JACK, Rank.QUEEN, Rank.KING);
 
     public static final String MOD_ID = "charta";
-    public static final Logger LOGGER = LogUtils.getLogger();
+    public static final String MOD_NAME = "Charta";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
     public static final Style SYMBOLS = Style.EMPTY.withFont(ChartaMod.id("symbols"));
     public static final Style MINERCRAFTORY = Style.EMPTY.withFont(ChartaMod.id("minercraftory"));
@@ -99,6 +104,12 @@ public abstract class ChartaMod {
         this.registerReloadableListener(CARD_IMAGES);
         this.registerReloadableListener(DECK_IMAGES);
         this.registerReloadableListener(CARD_DECKS);
+        this.addVillagerTrade(ModVillagerProfessions.DEALER, 1, ModItemListings.COMMON_DECKS);
+        this.addVillagerTrade(ModVillagerProfessions.DEALER, 1, ModItemListings.DRINKS);
+        this.addVillagerTrade(ModVillagerProfessions.DEALER, 2, ModItemListings.UNCOMMON_DECKS);
+        this.addVillagerTrade(ModVillagerProfessions.DEALER, 2, ModItemListings.IRON_LEAD);
+        this.addVillagerTrade(ModVillagerProfessions.DEALER, 3, ModItemListings.RARE_DECKS);
+        this.addVillagerTrade(ModVillagerProfessions.DEALER, 4, ModItemListings.EPIC_DECKS);
     }
 
     public abstract String getPlatform();
@@ -107,11 +118,15 @@ public abstract class ChartaMod {
 
     public abstract boolean isFakePlayer(Player player);
 
+    protected abstract void registerReloadableListener(PreparableReloadListener listener);
+
+    protected abstract void addVillagerTrade(MinecraftEntry<VillagerProfession> profession, int level, VillagerTrades.ItemListing listing);
+
+    public abstract <M extends AbstractContainerMenu, D> void openMenu(ModMenuTypeRegistry.AdvancedMenuTypeEntry<M, D> entry, BiFunction<Integer, Inventory, M> constructor, Player player, D data, Component title);
+
     public <M extends AbstractContainerMenu, D> void openMenu(ModMenuTypeRegistry.AdvancedMenuTypeEntry<M, D> entry, QuadFunction<Integer, Inventory, Container, D, M> constructor, Player player, Container container, D data, Component title) {
         this.openMenu(entry, (syncId, inventory) -> constructor.apply(syncId, inventory, container, data), player, data, title);
     }
-
-    public abstract <M extends AbstractContainerMenu, D> void openMenu(ModMenuTypeRegistry.AdvancedMenuTypeEntry<M, D> entry, BiFunction<Integer, Inventory, M> constructor, Player player, D data, Component title);
 
     public <M extends AbstractContainerMenu> void openMenu(TriFunction<Integer, Inventory, Container, M> constructor, Player player, Container container, Component title) {
         this.openMenu((syncId, inventory) -> constructor.apply(syncId, inventory, container), player, title);
@@ -131,9 +146,7 @@ public abstract class ChartaMod {
         });
     };
 
-    protected abstract void registerReloadableListener(PreparableReloadListener listener);
-
-    public final void serverAboutToStart(MinecraftServer server) {
+    public final void onServerAboutToStart(MinecraftServer server) {
         RegistryAccess registryAccess = server.registryAccess();
         Registry<StructureTemplatePool> templatePoolRegistry = registryAccess.registry(Registries.TEMPLATE_POOL).orElseThrow();
         Registry<StructureProcessorList> processorListRegistry = registryAccess.registry(Registries.PROCESSOR_LIST).orElseThrow();

@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.client.gui.screens.TableScreen;
+import dev.lucaargolo.charta.client.render.screen.TableScreen;
 import dev.lucaargolo.charta.game.Deck;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;

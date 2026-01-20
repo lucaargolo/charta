@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.client.ChartaClient;
-import dev.lucaargolo.charta.client.gui.screens.HistoryScreen;
+import dev.lucaargolo.charta.client.ChartaModClient;
+import dev.lucaargolo.charta.client.render.screen.HistoryScreen;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -31,7 +31,7 @@ public record CardPlayPayload(Component playerName, int playerCards, Component p
 
     public static void handleClient(CardPlayPayload payload, Executor executor) {
         executor.execute(() -> {
-            ChartaClient.LOCAL_HISTORY.add(ImmutableTriple.of(payload.playerName, payload.playerCards, payload.play));
+            ChartaModClient.LOCAL_HISTORY.add(ImmutableTriple.of(payload.playerName, payload.playerCards, payload.play));
             Minecraft mc = Minecraft.getInstance();
             if(mc.screen instanceof HistoryScreen screen) {
                 screen.init(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());

@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.mixin;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.Window;
-import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.client.ChartaModClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import org.spongepowered.asm.mixin.Final;
@@ -19,10 +19,10 @@ public class MinecraftMixin {
 
     @Inject(at = @At("TAIL"), method = "resizeDisplay")
     public void resizeDisplay(CallbackInfo ci) {
-        RenderTarget rendertarget = ChartaClient.getGlowRenderTarget();
+        RenderTarget rendertarget = ChartaModClient.getGlowRenderTarget();
         if(rendertarget != null)
             rendertarget.resize(this.window.getWidth(), this.window.getHeight(), Minecraft.ON_OSX);
-        PostChain postChain = ChartaClient.getGlowBlurEffect();
+        PostChain postChain = ChartaModClient.getGlowBlurEffect();
         if(postChain != null)
             postChain.resize(this.window.getWidth(), this.window.getHeight());
     }

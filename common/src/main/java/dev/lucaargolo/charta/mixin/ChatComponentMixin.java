@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.mixin;
 
-import dev.lucaargolo.charta.client.gui.screens.GameScreen;
+import dev.lucaargolo.charta.client.render.screen.GameScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import org.spongepowered.asm.mixin.Final;

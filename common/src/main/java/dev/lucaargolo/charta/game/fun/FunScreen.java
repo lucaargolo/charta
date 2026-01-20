@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.client.gui.screens.GameScreen;
+import dev.lucaargolo.charta.client.render.screen.GameScreen;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.CardSlot;

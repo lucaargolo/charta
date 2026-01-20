@@ -4,6 +4,7 @@ import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.item.DeckItem;
 import dev.lucaargolo.charta.item.ModItems;
+import dev.lucaargolo.charta.utils.BasicItemListing;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.VillagerDataHolder;
@@ -14,7 +15,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.neoforged.neoforge.common.BasicItemListing;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

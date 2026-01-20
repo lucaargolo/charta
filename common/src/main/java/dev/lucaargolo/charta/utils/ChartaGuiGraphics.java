@@ -2,8 +2,8 @@ package dev.lucaargolo.charta.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import dev.lucaargolo.charta.client.ChartaClient;
-import dev.lucaargolo.charta.compat.IrisCompat;
+import dev.lucaargolo.charta.client.ChartaModClient;
+import dev.lucaargolo.charta.client.compat.IrisCompat;
 import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.Suit;
 import net.minecraft.client.Minecraft;
@@ -17,7 +17,7 @@ public class ChartaGuiGraphics {
         ResourceLocation textureLocation = deck.getSuitTexture(suit, false);
         ResourceLocation glowLocation = deck.getSuitTexture(suit, true);
         ChartaGuiGraphics.blitImage(parent, textureLocation, x, y, u, v, width, height, textureWidth, textureHeight);
-        ChartaClient.getGlowRenderTarget().bindWrite(false);
+        ChartaModClient.getShaderManager().getGlowRenderTarget().bindWrite(false);
         RenderSystem.setShaderColor(0f, 0f, 0f, 1f);
         ChartaGuiGraphics.blitImage(parent, textureLocation, x, y, u, v, width, height, textureWidth, textureHeight);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -29,7 +29,7 @@ public class ChartaGuiGraphics {
         ResourceLocation textureLocation = deck.getSuitTexture(suit, false);
         ResourceLocation glowLocation = deck.getSuitTexture(suit, true);
         ChartaGuiGraphics.blitWhiteImage(parent, textureLocation, x, y, u, v, width, height, textureWidth, textureHeight);
-        ChartaClient.getGlowRenderTarget().bindWrite(false);
+        ChartaModClient.getShaderManager().getGlowRenderTarget().bindWrite(false);
         RenderSystem.setShaderColor(0f, 0f, 0f, 1f);
         ChartaGuiGraphics.blitWhiteImage(parent, textureLocation, x, y, u, v, width, height, textureWidth, textureHeight);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -40,9 +40,9 @@ public class ChartaGuiGraphics {
     public static void blitImage(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
         RenderSystem.setShaderTexture(0, textureLocation);
         if(IrisCompat.isPresent()) {
-            RenderSystem.setShader(ChartaClient::getImageArgbShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getImageArgbShader);
         }else{
-            RenderSystem.setShader(ChartaClient::getImageShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getImageShader);
         }
         innerBlit(parent, x, x + width, y, y + height, (u + 0.0F) / textureWidth, (u + width) / textureWidth, (v + 0.0F) / textureHeight, (v + height) / textureHeight);
     }
@@ -50,9 +50,9 @@ public class ChartaGuiGraphics {
     public static void blitWhiteImage(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
         RenderSystem.setShaderTexture(0, textureLocation);
         if(IrisCompat.isPresent()) {
-            RenderSystem.setShader(ChartaClient::getWhiteImageArgbShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getWhiteImageArgbShader);
         }else{
-            RenderSystem.setShader(ChartaClient::getWhiteImageShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getWhiteImageShader);
         }
         innerBlit(parent, x, x + width, y, y + height, (u + 0.0F) / textureWidth, (u + width) / textureWidth, (v + 0.0F) / textureHeight, (v + height) / textureHeight);
     }
@@ -60,9 +60,9 @@ public class ChartaGuiGraphics {
     public static void blitImageGlow(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
         RenderSystem.setShaderTexture(0, textureLocation);
         if(IrisCompat.isPresent()) {
-            RenderSystem.setShader(ChartaClient::getImageArgbShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getImageArgbShader);
         }else{
-            RenderSystem.setShader(ChartaClient::getImageGlowShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getImageGlowShader);
         }
         innerBlit(parent, x, x + width, y, y + height, (u + 0.0F) / textureWidth, (u + width) / textureWidth, (v + 0.0F) / textureHeight, (v + height) / textureHeight);
     }
@@ -70,9 +70,9 @@ public class ChartaGuiGraphics {
     public static void blitWhiteImageGlow(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float u, float v, float width, float height, float textureWidth, float textureHeight) {
         RenderSystem.setShaderTexture(0, textureLocation);
         if(IrisCompat.isPresent()) {
-            RenderSystem.setShader(ChartaClient::getWhiteImageArgbShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getWhiteImageArgbShader);
         }else{
-            RenderSystem.setShader(ChartaClient::getWhiteImageGlowShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getWhiteImageGlowShader);
         }
         innerBlit(parent, x, x + width, y, y + height, (u + 0.0F) / textureWidth, (u + width) / textureWidth, (v + 0.0F) / textureHeight, (v + height) / textureHeight);
     }
@@ -80,9 +80,9 @@ public class ChartaGuiGraphics {
     public static void blitCard(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float width, float height) {
         RenderSystem.setShaderTexture(0, textureLocation);
         if(IrisCompat.isPresent()) {
-            RenderSystem.setShader(ChartaClient::getCardArgbShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getCardArgbShader);
         }else{
-            RenderSystem.setShader(ChartaClient::getCardShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getCardShader);
         }
         innerBlit(parent, x, x + width, y, y + height, 0f, 1f, 0f, 1f);
     }
@@ -90,22 +90,22 @@ public class ChartaGuiGraphics {
     public static void blitCardGlow(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float width, float height) {
         RenderSystem.setShaderTexture(0, textureLocation);
         if(IrisCompat.isPresent()) {
-            RenderSystem.setShader(ChartaClient::getCardArgbShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getCardArgbShader);
         }else{
-            RenderSystem.setShader(ChartaClient::getCardGlowShader);
+            RenderSystem.setShader(ChartaModClient.getShaderManager()::getCardGlowShader);
         }
         innerBlit(parent, x, x + width, y, y + height, 0f, 1f, 0f, 1f);
     }
 
     public static void blitPerspective(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float width, float height) {
         RenderSystem.setShaderTexture(0, textureLocation);
-        RenderSystem.setShader(ChartaClient::getPerspectiveShader);
+        RenderSystem.setShader(ChartaModClient.getShaderManager()::getPerspectiveShader);
         innerBlit(parent, x, x + width, y, y + height, 0f, 1f, 0f, 1f);
     }
 
     public static void blitGrayscale(GuiGraphics parent, ResourceLocation textureLocation, float x, float y, float width, float height) {
         RenderSystem.setShaderTexture(0, textureLocation);
-        RenderSystem.setShader(ChartaClient::getGrayscaleShader);
+        RenderSystem.setShader(ChartaModClient.getShaderManager()::getGrayscaleShader);
         innerBlit(parent, x, x + width, y, y + height, 0f, 1f, 0f, 1f);
     }
 

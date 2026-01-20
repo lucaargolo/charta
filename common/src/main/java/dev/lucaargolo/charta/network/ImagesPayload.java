@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.network;
 
 import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.client.ChartaClient;
+import dev.lucaargolo.charta.client.ChartaModClient;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import dev.lucaargolo.charta.utils.SuitImage;
@@ -31,11 +31,11 @@ public record ImagesPayload(HashMap<ResourceLocation, SuitImage> suitImages, Has
 
     public static void handleClient(ImagesPayload payload, Executor executor) {
         executor.execute(() -> {
-            ChartaClient.clearImages();
+            ChartaModClient.clearImages();
             ChartaMod.SUIT_IMAGES.setImages(payload.suitImages());
             ChartaMod.CARD_IMAGES.setImages(payload.cardImages());
             ChartaMod.DECK_IMAGES.setImages(payload.deckImages());
-            ChartaClient.generateImages();
+            ChartaModClient.generateImages();
         });
     }
 

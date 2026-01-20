@@ -4,6 +4,7 @@ import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.registry.ModBlockRegistry;
 import net.minecraft.data.BlockFamilies;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -32,16 +33,16 @@ public class ModBlocks {
                 String woodName = resourceKey.location().withPath(s -> s.replace("_planks", "")).getPath();
                 WoodType.values().filter(t -> t.name().equals(woodName)).findFirst().ifPresent(type -> {
                     Supplier<CardTableBlock> tableSupplier = () -> new CardTableBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
-                    ModBlockRegistry.BlockEntry<CardTableBlock> tableHolder = REGISTRY.register(woodName + "_card_table", tableSupplier);
+                    ModBlockRegistry.BlockEntry<CardTableBlock> tableHolder = REGISTRY.register(woodName + "_card_table", tableSupplier, BlockTags.MINEABLE_WITH_AXE);
                     CARD_TABLE_MAP.put(type, tableHolder);
                     Supplier<GameChairBlock> chairSupplier = () -> new GameChairBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
-                    ModBlockRegistry.BlockEntry<GameChairBlock> chairHolder = REGISTRY.register(woodName + "_game_chair", chairSupplier);
+                    ModBlockRegistry.BlockEntry<GameChairBlock> chairHolder = REGISTRY.register(woodName + "_game_chair", chairSupplier, BlockTags.MINEABLE_WITH_AXE);
                     GAME_CHAIR_MAP.put(type, chairHolder);
                     Supplier<BarStoolBlock> stoolSupplier = () -> new BarStoolBlock(Block.Properties.ofFullCopy(f.getBaseBlock()));
-                    ModBlockRegistry.BlockEntry<BarStoolBlock> stoolHolder = REGISTRY.register(woodName + "_bar_stool", stoolSupplier);
+                    ModBlockRegistry.BlockEntry<BarStoolBlock> stoolHolder = REGISTRY.register(woodName + "_bar_stool", stoolSupplier, BlockTags.MINEABLE_WITH_AXE);
                     BAR_STOOL_MAP.put(type, stoolHolder);
                     Supplier<BarShelfBlock> shelfSupplier = () -> new BarShelfBlock(Block.Properties.ofFullCopy(f.getBaseBlock()).noOcclusion());
-                    ModBlockRegistry.BlockEntry<BarShelfBlock> shelfHolder = REGISTRY.register(woodName + "_bar_shelf", shelfSupplier);
+                    ModBlockRegistry.BlockEntry<BarShelfBlock> shelfHolder = REGISTRY.register(woodName + "_bar_shelf", shelfSupplier, BlockTags.MINEABLE_WITH_AXE);
                     BAR_SHELF_MAP.put(type, shelfHolder);
                 });
             }
