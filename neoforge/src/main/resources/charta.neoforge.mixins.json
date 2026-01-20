@@ -4,6 +4,8 @@
   "package": "dev.lucaargolo.charta.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "ContainerSynchronizerMixin",
+    "LevelChunkMixin"
   ],
   "client": [
   ],

@@ -5,6 +5,9 @@
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "ContainerSynchronizerMixin",
+    "LevelChunkMixin",
+    "PlayerChunkSenderMixin"
   ],
   "client": [
   ],

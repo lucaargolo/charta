@@ -10,7 +10,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public abstract class ModShaderManager {
+public abstract class ModShaderManager implements ResourceManagerReloadListener {
 
     private static final ResourceLocation BLUR_LOCATION = ChartaMod.id("shaders/post/blur.json");
 
@@ -52,20 +54,6 @@ public abstract class ModShaderManager {
     private ShaderInstance ironLeashShader;
 
     public void init() {
-        Minecraft minecraft = Minecraft.getInstance();
-
-        minecraft.submit(() -> {
-            this.glowRenderTarget = new TextureTarget(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight(), false, Minecraft.ON_OSX);
-            this.glowRenderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-            this.glowRenderTarget.clear(Minecraft.ON_OSX);
-        });
-        this.onShaderReload(() -> {
-            this.loadGlowBlurEffect();
-            this.cardFovUniforms.clear();
-            this.cardXRotUniforms.clear();
-            this.cardYRotUniforms.clear();
-            this.cardInsetUniforms.clear();
-        });
         this.registerShader(ChartaMod.id("image"), DefaultVertexFormat.POSITION_TEX_COLOR, instance -> {
             this.imageShader = instance;
         });
@@ -123,9 +111,46 @@ public abstract class ModShaderManager {
         });
     }
 
-    protected abstract void onShaderReload(Runnable runnable);
-
     protected abstract void registerShader(ResourceLocation location, VertexFormat vertexFormat, Consumer<ShaderInstance> consumer);
+
+    @Override
+    public void onResourceManagerReload(@NotNull ResourceManager resourceManager) {
+        this.cardFovUniforms.clear();
+        this.cardXRotUniforms.clear();
+        this.cardYRotUniforms.clear();
+        this.cardInsetUniforms.clear();
+
+        Minecraft minecraft = Minecraft.getInstance();
+        minecraft.execute(() -> {
+            if (this.glowRenderTarget == null) {
+                this.glowRenderTarget = new TextureTarget(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight(), false, Minecraft.ON_OSX);
+                this.glowRenderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+                this.glowRenderTarget.clear(Minecraft.ON_OSX);
+            }
+
+            if (this.glowBlurEffect != null) {
+                this.glowBlurEffect.close();
+            }
+
+            try {
+                assert this.glowRenderTarget != null;
+                this.glowBlurEffect = new PostChain(minecraft.getTextureManager(), resourceManager, this.glowRenderTarget, BLUR_LOCATION);
+                this.glowBlurEffect.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
+            } catch (IOException ioException) {
+                ChartaMod.LOGGER.warn("Failed to load shader: {}", BLUR_LOCATION, ioException);
+            } catch (JsonSyntaxException jsonSyntaxException) {
+                ChartaMod.LOGGER.warn("Failed to parse shader: {}", BLUR_LOCATION, jsonSyntaxException);
+            }
+        });
+    }
+
+    public void processBlurEffect(float partialTick) {
+        float f = 2f;
+        if (this.glowBlurEffect != null) {
+            this.glowBlurEffect.setUniform("Radius", f);
+            this.glowBlurEffect.process(partialTick);
+        }
+    }
 
     public Consumer<Float> getCardInset() {
         return cardInset;
@@ -151,94 +176,56 @@ public abstract class ModShaderManager {
         return this.glowBlurEffect;
     }
 
-    @Nullable
     public ShaderInstance getImageShader() {
         return this.imageShader;
     }
 
-    @Nullable
     public ShaderInstance getImageGlowShader() {
         return this.imageGlowShader;
     }
 
-    @Nullable
     public ShaderInstance getImageArgbShader() {
         return this.imageArgbShader;
     }
 
-    @Nullable
     public ShaderInstance getWhiteImageShader() {
         return this.whiteImageShader;
     }
 
-    @Nullable
     public ShaderInstance getWhiteImageGlowShader() {
         return this.whiteImageGlowShader;
     }
 
-    @Nullable
     public ShaderInstance getWhiteImageArgbShader() {
         return this.whiteImageArgbShader;
     }
 
-    @Nullable
     public ShaderInstance getCardShader() {
         return this.cardShader;
     }
 
-    @Nullable
     public ShaderInstance getCardGlowShader() {
         return this.cardGlowShader;
     }
 
-    @Nullable
     public ShaderInstance getCardArgbShader() {
         return this.cardArgbShader;
     }
 
-    @Nullable
     public ShaderInstance getPerspectiveShader() {
         return this.perspectiveShader;
     }
 
-    @Nullable
     public ShaderInstance getGrayscaleShader() {
         return this.grayscaleShader;
     }
 
-    @Nullable
     public ShaderInstance getEntityCardShader() {
         return entityCardShader;
     }
 
-    @Nullable
     public ShaderInstance getIronLeashShader() {
         return ironLeashShader;
-    }
-
-    public void processBlurEffect(float partialTick) {
-        float f = 2f;
-        if (this.glowBlurEffect != null) {
-            this.glowBlurEffect.setUniform("Radius", f);
-            this.glowBlurEffect.process(partialTick);
-        }
-    }
-
-    private void loadGlowBlurEffect() {
-        Minecraft minecraft = Minecraft.getInstance();
-
-        if (this.glowBlurEffect != null) {
-            this.glowBlurEffect.close();
-        }
-
-        try {
-            this.glowBlurEffect = new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(), getGlowRenderTarget(), BLUR_LOCATION);
-            this.glowBlurEffect.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
-        } catch (IOException ioexception) {
-            ChartaMod.LOGGER.warn("Failed to load shader: {}", BLUR_LOCATION, ioexception);
-        } catch (JsonSyntaxException jsonsyntaxexception) {
-            ChartaMod.LOGGER.warn("Failed to parse shader: {}", BLUR_LOCATION, jsonsyntaxexception);
-        }
     }
 
 }

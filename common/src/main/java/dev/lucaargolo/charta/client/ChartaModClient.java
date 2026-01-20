@@ -63,6 +63,8 @@ public abstract class ChartaModClient {
 
     protected final void init() {
         this.shaderManager.init();
+        this.registerReloadableListener(ChartaMod.id("shader"), this.shaderManager);
+        this.registerReloadableListener(ChartaMod.id("markdown"), MARKDOWN);
 
         this.registerEntityRenderer(ModEntityTypes.SEAT, NoopRenderer::new);
         this.registerEntityRenderer(ModEntityTypes.IRON_LEASH_KNOT, IronLeashKnotRenderer::new);
@@ -76,7 +78,6 @@ public abstract class ChartaModClient {
 
         this.registerAdditionalModel(ChartaMod.id("deck"));
         this.registerDynamicItemRenderer(ModItems.DECK, new DeckItemRenderer());
-        this.registerReloadableListener(MARKDOWN);
     }
 
     protected abstract <M extends AbstractContainerMenu, P extends Screen & MenuAccess<M>> void registerMenuScreen(MinecraftEntry<MenuType<M>> type, TriFunction<M, Inventory, Component, P> factory);
@@ -89,7 +90,7 @@ public abstract class ChartaModClient {
 
     protected abstract void registerDynamicItemRenderer(ModItemRegistry.ItemEntry<?> item, BlockEntityWithoutLevelRenderer itemRenderer);
 
-    protected abstract void registerReloadableListener(PreparableReloadListener listener);
+    protected abstract void registerReloadableListener(ResourceLocation identifier, PreparableReloadListener listener);
 
     public static ChartaModClient getInstance() {
         return instance;

@@ -49,7 +49,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 @SuppressWarnings("unchecked")
 public abstract class ChartaMod {
@@ -87,6 +89,7 @@ public abstract class ChartaMod {
     }
 
     public final void init() {
+        this.packetManager.init();
         ModBlocks.REGISTRY.init();
         ModItems.REGISTRY.init();
         ModEntityTypes.REGISTRY.init();
@@ -97,16 +100,20 @@ public abstract class ChartaMod {
         ModCreativeTabs.REGISTRY.init();
         ModDataComponentTypes.REGISTRY.init();
         ModSounds.REGISTRY.init();
-        this.registerReloadableListener(SUIT_IMAGES);
-        this.registerReloadableListener(CARD_IMAGES);
-        this.registerReloadableListener(DECK_IMAGES);
-        this.registerReloadableListener(CARD_DECKS);
+        this.registerReloadableListener(id("suit_images"), SUIT_IMAGES);
+        this.registerReloadableListener(id("card_images"), CARD_IMAGES);
+        this.registerReloadableListener(id("deck_images"), DECK_IMAGES);
+        this.registerReloadableListener(id("card_decks"), CARD_DECKS);
         this.addVillagerTrade(ModVillagerProfessions.DEALER, 1, ModItemListings.COMMON_DECKS);
         this.addVillagerTrade(ModVillagerProfessions.DEALER, 1, ModItemListings.DRINKS);
         this.addVillagerTrade(ModVillagerProfessions.DEALER, 2, ModItemListings.UNCOMMON_DECKS);
         this.addVillagerTrade(ModVillagerProfessions.DEALER, 2, ModItemListings.IRON_LEAD);
         this.addVillagerTrade(ModVillagerProfessions.DEALER, 3, ModItemListings.RARE_DECKS);
         this.addVillagerTrade(ModVillagerProfessions.DEALER, 4, ModItemListings.EPIC_DECKS);
+        this.registerEventOnServerAboutToStart(this::onServerAboutToStart);
+        this.registerEventOnChunkSent(this::onChunkSent);
+        this.registerEventOnPlayerJoined(this::onPlayerJoined);
+        this.registerEventOnDatapackReload(this::onDatapackReload);
     }
 
     public abstract String getPlatform();
@@ -115,7 +122,7 @@ public abstract class ChartaMod {
 
     public abstract boolean isFakePlayer(Player player);
 
-    protected abstract void registerReloadableListener(PreparableReloadListener listener);
+    protected abstract void registerReloadableListener(ResourceLocation identifier, PreparableReloadListener listener);
 
     protected abstract void addVillagerTrade(MinecraftEntry<VillagerProfession> profession, int level, VillagerTrades.ItemListing listing);
 
@@ -125,7 +132,9 @@ public abstract class ChartaMod {
         this.openMenu(entry, (syncId, inventory) -> constructor.apply(syncId, inventory, data), player, data, title);
     }
 
-    public final void onServerAboutToStart(MinecraftServer server) {
+    public abstract void registerEventOnServerAboutToStart(Consumer<MinecraftServer> consumer);
+
+    private void onServerAboutToStart(MinecraftServer server) {
         RegistryAccess registryAccess = server.registryAccess();
         Registry<StructureTemplatePool> templatePoolRegistry = registryAccess.registry(Registries.TEMPLATE_POOL).orElseThrow();
         Registry<StructureProcessorList> processorListRegistry = registryAccess.registry(Registries.PROCESSOR_LIST).orElseThrow();
@@ -147,7 +156,9 @@ public abstract class ChartaMod {
                 "charta:savanna_card_bar", 60);
     }
 
-    public final void onChunkSent(LevelChunk chunk, ServerPlayer player) {
+    public abstract void registerEventOnChunkSent(BiConsumer<LevelChunk, ServerPlayer> consumer);
+
+    private void onChunkSent(LevelChunk chunk, ServerPlayer player) {
         chunk.getBlockEntities().forEach((pos, blockEntity) -> {
             if(blockEntity instanceof CardTableBlockEntity cardTable) {
                 int count = cardTable.getSlotCount();
@@ -160,7 +171,9 @@ public abstract class ChartaMod {
         });
     }
 
-    public final void onPlayerJoined(ServerPlayer player) {
+    public abstract void registerEventOnPlayerJoined(Consumer<ServerPlayer> consumer);
+
+    private void onPlayerJoined(ServerPlayer player) {
         this.packetManager.sendToPlayer(player, new ImagesPayload(
                 new HashMap<>(ChartaMod.SUIT_IMAGES.getImages()),
                 new HashMap<>(ChartaMod.CARD_IMAGES.getImages()),
@@ -171,7 +184,9 @@ public abstract class ChartaMod {
         this.packetManager.sendToPlayer(player, new PlayerOptionsPayload(data.getPlayerOptions(player)));
     }
 
-    public final void onDatapackReload(MinecraftServer server) {
+    public abstract void registerEventOnDatapackReload(Consumer<MinecraftServer> consumer);
+
+    private void onDatapackReload(MinecraftServer server) {
         this.packetManager.sendToAllPlayers(server, new ImagesPayload(
                 new HashMap<>(ChartaMod.SUIT_IMAGES.getImages()),
                 new HashMap<>(ChartaMod.CARD_IMAGES.getImages()),
@@ -242,21 +257,6 @@ public abstract class ChartaMod {
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
-    }
-
-    @FunctionalInterface
-    public interface HexaFunction<P1, P2, P3, P4, P5, P6, R> {
-        R apply(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
-    }
-
-    @FunctionalInterface
-    public interface PentaFunction<P1, P2, P3, P4, P5, R> {
-        R apply(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
-    }
-
-    @FunctionalInterface
-    public interface QuadFunction<P1, P2, P3, P4, R> {
-        R apply(P1 p1, P2 p2, P3 p3, P4 p4);
     }
 
     @FunctionalInterface

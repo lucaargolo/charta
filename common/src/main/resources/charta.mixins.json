@@ -7,12 +7,10 @@
   "mixins": [
     "ChunkHolderMixin",
     "ContainerListenerMixin",
-    "ContainerSynchronizerMixin",
     "EntityMixin",
     "FenceBlockMixin",
     "LeadItemMixin",
     "LeashableMixin",
-    "LevelChunkMixin",
     "LivingEntityMixin",
     "MobMixin",
     "PlayerMixin",
