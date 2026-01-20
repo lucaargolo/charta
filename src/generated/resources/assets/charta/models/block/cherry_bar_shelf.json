@@ -1,8 +1,0 @@
-{
-  "parent": "charta:block/bar_shelf",
-  "textures": {
-    "log": "minecraft:block/cherry_log",
-    "particle": "minecraft:block/cherry_planks",
-    "planks": "minecraft:block/cherry_planks"
-  }
-}

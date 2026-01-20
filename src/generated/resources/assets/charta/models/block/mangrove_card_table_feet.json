@@ -1,7 +1,0 @@
-{
-  "parent": "charta:block/card_table_feet",
-  "textures": {
-    "log": "minecraft:block/mangrove_log",
-    "particle": "minecraft:block/mangrove_log"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "parent": "charta:item/card_table",
-  "textures": {
-    "log": "minecraft:block/mangrove_log",
-    "particle": "minecraft:block/mangrove_planks",
-    "planks": "minecraft:block/mangrove_planks"
-  }
-}

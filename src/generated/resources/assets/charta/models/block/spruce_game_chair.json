@@ -1,8 +1,0 @@
-{
-  "parent": "charta:block/game_chair",
-  "textures": {
-    "log": "minecraft:block/spruce_log",
-    "particle": "minecraft:block/spruce_planks",
-    "planks": "minecraft:block/spruce_planks"
-  }
-}

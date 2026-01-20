@@ -1,8 +1,0 @@
-{
-  "parent": "charta:block/game_chair",
-  "textures": {
-    "log": "minecraft:block/warped_stem",
-    "particle": "minecraft:block/warped_planks",
-    "planks": "minecraft:block/warped_planks"
-  }
-}

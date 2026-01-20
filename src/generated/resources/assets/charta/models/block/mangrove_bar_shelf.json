@@ -1,8 +1,0 @@
-{
-  "parent": "charta:block/bar_shelf",
-  "textures": {
-    "log": "minecraft:block/mangrove_log",
-    "particle": "minecraft:block/mangrove_planks",
-    "planks": "minecraft:block/mangrove_planks"
-  }
-}

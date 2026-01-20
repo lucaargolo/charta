@@ -1,0 +1,28 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.lucaargolo.charta.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "${mod_id}.refmap.json",
+  "mixins": [
+    "ChunkHolderMixin",
+    "ContainerListenerMixin",
+    "ContainerSynchronizerMixin",
+    "EntityMixin",
+    "FenceBlockMixin",
+    "LeadItemMixin",
+    "LeashableMixin",
+    "LivingEntityMixin",
+    "MobMixin",
+    "PlayerMixin",
+    "ServerPlayerMixin"
+  ],
+  "client": [
+    "ChatComponentMixin",
+    "EntityRendererMixin",
+    "MinecraftMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

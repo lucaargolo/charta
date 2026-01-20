@@ -1,7 +1,0 @@
-{
-  "parent": "charta:block/card_table_center",
-  "textures": {
-    "particle": "minecraft:block/crimson_planks",
-    "planks": "minecraft:block/crimson_planks"
-  }
-}
