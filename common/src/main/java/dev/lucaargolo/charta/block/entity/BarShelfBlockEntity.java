@@ -1,4 +1,4 @@
-package dev.lucaargolo.charta.blockentity;
+package dev.lucaargolo.charta.block.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

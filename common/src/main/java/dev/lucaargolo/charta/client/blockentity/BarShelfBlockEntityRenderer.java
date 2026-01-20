@@ -3,7 +3,7 @@ package dev.lucaargolo.charta.client.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.lucaargolo.charta.block.BarShelfBlock;
-import dev.lucaargolo.charta.blockentity.BarShelfBlockEntity;
+import dev.lucaargolo.charta.block.entity.BarShelfBlockEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;

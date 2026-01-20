@@ -1,23 +1,24 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 public record UpdateCardContainerCarriedPayload(int containerId, int stateId, List<Card> cards) implements CustomPacketPayload {
 
-    public static final Type<UpdateCardContainerCarriedPayload> TYPE = new Type<>(Charta.id("update_card_container_carried"));
+    public static final Type<UpdateCardContainerCarriedPayload> TYPE = new Type<>(ChartaMod.id("update_card_container_carried"));
 
     public static final StreamCodec<ByteBuf, UpdateCardContainerCarriedPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT,
@@ -29,10 +30,11 @@ public record UpdateCardContainerCarriedPayload(int containerId, int stateId, Li
             UpdateCardContainerCarriedPayload::new
     );
 
-    public static void handleClient(UpdateCardContainerCarriedPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Player player = context.player();
-            if(player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
+    public static void handleClient(UpdateCardContainerCarriedPayload payload, Executor executor) {
+        executor.execute(() -> {
+            Minecraft minecraft = Minecraft.getInstance();
+            Player player = minecraft.player;
+            if(player != null && player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
                 cardMenu.setCarriedCards(payload.stateId, new GameSlot(payload.cards));
             }
         });

@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.utils;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.game.CardPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,8 +18,8 @@ import java.util.UUID;
 
 public record CardPlayerHead(ResourceLocation texture, float u, float v, float uOffset, float vOffset, float width, float height) {
 
-    public static final CardPlayerHead UNKNOWN = new CardPlayerHead(Charta.id("textures/misc/unknown.png"), 0f, 0f, 12f, 12f, 12f, 12f);
-    public static final CardPlayerHead ROBOT = new CardPlayerHead(Charta.id("textures/misc/robot.png"), 0f, 0f, 12f, 12f, 12f, 12f);
+    public static final CardPlayerHead UNKNOWN = new CardPlayerHead(ChartaMod.id("textures/misc/unknown.png"), 0f, 0f, 12f, 12f, 12f, 12f);
+    public static final CardPlayerHead ROBOT = new CardPlayerHead(ChartaMod.id("textures/misc/robot.png"), 0f, 0f, 12f, 12f, 12f, 12f);
 
     private static final Map<UUID, CardPlayerHead> playerCache = new HashMap<>();
     private static final Map<EntityType<?>, CardPlayerHead> cache = new HashMap<>();

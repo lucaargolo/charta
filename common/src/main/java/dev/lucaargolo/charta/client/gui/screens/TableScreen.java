@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Either;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardGames;
@@ -24,7 +24,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -246,13 +245,13 @@ public class TableScreen extends Screen {
             }
             this.children().getLast().games.add(entry);
 
-            Component play = Component.literal("\ue037").withStyle(Charta.SYMBOLS);
+            Component play = Component.literal("\ue037").withStyle(ChartaMod.SYMBOLS);
             Button playWidget = Button.builder(play, button -> entry.onPress()).bounds(0, 0, 20, 20).build();
             playWidget.active = entry.active;
             playWidget.setTooltip(Tooltip.create(entry.tooltip != null ? entry.tooltip : Component.translatable("message.charta.play_game")));
             this.children().getLast().plays.add(playWidget);
 
-            Component config = Component.literal("\uE8B8").withStyle(Charta.SYMBOLS);
+            Component config = Component.literal("\uE8B8").withStyle(ChartaMod.SYMBOLS);
             Button configWidget = Button.builder(config, button -> {
                 minecraft.setScreen(new OptionsScreen<>(TableScreen.this, pos, entry.game, entry.gameId, entry.gameFactory, false));
             }).bounds(0, 0, 20, 20).build();

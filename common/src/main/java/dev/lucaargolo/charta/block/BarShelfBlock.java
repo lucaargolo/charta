@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.block;
 
 import com.mojang.serialization.MapCodec;
-import dev.lucaargolo.charta.blockentity.BarShelfBlockEntity;
-import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.block.entity.BarShelfBlockEntity;
+import dev.lucaargolo.charta.block.entity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.utils.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

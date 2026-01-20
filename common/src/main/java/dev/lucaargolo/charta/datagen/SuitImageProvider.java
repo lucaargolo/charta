@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.datagen;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import dev.lucaargolo.charta.utils.SuitImage;
 import net.minecraft.data.CachedOutput;
@@ -34,9 +34,9 @@ public class SuitImageProvider implements DataProvider {
     public @NotNull CompletableFuture<?> run(@NotNull CachedOutput cachedOutput) {
         return CompletableFuture.runAsync(() -> {
             Path outputPath = this.output.getOutputFolder();
-            String cardsOutputPath = outputPath + File.separator + "data" + File.separator + Charta.MOD_ID + File.separator + "images" + File.separator + "suit";
+            String cardsOutputPath = outputPath + File.separator + "data" + File.separator + ChartaMod.MOD_ID + File.separator + "images" + File.separator + "suit";
             try {
-                URL resource = Charta.class.getClassLoader().getResource("suits");
+                URL resource = ChartaMod.class.getClassLoader().getResource("suits");
                 URI uri = Objects.requireNonNull(resource).toURI();
 
                 try (Stream<Path> paths = Files.walk(Paths.get(uri))) {
@@ -59,12 +59,12 @@ public class SuitImageProvider implements DataProvider {
                                 };
                             });
                         }catch (Exception e) {
-                            Charta.LOGGER.error("Error loading image: {}", path, e);
+                            ChartaMod.LOGGER.error("Error loading image: {}", path, e);
                         }
                     });
                 }
             } catch (URISyntaxException | IOException e) {
-                Charta.LOGGER.error("Error loading suits", e);
+                ChartaMod.LOGGER.error("Error loading suits", e);
             }
         });
     }

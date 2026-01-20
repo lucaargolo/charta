@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.compat;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.game.crazyeights.CrazyEightsScreen;
 import dev.lucaargolo.charta.game.fun.FunScreen;
 import dev.lucaargolo.charta.game.solitaire.SolitaireScreen;
@@ -26,7 +26,7 @@ public class JEICompat implements IModPlugin {
 
     @Override
     public @NotNull ResourceLocation getPluginUid() {
-        return Charta.id("jei_compat");
+        return ChartaMod.id("jei_compat");
     }
 
     private static class NoHandler<T extends Screen> implements IScreenHandler<T> {

@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardGames;
@@ -21,7 +21,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -65,7 +64,7 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
             widget.addEntry(option.getWidget(o -> updateButtons(false), font, widget.getRowWidth(), 20, showcase));
         }
 
-        Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
+        Component back = Component.literal("\ue5c4").withStyle(ChartaMod.SYMBOLS);
         this.addRenderableWidget(Button.builder(back, b -> this.onClose())
                 .bounds(5, 5, 20, 20)
                 .tooltip(Tooltip.create(Component.translatable("message.charta.go_back")))
@@ -86,12 +85,12 @@ public class OptionsScreen<G extends CardGame<G>> extends Screen {
             this.saveButton = this.addRenderableWidget(Button.builder(Component.translatable("button.charta.save"), b -> {
                 this.updateButtons(true);
                 ChartaClient.LOCAL_OPTIONS.put(gameId, this.game.getRawOptions());
-                PacketDistributor.sendToServer(new PlayerOptionsPayload(ChartaClient.LOCAL_OPTIONS));
+                ChartaMod.getPacketManager().sendToServer(new PlayerOptionsPayload(ChartaClient.LOCAL_OPTIONS));
             }).bounds(width/2 - 32, height-25, 68, 20).tooltip(Tooltip.create(Component.translatable("message.charta.save_options"))).build());
             this.saveButton.active = false;
 
             this.addRenderableWidget(Button.builder(Component.translatable("button.charta.start"), b -> {
-                PacketDistributor.sendToServer(new CardTableSelectGamePayload(pos, gameId, this.game.getRawOptions()));
+                ChartaMod.getPacketManager().sendToServer(new CardTableSelectGamePayload(pos, gameId, this.game.getRawOptions()));
                 onClose();
             }).bounds(width/2 + 44, height-25, 68, 20).tooltip(Tooltip.create(Component.translatable("message.charta.start_options"))).build());
         }

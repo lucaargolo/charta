@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.game;
 
-import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.ChartaMod;
+import dev.lucaargolo.charta.block.entity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.crazyeights.CrazyEightsGame;
 import dev.lucaargolo.charta.game.fun.FunGame;
 import dev.lucaargolo.charta.game.solitaire.SolitaireGame;
@@ -20,9 +20,9 @@ public class CardGames {
 
     private static final Map<ResourceLocation, Factory<?>> factories = new HashMap<>();
 
-    public static final Factory<CrazyEightsGame> CRAZY_EIGHTS = register(Charta.id("crazy_eights"), CrazyEightsGame::new);
-    public static final Factory<FunGame> FUN = register(Charta.id("fun"), FunGame::new);
-    public static final Factory<SolitaireGame> SOLITAIRE = register(Charta.id("solitaire"), SolitaireGame::new);
+    public static final Factory<CrazyEightsGame> CRAZY_EIGHTS = register(ChartaMod.id("crazy_eights"), CrazyEightsGame::new);
+    public static final Factory<FunGame> FUN = register(ChartaMod.id("fun"), FunGame::new);
+    public static final Factory<SolitaireGame> SOLITAIRE = register(ChartaMod.id("solitaire"), SolitaireGame::new);
 
     public static <G extends CardGame<G>> Factory<G> register(ResourceLocation location, Factory<G> factory) {
         if(factories.containsKey(location)) {
@@ -43,7 +43,7 @@ public class CardGames {
     }
 
     public static ResourceLocation getGameId(CardGames.Factory<?> factory) {
-        return factories.entrySet().stream().filter(entry -> entry.getValue() == factory).map(Map.Entry::getKey).findFirst().orElse(Charta.MISSING_GAME);
+        return factories.entrySet().stream().filter(entry -> entry.getValue() == factory).map(Map.Entry::getKey).findFirst().orElse(ChartaMod.MISSING_GAME);
     }
 
     @SuppressWarnings({"OptionalGetWithoutIsPresent", "unchecked"})

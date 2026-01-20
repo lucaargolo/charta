@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.datagen;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.block.ModBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -22,7 +22,7 @@ public class ModBlockTagsProvider extends IntrinsicHolderTagsProvider<Block> {
 
     @SuppressWarnings("deprecation")
     public ModBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, Registries.BLOCK, lookupProvider, block -> block.builtInRegistryHolder().key(), Charta.MOD_ID, existingFileHelper);
+        super(output, Registries.BLOCK, lookupProvider, block -> block.builtInRegistryHolder().key(), ChartaMod.MOD_ID, existingFileHelper);
     }
 
     @Override

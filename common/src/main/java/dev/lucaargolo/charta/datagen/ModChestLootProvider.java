@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.datagen;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.item.ModItems;
@@ -28,11 +28,11 @@ import java.util.function.BiConsumer;
 public class ModChestLootProvider implements LootTableSubProvider {
 
     public static final ResourceKey<LootTable> ABANDONED_MINESHAFT_DECKS =
-            ResourceKey.create(Registries.LOOT_TABLE, Charta.id("chests/abandoned_mineshaft_decks"));
+            ResourceKey.create(Registries.LOOT_TABLE, ChartaMod.id("chests/abandoned_mineshaft_decks"));
     public static final ResourceKey<LootTable> DESERT_PYRAMID_DECKS =
-            ResourceKey.create(Registries.LOOT_TABLE, Charta.id("chests/desert_pyramid_decks"));
+            ResourceKey.create(Registries.LOOT_TABLE, ChartaMod.id("chests/desert_pyramid_decks"));
     public static final ResourceKey<LootTable> SIMPLE_DUNGEON_DECKS =
-            ResourceKey.create(Registries.LOOT_TABLE, Charta.id("chests/simple_dungeon_decks"));
+            ResourceKey.create(Registries.LOOT_TABLE, ChartaMod.id("chests/simple_dungeon_decks"));
 
     @SuppressWarnings("unused")
     public ModChestLootProvider(HolderLookup.Provider provider) {
@@ -83,7 +83,7 @@ public class ModChestLootProvider implements LootTableSubProvider {
     }
 
     private static LootPoolSingletonContainer.Builder<?> deck(Deck deck, double chanceMultiplier) {
-        ResourceLocation id = DeckProvider.DECKS.entrySet().stream().filter(e -> e.getValue().equals(deck)).map(Map.Entry::getKey).findFirst().orElse(Charta.id("missing"));
+        ResourceLocation id = DeckProvider.DECKS.entrySet().stream().filter(e -> e.getValue().equals(deck)).map(Map.Entry::getKey).findFirst().orElse(ChartaMod.id("missing"));
         return LootItem.lootTableItem(ModItems.DECK.get())
                 .apply(SetComponentsFunction.setComponent(ModDataComponentTypes.CARD_DECK.get(), id))
                 .setWeight(Mth.ceil((3 - deck.getRarity().ordinal()) * 20 * chanceMultiplier));

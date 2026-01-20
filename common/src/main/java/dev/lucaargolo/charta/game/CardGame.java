@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.game;
 
 import com.mojang.datafixers.util.Either;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.CardPlayPayload;
 import net.minecraft.ChatFormatting;
@@ -13,7 +14,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -278,7 +278,7 @@ public abstract class CardGame<G extends CardGame<G>> {
         for(CardPlayer p : this.getPlayers()) {
             LivingEntity entity = p.getEntity();
             if(entity instanceof ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, new CardPlayPayload(player.getName().equals(Component.empty()) ? Component.empty() : player.getColoredName(), this.getPlayerHand(player).size(), play));
+                ChartaMod.getPacketManager().sendToPlayer(serverPlayer, new CardPlayPayload(player.getName().equals(Component.empty()) ? Component.empty() : player.getColoredName(), this.getPlayerHand(player).size(), play));
             }
         }
     }

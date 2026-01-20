@@ -2,8 +2,9 @@ package dev.lucaargolo.charta.block;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
-import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
-import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.ChartaMod;
+import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
+import dev.lucaargolo.charta.block.entity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.item.DeckItem;
@@ -44,7 +45,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -238,7 +238,7 @@ public class CardTableBlock extends BaseEntityBlock {
                                     if (satPlayers.contains(player)){
                                         CardGame<?> game = cardTable.getGame();
                                         if (game == null || game.isGameOver()) {
-                                            PacketDistributor.sendToPlayer(serverPlayer, new TableScreenPayload(center, deck, satPlayers.stream().mapToInt(LivingEntity::getId).toArray()));
+                                            ChartaMod.getPacketManager().sendToPlayer(serverPlayer, new TableScreenPayload(center, deck, satPlayers.stream().mapToInt(LivingEntity::getId).toArray()));
                                         }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {
                                             game.openScreen(serverPlayer, serverPlayer.serverLevel(), center, cardTable.getDeck());
                                         }else{

@@ -2,6 +2,7 @@ package dev.lucaargolo.charta.game.solitaire;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.gui.screens.GameScreen;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.game.Suit;
@@ -14,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -127,7 +127,7 @@ public class SolitaireScreen extends GameScreen<SolitaireGame, SolitaireMenu> {
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             boolean canRestore = menu.canRestore() && menu.getCarriedCards().isEmpty();
             if(canRestore) {
-                PacketDistributor.sendToServer(new RestoreSolitairePayload());
+                ChartaMod.getPacketManager().sendToServer(new RestoreSolitairePayload());
                 return true;
             }
         }

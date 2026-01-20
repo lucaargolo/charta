@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,8 +11,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +31,7 @@ public class HistoryScreen extends Screen {
         widget = this.addRenderableWidget(new HistoryWidget(minecraft, width, height-60, 30));
         ChartaClient.LOCAL_HISTORY.forEach(triple -> widget.addEntry(new Play(triple)));
         widget.setClampedScrollAmount(Double.MAX_VALUE);
-        Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
+        Component back = Component.literal("\ue5c4").withStyle(ChartaMod.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(back, b -> this.onClose()).bounds(5, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.go_back"))).build());
     }
 
@@ -55,8 +53,6 @@ public class HistoryScreen extends Screen {
         return false;
     }
 
-
-    @OnlyIn(Dist.CLIENT)
     public class Play extends ContainerObjectSelectionList.Entry<Play> {
 
         private final Component player;

@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.client.gui.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -140,7 +140,7 @@ public class MarkdownScreen extends Screen {
         }
 
         if (parent != null) {
-            Component back = Component.literal("\ue5c4").withStyle(Charta.SYMBOLS);
+            Component back = Component.literal("\ue5c4").withStyle(ChartaMod.SYMBOLS);
             this.addRenderableWidget(new Button.Builder(back, b -> this.onClose()).bounds(5, 5, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.go_back"))).build());
         }
     }

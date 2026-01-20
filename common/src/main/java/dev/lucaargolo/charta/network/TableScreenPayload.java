@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.gui.screens.TableScreen;
 import dev.lucaargolo.charta.game.Deck;
 import io.netty.buffer.ByteBuf;
@@ -8,14 +8,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.Executor;
 
 public record TableScreenPayload(BlockPos pos, Deck deck, int[] players) implements CustomPacketPayload {
 
-    public static final Type<TableScreenPayload> TYPE = new Type<>(Charta.id("table_screen"));
+    public static final Type<TableScreenPayload> TYPE = new Type<>(ChartaMod.id("table_screen"));
 
     public static final StreamCodec<ByteBuf, TableScreenPayload> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC,
@@ -45,15 +44,10 @@ public record TableScreenPayload(BlockPos pos, Deck deck, int[] players) impleme
             TableScreenPayload::new
     );
 
-    public static void handleClient(TableScreenPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            openScreen(payload.pos, payload.deck, payload.players);
+    public static void handleClient(TableScreenPayload payload, Executor executor) {
+        executor.execute(() -> {
+            Minecraft.getInstance().setScreen(new TableScreen(payload.pos, payload.deck, payload.players));
         });
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static void openScreen(BlockPos pos, Deck deck, int[] players) {
-        Minecraft.getInstance().setScreen(new TableScreen(pos, deck, players));
     }
 
     @Override

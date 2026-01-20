@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.datagen;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
 import net.minecraft.data.CachedOutput;
@@ -34,9 +34,9 @@ public class CardImageProvider implements DataProvider {
     public @NotNull CompletableFuture<?> run(@NotNull CachedOutput cachedOutput) {
         return CompletableFuture.runAsync(() -> {
             Path outputPath = this.output.getOutputFolder();
-            String cardsOutputPath = outputPath + File.separator + "data" + File.separator + Charta.MOD_ID + File.separator + "images" + File.separator + "card";
+            String cardsOutputPath = outputPath + File.separator + "data" + File.separator + ChartaMod.MOD_ID + File.separator + "images" + File.separator + "card";
             try {
-                URL resource = Charta.class.getClassLoader().getResource("cards");
+                URL resource = ChartaMod.class.getClassLoader().getResource("cards");
                 URI uri = Objects.requireNonNull(resource).toURI();
 
                 try (Stream<Path> paths = Files.walk(Paths.get(uri))) {
@@ -78,12 +78,12 @@ public class CardImageProvider implements DataProvider {
                                 };
                             });
                         }catch (Exception e) {
-                            Charta.LOGGER.error("Error loading image: {}", path, e);
+                            ChartaMod.LOGGER.error("Error loading image: {}", path, e);
                         }
                     });
                 }
             } catch (URISyntaxException | IOException e) {
-                Charta.LOGGER.error("Error loading cards", e);
+                ChartaMod.LOGGER.error("Error loading cards", e);
             }
         });
     }

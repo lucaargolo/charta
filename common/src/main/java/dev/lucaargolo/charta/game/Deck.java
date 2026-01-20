@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaClient;
 import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.game.fun.FunGame;
@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 
 public class Deck {
 
-    public static final Deck EMPTY = new Deck(Rarity.COMMON, false, List.of(), s -> Charta.MISSING_SUIT, s -> "suit.charta.unknown", c -> Charta.MISSING_CARD, c -> "card.charta.unknown", () -> Charta.MISSING_DECK, () -> "deck.charta.unknown");
+    public static final Deck EMPTY = new Deck(Rarity.COMMON, false, List.of(), s -> ChartaMod.MISSING_SUIT, s -> "suit.charta.unknown", c -> ChartaMod.MISSING_CARD, c -> "card.charta.unknown", () -> ChartaMod.MISSING_DECK, () -> "deck.charta.unknown");
 
     public static final StreamCodec<ByteBuf, Deck> STREAM_CODEC = ExpandedStreamCodec.composite(
         Rarity.STREAM_CODEC,
@@ -78,7 +78,7 @@ public class Deck {
     private final Supplier<String> deckTranslatableKey;
 
     private Deck(Rarity rarity, boolean tradeable, List<Card> cards, Map<Suit, ResourceLocation> suitsLocation, Map<Suit, String> suitsTranslatableKey, Map<Card, ResourceLocation> cardsLocation, Map<Card, String> cardsTranslatableKey, ResourceLocation deckLocation, String deckTranslatableKey) {
-        this(rarity, tradeable, cards, suit -> suitsLocation.getOrDefault(suit, Charta.MISSING_SUIT), suit -> suitsTranslatableKey.getOrDefault(suit, "suit.charta.unknown"), card -> cardsLocation.getOrDefault(card, Charta.MISSING_CARD), card -> cardsTranslatableKey.getOrDefault(card, "card.charta.unknown"), () -> deckLocation, () -> deckTranslatableKey);
+        this(rarity, tradeable, cards, suit -> suitsLocation.getOrDefault(suit, ChartaMod.MISSING_SUIT), suit -> suitsTranslatableKey.getOrDefault(suit, "suit.charta.unknown"), card -> cardsLocation.getOrDefault(card, ChartaMod.MISSING_CARD), card -> cardsTranslatableKey.getOrDefault(card, "card.charta.unknown"), () -> deckLocation, () -> deckTranslatableKey);
     }
 
     public Deck(Rarity rarity, boolean tradeable, List<Card> cards, Function<Suit, ResourceLocation> suitsLocation, Function<Suit, String> suitsTranslatableKey, Function<Card, ResourceLocation> cardsLocation, Function<Card, String> cardsTranslatableKey, Supplier<ResourceLocation> deckLocation, Supplier<String> deckTranslatableKey) {
@@ -212,8 +212,8 @@ public class Deck {
 
     public static Deck simple(Rarity rarity, boolean canBeTraded, ResourceLocation suitLocation, ResourceLocation cardLocation, ResourceLocation deckLocation) {
         List<Card> deck = new ArrayList<>();
-        for (Suit suit : Charta.DEFAULT_SUITS) {
-            for (Rank rank : Charta.DEFAULT_RANKS) {
+        for (Suit suit : ChartaMod.DEFAULT_SUITS) {
+            for (Rank rank : ChartaMod.DEFAULT_RANKS) {
                 deck.add(new Card(suit, rank));
             }
         }
@@ -253,7 +253,7 @@ public class Deck {
     }
 
     public int getSuitColor(Suit suit) {
-        SuitImage image = Charta.SUIT_IMAGES.getImages().getOrDefault(suitsLocation.apply(suit), CardImageUtils.EMPTY_SUIT);
+        SuitImage image = ChartaMod.SUIT_IMAGES.getImages().getOrDefault(suitsLocation.apply(suit), CardImageUtils.EMPTY_SUIT);
         if(image == CardImageUtils.EMPTY_SUIT) {
             return 0xFFFFFF;
         }

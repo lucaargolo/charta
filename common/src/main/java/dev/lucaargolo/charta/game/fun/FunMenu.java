@@ -6,7 +6,7 @@ import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.menu.HandSlot;
-import dev.lucaargolo.charta.menu.ModMenus;
+import dev.lucaargolo.charta.menu.ModMenuTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -56,7 +56,7 @@ public class FunMenu extends AbstractCardMenu<FunGame> {
     }
 
     public FunMenu(int containerId, Inventory inventory, ContainerLevelAccess access, Deck deck, int[] players, byte[] options) {
-        super(ModMenus.FUN.get(), containerId, inventory, access, deck, players, options);
+        super(ModMenuTypes.FUN.get(), containerId, inventory, access, deck, players, options);
 
         this.addTopPreview(players);
         addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(0), 16, 30));

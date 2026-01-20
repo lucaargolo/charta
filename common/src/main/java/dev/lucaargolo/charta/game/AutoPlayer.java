@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.game;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.utils.CardPlayerHead;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -42,7 +42,7 @@ public class AutoPlayer implements CardPlayer {
             try{
                 consumer.accept(play);
             }catch (Exception e) {
-                Charta.LOGGER.error("Error while handling {}'s Card Play. ", this.getName().getString(), e);
+                ChartaMod.LOGGER.error("Error while handling {}'s Card Play. ", this.getName().getString(), e);
             }
         });
     }

@@ -1,9 +1,10 @@
 package dev.lucaargolo.charta.mixin;
 
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.block.CardTableBlock;
 import dev.lucaargolo.charta.block.GameChairBlock;
-import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
-import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
+import dev.lucaargolo.charta.block.entity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.entity.SeatEntity;
 import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.network.GameLeavePayload;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,7 +47,7 @@ public abstract class PlayerMixin extends LivingEntity {
                         CardGame<?> currentGame = blockEntity.getGame();
                         if(currentGame != null && !currentGame.isGameOver()) {
                             if((Object) this instanceof ServerPlayer serverPlayer) {
-                                PacketDistributor.sendToPlayer(serverPlayer, new GameLeavePayload());
+                                ChartaMod.getPacketManager().sendToPlayer(serverPlayer, new GameLeavePayload());
                             }
                             cir.setReturnValue(false);
                         }

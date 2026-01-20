@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.game;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -23,17 +23,17 @@ public class Suit implements Comparable<Suit> {
     public static final StreamCodec<ByteBuf, Suit> STREAM_CODEC = StreamCodec.composite(ResourceLocation.STREAM_CODEC, Suit::location, l -> Suit.load(l).getOrThrow());
     public static final Codec<Suit> CODEC = ResourceLocation.CODEC.comapFlatMap(Suit::load, r -> r.location);
 
-    public static final Suit BLANK = new Suit(Charta.id("blank"));
+    public static final Suit BLANK = new Suit(ChartaMod.id("blank"));
 
-    public static final Suit SPADES = new Suit(Charta.id("spades"));
-    public static final Suit HEARTS = new Suit(Charta.id("hearts"));
-    public static final Suit CLUBS = new Suit(Charta.id("clubs"));
-    public static final Suit DIAMONDS = new Suit(Charta.id("diamonds"));
+    public static final Suit SPADES = new Suit(ChartaMod.id("spades"));
+    public static final Suit HEARTS = new Suit(ChartaMod.id("hearts"));
+    public static final Suit CLUBS = new Suit(ChartaMod.id("clubs"));
+    public static final Suit DIAMONDS = new Suit(ChartaMod.id("diamonds"));
 
-    public static final Suit RED = new Suit(Charta.id("red"));
-    public static final Suit YELLOW = new Suit(Charta.id("yellow"));
-    public static final Suit GREEN = new Suit(Charta.id("green"));
-    public static final Suit BLUE = new Suit(Charta.id("blue"));
+    public static final Suit RED = new Suit(ChartaMod.id("red"));
+    public static final Suit YELLOW = new Suit(ChartaMod.id("yellow"));
+    public static final Suit GREEN = new Suit(ChartaMod.id("green"));
+    public static final Suit BLUE = new Suit(ChartaMod.id("blue"));
 
     private final ResourceLocation location;
     private final int id;

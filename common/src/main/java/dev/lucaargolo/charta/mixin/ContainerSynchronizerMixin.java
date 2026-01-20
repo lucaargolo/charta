@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.mixin;
 
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.UpdateCardContainerCarriedPayload;
@@ -9,7 +10,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,12 +25,12 @@ public abstract class ContainerSynchronizerMixin implements CardContainerSynchro
 
     @Override
     public void charta_sendCardSlotChange(AbstractContainerMenu container, int slot, GameSlot cards) {
-        PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerSlotPayload(container.containerId, container.incrementStateId(), slot, cards.stream().toList()));
+        ChartaMod.getPacketManager().sendToPlayer(this$0, new UpdateCardContainerSlotPayload(container.containerId, container.incrementStateId(), slot, cards.stream().toList()));
     }
 
     @Override
     public void charta_sendCarriedCardsChange(AbstractContainerMenu container, GameSlot cards) {
-        PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerCarriedPayload(container.containerId, container.incrementStateId(), cards.stream().toList()));
+        ChartaMod.getPacketManager().sendToPlayer(this$0, new UpdateCardContainerCarriedPayload(container.containerId, container.incrementStateId(), cards.stream().toList()));
     }
 
     @Inject(at = @At("TAIL"), method = "sendInitialData")
@@ -38,9 +38,9 @@ public abstract class ContainerSynchronizerMixin implements CardContainerSynchro
         if(container instanceof AbstractCardMenu<?> menu) {
             int i = 0;
             for(int j = menu.cardSlots.size(); i < j; i++) {
-                PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerSlotPayload(container.containerId, container.stateId, i, menu.getRemoteCards(i).stream().toList()));
+                ChartaMod.getPacketManager().sendToPlayer(this$0, new UpdateCardContainerSlotPayload(container.containerId, container.stateId, i, menu.getRemoteCards(i).stream().toList()));
             }
-            PacketDistributor.sendToPlayer(this$0, new UpdateCardContainerCarriedPayload(container.containerId, container.stateId, menu.getRemoteCarriedCards().stream().toList()));
+            ChartaMod.getPacketManager().sendToPlayer(this$0, new UpdateCardContainerCarriedPayload(container.containerId, container.stateId, menu.getRemoteCarriedCards().stream().toList()));
 
         }
 

@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.block;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
@@ -19,7 +19,7 @@ public class ModBannerPatterns {
     public static final ResourceKey<BannerPattern> DIAMONDS = register("diamonds");
 
     private static ResourceKey<BannerPattern> register(String name) {
-        ResourceKey<BannerPattern> resourceKey = ResourceKey.create(Registries.BANNER_PATTERN, Charta.id(name));
+        ResourceKey<BannerPattern> resourceKey = ResourceKey.create(Registries.BANNER_PATTERN, ChartaMod.id(name));
         BannerPattern pattern = new BannerPattern(resourceKey.location(), "block.minecraft.banner."+resourceKey.location().toShortLanguageKey());
         PATTERNS.put(resourceKey, pattern);
         return resourceKey;

@@ -5,13 +5,28 @@ plugins {
 
 repositories {
     maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        url = "Shedaniel's Maven"
+        url = "https://maven.shedaniel.me/"
     }
 }
 
 dependencies {
-    compileOnly "maven.modrinth:sodium:mc1.21.1-0.6.13-neoforge"
+    compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
+    runtimeOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
+
+    compileOnly("me.shedaniel:RoughlyEnoughItems-api-neoforge:$rei_version")
+    runtimeOnly("me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version")
+
+    jarJar("org.commonmark:commonmark") {
+        version {
+            strictly '[0.1, 1.0)'
+            prefer '0.24.0'
+        }
+    }
 }
 
 neoForge {

@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.datagen;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.block.ModBannerPatterns;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
@@ -14,7 +14,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import java.util.Set;
 
-@EventBusSubscriber(modid = Charta.MOD_ID)
+@EventBusSubscriber(modid = ChartaMod.MOD_ID)
 public class DataGenerators {
 
     @SubscribeEvent
@@ -22,7 +22,7 @@ public class DataGenerators {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
         ExistingFileHelper exFileHelper = event.getExistingFileHelper();
-        DatapackBuiltinEntriesProvider builtinProvider = new DatapackBuiltinEntriesProvider(output, event.getLookupProvider(), bootstrapRegistries(), Set.of(Charta.MOD_ID));
+        DatapackBuiltinEntriesProvider builtinProvider = new DatapackBuiltinEntriesProvider(output, event.getLookupProvider(), bootstrapRegistries(), Set.of(ChartaMod.MOD_ID));
         generator.addProvider(true, builtinProvider);
         generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, exFileHelper));
         generator.addProvider(event.includeServer(), new SuitImageProvider(output));

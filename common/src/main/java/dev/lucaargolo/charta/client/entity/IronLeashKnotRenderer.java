@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.client.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LeashKnotRenderer;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class IronLeashKnotRenderer extends LeashKnotRenderer {
 
-    private static final ResourceLocation IRON_KNOT_LOCATION = Charta.id("textures/entity/iron_lead_knot.png");
+    private static final ResourceLocation IRON_KNOT_LOCATION = ChartaMod.id("textures/entity/iron_lead_knot.png");
 
     public IronLeashKnotRenderer(EntityRendererProvider.Context context) {
         super(context);

@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.resources;
 
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -30,10 +30,10 @@ public class CardImageResource implements ResourceManagerReloadListener {
                 ResourceLocation location = id.withPath(s -> s.replace(fullPath + "/", "").replace(".mccard", ""));
                 images.put(location, CardImage.decompress(stream.readAllBytes()));
             }catch (IOException e) {
-                Charta.LOGGER.error("Error while reading {} image {} :", path, id, e);
+                ChartaMod.LOGGER.error("Error while reading {} image {} :", path, id, e);
             }
         });
-        Charta.LOGGER.info("Loaded {} {} images", images.size(), path);
+        ChartaMod.LOGGER.info("Loaded {} {} images", images.size(), path);
     }
 
     public HashMap<ResourceLocation, CardImage> getImages() {

@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.mixin;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.mixed.LeashableMixed;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -23,12 +23,12 @@ public abstract class MobMixin extends LivingEntity implements LeashableMixed {
 
     @Inject(at = @At("TAIL"), method = "<clinit>")
     private static void init(CallbackInfo ci) {
-        Charta.MOB_IRON_LEASH = SynchedEntityData.defineId(Mob.class, EntityDataSerializers.BOOLEAN);
+        ChartaMod.MOB_IRON_LEASH = SynchedEntityData.defineId(Mob.class, EntityDataSerializers.BOOLEAN);
     }
 
     @Inject(at = @At("TAIL"), method = "defineSynchedData")
     public void defineSynchedData(SynchedEntityData.Builder builder, CallbackInfo ci) {
-        builder.define(Charta.MOB_IRON_LEASH, false);
+        builder.define(ChartaMod.MOB_IRON_LEASH, false);
     }
 
     @Inject(at = @At("TAIL"), method = "addAdditionalSaveData")
@@ -43,12 +43,12 @@ public abstract class MobMixin extends LivingEntity implements LeashableMixed {
 
     @Override
     public boolean charta_isIronLeash() {
-        return entityData.get(Charta.MOB_IRON_LEASH);
+        return entityData.get(ChartaMod.MOB_IRON_LEASH);
     }
 
     @Override
     public void charta_setIronLeash(boolean value) {
-        entityData.set(Charta.MOB_IRON_LEASH, value);
+        entityData.set(ChartaMod.MOB_IRON_LEASH, value);
     }
 
 

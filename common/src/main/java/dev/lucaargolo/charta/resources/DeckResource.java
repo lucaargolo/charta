@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.game.Deck;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class DeckResource implements ResourceManagerReloadListener {
 
-    private static final Deck MISSING = Deck.simple(Rarity.COMMON, false, Charta.MISSING_CARD, Charta.MISSING_CARD);
+    private static final Deck MISSING = Deck.simple(Rarity.COMMON, false, ChartaMod.MISSING_CARD, ChartaMod.MISSING_CARD);
 
     private LinkedHashMap<ResourceLocation, Deck> decks = new LinkedHashMap<>();
 
@@ -41,7 +41,7 @@ public class DeckResource implements ResourceManagerReloadListener {
                     decks.put(location, cardDeck.getOrThrow());
                 }
             }catch (IOException e) {
-                Charta.LOGGER.error("Error while reading deck {} :", id, e);
+                ChartaMod.LOGGER.error("Error while reading deck {} :", id, e);
             }
         });
 
@@ -52,7 +52,7 @@ public class DeckResource implements ResourceManagerReloadListener {
             .thenComparing(Map.Entry::getKey)
         ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
-        Charta.LOGGER.info("Loaded {} decks", decks.size());
+        ChartaMod.LOGGER.info("Loaded {} decks", decks.size());
     }
 
     public HashMap<ResourceLocation, Deck> getDecks() {

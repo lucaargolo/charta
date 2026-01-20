@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.gui.components.CardSlotWidget;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
@@ -26,7 +26,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.DyeColor;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -37,7 +36,7 @@ import java.util.function.Function;
 
 public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMenu<G>> extends AbstractContainerScreen<T> implements HoverableRenderable {
 
-    public static final ResourceLocation WIDGETS = Charta.id("textures/gui/widgets.png");
+    public static final ResourceLocation WIDGETS = ChartaMod.id("textures/gui/widgets.png");
 
     private final List<CardSlotWidget<G>> slotWidgets = new ArrayList<>();
     protected HoverableRenderable hoverable = null;
@@ -64,7 +63,7 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (hoveredCardSlot != null) {
-            PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, hoveredCardSlot.index, hoveredCardId));
+            ChartaMod.getPacketManager().sendToServer(new CardContainerSlotClickPayload(menu.containerId, hoveredCardSlot.index, hoveredCardId));
             return true;
         }
         if(super.mouseClicked(mouseX, mouseY, button)) {
@@ -136,26 +135,26 @@ public abstract class GameScreen<G extends CardGame<G>, T extends AbstractCardMe
         slotWidgets.clear();
         menu.cardSlots.forEach(slot -> slotWidgets.add(new CardSlotWidget<>(this, slot)));
 
-        Component rules = Component.literal("\ue90e").withStyle(Charta.SYMBOLS);
+        Component rules = Component.literal("\ue90e").withStyle(ChartaMod.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(rules, b -> {
             ResourceLocation gameId = CardGames.getGameId(this.menu.getGameFactory());
             Minecraft.getInstance().setScreen(new MarkdownScreen(Component.translatable("message.charta.how_to_play").append(" ").append(Component.translatable(gameId.toLanguageKey())), this, gameId.getNamespace()+".how_to_play_"+gameId.getPath()));
         }).bounds(5, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.how_to_play"))).build());
 
         Tooltip tooltip = areOptionsChanged ? new MultiLineTooltip(Component.translatable("message.charta.game_options"), Component.empty(), Component.translatable("message.charta.custom_options").withStyle(ChatFormatting.RED)) : Tooltip.create(Component.translatable("message.charta.game_options"));
-        Component config = Component.literal("\uE8B8").withStyle(Charta.SYMBOLS);
+        Component config = Component.literal("\uE8B8").withStyle(ChartaMod.SYMBOLS);
         optionsButton = this.addRenderableWidget(new Button.Builder(config, b -> {
             ResourceLocation gameId = CardGames.getGameId(this.menu.getGameFactory());
             Minecraft.getInstance().setScreen(new OptionsScreen<>(this, BlockPos.ZERO, this.menu.getGame(), gameId, this.menu.getGameFactory(), true));
         }).bounds(27, 35, 20, 20).tooltip(tooltip).build());
         optionsButton.active = !menu.getGame().getOptions().isEmpty();
 
-        Component cards = Component.literal("\ue41d").withStyle(Charta.SYMBOLS);
+        Component cards = Component.literal("\ue41d").withStyle(ChartaMod.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(cards, b -> {
             Minecraft.getInstance().setScreen(new DeckScreen(this, this.getDeck()));
         }).bounds(width-25, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_deck"))).build());
 
-        Component history = Component.literal("\uE889").withStyle(Charta.SYMBOLS);
+        Component history = Component.literal("\uE889").withStyle(ChartaMod.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(history, b -> {
             Minecraft.getInstance().setScreen(new HistoryScreen(this));
         }).bounds(width-47, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_history"))).build());

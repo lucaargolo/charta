@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.ChartaMod;
+import dev.lucaargolo.charta.block.entity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.game.GameSlot;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -10,14 +10,13 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.Executor;
 
 public record GameSlotPositionPayload(BlockPos pos, int index, float x, float y, float z, float angle) implements CustomPacketPayload {
 
-    public static final CustomPacketPayload.Type<GameSlotPositionPayload> TYPE = new CustomPacketPayload.Type<>(Charta.id("game_slot_position"));
+    public static final CustomPacketPayload.Type<GameSlotPositionPayload> TYPE = new CustomPacketPayload.Type<>(ChartaMod.id("game_slot_position"));
 
     public static StreamCodec<ByteBuf, GameSlotPositionPayload> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC,
@@ -40,23 +39,20 @@ public record GameSlotPositionPayload(BlockPos pos, int index, float x, float y,
         return TYPE;
     }
 
-    public static void handleClient(GameSlotPositionPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> updateGameSlot(payload));
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static void updateGameSlot(GameSlotPositionPayload payload) {
-        Minecraft minecraft = Minecraft.getInstance();
-        Level level = minecraft.level;
-        if(level != null) {
-            level.getBlockEntity(payload.pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
-                GameSlot slot = cardTable.getSlot(payload.index);
-                slot.setX(payload.x);
-                slot.setY(payload.y);
-                slot.setZ(payload.z);
-                slot.setAngle(payload.angle);
-            });
-        }
+    public static void handleClient(GameSlotPositionPayload payload, Executor executor) {
+        executor.execute(() -> {
+            Minecraft minecraft = Minecraft.getInstance();
+            Level level = minecraft.level;
+            if(level != null) {
+                level.getBlockEntity(payload.pos, ModBlockEntityTypes.CARD_TABLE.get()).ifPresent(cardTable -> {
+                    GameSlot slot = cardTable.getSlot(payload.index);
+                    slot.setX(payload.x);
+                    slot.setY(payload.y);
+                    slot.setZ(payload.z);
+                    slot.setAngle(payload.angle);
+                });
+            }
+        });
     }
 
 }

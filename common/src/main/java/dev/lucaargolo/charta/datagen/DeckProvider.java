@@ -7,7 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.game.Deck;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -36,84 +36,84 @@ public class DeckProvider implements DataProvider {
     public static final Map<ResourceLocation, Deck> DECKS = new HashMap<>();
     public static final Map<String, List<ResourceLocation>> GROUPS = new HashMap<>();
 
-    public static final Deck FUN_INVERTED = register(Charta.id("fun_inverted"), Deck.fun(Rarity.UNCOMMON, false, Charta.id("fun_inverted"), Charta.id("fun_inverted")));
-    public static final Deck FUN_CLASSIC = register(Charta.id("fun_classic"), Deck.fun(Rarity.UNCOMMON, false, Charta.id("fun_classic"), Charta.id("fun_classic")));
+    public static final Deck FUN_INVERTED = register(ChartaMod.id("fun_inverted"), Deck.fun(Rarity.UNCOMMON, false, ChartaMod.id("fun_inverted"), ChartaMod.id("fun_inverted")));
+    public static final Deck FUN_CLASSIC = register(ChartaMod.id("fun_classic"), Deck.fun(Rarity.UNCOMMON, false, ChartaMod.id("fun_classic"), ChartaMod.id("fun_classic")));
 
-    public static final Deck FUN_NEON = register(Charta.id("fun_neon"), Deck.fun(Rarity.RARE, false, Charta.id("fun_neon"), Charta.id("fun_neon")));
-    public static final Deck FUN_MINIMAL_NEON = register(Charta.id("fun_minimal_neon"), Deck.fun(Rarity.RARE, false, Charta.id("fun_neon"), Charta.id("fun_minimal_neon"), Charta.id("fun_minimal_neon")));
+    public static final Deck FUN_NEON = register(ChartaMod.id("fun_neon"), Deck.fun(Rarity.RARE, false, ChartaMod.id("fun_neon"), ChartaMod.id("fun_neon")));
+    public static final Deck FUN_MINIMAL_NEON = register(ChartaMod.id("fun_minimal_neon"), Deck.fun(Rarity.RARE, false, ChartaMod.id("fun_neon"), ChartaMod.id("fun_minimal_neon"), ChartaMod.id("fun_minimal_neon")));
 
     static {
-        register(Charta.id("standard/black"), Deck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/black")));
-        register(Charta.id("standard/blue"), Deck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/blue")));
-        register(Charta.id("standard/green"), Deck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/green")));
-        register(Charta.id("standard/red"), Deck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/red")));
-        register(Charta.id("standard/yellow"), Deck.simple(Rarity.COMMON, true, Charta.id("standard"), Charta.id("standard/yellow")));
+        register(ChartaMod.id("standard/black"), Deck.simple(Rarity.COMMON, true, ChartaMod.id("standard"), ChartaMod.id("standard/black")));
+        register(ChartaMod.id("standard/blue"), Deck.simple(Rarity.COMMON, true, ChartaMod.id("standard"), ChartaMod.id("standard/blue")));
+        register(ChartaMod.id("standard/green"), Deck.simple(Rarity.COMMON, true, ChartaMod.id("standard"), ChartaMod.id("standard/green")));
+        register(ChartaMod.id("standard/red"), Deck.simple(Rarity.COMMON, true, ChartaMod.id("standard"), ChartaMod.id("standard/red")));
+        register(ChartaMod.id("standard/yellow"), Deck.simple(Rarity.COMMON, true, ChartaMod.id("standard"), ChartaMod.id("standard/yellow")));
 
-        register(Charta.id("light/aqua"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/aqua")));
-        register(Charta.id("light/blue"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/blue")));
-        register(Charta.id("light/green"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/green")));
-        register(Charta.id("light/orange"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/orange")));
-        register(Charta.id("light/pink"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/pink")));
-        register(Charta.id("light/red"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/red")));
-        register(Charta.id("light/yellow"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("light/yellow")));
+        register(ChartaMod.id("light/aqua"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("light/aqua")));
+        register(ChartaMod.id("light/blue"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("light/blue")));
+        register(ChartaMod.id("light/green"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("light/green")));
+        register(ChartaMod.id("light/orange"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("light/orange")));
+        register(ChartaMod.id("light/pink"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("light/pink")));
+        register(ChartaMod.id("light/red"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("light/red")));
+        register(ChartaMod.id("light/yellow"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("light/yellow")));
 
-        register(Charta.id("dark/aqua"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/aqua")));
-        register(Charta.id("dark/blue"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/blue")));
-        register(Charta.id("dark/green"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/green")));
-        register(Charta.id("dark/orange"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/orange")));
-        register(Charta.id("dark/pink"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/pink")));
-        register(Charta.id("dark/red"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/red")));
-        register(Charta.id("dark/yellow"), Deck.simple(Rarity.UNCOMMON, true, Charta.id("light"), Charta.id("dark"), Charta.id("dark/yellow")));
+        register(ChartaMod.id("dark/aqua"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("dark"), ChartaMod.id("dark/aqua")));
+        register(ChartaMod.id("dark/blue"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("dark"), ChartaMod.id("dark/blue")));
+        register(ChartaMod.id("dark/green"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("dark"), ChartaMod.id("dark/green")));
+        register(ChartaMod.id("dark/orange"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("dark"), ChartaMod.id("dark/orange")));
+        register(ChartaMod.id("dark/pink"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("dark"), ChartaMod.id("dark/pink")));
+        register(ChartaMod.id("dark/red"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("dark"), ChartaMod.id("dark/red")));
+        register(ChartaMod.id("dark/yellow"), Deck.simple(Rarity.UNCOMMON, true, ChartaMod.id("light"), ChartaMod.id("dark"), ChartaMod.id("dark/yellow")));
 
-        register(Charta.id("inverted"), Deck.simple(Rarity.RARE, true, Charta.id("inverted"), Charta.id("inverted")));
+        register(ChartaMod.id("inverted"), Deck.simple(Rarity.RARE, true, ChartaMod.id("inverted"), ChartaMod.id("inverted")));
 
-        register(Charta.id("fun"), Deck.fun(Rarity.RARE, true, Charta.id("fun"), Charta.id("fun")));
-        register(Charta.id("fun_minimal"), Deck.fun(Rarity.RARE, true, Charta.id("fun"), Charta.id("fun_minimal"), Charta.id("fun_minimal")));
-        register(Charta.id("fun_light"), Deck.fun(Rarity.RARE, true, Charta.id("fun_light"), Charta.id("fun_light")));
+        register(ChartaMod.id("fun"), Deck.fun(Rarity.RARE, true, ChartaMod.id("fun"), ChartaMod.id("fun")));
+        register(ChartaMod.id("fun_minimal"), Deck.fun(Rarity.RARE, true, ChartaMod.id("fun"), ChartaMod.id("fun_minimal"), ChartaMod.id("fun_minimal")));
+        register(ChartaMod.id("fun_light"), Deck.fun(Rarity.RARE, true, ChartaMod.id("fun_light"), ChartaMod.id("fun_light")));
 
-        register(Charta.id("flags/argentina"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/argentina")));
-        register(Charta.id("flags/australia"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/australia")));
-        register(Charta.id("flags/belgium"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/belgium")));
-        register(Charta.id("flags/brazil"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/brazil")));
-        register(Charta.id("flags/canada"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/canada")));
-        register(Charta.id("flags/china"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/china")));
-        register(Charta.id("flags/france"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/france")));
-        register(Charta.id("flags/germany"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/germany")));
-        register(Charta.id("flags/india"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/india")));
-        register(Charta.id("flags/indonesia"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/indonesia")));
-        register(Charta.id("flags/ireland"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/ireland")));
-        register(Charta.id("flags/italy"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/italy")));
-        register(Charta.id("flags/japan"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/japan")));
-        register(Charta.id("flags/mexico"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/mexico")));
-        register(Charta.id("flags/netherlands"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/netherlands")));
-        register(Charta.id("flags/philippines"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/philippines")));
-        register(Charta.id("flags/poland"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/poland")));
-        register(Charta.id("flags/portugal"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/portugal")));
-        register(Charta.id("flags/rainbow"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/rainbow")));
-        register(Charta.id("flags/russia"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/russia")));
-        register(Charta.id("flags/spain"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/spain")));
-        register(Charta.id("flags/thailand"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/thailand")));
-        register(Charta.id("flags/ukraine"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/ukraine")));
-        register(Charta.id("flags/united_kingdom"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/united_kingdom")));
-        register(Charta.id("flags/usa"), Deck.simple(Rarity.COMMON, false, Charta.id("standard"), Charta.id("flags/usa")));
+        register(ChartaMod.id("flags/argentina"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/argentina")));
+        register(ChartaMod.id("flags/australia"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/australia")));
+        register(ChartaMod.id("flags/belgium"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/belgium")));
+        register(ChartaMod.id("flags/brazil"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/brazil")));
+        register(ChartaMod.id("flags/canada"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/canada")));
+        register(ChartaMod.id("flags/china"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/china")));
+        register(ChartaMod.id("flags/france"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/france")));
+        register(ChartaMod.id("flags/germany"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/germany")));
+        register(ChartaMod.id("flags/india"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/india")));
+        register(ChartaMod.id("flags/indonesia"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/indonesia")));
+        register(ChartaMod.id("flags/ireland"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/ireland")));
+        register(ChartaMod.id("flags/italy"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/italy")));
+        register(ChartaMod.id("flags/japan"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/japan")));
+        register(ChartaMod.id("flags/mexico"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/mexico")));
+        register(ChartaMod.id("flags/netherlands"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/netherlands")));
+        register(ChartaMod.id("flags/philippines"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/philippines")));
+        register(ChartaMod.id("flags/poland"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/poland")));
+        register(ChartaMod.id("flags/portugal"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/portugal")));
+        register(ChartaMod.id("flags/rainbow"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/rainbow")));
+        register(ChartaMod.id("flags/russia"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/russia")));
+        register(ChartaMod.id("flags/spain"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/spain")));
+        register(ChartaMod.id("flags/thailand"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/thailand")));
+        register(ChartaMod.id("flags/ukraine"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/ukraine")));
+        register(ChartaMod.id("flags/united_kingdom"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/united_kingdom")));
+        register(ChartaMod.id("flags/usa"), Deck.simple(Rarity.COMMON, false, ChartaMod.id("standard"), ChartaMod.id("flags/usa")));
 
-        register(Charta.id("neon/aqua"), Deck.simple(Rarity.UNCOMMON, false, Charta.id("neon"), Charta.id("neon/aqua")));
-        register(Charta.id("neon/blue"), Deck.simple(Rarity.UNCOMMON, false, Charta.id("neon"), Charta.id("neon/blue")));
-        register(Charta.id("neon/green"), Deck.simple(Rarity.UNCOMMON, false, Charta.id("neon"), Charta.id("neon/green")));
-        register(Charta.id("neon/orange"), Deck.simple(Rarity.UNCOMMON, false, Charta.id("neon"), Charta.id("neon/orange")));
-        register(Charta.id("neon/pink"), Deck.simple(Rarity.UNCOMMON, false, Charta.id("neon"), Charta.id("neon/pink")));
-        register(Charta.id("neon/red"), Deck.simple(Rarity.UNCOMMON, false, Charta.id("neon"), Charta.id("neon/red")));
-        register(Charta.id("neon/yellow"), Deck.simple(Rarity.UNCOMMON, false, Charta.id("neon"), Charta.id("neon/yellow")));
+        register(ChartaMod.id("neon/aqua"), Deck.simple(Rarity.UNCOMMON, false, ChartaMod.id("neon"), ChartaMod.id("neon/aqua")));
+        register(ChartaMod.id("neon/blue"), Deck.simple(Rarity.UNCOMMON, false, ChartaMod.id("neon"), ChartaMod.id("neon/blue")));
+        register(ChartaMod.id("neon/green"), Deck.simple(Rarity.UNCOMMON, false, ChartaMod.id("neon"), ChartaMod.id("neon/green")));
+        register(ChartaMod.id("neon/orange"), Deck.simple(Rarity.UNCOMMON, false, ChartaMod.id("neon"), ChartaMod.id("neon/orange")));
+        register(ChartaMod.id("neon/pink"), Deck.simple(Rarity.UNCOMMON, false, ChartaMod.id("neon"), ChartaMod.id("neon/pink")));
+        register(ChartaMod.id("neon/red"), Deck.simple(Rarity.UNCOMMON, false, ChartaMod.id("neon"), ChartaMod.id("neon/red")));
+        register(ChartaMod.id("neon/yellow"), Deck.simple(Rarity.UNCOMMON, false, ChartaMod.id("neon"), ChartaMod.id("neon/yellow")));
 
-        register(Charta.id("metals/copper"), Deck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("metals/copper"), Charta.id("metals/copper")));
-        register(Charta.id("metals/iron"), Deck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("metals/iron"), Charta.id("metals/iron")));
-        register(Charta.id("metals/gold"), Deck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("metals/gold"), Charta.id("metals/gold")));
+        register(ChartaMod.id("metals/copper"), Deck.simple(Rarity.RARE, false, ChartaMod.id("metallic"), ChartaMod.id("metals/copper"), ChartaMod.id("metals/copper")));
+        register(ChartaMod.id("metals/iron"), Deck.simple(Rarity.RARE, false, ChartaMod.id("metallic"), ChartaMod.id("metals/iron"), ChartaMod.id("metals/iron")));
+        register(ChartaMod.id("metals/gold"), Deck.simple(Rarity.RARE, false, ChartaMod.id("metallic"), ChartaMod.id("metals/gold"), ChartaMod.id("metals/gold")));
 
-        register(Charta.id("gems/diamond"), Deck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/diamond"), Charta.id("gems/diamond")));
-        register(Charta.id("gems/emerald"), Deck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/emerald"), Charta.id("gems/emerald")));
-        register(Charta.id("gems/ruby"), Deck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/ruby"), Charta.id("gems/ruby")));
-        register(Charta.id("gems/sapphire"), Deck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/sapphire"), Charta.id("gems/sapphire")));
-        register(Charta.id("gems/amethyst"), Deck.simple(Rarity.RARE, false, Charta.id("metallic"), Charta.id("gems/amethyst"), Charta.id("gems/amethyst")));
+        register(ChartaMod.id("gems/diamond"), Deck.simple(Rarity.RARE, false, ChartaMod.id("metallic"), ChartaMod.id("gems/diamond"), ChartaMod.id("gems/diamond")));
+        register(ChartaMod.id("gems/emerald"), Deck.simple(Rarity.RARE, false, ChartaMod.id("metallic"), ChartaMod.id("gems/emerald"), ChartaMod.id("gems/emerald")));
+        register(ChartaMod.id("gems/ruby"), Deck.simple(Rarity.RARE, false, ChartaMod.id("metallic"), ChartaMod.id("gems/ruby"), ChartaMod.id("gems/ruby")));
+        register(ChartaMod.id("gems/sapphire"), Deck.simple(Rarity.RARE, false, ChartaMod.id("metallic"), ChartaMod.id("gems/sapphire"), ChartaMod.id("gems/sapphire")));
+        register(ChartaMod.id("gems/amethyst"), Deck.simple(Rarity.RARE, false, ChartaMod.id("metallic"), ChartaMod.id("gems/amethyst"), ChartaMod.id("gems/amethyst")));
     }
 
     public static Deck register(ResourceLocation resourceLocation, Deck deck) {
@@ -138,7 +138,7 @@ public class DeckProvider implements DataProvider {
     public @NotNull CompletableFuture<?> run(@NotNull CachedOutput cachedOutput) {
         return CompletableFuture.runAsync(() -> {
             Path outputPath = this.output.getOutputFolder();
-            String decksOutputPath = outputPath + File.separator + "data" + File.separator + Charta.MOD_ID + File.separator + "decks";
+            String decksOutputPath = outputPath + File.separator + "data" + File.separator + ChartaMod.MOD_ID + File.separator + "decks";
             DECKS.forEach((key, deck) -> {
                 String path = key.getPath() + ".json";
                 Path fullPath = Path.of(decksOutputPath, path);
@@ -149,12 +149,12 @@ public class DeckProvider implements DataProvider {
                     writer.write(gson.toJson(json.getOrThrow()));
                     writer.flush();
                 } catch (IOException e) {
-                    Charta.LOGGER.error("Error writing stream for file: {}", fullPath, e);
+                    ChartaMod.LOGGER.error("Error writing stream for file: {}", fullPath, e);
                 }
                 try {
                     cachedOutput.writeIfNeeded(fullPath, outStream.toByteArray(), hashedOutStream.hash());
                 } catch (IOException e) {
-                    Charta.LOGGER.error("Error saving file: {}", fullPath, e);
+                    ChartaMod.LOGGER.error("Error saving file: {}", fullPath, e);
                 }
             });
         });

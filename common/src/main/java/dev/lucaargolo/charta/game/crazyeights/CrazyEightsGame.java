@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.game.crazyeights;
 
-import dev.lucaargolo.charta.Charta;
-import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
+import dev.lucaargolo.charta.ChartaMod;
+import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.sound.ModSounds;
@@ -80,13 +80,13 @@ public class CrazyEightsGame extends CardGame<CrazyEightsGame> {
     @Override
     public Predicate<Deck> getDeckPredicate() {
         return (deck) -> {
-            return deck.getCards().size() >= 52 && Charta.DEFAULT_SUITS.containsAll(deck.getUniqueSuits()) && deck.getUniqueSuits().containsAll(Charta.DEFAULT_SUITS);
+            return deck.getCards().size() >= 52 && ChartaMod.DEFAULT_SUITS.containsAll(deck.getUniqueSuits()) && deck.getUniqueSuits().containsAll(ChartaMod.DEFAULT_SUITS);
         };
     }
 
     @Override
     public Predicate<Card> getCardPredicate() {
-        return (card) -> Charta.DEFAULT_SUITS.contains(card.suit()) && Charta.DEFAULT_RANKS.contains(card.rank());
+        return (card) -> ChartaMod.DEFAULT_SUITS.contains(card.suit()) && ChartaMod.DEFAULT_RANKS.contains(card.rank());
     }
 
     private CardPlayer getNextPlayer() {

@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.utils;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -160,7 +160,7 @@ public class CardImage {
         try {
             return ZIPCompression.compress(pixels);
         } catch (IOException exception) {
-            Charta.LOGGER.error("Error compressing card image: ", exception);
+            ChartaMod.LOGGER.error("Error compressing card image: ", exception);
             return new byte[0];
         }
     }
@@ -193,7 +193,7 @@ public class CardImage {
             }
             return function.apply(pixels);
         } catch (IOException exception) {
-            Charta.LOGGER.error("Error decompressing card image: ", exception);
+            ChartaMod.LOGGER.error("Error decompressing card image: ", exception);
             return function.apply(null);
         }
     }

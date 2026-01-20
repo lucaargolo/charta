@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.item;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.gui.screens.DeckScreen;
 import dev.lucaargolo.charta.game.Deck;
 import net.minecraft.ChatFormatting;
@@ -15,8 +15,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +44,6 @@ public class DeckItem extends Item {
         return InteractionResultHolder.success(stack);
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static void openScreen(Deck deck) {
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.setScreen(new DeckScreen(null, deck));
@@ -64,22 +61,22 @@ public class DeckItem extends Item {
     @Nullable
     public static Deck getDeck(ItemStack stack) {
         ResourceLocation deckId = stack.get(ModDataComponentTypes.CARD_DECK);
-        return deckId != null ? Charta.CARD_DECKS.getDeck(deckId) : null;
+        return deckId != null ? ChartaMod.CARD_DECKS.getDeck(deckId) : null;
     }
 
     public static ItemStack getDeck(Deck deck) {
-        ResourceLocation deckId = Charta.CARD_DECKS.getDecks()
+        ResourceLocation deckId = ChartaMod.CARD_DECKS.getDecks()
             .entrySet()
             .stream()
             .filter(e -> e.getValue() == deck)
             .map(Map.Entry::getKey)
             .findFirst()
-            .orElse(Charta.id("missing"));
+            .orElse(ChartaMod.id("missing"));
         return getDeck(deckId);
     }
 
     public static ItemStack getDeck(ResourceLocation deckId) {
-        Deck deck = Charta.CARD_DECKS.getDeck(deckId);
+        Deck deck = ChartaMod.CARD_DECKS.getDeck(deckId);
         ItemStack stack = ModItems.DECK.get().getDefaultInstance();
         stack.set(ModDataComponentTypes.CARD_DECK, deckId);
         stack.set(DataComponents.RARITY, deck.getRarity());

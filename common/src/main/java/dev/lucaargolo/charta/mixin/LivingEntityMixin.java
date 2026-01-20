@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.mixin;
 
 import dev.lucaargolo.charta.block.CardTableBlock;
 import dev.lucaargolo.charta.block.GameChairBlock;
-import dev.lucaargolo.charta.blockentity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.block.entity.ModBlockEntityTypes;
 import dev.lucaargolo.charta.entity.SeatEntity;
 import dev.lucaargolo.charta.game.AutoPlayer;
 import dev.lucaargolo.charta.game.CardPlayer;

@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.network;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.GameSlot;
@@ -11,15 +11,15 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 public record CardContainerSlotClickPayload(int containerId, int slotId, int cardId) implements CustomPacketPayload {
 
-    public static final Type<CardContainerSlotClickPayload> TYPE = new Type<>(Charta.id("card_container_slot_click"));
+    public static final Type<CardContainerSlotClickPayload> TYPE = new Type<>(ChartaMod.id("card_container_slot_click"));
 
     public static final StreamCodec<ByteBuf, CardContainerSlotClickPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT,
@@ -31,9 +31,8 @@ public record CardContainerSlotClickPayload(int containerId, int slotId, int car
             CardContainerSlotClickPayload::new
     );
 
-    public static void handleServer(CardContainerSlotClickPayload payload, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Player player = context.player();
+    public static void handleServer(CardContainerSlotClickPayload payload, ServerPlayer player, Executor executor) {
+        executor.execute(() -> {
             if(player instanceof LivingEntityMixed mixed && player.containerMenu instanceof AbstractCardMenu<?> cardMenu && cardMenu.containerId == payload.containerId) {
                 CardPlayer cardPlayer = mixed.charta_getCardPlayer();
                 CardSlot<?> slot = cardMenu.getCardSlot(payload.slotId);

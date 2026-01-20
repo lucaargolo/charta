@@ -5,7 +5,12 @@ import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.utils.CardContainerListener;
 import dev.lucaargolo.charta.utils.CardContainerSynchronizer;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
@@ -61,13 +66,14 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         }
     };
 
-    public AbstractCardMenu(MenuType<?> menuType, int containerId, Inventory inventory, ContainerLevelAccess access, Deck deck, int[] players, byte[] options) {
+    public AbstractCardMenu(MenuType<?> menuType, int containerId, Inventory inventory, Definition definition) {
         super(menuType, containerId);
-        this.game = CardGames.getGameForMenu(this.getGameFactory(), access, deck, players, options);
         this.inventory = inventory;
         this.player = inventory.player;
-        this.access = access;
-        this.deck = deck;
+        this.access = ContainerLevelAccess.create(inventory.player.level(), definition.pos());
+        this.deck = definition.deck();
+        this.game = CardGames.getGameForMenu(this.getGameFactory(), this.access, this.deck, definition.players(), definition.options());
+
         this.cardPlayer = ((LivingEntityMixed) this.player).charta_getCardPlayer();
         this.addDataSlots(data);
     }
@@ -240,4 +246,39 @@ public abstract class AbstractCardMenu<G extends CardGame<G>> extends AbstractCo
         }
 
     }
+
+    public record Definition(BlockPos pos, Deck deck, int[] players, byte[] options) {
+
+        private static final StreamCodec<ByteBuf, int[]> INT_ARRAY = new StreamCodec<>() {
+            public int @NotNull [] decode(@NotNull ByteBuf buffer) {
+                int size = buffer.readInt();
+                int[] array = new int[size];
+                for(int i = 0; i < size; i++) {
+                    array[i] = buffer.readInt();
+                }
+                return array;
+            }
+
+            public void encode(@NotNull ByteBuf buffer, int @NotNull [] value) {
+                buffer.writeInt(value.length);
+                for(int i : value) {
+                    buffer.writeInt(i);
+                }
+            }
+        };
+
+        public static StreamCodec<RegistryFriendlyByteBuf, Definition> STREAM_CODEC = StreamCodec.composite(
+                BlockPos.STREAM_CODEC,
+                Definition::pos,
+                Deck.STREAM_CODEC,
+                Definition::deck,
+                INT_ARRAY,
+                Definition::players,
+                ByteBufCodecs.BYTE_ARRAY,
+                Definition::options,
+                Definition::new
+        );
+
+    }
+
 }

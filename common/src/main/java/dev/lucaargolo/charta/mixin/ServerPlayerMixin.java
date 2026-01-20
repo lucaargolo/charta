@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.mixin;
 
 import com.mojang.authlib.GameProfile;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import net.minecraft.core.BlockPos;
@@ -47,7 +47,7 @@ public abstract class ServerPlayerMixin extends Player implements LivingEntityMi
                 try{
                     consumer.accept(play);
                 }catch (Exception e) {
-                    Charta.LOGGER.error("Error while handling {}'s Card Play. ", this.getName().getString(), e);
+                    ChartaMod.LOGGER.error("Error while handling {}'s Card Play. ", this.getName().getString(), e);
                 }
             });
         }

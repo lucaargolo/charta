@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.resources;
 
 
 import com.mojang.datafixers.util.Either;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -37,10 +37,10 @@ public class MarkdownResource implements ResourceManagerReloadListener {
                 renderer.render(document, null);
                 this.markdowns.put(location, renderer.getNodes());
             }catch (IOException e) {
-                Charta.LOGGER.error("Error while reading markdown {} :", id, e);
+                ChartaMod.LOGGER.error("Error while reading markdown {} :", id, e);
             }
         });
-        Charta.LOGGER.info("Loaded {} markdowns", markdowns.size());
+        ChartaMod.LOGGER.info("Loaded {} markdowns", markdowns.size());
     }
 
     @Nullable

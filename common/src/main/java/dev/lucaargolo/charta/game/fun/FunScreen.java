@@ -3,7 +3,7 @@ package dev.lucaargolo.charta.game.fun;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.gui.screens.GameScreen;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.Suit;
@@ -21,7 +21,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -61,11 +60,11 @@ public class FunScreen extends GameScreen<FunGame, FunMenu> {
             drawAll = false;
         }else if(drawAll) {
             if(menu.getCarriedCards().isEmpty()) {
-                PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-3, -1));
+                ChartaMod.getPacketManager().sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-3, -1));
             }else{
                 drawAll = false;
             }
-            PacketDistributor.sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-1, -1));
+            ChartaMod.getPacketManager().sendToServer(new CardContainerSlotClickPayload(menu.containerId, menu.cardSlots.size()-1, -1));
         }
         if (this.itemActivationTicks > 0) {
             this.itemActivationTicks--;
@@ -85,7 +84,7 @@ public class FunScreen extends GameScreen<FunGame, FunMenu> {
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
         guiGraphics.blit(WIDGETS, x, y, 59, 0, 65, 18);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        Component text = Component.literal(menu.canDoLast() && lastCooldown > 0 ? Integer.toString(lastCooldown) : "Last!").withStyle(Charta.MINERCRAFTORY);
+        Component text = Component.literal(menu.canDoLast() && lastCooldown > 0 ? Integer.toString(lastCooldown) : "Last!").withStyle(ChartaMod.MINERCRAFTORY);
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
@@ -99,7 +98,7 @@ public class FunScreen extends GameScreen<FunGame, FunMenu> {
         RenderSystem.setShaderColor((float) c.x, (float) c.y, (float) c.z, 1f);
         guiGraphics.blit(WIDGETS, x, y, 59, 0, 65, 18);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        text = Component.literal(menu.getDrawStack() > 0 ? "Draw "+menu.getDrawStack() : "Draw").withStyle(Charta.MINERCRAFTORY);
+        text = Component.literal(menu.getDrawStack() > 0 ? "Draw "+menu.getDrawStack() : "Draw").withStyle(ChartaMod.MINERCRAFTORY);
         guiGraphics.drawString(font, text, x + 65/2 - font.width(text)/2, y+7, 0xFFFFFFFF);
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
             guiGraphics.fill(x+1, y+1, x+63, y+16 ,0x33FFFFFF);
@@ -113,7 +112,7 @@ public class FunScreen extends GameScreen<FunGame, FunMenu> {
         int x = (width/2 - ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2)/2 - 65/2;
         int y = height - ((int) CardSlot.getHeight(CardSlot.Type.HORIZONTAL))/2 - 14;
         if(mouseX >= x && mouseX < x+65 && mouseY >= y && mouseY < y+18) {
-            PacketDistributor.sendToServer(new LastFunPayload());
+            ChartaMod.getPacketManager().sendToServer(new LastFunPayload());
             return true;
         }
         x += width/2 + ((int) CardSlot.getWidth(CardSlot.Type.HORIZONTAL))/2;
@@ -132,11 +131,11 @@ public class FunScreen extends GameScreen<FunGame, FunMenu> {
 
     @Override
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        Component text = Component.literal("Fun").withStyle(Charta.MINERCRAFTORY);
+        Component text = Component.literal("Fun").withStyle(ChartaMod.MINERCRAFTORY);
         guiGraphics.drawString(font, text, imageWidth/2 - font.width(text)/2, 18, 0xFFFFFFFF);
-        text = Component.literal("Draw").withStyle(Charta.MINERCRAFTORY);
+        text = Component.literal("Draw").withStyle(ChartaMod.MINERCRAFTORY);
         guiGraphics.drawString(font, text, imageWidth/4 - 1 - font.width(text)/2, 92, 0xFFFFFFFF);
-        text = Component.literal("Play").withStyle(Charta.MINERCRAFTORY);
+        text = Component.literal("Play").withStyle(ChartaMod.MINERCRAFTORY);
         guiGraphics.drawString(font, text, (3*imageWidth)/4 + 1 - font.width(text)/2, 92, 0xFFFFFFFF);
 
         FunGame game = this.menu.getGame();

@@ -3,7 +3,7 @@ package dev.lucaargolo.charta.utils;
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
 import com.mojang.blaze3d.platform.NativeImage;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.data.CachedOutput;
@@ -58,13 +58,13 @@ public class CardImageUtils {
     @SuppressWarnings({"UnstableApiUsage", "deprecation"})
     public static <I extends CardImage> void saveImage(I image, File fileToSave, CachedOutput cachedOutput) {
         try {
-            Charta.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
+            ChartaMod.LOGGER.info("Saving file: {}", fileToSave.getAbsoluteFile());
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
             HashingOutputStream hashedOutStream = new HashingOutputStream(Hashing.sha1(), outStream);
             image.saveToStream(hashedOutStream);
             cachedOutput.writeIfNeeded(fileToSave.toPath(), outStream.toByteArray(), hashedOutStream.hash());
         } catch (IOException e) {
-            Charta.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
+            ChartaMod.LOGGER.error("Error saving file: {}", fileToSave.getAbsoluteFile(), e);
         }
     }
 

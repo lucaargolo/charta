@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.datagen;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.block.ModBannerPatterns;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 public class ModBannerPatternTagsProvider extends TagsProvider<BannerPattern> {
 
     public ModBannerPatternTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider, ExistingFileHelper existingFileHelper) {
-        super(output, Registries.BANNER_PATTERN, provider, Charta.MOD_ID, existingFileHelper);
+        super(output, Registries.BANNER_PATTERN, provider, ChartaMod.MOD_ID, existingFileHelper);
     }
 
     @Override

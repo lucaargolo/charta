@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.game;
 
-import dev.lucaargolo.charta.blockentity.CardTableBlockEntity;
+import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
 import dev.lucaargolo.charta.sound.ModSounds;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;

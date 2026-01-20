@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.client.gui.screens;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ConfirmScreen extends Screen {
 
-    private static final ResourceLocation TEXTURE = Charta.id("textures/gui/confirm.png");
+    private static final ResourceLocation TEXTURE = ChartaMod.id("textures/gui/confirm.png");
 
     private final int imageWidth = 175;
     private final int imageHeight = 108;

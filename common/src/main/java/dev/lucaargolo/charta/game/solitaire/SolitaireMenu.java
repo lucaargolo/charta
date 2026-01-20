@@ -5,7 +5,7 @@ import dev.lucaargolo.charta.game.Deck;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
-import dev.lucaargolo.charta.menu.ModMenus;
+import dev.lucaargolo.charta.menu.ModMenuTypes;
 import dev.lucaargolo.charta.utils.CardImage;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -50,7 +50,7 @@ public class SolitaireMenu extends AbstractCardMenu<SolitaireGame> {
     }
 
     public SolitaireMenu(int containerId, Inventory inventory, ContainerLevelAccess access, Deck deck, int[] players, byte[] options) {
-        super(ModMenus.SOLITAIRE.get(), containerId, inventory, access, deck, players, options);
+        super(ModMenuTypes.SOLITAIRE.get(), containerId, inventory, access, deck, players, options);
 
         //Fix carried cards being lost forever when the screen was closed :)
         GameSlot playerHand = this.game.getPlayerHand(this.cardPlayer);

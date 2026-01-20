@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.resources;
 
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.utils.SuitImage;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -23,10 +23,10 @@ public class SuitImageResource implements ResourceManagerReloadListener {
                 ResourceLocation location = id.withPath(s -> s.replace("images/suit/", "").replace(".mcsuit", ""));
                 images.put(location, SuitImage.decompress(stream.readAllBytes()));
             }catch (IOException e) {
-                Charta.LOGGER.error("Error while reading card suit {} :", id, e);
+                ChartaMod.LOGGER.error("Error while reading card suit {} :", id, e);
             }
         });
-        Charta.LOGGER.info("Loaded {} card suits", images.size());
+        ChartaMod.LOGGER.info("Loaded {} card suits", images.size());
     }
 
     public HashMap<ResourceLocation, SuitImage> getImages() {

@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.datagen;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.block.*;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
@@ -18,7 +18,7 @@ import java.util.List;
 public class ModBlockStateProvider extends BlockStateProvider {
 
     public ModBlockStateProvider(PackOutput output, ExistingFileHelper exFileHelper) {
-        super(output, Charta.MOD_ID, exFileHelper);
+        super(output, ChartaMod.MOD_ID, exFileHelper);
     }
 
     @Override

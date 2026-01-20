@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.game.crazyeights;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.gui.screens.GameScreen;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.Suit;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CrazyEightsScreen extends GameScreen<CrazyEightsGame, CrazyEightsMenu> {
 
-    private static final ResourceLocation TEXTURE = Charta.id("textures/gui/crazy_eights.png");
+    private static final ResourceLocation TEXTURE = ChartaMod.id("textures/gui/crazy_eights.png");
 
     public CrazyEightsScreen(CrazyEightsMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);

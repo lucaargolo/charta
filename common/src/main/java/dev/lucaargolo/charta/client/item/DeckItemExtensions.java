@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.client.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ModRenderType;
 import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.game.Deck;
@@ -18,14 +18,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
 public class DeckItemExtensions implements IClientItemExtensions {
 
     private static final RandomSource RANDOM = RandomSource.create();
@@ -37,23 +34,23 @@ public class DeckItemExtensions implements IClientItemExtensions {
             @Override
             @SuppressWarnings("deprecation")
             public void renderByItem(@NotNull ItemStack stack, @NotNull ItemDisplayContext displayContext, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight, int packedOverlay) {
-                BakedModel model = minecraft.getModelManager().getModel(new ModelResourceLocation(Charta.id("deck"), "standalone"));
+                BakedModel model = minecraft.getModelManager().getModel(new ModelResourceLocation(ChartaMod.id("deck"), "standalone"));
                 List<BakedQuad> transformedQuads = model.getQuads(null, null, RANDOM).stream().map(DeckItemExtensions::replaceQuadSprite).toList();
 
                 Deck deck = DeckItem.getDeck(stack);
 
                 if(IrisCompat.isPresent()) {
-                    ResourceLocation deckGlowTexture = deck != null ? deck.getDeckTexture(true) : Charta.MISSING_CARD;
+                    ResourceLocation deckGlowTexture = deck != null ? deck.getDeckTexture(true) : ChartaMod.MISSING_CARD;
                     RenderType glowRenderType = RenderType.entityTranslucentEmissive(deckGlowTexture);
                     minecraft.getItemRenderer().renderQuadList(poseStack, buffer.getBuffer(glowRenderType), transformedQuads, stack, LightTexture.FULL_BRIGHT, packedOverlay);
                 }
 
-                ResourceLocation deckTexture = deck != null ? deck.getDeckTexture(false) : Charta.MISSING_CARD;
+                ResourceLocation deckTexture = deck != null ? deck.getDeckTexture(false) : ChartaMod.MISSING_CARD;
                 RenderType renderType = IrisCompat.isPresent() ? RenderType.entityTranslucent(deckTexture) : ModRenderType.entityCard(deckTexture);
                 minecraft.getItemRenderer().renderQuadList(poseStack, buffer.getBuffer(renderType), transformedQuads, stack, packedLight, packedOverlay);
 
                 if(IrisCompat.isPresent()) {
-                    ResourceLocation deckGlowTexture = deck != null ? deck.getDeckTexture(true) : Charta.MISSING_CARD;
+                    ResourceLocation deckGlowTexture = deck != null ? deck.getDeckTexture(true) : ChartaMod.MISSING_CARD;
                     RenderType glowRenderType = RenderType.entityTranslucentEmissive(deckGlowTexture);
                     minecraft.getItemRenderer().renderQuadList(poseStack, buffer.getBuffer(glowRenderType), transformedQuads, stack, LightTexture.FULL_BRIGHT, packedOverlay);
                 }

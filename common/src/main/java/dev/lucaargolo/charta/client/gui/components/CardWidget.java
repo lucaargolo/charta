@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.client.gui.components;
 
-import dev.lucaargolo.charta.Charta;
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.compat.IrisCompat;
 import dev.lucaargolo.charta.game.Card;
 import dev.lucaargolo.charta.game.Deck;
@@ -21,9 +21,9 @@ public class CardWidget extends AbstractCardWidget {
     @Override
     public @NotNull ResourceLocation getCardTexture(@Nullable ResourceLocation cardId, boolean glow) {
         if(glow && IrisCompat.isPresent()) {
-            return glowTextureId != null ? glowTextureId : Charta.MISSING_CARD;
+            return glowTextureId != null ? glowTextureId : ChartaMod.MISSING_CARD;
         }else{
-            return cardId != null ? cardId : Charta.MISSING_CARD;
+            return cardId != null ? cardId : ChartaMod.MISSING_CARD;
         }
     }
 
