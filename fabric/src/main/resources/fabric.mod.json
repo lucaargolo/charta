@@ -23,6 +23,9 @@
     "fabric-datagen": [
       "dev.lucaargolo.charta.data.ChartaModData"
     ],
+    "jei_mod_plugin": [
+      "dev.lucaargolo.charta.client.compat.JEICompat"
+    ],
     "rei_client": [
       "dev.lucaargolo.charta.client.compat.REICompat"
     ]

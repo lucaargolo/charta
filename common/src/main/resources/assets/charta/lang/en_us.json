@@ -15,6 +15,7 @@
   "charta.solitaire": "Solitaire",
 
   "entity.minecraft.villager.charta.dealer": "Dealer",
+  "entity.minecraft.villager.dealer": "Dealer",
 
   "block.charta.dealer_table": "Dealer Table",
   "block.charta.oak_card_table": "Oak Card Table",

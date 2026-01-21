@@ -10,9 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public abstract class ModShaderManager implements ResourceManagerReloadListener {
+public abstract class ModShaderManager {
 
     private static final ResourceLocation BLUR_LOCATION = ChartaMod.id("shaders/post/blur.json");
 
@@ -109,39 +106,41 @@ public abstract class ModShaderManager implements ResourceManagerReloadListener 
         this.registerShader(ChartaMod.id("rendertype_iron_leash"), DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, instance -> {
             this.ironLeashShader = instance;
         });
+        this.registerEventOnShaderReload(this::onShaderReload);
     }
 
     protected abstract void registerShader(ResourceLocation location, VertexFormat vertexFormat, Consumer<ShaderInstance> consumer);
 
-    @Override
-    public void onResourceManagerReload(@NotNull ResourceManager resourceManager) {
+    public abstract void registerEventOnShaderReload(Runnable runnable);
+
+    public final void onShaderReload() {
+        Minecraft minecraft = Minecraft.getInstance();
+
         this.cardFovUniforms.clear();
         this.cardXRotUniforms.clear();
         this.cardYRotUniforms.clear();
         this.cardInsetUniforms.clear();
 
-        Minecraft minecraft = Minecraft.getInstance();
-        minecraft.execute(() -> {
-            if (this.glowRenderTarget == null) {
-                this.glowRenderTarget = new TextureTarget(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight(), false, Minecraft.ON_OSX);
-                this.glowRenderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-                this.glowRenderTarget.clear(Minecraft.ON_OSX);
-            }
+        if (this.glowRenderTarget == null) {
+            this.glowRenderTarget = new TextureTarget(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight(), false, Minecraft.ON_OSX);
+            this.glowRenderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+            this.glowRenderTarget.clear(Minecraft.ON_OSX);
+        }
 
-            if (this.glowBlurEffect != null) {
-                this.glowBlurEffect.close();
-            }
+        if (this.glowBlurEffect != null) {
+            this.glowBlurEffect.close();
+        }
 
-            try {
-                assert this.glowRenderTarget != null;
-                this.glowBlurEffect = new PostChain(minecraft.getTextureManager(), resourceManager, this.glowRenderTarget, BLUR_LOCATION);
-                this.glowBlurEffect.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
-            } catch (IOException ioException) {
-                ChartaMod.LOGGER.warn("Failed to load shader: {}", BLUR_LOCATION, ioException);
-            } catch (JsonSyntaxException jsonSyntaxException) {
-                ChartaMod.LOGGER.warn("Failed to parse shader: {}", BLUR_LOCATION, jsonSyntaxException);
-            }
-        });
+        try {
+            assert this.glowRenderTarget != null;
+            this.glowBlurEffect = new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(), this.glowRenderTarget, BLUR_LOCATION);
+            this.glowBlurEffect.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
+        } catch (IOException ioException) {
+            ChartaMod.LOGGER.warn("Failed to load shader: {}", BLUR_LOCATION, ioException);
+        } catch (JsonSyntaxException jsonSyntaxException) {
+            ChartaMod.LOGGER.warn("Failed to parse shader: {}", BLUR_LOCATION, jsonSyntaxException);
+        }
+
     }
 
     public void processBlurEffect(float partialTick) {

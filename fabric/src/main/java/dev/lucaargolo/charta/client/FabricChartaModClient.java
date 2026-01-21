@@ -1,20 +1,25 @@
 package dev.lucaargolo.charta.client;
 
+import dev.lucaargolo.charta.block.ModBlocks;
 import dev.lucaargolo.charta.registry.ModItemRegistry;
 import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.impl.client.model.loading.ModelLoadingPluginManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -43,9 +48,20 @@ public class FabricChartaModClient extends ChartaModClient implements ClientModI
     @Override
     public void onInitializeClient() {
         this.init();
-        ModelLoadingPluginManager.registerPlugin(context -> {
+        ModelLoadingPlugin.register(context -> {
             context.addModels(this.modelsToAdd);
         });
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.EMPTY_BEER_GLASS.get(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.WHEAT_BEER_GLASS.get(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.SORGHUM_BEER_GLASS.get(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.EMPTY_WINE_GLASS.get(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.BERRY_WINE_GLASS.get(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CACTUS_WINE_GLASS.get(), RenderType.translucent());
+    }
+
+    @Override
+    public BakedModel getModel(ResourceLocation location) {
+        return Minecraft.getInstance().getModelManager().getModel(location);
     }
 
     @Override

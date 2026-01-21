@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "charta:block/spruce_bar_shelf",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "charta:block/spruce_bar_shelf"
+    },
+    "facing=south": {
+      "model": "charta:block/spruce_bar_shelf",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "charta:block/spruce_bar_shelf",
+      "y": 270
+    }
+  }
+}

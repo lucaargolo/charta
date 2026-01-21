@@ -9,6 +9,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.game.Deck;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -128,7 +129,7 @@ public class DeckProvider implements DataProvider {
         return deck;
     }
     
-    public DeckProvider(PackOutput output) {
+    public DeckProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         this.output = output;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }

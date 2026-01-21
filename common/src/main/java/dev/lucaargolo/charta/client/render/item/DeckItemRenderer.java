@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -35,7 +34,7 @@ public class DeckItemRenderer extends BlockEntityWithoutLevelRenderer {
 
     @Override
     public void renderByItem(@NotNull ItemStack stack, @NotNull ItemDisplayContext displayContext, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        BakedModel model = this.minecraft.getModelManager().getModel(new ModelResourceLocation(ChartaMod.id("deck"), "standalone"));
+        BakedModel model = ChartaModClient.getInstance().getModel(ChartaMod.id("deck"));
         List<BakedQuad> transformedQuads = model.getQuads(null, null, RANDOM).stream().map(DeckItemRenderer::replaceQuadSprite).toList();
 
         Deck deck = DeckItem.getDeck(stack);

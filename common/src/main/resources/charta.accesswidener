@@ -28,7 +28,9 @@ extendable method net/minecraft/client/gui/components/AbstractSliderButton getHa
 accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;
 accessible method net/minecraft/client/gui/components/AbstractWidget renderScrollingString (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIII)V
 accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen leftPos I
-accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen topPos I
-accessible field net/minecraft/world/level/storage/loot/LootTable$Builder pools Lcom/google/common/collect/ImmutableList$Builder;
-accessible field net/minecraft/world/level/storage/loot/LootTable$Builder functions Lcom/google/common/collect/ImmutableList$Builder;
+accessible field net/minecraft/data/models/BlockModelGenerators blockStateOutput Ljava/util/function/Consumer;
+accessible field net/minecraft/data/models/BlockModelGenerators modelOutput Ljava/util/function/BiConsumer;
+accessible method net/minecraft/data/models/BlockModelGenerators createTrivialBlock (Lnet/minecraft/world/level/block/Block;Lnet/minecraft/data/models/model/TextureMapping;Lnet/minecraft/data/models/model/ModelTemplate;)V
+accessible method net/minecraft/data/models/BlockModelGenerators createNonTemplateModelBlock (Lnet/minecraft/world/level/block/Block;)V
+accessible method net/minecraft/data/models/model/TextureSlot create (Ljava/lang/String;)Lnet/minecraft/data/models/model/TextureSlot;
+accessible field net/minecraft/data/models/model/TextureMapping slots Ljava/util/Map;

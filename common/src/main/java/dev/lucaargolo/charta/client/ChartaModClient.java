@@ -27,6 +27,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -63,8 +64,6 @@ public abstract class ChartaModClient {
 
     protected final void init() {
         this.shaderManager.init();
-        this.registerReloadableListener(ChartaMod.id("shader"), this.shaderManager);
-        this.registerReloadableListener(ChartaMod.id("markdown"), MARKDOWN);
 
         this.registerEntityRenderer(ModEntityTypes.SEAT, NoopRenderer::new);
         this.registerEntityRenderer(ModEntityTypes.IRON_LEASH_KNOT, IronLeashKnotRenderer::new);
@@ -78,7 +77,10 @@ public abstract class ChartaModClient {
 
         this.registerAdditionalModel(ChartaMod.id("deck"));
         this.registerDynamicItemRenderer(ModItems.DECK, new DeckItemRenderer());
+        this.registerReloadableListener(ChartaMod.id("markdown"), MARKDOWN);
     }
+
+    public abstract BakedModel getModel(ResourceLocation location);
 
     protected abstract <M extends AbstractContainerMenu, P extends Screen & MenuAccess<M>> void registerMenuScreen(MinecraftEntry<MenuType<M>> type, TriFunction<M, Inventory, Component, P> factory);
 
@@ -161,7 +163,5 @@ public abstract class ChartaModClient {
         ChartaMod.CARD_IMAGES.getImages().clear();
         ChartaMod.DECK_IMAGES.getImages().clear();
     }
-
-
 
 }

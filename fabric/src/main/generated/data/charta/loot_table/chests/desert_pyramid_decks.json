@@ -1,0 +1,198 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:fun_inverted"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 80
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:fun_classic"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 80
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:fun_neon"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 15
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:fun_minimal_neon"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 15
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 50
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:metals/copper"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:metals/iron"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:metals/gold"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:neon/aqua"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:neon/blue"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:neon/green"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:neon/orange"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:neon/pink"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:neon/red"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "components": {
+                "charta:deck_id": "charta:neon/yellow"
+              },
+              "function": "minecraft:set_components"
+            }
+          ],
+          "name": "charta:deck",
+          "weight": 20
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "charta:chests/desert_pyramid_decks"
+}

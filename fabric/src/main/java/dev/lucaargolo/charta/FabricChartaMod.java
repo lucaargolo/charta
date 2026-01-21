@@ -1,5 +1,7 @@
 package dev.lucaargolo.charta;
 
+import dev.lucaargolo.charta.block.ModBlocks;
+import dev.lucaargolo.charta.entity.ModPoiTypes;
 import dev.lucaargolo.charta.registry.ModMenuTypeRegistry;
 import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
 import net.fabricmc.api.ModInitializer;
@@ -7,6 +9,7 @@ import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
+import net.fabricmc.fabric.api.object.builder.v1.world.poi.PointOfInterestHelper;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -43,6 +46,9 @@ public class FabricChartaMod extends ChartaMod implements ModInitializer {
     @Override
     public void onInitialize() {
         this.init();
+        ModPoiTypes.REGISTRY.getEntries().forEach(entry -> {
+            PointOfInterestHelper.register(entry.key(), entry.get().maxTickets(), entry.get().validRange(), ModBlocks.DEALER_TABLE.get());
+        });
     }
 
     @Override

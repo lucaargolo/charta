@@ -1,0 +1,8 @@
+{
+  "parent": "charta:block/bar_shelf",
+  "textures": {
+    "log": "minecraft:block/bamboo_stalk",
+    "particle": "minecraft:block/bamboo_planks",
+    "planks": "minecraft:block/bamboo_planks"
+  }
+}

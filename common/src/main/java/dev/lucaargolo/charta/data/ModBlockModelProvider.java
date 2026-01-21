@@ -1,267 +1,318 @@
 package dev.lucaargolo.charta.data;
 
+import dev.lucaargolo.charta.ChartaMod;
+import dev.lucaargolo.charta.block.*;
+import dev.lucaargolo.charta.registry.ModBlockRegistry;
+import net.minecraft.core.Direction;
 import net.minecraft.data.models.BlockModelGenerators;
+import net.minecraft.data.models.blockstates.*;
+import net.minecraft.data.models.model.ModelTemplate;
+import net.minecraft.data.models.model.TextureMapping;
+import net.minecraft.data.models.model.TextureSlot;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.WoodType;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class ModBlockModelProvider {
 
+    private static final TextureSlot PARTICLE = TextureSlot.PARTICLE;
+    private static final TextureSlot PLANKS = TextureSlot.create("planks");
+    private static final TextureSlot LOG = TextureSlot.create("log");
+    private static final TextureSlot CLOTH = TextureSlot.create("cloth");
+
     public static void generate(BlockModelGenerators generators) {
-//        for(DyeColor color : DyeColor.values()) {
-//            String centerClothPath = "block/"+color+"_card_table_center_cloth";
-//            String cornerClothPath = "block/"+color+"_card_table_corner_cloth";
-//            String sideClothPath = "block/"+color+"_card_table_side_cloth";
-//            String chairClothPath = "block/"+color+"_game_chair_cloth";
-//            String stoolClothPath = "block/"+color+"_bar_stool_cloth";
-//
-//            this.models().getBuilder(centerClothPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/card_table_center_cloth")))
-//                    .texture("particle", this.mcLoc("block/"+color+"_wool"))
-//                    .texture("cloth", this.mcLoc("block/"+color+"_wool"));
-//            this.models().getBuilder(cornerClothPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/card_table_corner_cloth")))
-//                    .texture("particle", this.mcLoc("block/"+color+"_wool"))
-//                    .texture("cloth", this.mcLoc("block/"+color+"_wool"));
-//            this.models().getBuilder(sideClothPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/card_table_side_cloth")))
-//                    .texture("particle", this.mcLoc("block/"+color+"_wool"))
-//                    .texture("cloth", this.mcLoc("block/"+color+"_wool"));
-//            this.models().getBuilder(chairClothPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/game_chair_cloth")))
-//                    .texture("particle", this.mcLoc("block/"+color+"_wool"))
-//                    .texture("cloth", this.mcLoc("block/"+color+"_wool"));
-//            this.models().getBuilder(stoolClothPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/bar_stool_cloth")))
-//                    .texture("particle", this.mcLoc("block/"+color+"_wool"))
-//                    .texture("cloth", this.mcLoc("block/"+color+"_wool"));
-//        }
-//        ModBlocks.CARD_TABLE_MAP.forEach((woodType, cardTable) -> {
-//            MultiPartBlockStateBuilder cardTableBuilder = this.getMultipartBuilder(cardTable.get());
-//            String wood = woodType.name();
-//
-//            String centerPath = "block/"+wood+"_card_table_center";
-//            String feetPath = "block/"+wood+"_card_table_feet";
-//            String cornerPath = "block/"+wood+"_card_table_corner";
-//            String sidePath = "block/"+wood+"_card_table_side";
-//            String itemPath = "item/"+wood+"_card_table";
-//
-//            ResourceLocation logResource = getLogResource(wood);
-//
-//            this.models().getBuilder(centerPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/card_table_center")))
-//                    .texture("particle", this.mcLoc("block/"+wood+"_planks"))
-//                    .texture("planks", this.mcLoc("block/"+wood+"_planks"));
-//            this.models().getBuilder(feetPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/card_table_feet")))
-//                    .texture("particle", logResource)
-//                    .texture("log", logResource);
-//            this.models().getBuilder(cornerPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/card_table_corner")))
-//                    .texture("particle", this.mcLoc("block/"+wood+"_planks"))
-//                    .texture("planks", this.mcLoc("block/"+wood+"_planks"))
-//                    .texture("log", logResource);
-//            this.models().getBuilder(sidePath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/card_table_side")))
-//                    .texture("particle", this.mcLoc("block/"+wood+"_planks"))
-//                    .texture("planks", this.mcLoc("block/"+wood+"_planks"));
-//            this.models().getBuilder(itemPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("item/card_table")))
-//                    .texture("particle", this.mcLoc("block/"+wood+"_planks"))
-//                    .texture("planks", this.mcLoc("block/"+wood+"_planks"))
-//                    .texture("log", logResource);
-//
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(centerPath), 0, null, null, null, null, null);
-//
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(feetPath), 0, null, false, false, null, null);
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(feetPath), 90, null, null, false, false, null);
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(feetPath), 180, null, null, null, false, false);
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(feetPath), 270, null, false, null, null, false);
-//
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(cornerPath), 0, true, false, true, true, false);
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(cornerPath), 90, true, false, false, true, true);
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(cornerPath), 180, true, true, false, false, true);
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(cornerPath), 270, true, true, true, false, false);
-//
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(sidePath), 0, true, true, true, true, false);
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(sidePath), 90, true, false, true, true, true);
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(sidePath), 180, true, true, false, true, true);
-//            addDirectionPart(cardTableBuilder.part(), this.modLoc(sidePath), 270, true, true, true, false, true);
-//
-//            for(DyeColor color : DyeColor.values()) {
-//                String centerClothPath = "block/"+color+"_card_table_center_cloth";
-//                String cornerClothPath = "block/"+color+"_card_table_corner_cloth";
-//                String sideClothPath = "block/"+color+"_card_table_side_cloth";
-//
-//                addClothCardTablePart(cardTableBuilder.part(), this.modLoc(centerClothPath), 0, true, true, true, true, true, color);
-//
-//                addClothCardTablePart(cardTableBuilder.part(), this.modLoc(cornerClothPath), 0, true, false, true, true, false, color);
-//                addClothCardTablePart(cardTableBuilder.part(), this.modLoc(cornerClothPath), 90, true, false, false, true, true, color);
-//                addClothCardTablePart(cardTableBuilder.part(), this.modLoc(cornerClothPath), 180, true, true, false, false, true, color);
-//                addClothCardTablePart(cardTableBuilder.part(), this.modLoc(cornerClothPath), 270, true, true, true, false, false, color);
-//
-//                addClothCardTablePart(cardTableBuilder.part(), this.modLoc(sideClothPath), 0, true, true, true, true, false, color);
-//                addClothCardTablePart(cardTableBuilder.part(), this.modLoc(sideClothPath), 90, true, false, true, true, true, color);
-//                addClothCardTablePart(cardTableBuilder.part(), this.modLoc(sideClothPath), 180, true, true, false, true, true, color);
-//                addClothCardTablePart(cardTableBuilder.part(), this.modLoc(sideClothPath), 270, true, true, true, false, true, color);
-//            }
-//        });
-//        ModBlocks.GAME_CHAIR_MAP.forEach((woodType, cardTable) -> {
-//            MultiPartBlockStateBuilder gameChairBuilder = this.getMultipartBuilder(cardTable.get());
-//
-//            String wood = woodType.name();
-//
-//            String chairPath = "block/"+wood+"_game_chair";
-//            String itemPath = "item/"+wood+"_game_chair";
-//
-//            ResourceLocation logResource = getLogResource(wood);
-//
-//            this.models().getBuilder(chairPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/game_chair")))
-//                    .texture("particle", this.mcLoc("block/"+wood+"_planks"))
-//                    .texture("planks", this.mcLoc("block/"+wood+"_planks"))
-//                    .texture("log", logResource);
-//            this.models().getBuilder(itemPath).parent(this.models().getExistingFile(this.modLoc(chairPath)));
-//
-//            int rot = 0;
-//            for(Direction d : Direction.Plane.HORIZONTAL) {
-//                gameChairBuilder.part()
-//                    .modelFile(this.models().getExistingFile(this.modLoc(chairPath)))
-//                    .rotationY(rot)
-//                    .addModel()
-//                    .condition(GameChairBlock.FACING, d);
-//                for(DyeColor color : DyeColor.values()) {
-//                    String chairClothPath = "block/"+color+"_game_chair_cloth";
-//                    gameChairBuilder.part()
-//                        .modelFile(this.models().getExistingFile(this.modLoc(chairClothPath)))
-//                        .rotationY(rot)
-//                        .addModel()
-//                        .condition(GameChairBlock.FACING, d)
-//                        .condition(GameChairBlock.CLOTH, true)
-//                        .condition(GameChairBlock.COLOR, color);
-//                }
-//                rot += 90;
-//            }
-//
-//        });
-//        ModBlocks.BAR_STOOL_MAP.forEach((woodType, barStool) -> {
-//            MultiPartBlockStateBuilder barStoolBuilder = this.getMultipartBuilder(barStool.get());
-//
-//            String wood = woodType.name();
-//
-//            String stoolPath = "block/"+wood+"_bar_stool";
-//            String itemPath = "item/"+wood+"_bar_stool";
-//
-//            ResourceLocation logResource = getLogResource(wood);
-//
-//            this.models().getBuilder(stoolPath)
-//                .parent(this.models().getExistingFile(this.modLoc("block/bar_stool")))
-//                .texture("particle", this.mcLoc("block/"+wood+"_planks"))
-//                .texture("planks", this.mcLoc("block/"+wood+"_planks"))
-//                .texture("log", logResource);
-//            this.models().getBuilder(itemPath).parent(this.models().getExistingFile(this.modLoc(stoolPath)));
-//
-//            barStoolBuilder.part()
-//                    .modelFile(this.models().getExistingFile(this.modLoc(stoolPath)))
-//                    .addModel();
-//            for(DyeColor color : DyeColor.values()) {
-//                String stoolClothPath = "block/" + color + "_bar_stool_cloth";
-//                barStoolBuilder.part()
-//                        .modelFile(this.models().getExistingFile(this.modLoc(stoolClothPath)))
-//                        .addModel()
-//                        .condition(GameChairBlock.CLOTH, true)
-//                        .condition(GameChairBlock.COLOR, color);
-//            }
-//        });
-//        ModBlocks.BAR_SHELF_MAP.forEach((woodType, barShelf) -> {
-//            MultiPartBlockStateBuilder barShelfBuilder = this.getMultipartBuilder(barShelf.get());
-//
-//            String wood = woodType.name();
-//
-//            String shelfPath = "block/"+wood+"_bar_shelf";
-//            String shelfUpPath = "block/"+wood+"_bar_shelf_up";
-//            String itemPath = "item/"+wood+"_bar_shelf";
-//
-//            ResourceLocation logResource = getLogResource(wood);
-//
-//            this.models().getBuilder(shelfPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/bar_shelf")))
-//                    .texture("particle", this.mcLoc("block/"+wood+"_planks"))
-//                    .texture("planks", this.mcLoc("block/"+wood+"_planks"))
-//                    .texture("log", logResource);
-//            this.models().getBuilder(shelfUpPath)
-//                    .parent(this.models().getExistingFile(this.modLoc("block/bar_shelf_up")))
-//                    .texture("particle", this.mcLoc("block/"+wood+"_planks"))
-//                    .texture("planks", this.mcLoc("block/"+wood+"_planks"));
-//            this.models().getBuilder(itemPath).parent(this.models().getExistingFile(this.modLoc(shelfPath)));
-//
-//            int i = 0;
-//            for(Direction d : Direction.Plane.HORIZONTAL) {
-//                barShelfBuilder.part()
-//                        .modelFile(this.models().getExistingFile(this.modLoc(shelfPath)))
-//                        .rotationY(i * 90)
-//                        .addModel()
-//                        .condition(BarShelfBlock.FACING, d);
-//
-//                barShelfBuilder.part()
-//                        .modelFile(this.models().getExistingFile(this.modLoc(shelfUpPath)))
-//                        .rotationY(i * 90)
-//                        .addModel()
-//                        .condition(BarShelfBlock.FACING, d)
-//                        .condition(BarShelfBlock.UP, false);
-//                i++;
-//            }
-//        });
-//        ModBlocks.BLOCKS.getEntries().stream().filter(b -> b.get() instanceof BeerGlassBlock).forEach(block -> {
-//            VariantBlockStateBuilder beerGlassBuilder = this.getVariantBuilder(block.get());
-//            int i = 0;
-//            for(Direction d : List.of(Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH)) {
-//                beerGlassBuilder.partialState()
-//                    .with(BeerGlassBlock.FACING, d)
-//                    .modelForState()
-//                    .modelFile(this.models().getExistingFile(this.modLoc("block/"+block.getId().getPath())))
-//                    .rotationY((i++) * 90)
-//                    .addModel();
-//            }
-//        });
-//        ModBlocks.BLOCKS.getEntries().stream().filter(b -> b.get() instanceof WineGlassBlock).forEach(block -> {
-//            VariantBlockStateBuilder wineGlassBuilder = this.getVariantBuilder(block.get());
-//            wineGlassBuilder.partialState()
-//                .modelForState()
-//                .modelFile(this.models().getExistingFile(this.modLoc("block/"+block.getId().getPath())))
-//                .addModel();
-//        });
+        for(DyeColor color : DyeColor.values()) {
+            TextureMapping mapping = new TextureMapping();
+            mapping.put(CLOTH, ResourceLocation.withDefaultNamespace("block/"+color +"_wool"));
+            createModel(generators, mapping,
+                ChartaMod.id("block/" + color + "_card_table_center_cloth"),
+                ChartaMod.id("block/card_table_center_cloth")
+            );
+            createModel(generators, mapping,
+                ChartaMod.id("block/" + color + "_card_table_corner_cloth"),
+                ChartaMod.id("block/card_table_corner_cloth")
+            );
+            createModel(generators, mapping,
+                ChartaMod.id("block/" + color + "_card_table_side_cloth"),
+                ChartaMod.id("block/card_table_side_cloth")
+            );
+            createModel(generators, mapping,
+                ChartaMod.id("block/" + color + "_game_chair_cloth"),
+                ChartaMod.id("block/game_chair_cloth")
+            );
+            createModel(generators, mapping,
+                ChartaMod.id("block/" + color + "_bar_stool_cloth"),
+                ChartaMod.id("block/bar_stool_cloth")
+            );
+        }
+
+        ModBlocks.CARD_TABLE_MAP.forEach((wood, entry) -> {
+            TextureMapping mapping = new TextureMapping();
+            mapping.put(PARTICLE, getPlanks(wood));
+            mapping.put(PLANKS, getPlanks(wood));
+            mapping.put(LOG, getLog(wood));
+
+            createModel(generators, mapping,
+                ChartaMod.id("block/"+entry.path()+"_center"),
+                ChartaMod.id("block/"+entry.path().replace(wood.name()+"_", "")+"_center")
+            );
+            createModel(generators, mapping,
+                    ChartaMod.id("block/"+entry.path()+"_feet"),
+                    ChartaMod.id("block/"+entry.path().replace(wood.name()+"_", "")+"_feet")
+            );
+            createModel(generators, mapping,
+                    ChartaMod.id("block/"+entry.path()+"_corner"),
+                    ChartaMod.id("block/"+entry.path().replace(wood.name()+"_", "")+"_corner")
+            );
+            createModel(generators, mapping,
+                    ChartaMod.id("block/"+entry.path()+"_side"),
+                    ChartaMod.id("block/"+entry.path().replace(wood.name()+"_", "")+"_side")
+            );
+            createModel(generators, mapping,
+                    ChartaMod.id("item/"+entry.path()),
+                    ChartaMod.id("item/"+entry.path().replace(wood.name()+"_", ""))
+            );
+
+            createTableBlockState(entry, generators);
+        });
+
+        ModBlocks.GAME_CHAIR_MAP.forEach((wood, entry) -> {
+            TextureMapping mapping = new TextureMapping();
+            mapping.put(PARTICLE, getPlanks(wood));
+            mapping.put(PLANKS, getPlanks(wood));
+            mapping.put(LOG, getLog(wood));
+            createChairBlockStateAndModel(entry, generators, mapping,
+                    ChartaMod.id("block/"+entry.path()),
+                    ChartaMod.id("block/"+entry.path().replace(wood.name()+"_", ""))
+            );
+        });
+
+
+        ModBlocks.BAR_STOOL_MAP.forEach((wood, entry) -> {
+            TextureMapping mapping = new TextureMapping();
+            mapping.put(PARTICLE, getPlanks(wood));
+            mapping.put(PLANKS, getPlanks(wood));
+            mapping.put(LOG, getLog(wood));
+            createStoolBlockStateAndModel(entry, generators, mapping,
+                    ChartaMod.id("block/"+entry.path()),
+                    ChartaMod.id("block/"+entry.path().replace(wood.name()+"_", ""))
+            );
+        });
+
+        ModBlocks.BAR_SHELF_MAP.forEach((wood, entry) -> {
+            TextureMapping mapping = new TextureMapping();
+            mapping.put(PARTICLE, getPlanks(wood));
+            mapping.put(PLANKS, getPlanks(wood));
+            mapping.put(LOG, getLog(wood));
+            createDirectionalBlockStateAndModel(entry, generators, mapping,
+                    ChartaMod.id("block/"+entry.path()),
+                    ChartaMod.id("block/"+entry.path().replace(wood.name()+"_", ""))
+            );
+        });
+
+        ModBlocks.REGISTRY.getEntries().forEach(entry -> {
+            ResourceLocation model = ChartaMod.id("block/"+entry.path());
+            switch (entry.get()) {
+                case BeerGlassBlock ignored -> createDirectionalBlockStateAndModel(entry, generators, null, model, model);
+                case WineGlassBlock ignored -> createBaseBlockStateAndModel(entry, generators, null, model, model);
+                default -> {}
+            }
+        });
+
     }
 
-//    private void addClothCardTablePart(ConfiguredModel.Builder<MultiPartBlockStateBuilder.PartBuilder> builder, ResourceLocation modelPath, int rotationY, Boolean valid, Boolean north, Boolean east, Boolean south, Boolean west, DyeColor color) {
-//        MultiPartBlockStateBuilder.PartBuilder model = addDirectionPart(builder, modelPath, rotationY, valid, north, east, south, west);
-//        model.condition(CardTableBlock.CLOTH, true);
-//        model.condition(CardTableBlock.COLOR, color);
-//    }
-//
-//    private MultiPartBlockStateBuilder.PartBuilder addDirectionPart(ConfiguredModel.Builder<MultiPartBlockStateBuilder.PartBuilder> builder, ResourceLocation modelPath, int rotationY, Boolean valid, Boolean north, Boolean east, Boolean south, Boolean west) {
-//        builder.modelFile(this.models().getExistingFile(modelPath));
-//        builder.rotationY(rotationY);
-//        MultiPartBlockStateBuilder.PartBuilder model = builder.addModel();
-//        if(valid != null)
-//            model.condition(CardTableBlock.VALID, valid);
-//        if(north != null)
-//            model.condition(CardTableBlock.NORTH, north);
-//        if(east != null)
-//            model.condition(CardTableBlock.EAST, east);
-//        if(south != null)
-//            model.condition(CardTableBlock.SOUTH, south);
-//        if(west != null)
-//            model.condition(CardTableBlock.WEST, west);
-//        return model;
-//    }
-//
-//    private ResourceLocation getLogResource(String wood) {
-//        ResourceLocation logResource = this.mcLoc("block/"+wood+"_log");
-//        if(!this.models().existingFileHelper.exists(this.mcLoc("textures/block/"+wood+"_log.png"), PackType.CLIENT_RESOURCES)) {
-//            logResource = this.mcLoc("block/"+wood+"_stem");
-//            if(!this.models().existingFileHelper.exists(this.mcLoc("textures/block/"+wood+"_stem.png"), PackType.CLIENT_RESOURCES)) {
-//                logResource = this.mcLoc("block/"+wood+"_stalk");
-//            }
-//        }
-//        return logResource;
-//    }
+    private static ResourceLocation createModel(BlockModelGenerators generators, @Nullable TextureMapping mapping, ResourceLocation model, ResourceLocation parent) {
+        if(mapping == null) {
+            return parent;
+        }else{
+            ModelTemplate template = new ModelTemplate(Optional.of(parent), Optional.empty(), mapping.slots.keySet().toArray(new TextureSlot[0]));
+            template.create(model, mapping, generators.modelOutput);
+            return model;
+        }
+    }
+
+    private static void createBaseBlockStateAndModel(ModBlockRegistry.BlockEntry<?> entry, BlockModelGenerators generators, @Nullable TextureMapping mapping, ResourceLocation model, ResourceLocation parent) {
+        ResourceLocation path = createModel(generators, mapping, model, parent);
+        MultiVariantGenerator generator = MultiVariantGenerator.multiVariant(entry.get(), Variant.variant().with(VariantProperties.MODEL, path));
+        generators.blockStateOutput.accept(generator);
+    }
+
+    private static void createDirectionalBlockStateAndModel(ModBlockRegistry.BlockEntry<?> entry, BlockModelGenerators generators, @Nullable TextureMapping mapping, ResourceLocation model, ResourceLocation parent) {
+        ResourceLocation path = createModel(generators, mapping, model, parent);
+        MultiVariantGenerator generator = MultiVariantGenerator.multiVariant(entry.get());
+        PropertyDispatch.C1<Direction> dispatch = PropertyDispatch.property(BlockStateProperties.HORIZONTAL_FACING);
+        dispatch.select(Direction.NORTH, Variant.variant().with(VariantProperties.MODEL, path));
+        dispatch.select(Direction.EAST, Variant.variant().with(VariantProperties.MODEL, path).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90));
+        dispatch.select(Direction.SOUTH, Variant.variant().with(VariantProperties.MODEL, path).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180));
+        dispatch.select(Direction.WEST, Variant.variant().with(VariantProperties.MODEL, path).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270));
+        generator.with(dispatch);
+        generators.blockStateOutput.accept(generator);
+    }
+
+    private static void createStoolBlockStateAndModel(ModBlockRegistry.BlockEntry<?> entry, BlockModelGenerators generators, @Nullable TextureMapping mapping, ResourceLocation model, ResourceLocation parent) {
+        ResourceLocation path = createModel(generators, mapping, model, parent);
+        MultiPartGenerator generator = MultiPartGenerator.multiPart(entry.get());
+        generator.with(Variant.variant().with(VariantProperties.MODEL, path));
+
+        for(DyeColor color : DyeColor.values()) {
+            Condition.TerminalCondition condition = Condition.condition();
+            condition.term(BarStoolBlock.CLOTH, true);
+            condition.term(BarStoolBlock.COLOR, color);
+            generator.with(condition, Variant.variant().with(VariantProperties.MODEL, ChartaMod.id("block/" + color + "_bar_stool_cloth")));
+        }
+
+        generators.blockStateOutput.accept(generator);
+    }
+
+    private static void createChairBlockStateAndModel(ModBlockRegistry.BlockEntry<?> entry, BlockModelGenerators generators, @Nullable TextureMapping mapping, ResourceLocation model, ResourceLocation parent) {
+        ResourceLocation path = createModel(generators, mapping, model, parent);
+        MultiPartGenerator generator = MultiPartGenerator.multiPart(entry.get());
+
+        int rot = 0;
+        for(Direction d : Direction.Plane.HORIZONTAL) {
+            Condition.TerminalCondition baseCondition = Condition.condition();
+            baseCondition.term(GameChairBlock.FACING, d);
+
+            Variant baseVariant = Variant.variant();
+            baseVariant.with(VariantProperties.Y_ROT, getRot(rot));
+            baseVariant.with(VariantProperties.MODEL, path);
+
+            generator.with(baseCondition, baseVariant);
+            for(DyeColor color : DyeColor.values()) {
+                Condition.TerminalCondition clothCondition = Condition.condition();
+                clothCondition.term(GameChairBlock.FACING, d);
+                clothCondition.term(GameChairBlock.CLOTH, true);
+                clothCondition.term(GameChairBlock.COLOR, color);
+
+                Variant clothVariant = Variant.variant();
+                clothVariant.with(VariantProperties.Y_ROT, getRot(rot));
+                clothVariant.with(VariantProperties.MODEL, ChartaMod.id("block/" + color + "_game_chair_cloth"));
+
+                generator.with(clothCondition, clothVariant);
+            }
+            rot += 90;
+        }
+
+        generators.blockStateOutput.accept(generator);
+    }
+
+    private static void createTableBlockState(ModBlockRegistry.BlockEntry<?> entry, BlockModelGenerators generators) {
+        MultiPartGenerator generator = MultiPartGenerator.multiPart(entry.get());
+
+        ResourceLocation center = ChartaMod.id("block/"+entry.path()+"_center");
+        ResourceLocation feet = ChartaMod.id("block/"+entry.path()+"_feet");
+        ResourceLocation corner = ChartaMod.id("block/"+entry.path()+"_corner");
+        ResourceLocation side = ChartaMod.id("block/"+entry.path()+"_side");
+
+        addDirectionTablePart(generator, center, VariantProperties.Rotation.R0, null, null, null, null, null);
+
+        addDirectionTablePart(generator, feet, VariantProperties.Rotation.R0, null, false, false, null, null);
+        addDirectionTablePart(generator, feet, VariantProperties.Rotation.R90, null, null, false, false, null);
+        addDirectionTablePart(generator, feet, VariantProperties.Rotation.R180, null, null, null, false, false);
+        addDirectionTablePart(generator, feet, VariantProperties.Rotation.R270, null, false, null, null, false);
+
+        addDirectionTablePart(generator, corner, VariantProperties.Rotation.R0, true, false, true, true, false);
+        addDirectionTablePart(generator, corner, VariantProperties.Rotation.R90, true, false, false, true, true);
+        addDirectionTablePart(generator, corner, VariantProperties.Rotation.R180, true, true, false, false, true);
+        addDirectionTablePart(generator, corner, VariantProperties.Rotation.R270, true, true, true, false, false);
+
+        addDirectionTablePart(generator, side, VariantProperties.Rotation.R0, true, true, true, true, false);
+        addDirectionTablePart(generator, side, VariantProperties.Rotation.R90, true, false, true, true, true);
+        addDirectionTablePart(generator, side, VariantProperties.Rotation.R180, true, true, false, true, true);
+        addDirectionTablePart(generator, side, VariantProperties.Rotation.R270, true, true, true, false, true);
+
+        for(DyeColor color : DyeColor.values()) {
+            ResourceLocation centerCloth = ChartaMod.id("block/"+color+"_card_table_center_cloth");
+            ResourceLocation cornerCloth = ChartaMod.id("block/"+color+"_card_table_corner_cloth");
+            ResourceLocation sideCloth = ChartaMod.id("block/"+color+"_card_table_side_cloth");
+
+            addDirectionTableClothPart(generator, centerCloth, VariantProperties.Rotation.R0, true, true, true, true, true, color);
+
+            addDirectionTableClothPart(generator, cornerCloth, VariantProperties.Rotation.R0, true, false, true, true, false, color);
+            addDirectionTableClothPart(generator, cornerCloth, VariantProperties.Rotation.R90, true, false, false, true, true, color);
+            addDirectionTableClothPart(generator, cornerCloth, VariantProperties.Rotation.R180, true, true, false, false, true, color);
+            addDirectionTableClothPart(generator, cornerCloth, VariantProperties.Rotation.R270, true, true, true, false, false, color);
+
+            addDirectionTableClothPart(generator, sideCloth, VariantProperties.Rotation.R0, true, true, true, true, false, color);
+            addDirectionTableClothPart(generator, sideCloth, VariantProperties.Rotation.R90, true, false, true, true, true, color);
+            addDirectionTableClothPart(generator, sideCloth, VariantProperties.Rotation.R180, true, true, false, true, true, color);
+            addDirectionTableClothPart(generator, sideCloth, VariantProperties.Rotation.R270, true, true, true, false, true, color);
+        }
+
+        generators.blockStateOutput.accept(generator);
+    }
+
+    private static void addDirectionTablePart(MultiPartGenerator generator, ResourceLocation modelPath, VariantProperties.Rotation rotationY, Boolean valid, Boolean north, Boolean east, Boolean south, Boolean west) {
+        Variant variant = Variant.variant().with(VariantProperties.MODEL, modelPath);
+        if (rotationY != VariantProperties.Rotation.R0) {
+            variant.with(VariantProperties.Y_ROT, rotationY);
+        }
+
+        Condition.TerminalCondition condition = Condition.condition();
+        if (valid != null) condition.term(CardTableBlock.VALID, valid);
+        if (north != null) condition.term(CardTableBlock.NORTH, north);
+        if (east != null) condition.term(CardTableBlock.EAST, east);
+        if (south != null) condition.term(CardTableBlock.SOUTH, south);
+        if (west != null) condition.term(CardTableBlock.WEST, west);
+
+        if (condition.get().getAsJsonObject().isEmpty()) {
+            generator.with(variant);
+        } else {
+            generator.with(condition, variant);
+        }
+    }
+
+    private static void addDirectionTableClothPart(MultiPartGenerator generator, ResourceLocation modelPath, VariantProperties.Rotation rotationY, Boolean valid, Boolean north, Boolean east, Boolean south, Boolean west, DyeColor color) {
+        Variant variant = Variant.variant().with(VariantProperties.MODEL, modelPath);
+        if(rotationY != VariantProperties.Rotation.R0) {
+            variant.with(VariantProperties.Y_ROT, rotationY);
+        }
+
+        Condition.TerminalCondition condition = Condition.condition();
+        if (valid != null) condition.term(CardTableBlock.VALID, valid);
+        if (north != null) condition.term(CardTableBlock.NORTH, north);
+        if (east != null) condition.term(CardTableBlock.EAST, east);
+        if (south != null) condition.term(CardTableBlock.SOUTH, south);
+        if (west != null) condition.term(CardTableBlock.WEST, west);
+
+        condition.term(CardTableBlock.CLOTH, true);
+        condition.term(CardTableBlock.COLOR, color);
+
+        if(condition.get().getAsJsonObject().isEmpty()) {
+            generator.with(variant);
+        }else{
+            generator.with(condition, variant);
+        }
+    }
+
+    private static ResourceLocation getPlanks(WoodType wood) {
+        return ResourceLocation.withDefaultNamespace("block/" + wood.name() + "_planks");
+    }
+
+    private static ResourceLocation getLog(WoodType wood) {
+        if (wood == WoodType.BAMBOO) {
+            return ResourceLocation.withDefaultNamespace("block/" + wood.name() + "_stalk");
+        } else if (wood == WoodType.CRIMSON || wood == WoodType.WARPED) {
+            return ResourceLocation.withDefaultNamespace("block/" + wood.name() + "_stem");
+        } else {
+            return ResourceLocation.withDefaultNamespace("block/" + wood.name() + "_log");
+        }
+    }
+
+    private static VariantProperties.Rotation getRot(int rot) {
+        return switch (rot) {
+            case 0 -> VariantProperties.Rotation.R0;
+            case 90 -> VariantProperties.Rotation.R90;
+            case 180 -> VariantProperties.Rotation.R180;
+            case 270 -> VariantProperties.Rotation.R270;
+            default -> throw new IllegalStateException("Invalid rotation "+rot);
+        };
+    }
 
 }
+
+

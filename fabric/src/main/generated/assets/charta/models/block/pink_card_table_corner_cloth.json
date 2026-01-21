@@ -1,0 +1,6 @@
+{
+  "parent": "charta:block/card_table_corner_cloth",
+  "textures": {
+    "cloth": "minecraft:block/pink_wool"
+  }
+}

@@ -3,6 +3,7 @@ package dev.lucaargolo.charta.data;
 import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.utils.CardImage;
 import dev.lucaargolo.charta.utils.CardImageUtils;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -26,7 +27,7 @@ public class DeckImageProvider implements DataProvider {
 
     private final PackOutput output;
 
-    public DeckImageProvider(PackOutput output) {
+    public DeckImageProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         this.output = output;
     }
 
@@ -43,7 +44,8 @@ public class DeckImageProvider implements DataProvider {
                     paths.filter(Files::isRegularFile).forEach(path -> {
                         String fileName = path.getFileName().toString();
                         String cardName = fileName.contains(".") ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
-                        String subFolder = path.getParent().toString().replace("decks", "");
+                        String parentFolder = path.getParent().toString();
+                        String subFolder = parentFolder.substring(parentFolder.indexOf("decks") + "decks".length());
                         File cardOutputFolder = new File(decksOutputPath);
                         cardOutputFolder.mkdirs();
                         File cardOutputFile = new File(cardOutputFolder + File.separator + subFolder + File.separator + cardName);

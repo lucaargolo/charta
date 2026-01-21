@@ -7,13 +7,16 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 public class FabricModShaderManager extends ModShaderManager {
 
     private final Map<ResourceLocation, Pair<VertexFormat, Consumer<ShaderInstance>>> shadersToRegister = new HashMap<>();
+    private final List<Runnable> runnableOnReload = new ArrayList<>();
 
     @Override
     public void init() {
@@ -23,11 +26,19 @@ public class FabricModShaderManager extends ModShaderManager {
 
     @Override
     public void registerShader(ResourceLocation location, VertexFormat vertexFormat, Consumer<ShaderInstance> consumer) {
-        shadersToRegister.put(location, Pair.of(vertexFormat, consumer));
+        this.shadersToRegister.put(location, Pair.of(vertexFormat, consumer));
     }
 
-    public void registerShaders(CoreShaderRegistrationCallback.RegistrationContext context) throws IOException {
-        for (Map.Entry<ResourceLocation, Pair<VertexFormat, Consumer<ShaderInstance>>> entry : shadersToRegister.entrySet()) {
+    @Override
+    public void registerEventOnShaderReload(Runnable runnable) {
+        this.runnableOnReload.add(runnable);
+    }
+
+    private void registerShaders(CoreShaderRegistrationCallback.RegistrationContext context) throws IOException {
+        for (Runnable runnable : this.runnableOnReload) {
+            runnable.run();
+        }
+        for (Map.Entry<ResourceLocation, Pair<VertexFormat, Consumer<ShaderInstance>>> entry : this.shadersToRegister.entrySet()) {
             context.register(entry.getKey(), entry.getValue().getLeft(), entry.getValue().getRight());
         }
     }
