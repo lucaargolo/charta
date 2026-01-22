@@ -1,4 +1,4 @@
-package dev.lucaargolo.charta.data;
+package dev.lucaargolo.charta.data.image;
 
 import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.utils.CardImage;

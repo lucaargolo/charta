@@ -2,6 +2,7 @@ package dev.lucaargolo.charta.game;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -84,9 +85,9 @@ public class Deck {
     public Deck(Rarity rarity, boolean tradeable, List<Card> cards, Function<Suit, ResourceLocation> suitsLocation, Function<Suit, String> suitsTranslatableKey, Function<Card, ResourceLocation> cardsLocation, Function<Card, String> cardsTranslatableKey, Supplier<ResourceLocation> deckLocation, Supplier<String> deckTranslatableKey) {
         this.rarity = rarity;
         this.tradeable = tradeable;
-        this.cards = ImmutableList.copyOf(cards);
-        this.uniqueCards = ImmutableSet.copyOf(cards);
-        this.uniqueSuits = ImmutableSet.copyOf(cards.stream().map(Card::suit).iterator());
+        this.cards = ImmutableList.sortedCopyOf(cards);
+        this.uniqueCards = ImmutableSortedSet.copyOf(cards);
+        this.uniqueSuits = ImmutableSortedSet.copyOf(cards.stream().map(Card::suit).iterator());
         this.suitsLocation = suitsLocation;
         this.suitsTranslatableKeys = suitsTranslatableKey;
         this.cardsLocation = cardsLocation;

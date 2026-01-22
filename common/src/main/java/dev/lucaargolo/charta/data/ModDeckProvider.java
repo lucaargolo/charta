@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public class DeckProvider implements DataProvider {
+public class ModDeckProvider implements DataProvider {
 
     private final PackOutput output;
     private final Gson gson;
@@ -129,7 +129,7 @@ public class DeckProvider implements DataProvider {
         return deck;
     }
     
-    public DeckProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+    public ModDeckProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         this.output = output;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }

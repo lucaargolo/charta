@@ -9,12 +9,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-public class ModLootProvider extends LootTableProvider {
+public class FabricModChestLootProvider extends LootTableProvider {
 
-    public ModLootProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, Set.of(), List.of(
-            new SubProviderEntry(ModChestLootProvider::new, LootContextParamSets.CHEST)
-        ), registries);
+    public FabricModChestLootProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+        super(output, Set.of(), List.of(new SubProviderEntry(provider -> ModChestLootProvider::generate, LootContextParamSets.CHEST)), registries);
     }
 
 }
