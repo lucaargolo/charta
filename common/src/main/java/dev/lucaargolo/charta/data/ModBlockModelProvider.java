@@ -119,7 +119,11 @@ public class ModBlockModelProvider {
             switch (entry.get()) {
                 case BeerGlassBlock ignored -> createDirectionalBlockStateAndModel(entry, generators, null, model, model);
                 case WineGlassBlock ignored -> createBaseBlockStateAndModel(entry, generators, null, model, model);
-                default -> {}
+                default -> {
+                    if(entry == ModBlocks.DEALER_TABLE) {
+                        createBaseBlockStateAndModel(entry, generators, null, model, model);
+                    }
+                }
             }
         });
 

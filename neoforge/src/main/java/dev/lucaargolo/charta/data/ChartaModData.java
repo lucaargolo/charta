@@ -1,8 +1,10 @@
 package dev.lucaargolo.charta.data;
 
 import dev.lucaargolo.charta.ChartaMod;
+import dev.lucaargolo.charta.block.ModBannerPatterns;
 import dev.lucaargolo.charta.data.fabric.FabricLikeDataOutput;
 import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,17 +29,16 @@ public class ChartaModData {
         generator.addProvider(event.includeServer(), NeoForgeModTagProvider.item(output, event.getLookupProvider(), exFileHelper));
         generator.addProvider(event.includeServer(), NeoForgeModTagProvider.block(output, event.getLookupProvider(), exFileHelper));
         generator.addProvider(event.includeServer(), new NeoForgeModLootProvider(output, event.getLookupProvider()));
-        generator.addProvider(event.includeServer(), new ModLootProvider(output, builtinProvider.getRegistryProvider()));
-        generator.addProvider(event.includeServer(), new SuitImageProvider(output));
-        generator.addProvider(event.includeServer(), new CardImageProvider(output));
-        generator.addProvider(event.includeServer(), new DeckImageProvider(output));
-        generator.addProvider(event.includeServer(), new DeckProvider(output));
+        generator.addProvider(event.includeServer(), new SuitImageProvider(output, event.getLookupProvider()));
+        generator.addProvider(event.includeServer(), new CardImageProvider(output, event.getLookupProvider()));
+        generator.addProvider(event.includeServer(), new DeckImageProvider(output, event.getLookupProvider()));
+        generator.addProvider(event.includeServer(), new DeckProvider(output, event.getLookupProvider()));
         generator.addProvider(event.includeServer(), new ModBannerPatternTagsProvider(output, builtinProvider.getRegistryProvider()));
         generator.addProvider(event.includeServer(), new ModRecipeProvider(output, builtinProvider.getRegistryProvider()));
     }
 
     public static RegistrySetBuilder bootstrapRegistries() {
-        return new RegistrySetBuilder();
+        return new RegistrySetBuilder().add(Registries.BANNER_PATTERN, ModBannerPatterns::bootstrap);
     }
 
 }

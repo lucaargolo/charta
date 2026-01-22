@@ -52,6 +52,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @SuppressWarnings("unchecked")
 public abstract class ChartaMod {
@@ -113,7 +114,7 @@ public abstract class ChartaMod {
         this.registerEventOnServerAboutToStart(this::onServerAboutToStart);
         this.registerEventOnChunkSent(this::onChunkSent);
         this.registerEventOnPlayerJoined(this::onPlayerJoined);
-        this.registerEventOnDatapackReload(this::onDatapackReload);
+        this.registerEventOnDatapackSync(this::onDatapackSync);
     }
 
     public abstract String getPlatform();
@@ -124,7 +125,7 @@ public abstract class ChartaMod {
 
     protected abstract void registerReloadableListener(ResourceLocation identifier, PreparableReloadListener listener);
 
-    protected abstract void addVillagerTrade(MinecraftEntry<VillagerProfession> profession, int level, VillagerTrades.ItemListing listing);
+    protected abstract void addVillagerTrade(MinecraftEntry<VillagerProfession> profession, int level, Supplier<VillagerTrades.ItemListing> listing);
 
     public abstract <M extends AbstractContainerMenu, D> void openMenu(ModMenuTypeRegistry.AdvancedMenuTypeEntry<M, D> entry, BiFunction<Integer, Inventory, M> constructor, Player player, D data, Component title);
 
@@ -174,25 +175,19 @@ public abstract class ChartaMod {
     public abstract void registerEventOnPlayerJoined(Consumer<ServerPlayer> consumer);
 
     private void onPlayerJoined(ServerPlayer player) {
+        PlayerOptionData data = player.server.overworld().getDataStorage().computeIfAbsent(PlayerOptionData.factory(), "charta_player_options");
+        this.packetManager.sendToPlayer(player, new PlayerOptionsPayload(data.getPlayerOptions(player)));
+    }
+
+    public abstract void registerEventOnDatapackSync(Consumer<ServerPlayer> consumer);
+
+    private void onDatapackSync(ServerPlayer player) {
         this.packetManager.sendToPlayer(player, new ImagesPayload(
                 new HashMap<>(ChartaMod.SUIT_IMAGES.getImages()),
                 new HashMap<>(ChartaMod.CARD_IMAGES.getImages()),
                 new HashMap<>(ChartaMod.DECK_IMAGES.getImages())
         ));
         this.packetManager.sendToPlayer(player, new CardDecksPayload(new LinkedHashMap<>(ChartaMod.CARD_DECKS.getDecks())));
-        PlayerOptionData data = player.server.overworld().getDataStorage().computeIfAbsent(PlayerOptionData.factory(), "charta_player_options");
-        this.packetManager.sendToPlayer(player, new PlayerOptionsPayload(data.getPlayerOptions(player)));
-    }
-
-    public abstract void registerEventOnDatapackReload(Consumer<MinecraftServer> consumer);
-
-    private void onDatapackReload(MinecraftServer server) {
-        this.packetManager.sendToAllPlayers(server, new ImagesPayload(
-                new HashMap<>(ChartaMod.SUIT_IMAGES.getImages()),
-                new HashMap<>(ChartaMod.CARD_IMAGES.getImages()),
-                new HashMap<>(ChartaMod.DECK_IMAGES.getImages())
-        ));
-        this.packetManager.sendToAllPlayers(server, new CardDecksPayload(new LinkedHashMap<>(ChartaMod.CARD_DECKS.getDecks())));
     }
 
     private void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry, Registry<StructureProcessorList> processorListRegistry, ResourceLocation poolRL, String nbtPieceRL, int weight) {

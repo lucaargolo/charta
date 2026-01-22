@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 public class FabricModShaderManager extends ModShaderManager {
 
     private final Map<ResourceLocation, Pair<VertexFormat, Consumer<ShaderInstance>>> shadersToRegister = new HashMap<>();
-    private final List<Runnable> runnableOnReload = new ArrayList<>();
+    private final List<Runnable> onShaderReload = new ArrayList<>();
 
     @Override
     public void init() {
@@ -31,11 +31,11 @@ public class FabricModShaderManager extends ModShaderManager {
 
     @Override
     public void registerEventOnShaderReload(Runnable runnable) {
-        this.runnableOnReload.add(runnable);
+        this.onShaderReload.add(runnable);
     }
 
     private void registerShaders(CoreShaderRegistrationCallback.RegistrationContext context) throws IOException {
-        for (Runnable runnable : this.runnableOnReload) {
+        for (Runnable runnable : this.onShaderReload) {
             runnable.run();
         }
         for (Map.Entry<ResourceLocation, Pair<VertexFormat, Consumer<ShaderInstance>>> entry : this.shadersToRegister.entrySet()) {

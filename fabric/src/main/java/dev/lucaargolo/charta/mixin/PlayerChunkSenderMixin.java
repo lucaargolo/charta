@@ -1,5 +1,6 @@
 package dev.lucaargolo.charta.mixin;
 
+import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.FabricChartaMod;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.PlayerChunkSender;
@@ -15,7 +16,7 @@ public class PlayerChunkSenderMixin {
 
     @Inject(at = @At("TAIL"), method = "sendChunk")
     private static void charta$onSendChunk(ServerGamePacketListenerImpl packetListener, ServerLevel level, LevelChunk chunk, CallbackInfo ci) {
-        FabricChartaMod.ON_CHUNK_SENT.forEach(c -> c.accept(chunk, packetListener.player));
+        ((FabricChartaMod) ChartaMod.getInstance()).getOnChunkSent().forEach(c -> c.accept(chunk, packetListener.player));
     }
 
 }

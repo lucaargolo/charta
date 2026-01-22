@@ -40,16 +40,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
 public class FabricChartaModClient extends ChartaModClient implements ClientModInitializer {
 
-    private final List<ResourceLocation> modelsToAdd = new ArrayList<>();
+    private final List<ResourceLocation> additionalModels = new ArrayList<>();
 
     @Override
     public void onInitializeClient() {
         this.init();
         ModelLoadingPlugin.register(context -> {
-            context.addModels(this.modelsToAdd);
+            context.addModels(this.additionalModels);
         });
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.EMPTY_BEER_GLASS.get(), RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.WHEAT_BEER_GLASS.get(), RenderType.translucent());
@@ -81,12 +82,12 @@ public class FabricChartaModClient extends ChartaModClient implements ClientModI
 
     @Override
     protected void registerAdditionalModel(ResourceLocation location) {
-        this.modelsToAdd.add(location);
+        this.additionalModels.add(location);
     }
 
     @Override
-    protected void registerDynamicItemRenderer(ModItemRegistry.ItemEntry<?> item, BlockEntityWithoutLevelRenderer itemRenderer) {
-        BuiltinItemRendererRegistry.INSTANCE.register(item.get(), itemRenderer::renderByItem);
+    protected void registerDynamicItemRenderer(ModItemRegistry.ItemEntry<?> entry, Supplier<BlockEntityWithoutLevelRenderer> renderer) {
+        BuiltinItemRendererRegistry.INSTANCE.register(entry.get(), renderer.get()::renderByItem);
     }
 
     @Override

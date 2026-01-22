@@ -43,6 +43,7 @@ import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.function.Supplier;
 
 public abstract class ChartaModClient {
 
@@ -76,7 +77,7 @@ public abstract class ChartaModClient {
         this.registerMenuScreen(ModMenuTypes.SOLITAIRE, SolitaireScreen::new);
 
         this.registerAdditionalModel(ChartaMod.id("deck"));
-        this.registerDynamicItemRenderer(ModItems.DECK, new DeckItemRenderer());
+        this.registerDynamicItemRenderer(ModItems.DECK, DeckItemRenderer::new);
         this.registerReloadableListener(ChartaMod.id("markdown"), MARKDOWN);
     }
 
@@ -90,7 +91,7 @@ public abstract class ChartaModClient {
 
     protected abstract void registerAdditionalModel(ResourceLocation location);
 
-    protected abstract void registerDynamicItemRenderer(ModItemRegistry.ItemEntry<?> item, BlockEntityWithoutLevelRenderer itemRenderer);
+    protected abstract void registerDynamicItemRenderer(ModItemRegistry.ItemEntry<?> entry, Supplier<BlockEntityWithoutLevelRenderer> renderer);
 
     protected abstract void registerReloadableListener(ResourceLocation identifier, PreparableReloadListener listener);
 

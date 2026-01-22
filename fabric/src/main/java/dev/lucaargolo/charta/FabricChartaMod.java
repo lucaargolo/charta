@@ -38,10 +38,11 @@ import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class FabricChartaMod extends ChartaMod implements ModInitializer {
 
-    public static final List<BiConsumer<LevelChunk, ServerPlayer>> ON_CHUNK_SENT = new ArrayList<>();
+    private final List<BiConsumer<LevelChunk, ServerPlayer>> onChunkSent = new ArrayList<>();
 
     @Override
     public void onInitialize() {
@@ -82,9 +83,9 @@ public class FabricChartaMod extends ChartaMod implements ModInitializer {
     }
 
     @Override
-    protected void addVillagerTrade(MinecraftEntry<VillagerProfession> profession, int level, VillagerTrades.ItemListing listing) {
+    protected void addVillagerTrade(MinecraftEntry<VillagerProfession> profession, int level, Supplier<VillagerTrades.ItemListing> listing) {
         TradeOfferHelper.registerVillagerOffers(profession.get(), level, factory -> {
-            factory.add(listing);
+            factory.add(listing.get());
         });
     }
 
@@ -115,7 +116,7 @@ public class FabricChartaMod extends ChartaMod implements ModInitializer {
 
     @Override
     public void registerEventOnChunkSent(BiConsumer<LevelChunk, ServerPlayer> consumer) {
-        ON_CHUNK_SENT.add(consumer);
+        this.onChunkSent.add(consumer);
     }
 
     @Override
@@ -124,8 +125,11 @@ public class FabricChartaMod extends ChartaMod implements ModInitializer {
     }
 
     @Override
-    public void registerEventOnDatapackReload(Consumer<MinecraftServer> consumer) {
-        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, manager, success) -> consumer.accept(server));
+    public void registerEventOnDatapackSync(Consumer<ServerPlayer> consumer) {
+        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> consumer.accept(player));
     }
 
+    public List<BiConsumer<LevelChunk, ServerPlayer>> getOnChunkSent() {
+        return onChunkSent;
+    }
 }

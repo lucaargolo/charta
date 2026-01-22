@@ -13,7 +13,8 @@ public class NeoForgeModLootProvider extends LootTableProvider {
 
     public NeoForgeModLootProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, Set.of(), List.of(
-            new SubProviderEntry(NeoForgeModBlockLootProvider::new, LootContextParamSets.BLOCK)
+            new SubProviderEntry(NeoForgeModBlockLootProvider::new, LootContextParamSets.BLOCK),
+            new SubProviderEntry(ModChestLootProvider::new, LootContextParamSets.CHEST)
         ), registries);
     }
 
