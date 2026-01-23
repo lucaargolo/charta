@@ -2,7 +2,7 @@ package dev.lucaargolo.charta.client.render.screen.widgets;
 
 import dev.lucaargolo.charta.client.render.screen.GameScreen;
 import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardGame;
+import dev.lucaargolo.charta.game.Game;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CardSlotWidget<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends AbstractCardWidget {
+public class CardSlotWidget<G extends Game<G, M>, M extends AbstractCardMenu<G, M>> extends AbstractCardWidget {
 
     private final GameScreen<G, M> parent;
     private final CardSlot<G, M> cardSlot;

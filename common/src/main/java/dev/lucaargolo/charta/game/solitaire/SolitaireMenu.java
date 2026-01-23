@@ -1,7 +1,8 @@
 package dev.lucaargolo.charta.game.solitaire;
 
-import dev.lucaargolo.charta.game.CardGames;
 import dev.lucaargolo.charta.game.GameSlot;
+import dev.lucaargolo.charta.game.GameType;
+import dev.lucaargolo.charta.game.ModGameTypes;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
 import dev.lucaargolo.charta.menu.ModMenuTypes;
@@ -87,8 +88,8 @@ public class SolitaireMenu extends AbstractCardMenu<SolitaireGame, SolitaireMenu
     }
 
     @Override
-    public CardGames.Factory<SolitaireGame, SolitaireMenu> getGameFactory() {
-        return CardGames.SOLITAIRE;
+    public GameType<SolitaireGame, SolitaireMenu> getGameType() {
+        return ModGameTypes.SOLITAIRE.get();
     }
 
     @Override

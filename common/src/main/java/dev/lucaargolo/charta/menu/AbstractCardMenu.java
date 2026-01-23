@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.Supplier;
 
-public abstract class AbstractCardMenu<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends AbstractContainerMenu {
+public abstract class AbstractCardMenu<G extends Game<G, M>, M extends AbstractCardMenu<G, M>> extends AbstractContainerMenu {
 
     protected final G game;
 
@@ -72,7 +72,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G, M>, M extends Abstr
         this.player = inventory.player;
         this.access = ContainerLevelAccess.create(inventory.player.level(), definition.pos());
         this.deck = definition.deck();
-        this.game = CardGames.getGameForMenu(this.getGameFactory(), this.access, this.deck, definition.players(), definition.options());
+        this.game = ModGameTypes.getGameForMenu(this.getGameType(), this.access, this.deck, definition.players(), definition.options());
 
         this.cardPlayer = ((LivingEntityMixed) this.player).charta_getCardPlayer();
         this.addDataSlots(data);
@@ -108,7 +108,7 @@ public abstract class AbstractCardMenu<G extends CardGame<G, M>, M extends Abstr
         return deck;
     }
 
-    public abstract CardGames.Factory<G, M> getGameFactory();
+    public abstract GameType<G, M> getGameType();
 
     public G getGame() {
         return game;

@@ -75,7 +75,7 @@ public class CardTableBlockEntity extends BlockEntity {
     public Vector2f centerOffset = new Vector2f();
 
     @Nullable
-    private CardGame<?, ?> game = null;
+    private Game<?, ?> game = null;
     private int age = 0;
     public boolean playersDirty = true;
 
@@ -89,7 +89,7 @@ public class CardTableBlockEntity extends BlockEntity {
     }
 
     @Nullable
-    public CardGame<?, ?> getGame() {
+    public Game<?, ?> getGame() {
         return game;
     }
 
@@ -98,14 +98,14 @@ public class CardTableBlockEntity extends BlockEntity {
         if(deck != null) {
             if(gameId != null) {
                 List<CardPlayer> players = this.getOrderedPlayers();
-                CardGames.Factory<?, ?> factory = CardGames.getGame(gameId);
-                if(factory != null) {
-                    CardGame<?, ?> game = factory.create(players, this.getDeck());
+                GameType<?, ?> type = ModGameTypes.REGISTRY.getRegistry().get(gameId);
+                if(type != null) {
+                    Game<?, ?> game = type.create(players, this.getDeck());
                     game.setRawOptions(options);
-                    if(CardGame.isValidDeck(game, this.getDeck())) {
+                    if(Game.isValidDeck(game, this.getDeck())) {
                         if (players.size() >= game.getMinPlayers()) {
                             if (players.size() <= game.getMaxPlayers()) {
-                                Either<CardGame<?, ?>, Component> either = game.playerPredicate(players);
+                                Either<Game<?, ?>, Component> either = game.playerPredicate(players);
                                 if(either.left().isPresent()) {
                                     ChartaMod.getPacketManager().sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), new GameSlotResetPayload(worldPosition));
                                     for(CardPlayer player : players) {
@@ -373,7 +373,7 @@ public class CardTableBlockEntity extends BlockEntity {
             level.sendBlockUpdated(pos, state, state, 3);
         }
         if(blockEntity.game != null) {
-            CardGame<?, ?> game = blockEntity.game;
+            Game<?, ?> game = blockEntity.game;
             if(!game.isGameOver()) {
                 if (blockEntity.age++ % 100 == 0 || blockEntity.playersDirty) {
                     List<CardPlayer> players = blockEntity.getOrderedPlayers();

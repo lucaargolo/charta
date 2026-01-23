@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class CardGame<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> {
+public abstract class Game<G extends Game<G, M>, M extends AbstractCardMenu<G, M>> {
 
     public static CardPlayer TABLE = new AutoPlayer(0f) {
         @Override
@@ -43,7 +43,7 @@ public abstract class CardGame<G extends CardGame<G, M>, M extends AbstractCardM
     protected boolean isGameReady;
     protected boolean isGameOver;
 
-    public CardGame(List<CardPlayer> players, Deck deck) {
+    public Game(List<CardPlayer> players, Deck deck) {
         this.players = players;
         this.deck = deck;
 
@@ -64,7 +64,7 @@ public abstract class CardGame<G extends CardGame<G, M>, M extends AbstractCardM
 
     public abstract Predicate<Card> getCardPredicate();
 
-    public Either<CardGame<?, ?>, Component> playerPredicate(List<CardPlayer> players) {
+    public Either<Game<?, ?>, Component> playerPredicate(List<CardPlayer> players) {
         return Either.left(this);
     }
 
@@ -266,8 +266,8 @@ public abstract class CardGame<G extends CardGame<G, M>, M extends AbstractCardM
         }
     }
 
-    public static boolean isValidDeck(CardGame<?, ?> cardGame, Deck deck) {
-        return cardGame.getDeckPredicate().test(deck);
+    public static boolean isValidDeck(Game<?, ?> game, Deck deck) {
+        return game.getDeckPredicate().test(deck);
     }
 
 }

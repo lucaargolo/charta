@@ -13,6 +13,7 @@ import java.util.function.Supplier;
 public class NeoForgeModRegistry<T> extends ModRegistry<T> {
 
     private final DeferredRegister<T> registry;
+    private final Registry<T> minecraftRegistry;
 
     public NeoForgeModRegistry(ResourceKey<Registry<T>> registryKey) {
         super(registryKey);
@@ -22,11 +23,17 @@ public class NeoForgeModRegistry<T> extends ModRegistry<T> {
                 builder.sync(true);
             });
         }
+        this.minecraftRegistry = this.registry.getRegistry().get();
     }
 
     @Override
     public void init() {
         this.registry.register(NeoForgeChartaMod.getModBus());
+    }
+
+    @Override
+    public Registry<T> getRegistry() {
+        return this.minecraftRegistry;
     }
 
     @Override

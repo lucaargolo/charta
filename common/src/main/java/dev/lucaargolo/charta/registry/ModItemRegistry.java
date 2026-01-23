@@ -3,6 +3,8 @@ package dev.lucaargolo.charta.registry;
 import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
 import dev.lucaargolo.charta.registry.minecraft.MinecraftRegistry;
 import dev.lucaargolo.charta.utils.ColorProvider;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
@@ -16,6 +18,11 @@ public abstract class ModItemRegistry extends MinecraftRegistry<Item, ModItemReg
 
     public ModItemRegistry() {
         super(Registries.ITEM);
+    }
+
+    @Override
+    public Registry<Item> getRegistry() {
+        return BuiltInRegistries.ITEM;
     }
 
     @Override

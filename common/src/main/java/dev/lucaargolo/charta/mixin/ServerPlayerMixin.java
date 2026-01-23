@@ -58,7 +58,7 @@ public abstract class ServerPlayerMixin extends Player implements LivingEntityMi
         }
 
         @Override
-        public void tick(CardGame<?, ?> game) {
+        public void tick(Game<?, ?> game) {
 
         }
 
@@ -68,7 +68,7 @@ public abstract class ServerPlayerMixin extends Player implements LivingEntityMi
         }
 
         @Override
-        public void openScreen(CardGame<?, ?> game, BlockPos pos, Deck deck) {
+        public void openScreen(Game<?, ?> game, BlockPos pos, Deck deck) {
             ServerPlayer serverPlayer = (ServerPlayer) (Object) ServerPlayerMixin.this;
             game.openScreen(serverPlayer, pos, deck);
         }

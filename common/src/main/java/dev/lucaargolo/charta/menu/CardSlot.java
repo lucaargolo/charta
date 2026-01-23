@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.menu;
 
 import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.game.Game;
 import dev.lucaargolo.charta.game.GameSlot;
 import dev.lucaargolo.charta.utils.CardImage;
 
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class CardSlot<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> {
+public class CardSlot<G extends Game<G, M>, M extends AbstractCardMenu<G, M>> {
 
     public int index = -1;
 

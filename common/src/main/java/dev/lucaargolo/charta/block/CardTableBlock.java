@@ -5,8 +5,8 @@ import com.mojang.serialization.MapCodec;
 import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
 import dev.lucaargolo.charta.block.entity.ModBlockEntityTypes;
-import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.Deck;
+import dev.lucaargolo.charta.game.Game;
 import dev.lucaargolo.charta.item.DeckItem;
 import dev.lucaargolo.charta.item.ModDataComponentTypes;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
@@ -236,7 +236,7 @@ public class CardTableBlock extends BaseEntityBlock {
                                 if(deck != null) {
                                     List<LivingEntity> satPlayers = cardTable.getPlayers();
                                     if (satPlayers.contains(player)){
-                                        CardGame<?, ?> game = cardTable.getGame();
+                                        Game<?, ?> game = cardTable.getGame();
                                         if (game == null || game.isGameOver()) {
                                             ChartaMod.getPacketManager().sendToPlayer(serverPlayer, new TableScreenPayload(center, deck, satPlayers.stream().mapToInt(LivingEntity::getId).toArray()));
                                         }else if(game.getPlayers().contains(mixed.charta_getCardPlayer())) {

@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public abstract class GameScreen<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends AbstractContainerScreen<M> implements HoverableRenderable {
+public abstract class GameScreen<G extends Game<G, M>, M extends AbstractCardMenu<G, M>> extends AbstractContainerScreen<M> implements HoverableRenderable {
 
     public static final ResourceLocation WIDGETS = ChartaMod.id("textures/gui/widgets.png");
 
@@ -52,29 +52,28 @@ public abstract class GameScreen<G extends CardGame<G, M>, M extends AbstractCar
 
     public GameScreen(M menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.areOptionsChanged = CardGames.areOptionsChanged(menu.getGameFactory(), menu.getGame());
+        this.areOptionsChanged = ModGameTypes.areOptionsChanged(menu.getGameType(), menu.getGame());
     }
 
     public Deck getDeck() {
-        return menu.getDeck();
+        return this.menu.getDeck();
     }
-
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (hoveredCardSlot != null) {
-            ChartaMod.getPacketManager().sendToServer(new CardContainerSlotClickPayload(menu.containerId, hoveredCardSlot.index, hoveredCardId));
+        if (this.hoveredCardSlot != null) {
+            ChartaMod.getPacketManager().sendToServer(new CardContainerSlotClickPayload(this.menu.containerId, this.hoveredCardSlot.index, this.hoveredCardId));
             return true;
         }
         if(super.mouseClicked(mouseX, mouseY, button)) {
             return true;
         }
-        return this.chatScreen.mouseClicked(mouseX, chatFocused ? mouseY : mouseY + 25, button);
+        return this.chatScreen.mouseClicked(mouseX, this.chatFocused ? mouseY : mouseY + 25, button);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if(chatFocused && chatScreen.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
+        if(this.chatFocused && this.chatScreen.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
             return true;
         }else {
             return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
@@ -130,34 +129,36 @@ public abstract class GameScreen<G extends CardGame<G, M>, M extends AbstractCar
     @Override
     protected void init() {
         super.init();
-        assert minecraft != null;
-        chatScreen.init(minecraft, width, height);
-        slotWidgets.clear();
-        menu.cardSlots.forEach(slot -> slotWidgets.add(new CardSlotWidget<>(this, slot)));
+        assert this.minecraft != null;
+        this.chatScreen.init(this.minecraft, this.width, this.height);
+        this.slotWidgets.clear();
+        this.menu.cardSlots.forEach(slot -> this.slotWidgets.add(new CardSlotWidget<>(this, slot)));
 
         Component rules = Component.literal("\ue90e").withStyle(ChartaMod.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(rules, b -> {
-            ResourceLocation gameId = CardGames.getGameId(this.menu.getGameFactory());
+            ResourceLocation gameId = ModGameTypes.REGISTRY.getRegistry().getKey(this.menu.getGameType());
+            assert gameId != null;
             Minecraft.getInstance().setScreen(new MarkdownScreen(Component.translatable("message.charta.how_to_play").append(" ").append(Component.translatable(gameId.toLanguageKey())), this, gameId.getNamespace()+".how_to_play_"+gameId.getPath()));
         }).bounds(5, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.how_to_play"))).build());
 
-        Tooltip tooltip = areOptionsChanged ? new MultiLineTooltip(Component.translatable("message.charta.game_options"), Component.empty(), Component.translatable("message.charta.custom_options").withStyle(ChatFormatting.RED)) : Tooltip.create(Component.translatable("message.charta.game_options"));
+        Tooltip tooltip = this.areOptionsChanged ? new MultiLineTooltip(Component.translatable("message.charta.game_options"), Component.empty(), Component.translatable("message.charta.custom_options").withStyle(ChatFormatting.RED)) : Tooltip.create(Component.translatable("message.charta.game_options"));
         Component config = Component.literal("\uE8B8").withStyle(ChartaMod.SYMBOLS);
-        optionsButton = this.addRenderableWidget(new Button.Builder(config, b -> {
-            ResourceLocation gameId = CardGames.getGameId(this.menu.getGameFactory());
-            Minecraft.getInstance().setScreen(new OptionsScreen<>(this, BlockPos.ZERO, this.menu.getGame(), gameId, this.menu.getGameFactory(), true));
+        this.optionsButton = this.addRenderableWidget(new Button.Builder(config, b -> {
+            ResourceLocation gameId = ModGameTypes.REGISTRY.getRegistry().getKey(this.menu.getGameType());
+            assert gameId != null;
+            Minecraft.getInstance().setScreen(new OptionsScreen<>(this, BlockPos.ZERO, this.menu.getGame(), gameId, this.menu.getGameType(), true));
         }).bounds(27, 35, 20, 20).tooltip(tooltip).build());
-        optionsButton.active = !menu.getGame().getOptions().isEmpty();
+        this.optionsButton.active = !this.menu.getGame().getOptions().isEmpty();
 
         Component cards = Component.literal("\ue41d").withStyle(ChartaMod.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(cards, b -> {
             Minecraft.getInstance().setScreen(new DeckScreen(this, this.getDeck()));
-        }).bounds(width-25, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_deck"))).build());
+        }).bounds(this.width-25, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_deck"))).build());
 
         Component history = Component.literal("\uE889").withStyle(ChartaMod.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(history, b -> {
             Minecraft.getInstance().setScreen(new HistoryScreen(this));
-        }).bounds(width-47, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_history"))).build());
+        }).bounds(this.width-47, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.game_history"))).build());
     }
 
     public void renderTopBar(@NotNull GuiGraphics guiGraphics) {

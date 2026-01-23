@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class SolitaireGame extends CardGame<SolitaireGame, SolitaireMenu> {
+public class SolitaireGame extends Game<SolitaireGame, SolitaireMenu> {
 
     private final List<Snapshot> snapshots = new ArrayList<>();
 

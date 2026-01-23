@@ -23,11 +23,11 @@ public interface CardPlayer {
 
     void resetPlay();
 
-    void tick(CardGame<?, ?> game);
+    void tick(Game<?, ?> game);
 
     boolean shouldCompute();
 
-    void openScreen(CardGame<?, ?> game, BlockPos pos, Deck deck);
+    void openScreen(Game<?, ?> game, BlockPos pos, Deck deck);
 
     void sendMessage(Component message);
 

@@ -5,11 +5,11 @@ import java.util.function.Supplier;
 
 public class DrawSlot extends GameSlot {
 
-    private final CardGame<?, ?> game;
+    private final Game<?, ?> game;
     private final Supplier<Boolean> canDraw;
     private boolean draw = false;
 
-    public DrawSlot(CardGame<?, ?> game, List<Card> cards, float x, float y, float z, float angle, Supplier<Boolean> canDraw) {
+    public DrawSlot(Game<?, ?> game, List<Card> cards, float x, float y, float z, float angle, Supplier<Boolean> canDraw) {
         super(cards, x, y, z, angle);
         this.game = game;
         this.canDraw = canDraw;

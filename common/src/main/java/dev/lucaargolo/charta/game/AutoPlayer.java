@@ -54,7 +54,7 @@ public class AutoPlayer implements CardPlayer {
     }
 
     @Override
-    public void tick(CardGame<?, ?> game) {
+    public void tick(Game<?, ?> game) {
         if(game.getCurrentPlayer() == this && !play.isDone()) {
             int threshold = (int) Mth.lerp(intelligence, 50, 20);
             threshold += random.nextInt(-5, 40);
@@ -69,7 +69,7 @@ public class AutoPlayer implements CardPlayer {
     }
 
     @Override
-    public void openScreen(CardGame<?, ?> game, BlockPos pos, Deck deck) {
+    public void openScreen(Game<?, ?> game, BlockPos pos, Deck deck) {
 
     }
 

@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class CrazyEightsGame extends CardGame<CrazyEightsGame, CrazyEightsMenu> {
+public class CrazyEightsGame extends Game<CrazyEightsGame, CrazyEightsMenu> {
 
     private final GameOption.Number AVAILABLE_DRAWS = new GameOption.Number(3, 1, 5, Component.translatable("rule.charta.available_draws"), Component.translatable("rule.charta.available_draws.description"));
 

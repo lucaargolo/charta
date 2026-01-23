@@ -4,10 +4,10 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Either;
 import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaModClient;
-import dev.lucaargolo.charta.game.CardGame;
-import dev.lucaargolo.charta.game.CardGames;
 import dev.lucaargolo.charta.game.CardPlayer;
 import dev.lucaargolo.charta.game.Deck;
+import dev.lucaargolo.charta.game.GameType;
+import dev.lucaargolo.charta.game.ModGameTypes;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
@@ -52,8 +52,8 @@ public class TableScreen extends Screen {
     protected void init() {
         super.init();
         this.widget = this.addRenderableWidget(new GameWidget<>(minecraft, width, height-60, 30));
-        CardGames.getGames().forEach((gameId, gameFactory) ->  {
-            this.widget.addEntry(new Game(gameId, gameFactory));
+        ModGameTypes.REGISTRY.getRegistry().entrySet().forEach(entry -> {
+            this.widget.addEntry(new Game(entry.getKey().location(), entry.getValue()));
         });
     }
 
@@ -84,10 +84,10 @@ public class TableScreen extends Screen {
         return false;
     }
 
-    public class Game<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends Button implements TickableWidget {
+    public class Game<G extends dev.lucaargolo.charta.game.Game<G, M>, M extends AbstractCardMenu<G, M>> extends Button implements TickableWidget {
 
         private final ResourceLocation gameId;
-        private final CardGames.Factory<G, M> gameFactory;
+        private final GameType<G, M> gameFactory;
 
         private final ResourceLocation texture;
         private final G game;
@@ -100,7 +100,7 @@ public class TableScreen extends Screen {
         private float lastFov = 30f;
         private float fov = 37f;
 
-        public Game(ResourceLocation gameId, CardGames.Factory<G, M> gameFactory) {
+        public Game(ResourceLocation gameId, GameType<G, M> gameFactory) {
             super(0, 0, 70, 70, Component.translatable(gameId.toLanguageKey()), (button) -> {
                 ChartaMod.getPacketManager().sendToServer(new CardTableSelectGamePayload(pos, gameId, ChartaModClient.LOCAL_OPTIONS.getOrDefault(gameId, new byte[0])));
                 onClose();
@@ -117,9 +117,9 @@ public class TableScreen extends Screen {
                     cardPlayers.add(mixed.charta_getCardPlayer());
                 }
             }
-            Either<CardGame<?, ?>, Component> either = this.game.playerPredicate(cardPlayers);
+            Either<dev.lucaargolo.charta.game.Game<?, ?>, Component> either = this.game.playerPredicate(cardPlayers);
 
-            boolean invalidDeck = !CardGame.isValidDeck(this.game, deck);
+            boolean invalidDeck = !dev.lucaargolo.charta.game.Game.isValidDeck(this.game, deck);
             boolean notEnoughPlayers = players.length < this.game.getMinPlayers();
             boolean tooManyPlayers = players.length > this.game.getMaxPlayers();
             boolean invalidPlayers = either.right().isPresent();
@@ -182,7 +182,7 @@ public class TableScreen extends Screen {
 
     }
 
-    public class GameRow<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends ContainerObjectSelectionList.Entry<GameRow<G, M>> {
+    public class GameRow<G extends dev.lucaargolo.charta.game.Game<G, M>, M extends AbstractCardMenu<G, M>> extends ContainerObjectSelectionList.Entry<GameRow<G, M>> {
 
         protected List<Game<G, M>> games = new ArrayList<>();
         protected List<Button> plays = new ArrayList<>();
@@ -230,7 +230,7 @@ public class TableScreen extends Screen {
 
     }
 
-    public class GameWidget<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends ContainerObjectSelectionList<GameRow<G, M>> implements TickableWidget {
+    public class GameWidget<G extends dev.lucaargolo.charta.game.Game<G, M>, M extends AbstractCardMenu<G, M>> extends ContainerObjectSelectionList<GameRow<G, M>> implements TickableWidget {
 
         private final int amount;
 

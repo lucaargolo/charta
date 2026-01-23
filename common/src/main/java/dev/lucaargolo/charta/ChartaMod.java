@@ -9,6 +9,7 @@ import dev.lucaargolo.charta.entity.ModItemListings;
 import dev.lucaargolo.charta.entity.ModPoiTypes;
 import dev.lucaargolo.charta.entity.ModVillagerProfessions;
 import dev.lucaargolo.charta.game.GameSlot;
+import dev.lucaargolo.charta.game.ModGameTypes;
 import dev.lucaargolo.charta.game.Rank;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.item.ModCreativeTabs;
@@ -101,6 +102,7 @@ public abstract class ChartaMod {
         ModCreativeTabs.REGISTRY.init();
         ModDataComponentTypes.REGISTRY.init();
         ModSounds.REGISTRY.init();
+        ModGameTypes.REGISTRY.init();
         this.registerReloadableListener(id("suit_images"), SUIT_IMAGES);
         this.registerReloadableListener(id("card_images"), CARD_IMAGES);
         this.registerReloadableListener(id("deck_images"), DECK_IMAGES);

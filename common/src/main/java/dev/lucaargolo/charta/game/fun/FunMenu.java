@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.game.fun;
 
-import dev.lucaargolo.charta.game.CardGames;
+import dev.lucaargolo.charta.game.GameType;
+import dev.lucaargolo.charta.game.ModGameTypes;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
@@ -83,8 +84,8 @@ public class FunMenu extends AbstractCardMenu<FunGame, FunMenu> {
     }
 
     @Override
-    public CardGames.Factory<FunGame, FunMenu> getGameFactory() {
-        return CardGames.FUN;
+    public GameType<FunGame, FunMenu> getGameType() {
+        return ModGameTypes.FUN.get();
     }
 
     @Override

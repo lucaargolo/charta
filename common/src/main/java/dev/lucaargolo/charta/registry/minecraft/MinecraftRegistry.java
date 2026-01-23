@@ -23,21 +23,23 @@ public abstract class MinecraftRegistry<T, M extends MinecraftEntry<? extends T>
 
     public abstract void init();
 
+    public abstract Registry<T> getRegistry();
+
+    public ResourceKey<Registry<T>> getRegistryKey() {
+        return this.registryKey;
+    }
+
     @Nullable
     public M get(String path) {
-        return entries.get(path);
+        return this.entries.get(path);
     }
 
     public Collection<M> getEntries() {
-        return entries.values();
+        return this.entries.values();
     }
 
     public abstract <E extends T> M register(String path, Supplier<E> supplier, TagKey<?>... tags);
 
     protected abstract <E extends T> M entry(String path, Supplier<E> supplier, TagKey<?>... tags);
-
-    public ResourceKey<Registry<T>> getRegistryKey() {
-        return registryKey;
-    }
 
 }

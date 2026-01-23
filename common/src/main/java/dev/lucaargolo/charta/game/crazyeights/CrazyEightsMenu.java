@@ -1,6 +1,7 @@
 package dev.lucaargolo.charta.game.crazyeights;
 
-import dev.lucaargolo.charta.game.CardGames;
+import dev.lucaargolo.charta.game.GameType;
+import dev.lucaargolo.charta.game.ModGameTypes;
 import dev.lucaargolo.charta.game.Suit;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.menu.CardSlot;
@@ -58,8 +59,8 @@ public class CrazyEightsMenu extends AbstractCardMenu<CrazyEightsGame, CrazyEigh
     }
 
     @Override
-    public CardGames.Factory<CrazyEightsGame, CrazyEightsMenu> getGameFactory() {
-        return CardGames.CRAZY_EIGHTS;
+    public GameType<CrazyEightsGame, CrazyEightsMenu> getGameType() {
+        return ModGameTypes.CRAZY_EIGHTS.get();
     }
 
     @Override

@@ -23,7 +23,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class FunGame extends CardGame<FunGame, FunMenu> {
+public class FunGame extends Game<FunGame, FunMenu> {
 
     public static final Set<Suit> SUITS = Set.of(Suit.RED, Suit.YELLOW, Suit.GREEN, Suit.BLUE);
     public static final Set<Rank> RANKS = Set.of(Rank.ONE, Rank.TWO, Rank.THREE, Rank.FOUR, Rank.FIVE, Rank.SIX, Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.ZERO, Rank.BLOCK, Rank.REVERSE, Rank.PLUS_2, Rank.WILD, Rank.WILD_PLUS_4);

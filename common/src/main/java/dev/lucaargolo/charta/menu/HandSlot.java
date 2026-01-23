@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.menu;
 
 import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.CardGame;
 import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.game.Game;
 import dev.lucaargolo.charta.game.GameSlot;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class HandSlot<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends CardSlot<G, M> {
+public class HandSlot<G extends Game<G, M>, M extends AbstractCardMenu<G, M>> extends CardSlot<G, M> {
 
     protected final Function<G, GameSlot> censored;
     protected final Predicate<G> shouldUpdate;

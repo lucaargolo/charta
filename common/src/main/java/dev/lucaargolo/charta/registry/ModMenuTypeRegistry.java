@@ -2,6 +2,8 @@ package dev.lucaargolo.charta.registry;
 
 import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
 import dev.lucaargolo.charta.registry.minecraft.MinecraftRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,6 +20,11 @@ public abstract class ModMenuTypeRegistry extends MinecraftRegistry<MenuType<?>,
 
     public ModMenuTypeRegistry() {
         super(Registries.MENU);
+    }
+
+    @Override
+    public Registry<MenuType<?>> getRegistry() {
+        return BuiltInRegistries.MENU;
     }
 
     public abstract <M extends AbstractContainerMenu, D> AdvancedMenuTypeEntry<M, D> register(String path, TriFunction<Integer, Inventory, D, M> factory, StreamCodec<? super RegistryFriendlyByteBuf, D> streamCodec, TagKey<?>... tags);

@@ -3,6 +3,8 @@ package dev.lucaargolo.charta.registry;
 import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
 import dev.lucaargolo.charta.registry.minecraft.MinecraftRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -17,6 +19,11 @@ public abstract class ModBlockEntityTypeRegistry extends MinecraftRegistry<Block
 
     public ModBlockEntityTypeRegistry() {
         super(Registries.BLOCK_ENTITY_TYPE);
+    }
+
+    @Override
+    public Registry<BlockEntityType<?>> getRegistry() {
+        return BuiltInRegistries.BLOCK_ENTITY_TYPE;
     }
 
     public abstract <B extends BlockEntity> MinecraftEntry<BlockEntityType<B>> register(String path, BiFunction<BlockPos, BlockState, B> factory, ModBlockRegistry.BlockEntry<?>... blocks);

@@ -2,10 +2,7 @@ package dev.lucaargolo.charta.client.render.screen;
 
 import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaModClient;
-import dev.lucaargolo.charta.game.CardGame;
-import dev.lucaargolo.charta.game.CardGames;
-import dev.lucaargolo.charta.game.Deck;
-import dev.lucaargolo.charta.game.GameOption;
+import dev.lucaargolo.charta.game.*;
 import dev.lucaargolo.charta.menu.AbstractCardMenu;
 import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
 import dev.lucaargolo.charta.network.PlayerOptionsPayload;
@@ -27,28 +24,28 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-public class OptionsScreen<G extends CardGame<G, M>, M extends AbstractCardMenu<G, M>> extends Screen {
+public class OptionsScreen<G extends Game<G, M>, M extends AbstractCardMenu<G, M>> extends Screen {
 
     private final Screen parent;
     private final BlockPos pos;
     private final G game;
 
     private final ResourceLocation gameId;
-    private final CardGames.Factory<G, M> gameFactory;
+    private final GameType<G, M> gameType;
     private final boolean showcase;
 
     private OptionsWidget widget;
     private Button resetButton;
     private Button saveButton;
 
-    public OptionsScreen(Screen parent, BlockPos pos, G game, ResourceLocation gameId, CardGames.Factory<G, M> gameFactory, boolean showcase) {
+    public OptionsScreen(Screen parent, BlockPos pos, G game, ResourceLocation gameId, GameType<G, M> gameType, boolean showcase) {
         super(Component.translatable("message.charta.this_game_options", Component.translatable(gameId.toLanguageKey())));
         this.parent = parent;
         this.pos = pos;
         this.game = game;
 
         this.gameId = gameId;
-        this.gameFactory = gameFactory;
+        this.gameType = gameType;
         this.showcase = showcase;
 
         if(!showcase) {
@@ -74,14 +71,14 @@ public class OptionsScreen<G extends CardGame<G, M>, M extends AbstractCardMenu<
 
         if(!showcase) {
             this.resetButton = this.addRenderableWidget(Button.builder(Component.translatable("button.charta.reset"), b -> {
-                boolean reset = CardGames.areOptionsChanged(gameFactory, game);
+                boolean reset = ModGameTypes.areOptionsChanged(gameType, game);
                 if(reset) {
-                    G defaultGame = gameFactory.create(List.of(), Deck.EMPTY);
+                    G defaultGame = gameType.create(List.of(), Deck.EMPTY);
                     this.game.setRawOptions(defaultGame.getRawOptions());
                 }
                 this.updateButtons(false);
             }).bounds(width/2 - 108, height-25, 68, 20).tooltip(Tooltip.create(Component.translatable("message.charta.reset_options"))).build());
-            this.resetButton.active = CardGames.areOptionsChanged(gameFactory, game);
+            this.resetButton.active = ModGameTypes.areOptionsChanged(gameType, game);
 
             this.saveButton = this.addRenderableWidget(Button.builder(Component.translatable("button.charta.save"), b -> {
                 this.updateButtons(true);
@@ -101,7 +98,7 @@ public class OptionsScreen<G extends CardGame<G, M>, M extends AbstractCardMenu<
 
     public void updateButtons(boolean saved) {
         boolean reset = false;
-        G defaultGame = gameFactory.create(List.of(), Deck.EMPTY);
+        G defaultGame = gameType.create(List.of(), Deck.EMPTY);
         for(int i = 0; i < defaultGame.getOptions().size(); i++) {
             GameOption<?> defaultOption = defaultGame.getOptions().get(i);
             GameOption<?> modifiedOption = game.getOptions().get(i);

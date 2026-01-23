@@ -26,7 +26,12 @@ public class FabricModRegistry<T> extends ModRegistry<T> {
 
     @Override
     public void init() {
-        entries.forEach(this::registerEntry);
+        this.entries.forEach(this::registerEntry);
+    }
+
+    @Override
+    public Registry<T> getRegistry() {
+        return this.registry;
     }
 
     @Override
