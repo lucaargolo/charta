@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.editor;
 
-import dev.lucaargolo.charta.utils.CardImage;
+import dev.lucaargolo.charta.common.utils.CardImage;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

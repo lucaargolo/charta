@@ -1,9 +1,9 @@
 package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.game.Deck;
-import dev.lucaargolo.charta.item.ModDataComponentTypes;
-import dev.lucaargolo.charta.item.ModItems;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.data.ModDataComponentTypes;
+import dev.lucaargolo.charta.common.game.api.card.Deck;
+import dev.lucaargolo.charta.common.item.ModItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -76,7 +76,7 @@ public class ModChestLootProvider {
     private static LootPoolSingletonContainer.Builder<?> deck(Deck deck, double chanceMultiplier) {
         ResourceLocation id = ModDeckProvider.DECKS.entrySet().stream().filter(e -> e.getValue().equals(deck)).map(Map.Entry::getKey).findFirst().orElse(ChartaMod.id("missing"));
         return LootItem.lootTableItem(ModItems.DECK.get())
-                .apply(SetComponentsFunction.setComponent(ModDataComponentTypes.CARD_DECK.get(), id))
+                .apply(SetComponentsFunction.setComponent(ModDataComponentTypes.DECK.get(), id))
                 .setWeight(Mth.ceil((3 - deck.getRarity().ordinal()) * 20 * chanceMultiplier));
     }
 

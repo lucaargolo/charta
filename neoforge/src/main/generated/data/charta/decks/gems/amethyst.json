@@ -1,180 +1,602 @@
 {
-  "cards_keys": {
-    "charta:spades_ace": "card.charta.spades.ace",
-    "charta:spades_two": "card.charta.spades.two",
-    "charta:spades_three": "card.charta.spades.three",
-    "charta:spades_four": "card.charta.spades.four",
-    "charta:spades_five": "card.charta.spades.five",
-    "charta:spades_six": "card.charta.spades.six",
-    "charta:spades_seven": "card.charta.spades.seven",
-    "charta:spades_eight": "card.charta.spades.eight",
-    "charta:spades_nine": "card.charta.spades.nine",
-    "charta:spades_ten": "card.charta.spades.ten",
-    "charta:spades_jack": "card.charta.spades.jack",
-    "charta:spades_queen": "card.charta.spades.queen",
-    "charta:spades_king": "card.charta.spades.king",
-    "charta:hearts_ace": "card.charta.hearts.ace",
-    "charta:hearts_two": "card.charta.hearts.two",
-    "charta:hearts_three": "card.charta.hearts.three",
-    "charta:hearts_four": "card.charta.hearts.four",
-    "charta:hearts_five": "card.charta.hearts.five",
-    "charta:hearts_six": "card.charta.hearts.six",
-    "charta:hearts_seven": "card.charta.hearts.seven",
-    "charta:hearts_eight": "card.charta.hearts.eight",
-    "charta:hearts_nine": "card.charta.hearts.nine",
-    "charta:hearts_ten": "card.charta.hearts.ten",
-    "charta:hearts_jack": "card.charta.hearts.jack",
-    "charta:hearts_queen": "card.charta.hearts.queen",
-    "charta:hearts_king": "card.charta.hearts.king",
-    "charta:clubs_ace": "card.charta.clubs.ace",
-    "charta:clubs_two": "card.charta.clubs.two",
-    "charta:clubs_three": "card.charta.clubs.three",
-    "charta:clubs_four": "card.charta.clubs.four",
-    "charta:clubs_five": "card.charta.clubs.five",
-    "charta:clubs_six": "card.charta.clubs.six",
-    "charta:clubs_seven": "card.charta.clubs.seven",
-    "charta:clubs_eight": "card.charta.clubs.eight",
-    "charta:clubs_nine": "card.charta.clubs.nine",
-    "charta:clubs_ten": "card.charta.clubs.ten",
-    "charta:clubs_jack": "card.charta.clubs.jack",
-    "charta:clubs_queen": "card.charta.clubs.queen",
-    "charta:clubs_king": "card.charta.clubs.king",
-    "charta:diamonds_ace": "card.charta.diamonds.ace",
-    "charta:diamonds_two": "card.charta.diamonds.two",
-    "charta:diamonds_three": "card.charta.diamonds.three",
-    "charta:diamonds_four": "card.charta.diamonds.four",
-    "charta:diamonds_five": "card.charta.diamonds.five",
-    "charta:diamonds_six": "card.charta.diamonds.six",
-    "charta:diamonds_seven": "card.charta.diamonds.seven",
-    "charta:diamonds_eight": "card.charta.diamonds.eight",
-    "charta:diamonds_nine": "card.charta.diamonds.nine",
-    "charta:diamonds_ten": "card.charta.diamonds.ten",
-    "charta:diamonds_jack": "card.charta.diamonds.jack",
-    "charta:diamonds_queen": "card.charta.diamonds.queen",
-    "charta:diamonds_king": "card.charta.diamonds.king"
-  },
-  "deck_image": "charta:gems/amethyst",
-  "deck_key": "deck.charta.gems.amethyst",
-  "suits_keys": {
-    "charta:spades": "suit.charta.spades",
-    "charta:hearts": "suit.charta.hearts",
-    "charta:clubs": "suit.charta.clubs",
-    "charta:diamonds": "suit.charta.diamonds"
-  },
-  "cards_images": {
-    "charta:spades_ace": "charta:gems/amethyst/spades_ace",
-    "charta:spades_two": "charta:gems/amethyst/spades_two",
-    "charta:spades_three": "charta:gems/amethyst/spades_three",
-    "charta:spades_four": "charta:gems/amethyst/spades_four",
-    "charta:spades_five": "charta:gems/amethyst/spades_five",
-    "charta:spades_six": "charta:gems/amethyst/spades_six",
-    "charta:spades_seven": "charta:gems/amethyst/spades_seven",
-    "charta:spades_eight": "charta:gems/amethyst/spades_eight",
-    "charta:spades_nine": "charta:gems/amethyst/spades_nine",
-    "charta:spades_ten": "charta:gems/amethyst/spades_ten",
-    "charta:spades_jack": "charta:gems/amethyst/spades_jack",
-    "charta:spades_queen": "charta:gems/amethyst/spades_queen",
-    "charta:spades_king": "charta:gems/amethyst/spades_king",
-    "charta:hearts_ace": "charta:gems/amethyst/hearts_ace",
-    "charta:hearts_two": "charta:gems/amethyst/hearts_two",
-    "charta:hearts_three": "charta:gems/amethyst/hearts_three",
-    "charta:hearts_four": "charta:gems/amethyst/hearts_four",
-    "charta:hearts_five": "charta:gems/amethyst/hearts_five",
-    "charta:hearts_six": "charta:gems/amethyst/hearts_six",
-    "charta:hearts_seven": "charta:gems/amethyst/hearts_seven",
-    "charta:hearts_eight": "charta:gems/amethyst/hearts_eight",
-    "charta:hearts_nine": "charta:gems/amethyst/hearts_nine",
-    "charta:hearts_ten": "charta:gems/amethyst/hearts_ten",
-    "charta:hearts_jack": "charta:gems/amethyst/hearts_jack",
-    "charta:hearts_queen": "charta:gems/amethyst/hearts_queen",
-    "charta:hearts_king": "charta:gems/amethyst/hearts_king",
-    "charta:clubs_ace": "charta:gems/amethyst/clubs_ace",
-    "charta:clubs_two": "charta:gems/amethyst/clubs_two",
-    "charta:clubs_three": "charta:gems/amethyst/clubs_three",
-    "charta:clubs_four": "charta:gems/amethyst/clubs_four",
-    "charta:clubs_five": "charta:gems/amethyst/clubs_five",
-    "charta:clubs_six": "charta:gems/amethyst/clubs_six",
-    "charta:clubs_seven": "charta:gems/amethyst/clubs_seven",
-    "charta:clubs_eight": "charta:gems/amethyst/clubs_eight",
-    "charta:clubs_nine": "charta:gems/amethyst/clubs_nine",
-    "charta:clubs_ten": "charta:gems/amethyst/clubs_ten",
-    "charta:clubs_jack": "charta:gems/amethyst/clubs_jack",
-    "charta:clubs_queen": "charta:gems/amethyst/clubs_queen",
-    "charta:clubs_king": "charta:gems/amethyst/clubs_king",
-    "charta:diamonds_ace": "charta:gems/amethyst/diamonds_ace",
-    "charta:diamonds_two": "charta:gems/amethyst/diamonds_two",
-    "charta:diamonds_three": "charta:gems/amethyst/diamonds_three",
-    "charta:diamonds_four": "charta:gems/amethyst/diamonds_four",
-    "charta:diamonds_five": "charta:gems/amethyst/diamonds_five",
-    "charta:diamonds_six": "charta:gems/amethyst/diamonds_six",
-    "charta:diamonds_seven": "charta:gems/amethyst/diamonds_seven",
-    "charta:diamonds_eight": "charta:gems/amethyst/diamonds_eight",
-    "charta:diamonds_nine": "charta:gems/amethyst/diamonds_nine",
-    "charta:diamonds_ten": "charta:gems/amethyst/diamonds_ten",
-    "charta:diamonds_jack": "charta:gems/amethyst/diamonds_jack",
-    "charta:diamonds_queen": "charta:gems/amethyst/diamonds_queen",
-    "charta:diamonds_king": "charta:gems/amethyst/diamonds_king"
-  },
+  "translation": "deck.charta.gems.amethyst",
+  "suits": [
+    {
+      "suit": "charta:spades",
+      "texture": "charta:metallic/spades",
+      "translation": "suit.charta.spades"
+    },
+    {
+      "suit": "charta:hearts",
+      "texture": "charta:metallic/hearts",
+      "translation": "suit.charta.hearts"
+    },
+    {
+      "suit": "charta:clubs",
+      "texture": "charta:metallic/clubs",
+      "translation": "suit.charta.clubs"
+    },
+    {
+      "suit": "charta:diamonds",
+      "texture": "charta:metallic/diamonds",
+      "translation": "suit.charta.diamonds"
+    }
+  ],
+  "cards": [
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:five",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_five",
+      "translation": "card.charta.spades.five"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:six",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_six",
+      "translation": "card.charta.spades.six"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:seven",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_seven",
+      "translation": "card.charta.spades.seven"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:eight",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_eight",
+      "translation": "card.charta.spades.eight"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:nine",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_nine",
+      "translation": "card.charta.spades.nine"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:ten",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_ten",
+      "translation": "card.charta.spades.ten"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:jack",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_jack",
+      "translation": "card.charta.spades.jack"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:queen",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_queen",
+      "translation": "card.charta.spades.queen"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:king",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_king",
+      "translation": "card.charta.spades.king"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:ace",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_ace",
+      "translation": "card.charta.spades.ace"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:two",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_two",
+      "translation": "card.charta.spades.two"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:three",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_three",
+      "translation": "card.charta.spades.three"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:spades",
+          "charta:rank": "charta:four",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/spades_four",
+      "translation": "card.charta.spades.four"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:five",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_five",
+      "translation": "card.charta.diamonds.five"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:six",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_six",
+      "translation": "card.charta.diamonds.six"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:seven",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_seven",
+      "translation": "card.charta.diamonds.seven"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:eight",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_eight",
+      "translation": "card.charta.diamonds.eight"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:nine",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_nine",
+      "translation": "card.charta.diamonds.nine"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:ten",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_ten",
+      "translation": "card.charta.diamonds.ten"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:jack",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_jack",
+      "translation": "card.charta.diamonds.jack"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:queen",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_queen",
+      "translation": "card.charta.diamonds.queen"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:king",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_king",
+      "translation": "card.charta.diamonds.king"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:ace",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_ace",
+      "translation": "card.charta.diamonds.ace"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:two",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_two",
+      "translation": "card.charta.diamonds.two"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:three",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_three",
+      "translation": "card.charta.diamonds.three"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:diamonds",
+          "charta:rank": "charta:four",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/diamonds_four",
+      "translation": "card.charta.diamonds.four"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:five",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_five",
+      "translation": "card.charta.clubs.five"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:six",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_six",
+      "translation": "card.charta.clubs.six"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:seven",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_seven",
+      "translation": "card.charta.clubs.seven"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:eight",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_eight",
+      "translation": "card.charta.clubs.eight"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:nine",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_nine",
+      "translation": "card.charta.clubs.nine"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:ten",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_ten",
+      "translation": "card.charta.clubs.ten"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:jack",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_jack",
+      "translation": "card.charta.clubs.jack"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:queen",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_queen",
+      "translation": "card.charta.clubs.queen"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:king",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_king",
+      "translation": "card.charta.clubs.king"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:ace",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_ace",
+      "translation": "card.charta.clubs.ace"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:two",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_two",
+      "translation": "card.charta.clubs.two"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:three",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_three",
+      "translation": "card.charta.clubs.three"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:clubs",
+          "charta:rank": "charta:four",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/clubs_four",
+      "translation": "card.charta.clubs.four"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:five",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_five",
+      "translation": "card.charta.hearts.five"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:six",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_six",
+      "translation": "card.charta.hearts.six"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:seven",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_seven",
+      "translation": "card.charta.hearts.seven"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:eight",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_eight",
+      "translation": "card.charta.hearts.eight"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:nine",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_nine",
+      "translation": "card.charta.hearts.nine"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:ten",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_ten",
+      "translation": "card.charta.hearts.ten"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:jack",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_jack",
+      "translation": "card.charta.hearts.jack"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:queen",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_queen",
+      "translation": "card.charta.hearts.queen"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:king",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_king",
+      "translation": "card.charta.hearts.king"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:ace",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_ace",
+      "translation": "card.charta.hearts.ace"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:two",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_two",
+      "translation": "card.charta.hearts.two"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:three",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_three",
+      "translation": "card.charta.hearts.three"
+    },
+    {
+      "card": {
+        "components": {
+          "charta:suit": "charta:hearts",
+          "charta:rank": "charta:four",
+          "charta:flipped": false
+        }
+      },
+      "texture": "charta:gems/amethyst/hearts_four",
+      "translation": "card.charta.hearts.four"
+    }
+  ],
   "rarity": "rare",
   "tradeable": false,
-  "cards": [
-    "charta:spades_ace",
-    "charta:spades_two",
-    "charta:spades_three",
-    "charta:spades_four",
-    "charta:spades_five",
-    "charta:spades_six",
-    "charta:spades_seven",
-    "charta:spades_eight",
-    "charta:spades_nine",
-    "charta:spades_ten",
-    "charta:spades_jack",
-    "charta:spades_queen",
-    "charta:spades_king",
-    "charta:hearts_ace",
-    "charta:hearts_two",
-    "charta:hearts_three",
-    "charta:hearts_four",
-    "charta:hearts_five",
-    "charta:hearts_six",
-    "charta:hearts_seven",
-    "charta:hearts_eight",
-    "charta:hearts_nine",
-    "charta:hearts_ten",
-    "charta:hearts_jack",
-    "charta:hearts_queen",
-    "charta:hearts_king",
-    "charta:clubs_ace",
-    "charta:clubs_two",
-    "charta:clubs_three",
-    "charta:clubs_four",
-    "charta:clubs_five",
-    "charta:clubs_six",
-    "charta:clubs_seven",
-    "charta:clubs_eight",
-    "charta:clubs_nine",
-    "charta:clubs_ten",
-    "charta:clubs_jack",
-    "charta:clubs_queen",
-    "charta:clubs_king",
-    "charta:diamonds_ace",
-    "charta:diamonds_two",
-    "charta:diamonds_three",
-    "charta:diamonds_four",
-    "charta:diamonds_five",
-    "charta:diamonds_six",
-    "charta:diamonds_seven",
-    "charta:diamonds_eight",
-    "charta:diamonds_nine",
-    "charta:diamonds_ten",
-    "charta:diamonds_jack",
-    "charta:diamonds_queen",
-    "charta:diamonds_king"
-  ],
-  "suits_images": {
-    "charta:spades": "charta:metallic/spades",
-    "charta:hearts": "charta:metallic/hearts",
-    "charta:clubs": "charta:metallic/clubs",
-    "charta:diamonds": "charta:metallic/diamonds"
-  }
+  "texture": "charta:gems/amethyst"
 }

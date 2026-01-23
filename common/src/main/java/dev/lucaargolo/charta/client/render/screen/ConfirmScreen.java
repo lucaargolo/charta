@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.client.render.screen;
 
-import dev.lucaargolo.charta.ChartaMod;
+import dev.lucaargolo.charta.common.ChartaMod;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;

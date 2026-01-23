@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.charta.block.ModBannerPatterns;
+import dev.lucaargolo.charta.common.block.ModBannerPatterns;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;

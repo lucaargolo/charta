@@ -1,13 +1,13 @@
 package dev.lucaargolo.charta.mixin;
 
-import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.block.CardTableBlock;
-import dev.lucaargolo.charta.block.GameChairBlock;
-import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
-import dev.lucaargolo.charta.block.entity.ModBlockEntityTypes;
-import dev.lucaargolo.charta.entity.SeatEntity;
-import dev.lucaargolo.charta.game.Game;
-import dev.lucaargolo.charta.network.GameLeavePayload;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.block.CardTableBlock;
+import dev.lucaargolo.charta.common.block.GameChairBlock;
+import dev.lucaargolo.charta.common.block.entity.CardTableBlockEntity;
+import dev.lucaargolo.charta.common.block.entity.ModBlockEntityTypes;
+import dev.lucaargolo.charta.common.entity.SeatEntity;
+import dev.lucaargolo.charta.common.game.api.game.Game;
+import dev.lucaargolo.charta.common.network.GameLeavePayload;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;

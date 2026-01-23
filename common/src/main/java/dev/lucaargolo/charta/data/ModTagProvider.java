@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.data;
 
+import dev.lucaargolo.charta.common.registry.minecraft.MinecraftEntry;
+import dev.lucaargolo.charta.common.registry.minecraft.MinecraftRegistry;
 import dev.lucaargolo.charta.data.builder.ModTagBuilder;
-import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
-import dev.lucaargolo.charta.registry.minecraft.MinecraftRegistry;
 import net.minecraft.tags.TagKey;
 
 import java.util.Arrays;

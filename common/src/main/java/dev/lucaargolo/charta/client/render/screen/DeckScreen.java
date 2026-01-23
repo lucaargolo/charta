@@ -1,13 +1,13 @@
 package dev.lucaargolo.charta.client.render.screen;
 
-import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.render.screen.widgets.CardWidget;
-import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.Deck;
-import dev.lucaargolo.charta.game.Suit;
-import dev.lucaargolo.charta.menu.CardSlot;
-import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
-import dev.lucaargolo.charta.utils.HoverableRenderable;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.game.api.card.Card;
+import dev.lucaargolo.charta.common.game.api.card.Deck;
+import dev.lucaargolo.charta.common.game.api.card.Suit;
+import dev.lucaargolo.charta.common.menu.CardSlot;
+import dev.lucaargolo.charta.common.utils.ChartaGuiGraphics;
+import dev.lucaargolo.charta.common.utils.HoverableRenderable;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -49,14 +49,14 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
         float cardHeight = CardSlot.getHeight(CardSlot.Type.DEFAULT);
         float maxTopOffset = cardHeight + cardHeight/10f;
 
-        float topOffset = cardHeight + Math.max(0f, maxHeight - (deck.getUniqueSuits().size() * cardHeight)/(float) deck.getUniqueSuits().size());
-        float totalHeight = cardHeight + (topOffset * (deck.getUniqueSuits().size() - 1f));
+        float topOffset = cardHeight + Math.max(0f, maxHeight - (deck.getSuits().size() * cardHeight)/(float) deck.getSuits().size());
+        float totalHeight = cardHeight + (topOffset * (deck.getSuits().size() - 1f));
         float topExcess = totalHeight - maxHeight;
         if(topExcess > 0) {
-            topOffset -= topExcess / (deck.getUniqueSuits().size() - 1f);
+            topOffset -= topExcess / (deck.getSuits().size() - 1f);
         }
 
-        totalHeight = cardHeight + (maxTopOffset * (deck.getUniqueSuits().size() - 1f));
+        totalHeight = cardHeight + (maxTopOffset * (deck.getSuits().size() - 1f));
         float top = 0;
         if(topOffset > maxTopOffset) {
             top = Math.max(topOffset - maxTopOffset, (maxHeight - totalHeight));
@@ -67,7 +67,7 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
         footerOffset = Math.max(0, Mth.floor(top/2 + 27));
 
         int i = 0;
-        for(Suit suit : deck.getUniqueSuits()) {
+        for(Suit suit : deck.getSuits()) {
             List<Card> cards = deck.getCards().stream().filter(c -> c.suit().equals(suit)).sorted().toList();
 
             float leftOffset = cardWidth + Math.max(0f, maxWidth - (cards.size() * cardWidth)/(float) cards.size());
@@ -84,10 +84,10 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
                 leftOffset = maxLeftOffset;
             }
 
-            this.addRenderableWidget(new CardWidget(this, Card.BLANK, deck, 25 + left/2, 45+(topOffset*i) + top/2, 1f) {
+            this.addRenderableWidget(new CardWidget(this, new Card(), deck, 25 + left/2, 45+(topOffset*i) + top/2, 1f) {
                 @Override
                 public @Nullable String getCardTranslatableKey() {
-                    return deck.getDeckTranslatableKey();
+                    return deck.getTranslation();
                 }
             });
             int j = 0;
@@ -104,12 +104,12 @@ public class DeckScreen extends CardScreen implements HoverableRenderable {
     protected void renderFg(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawCenteredString(font, title, width/2, headerOffset, 0xFFFFFFFF);
         int i = 0;
-        int totalWidth = deck.getUniqueSuits().size()*16 - 3;
-        for(Suit suit : deck.getUniqueSuits()) {
+        int totalWidth = deck.getSuits().size()*16 - 3;
+        for(Suit suit : deck.getSuits()) {
             ChartaGuiGraphics.blitSuitAndGlow(guiGraphics, deck, suit, width/2f - totalWidth/2f + (i*16), headerOffset+10, 0, 0, 13, 13, 13, 13);
             i++;
         }
-        guiGraphics.drawCenteredString(font, Component.literal(deck.getCards().size() + " ").append(Component.translatable("charta.cards")).append(" | "+deck.getUniqueSuits().size()+" ").append(Component.translatable("charta.suits")), width/2, height-footerOffset, 0xFFFFFFFF);
+        guiGraphics.drawCenteredString(font, Component.literal(deck.getCards().size() + " ").append(Component.translatable("charta.cards")).append(" | "+deck.getSuits().size()+" ").append(Component.translatable("charta.suits")), width/2, height-footerOffset, 0xFFFFFFFF);
     }
 
     @Override

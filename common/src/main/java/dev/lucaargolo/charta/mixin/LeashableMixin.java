@@ -1,9 +1,9 @@
 package dev.lucaargolo.charta.mixin;
 
-import dev.lucaargolo.charta.entity.IronLeashFenceKnotEntity;
-import dev.lucaargolo.charta.item.ModItems;
+import dev.lucaargolo.charta.common.entity.IronLeashFenceKnotEntity;
+import dev.lucaargolo.charta.common.item.ModItems;
+import dev.lucaargolo.charta.common.utils.LeashableHelper;
 import dev.lucaargolo.charta.mixed.LeashableMixed;
-import dev.lucaargolo.charta.utils.LeashableHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;

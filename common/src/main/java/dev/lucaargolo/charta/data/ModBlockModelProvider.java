@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.block.*;
-import dev.lucaargolo.charta.registry.ModBlockRegistry;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.block.*;
+import dev.lucaargolo.charta.common.registry.ModBlockRegistry;
 import net.minecraft.core.Direction;
 import net.minecraft.data.models.BlockModelGenerators;
 import net.minecraft.data.models.blockstates.*;

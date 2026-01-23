@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.editor;
 
-import dev.lucaargolo.charta.utils.CardImage;
+import dev.lucaargolo.charta.common.utils.CardImage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

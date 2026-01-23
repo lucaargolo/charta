@@ -3,10 +3,10 @@ package dev.lucaargolo.charta.client.render.screen.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.lucaargolo.charta.client.ChartaModClient;
-import dev.lucaargolo.charta.utils.CardImage;
-import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
-import dev.lucaargolo.charta.utils.HoverableRenderable;
-import dev.lucaargolo.charta.utils.TickableWidget;
+import dev.lucaargolo.charta.common.utils.CardImage;
+import dev.lucaargolo.charta.common.utils.ChartaGuiGraphics;
+import dev.lucaargolo.charta.common.utils.HoverableRenderable;
+import dev.lucaargolo.charta.common.utils.TickableWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;

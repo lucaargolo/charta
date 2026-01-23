@@ -1,12 +1,12 @@
 package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.block.ModBlocks;
-import dev.lucaargolo.charta.item.ModItems;
-import dev.lucaargolo.charta.registry.ModBlockRegistry;
-import dev.lucaargolo.charta.registry.ModItemRegistry;
-import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
-import dev.lucaargolo.charta.registry.minecraft.MinecraftRegistry;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.block.ModBlocks;
+import dev.lucaargolo.charta.common.item.ModItems;
+import dev.lucaargolo.charta.common.registry.ModBlockRegistry;
+import dev.lucaargolo.charta.common.registry.ModItemRegistry;
+import dev.lucaargolo.charta.common.registry.minecraft.MinecraftEntry;
+import dev.lucaargolo.charta.common.registry.minecraft.MinecraftRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;

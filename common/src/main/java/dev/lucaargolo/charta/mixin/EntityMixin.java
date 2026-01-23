@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.mixin;
 
-import dev.lucaargolo.charta.item.ModItems;
+import dev.lucaargolo.charta.common.item.ModItems;
 import dev.lucaargolo.charta.mixed.LeashableMixed;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

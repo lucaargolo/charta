@@ -1,12 +1,17 @@
 package dev.lucaargolo.charta.client.render.screen;
 
-import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.render.screen.widgets.CardSlotWidget;
-import dev.lucaargolo.charta.game.*;
-import dev.lucaargolo.charta.menu.AbstractCardMenu;
-import dev.lucaargolo.charta.menu.CardSlot;
-import dev.lucaargolo.charta.network.CardContainerSlotClickPayload;
-import dev.lucaargolo.charta.utils.*;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.game.Games;
+import dev.lucaargolo.charta.common.game.api.CardPlayer;
+import dev.lucaargolo.charta.common.game.api.GameSlot;
+import dev.lucaargolo.charta.common.game.api.card.Deck;
+import dev.lucaargolo.charta.common.game.api.game.Game;
+import dev.lucaargolo.charta.common.game.api.game.GameType;
+import dev.lucaargolo.charta.common.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.common.menu.CardSlot;
+import dev.lucaargolo.charta.common.network.CardContainerSlotClickPayload;
+import dev.lucaargolo.charta.common.utils.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -52,7 +57,7 @@ public abstract class GameScreen<G extends Game<G, M>, M extends AbstractCardMen
 
     public GameScreen(M menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.areOptionsChanged = ModGameTypes.areOptionsChanged(menu.getGameType(), menu.getGame());
+        this.areOptionsChanged = GameType.areOptionsChanged(menu.getGameType(), menu.getGame());
     }
 
     public Deck getDeck() {
@@ -136,7 +141,7 @@ public abstract class GameScreen<G extends Game<G, M>, M extends AbstractCardMen
 
         Component rules = Component.literal("\ue90e").withStyle(ChartaMod.SYMBOLS);
         this.addRenderableWidget(new Button.Builder(rules, b -> {
-            ResourceLocation gameId = ModGameTypes.REGISTRY.getRegistry().getKey(this.menu.getGameType());
+            ResourceLocation gameId = Games.MOD_REGISTRY.getRegistry().getKey(this.menu.getGameType());
             assert gameId != null;
             Minecraft.getInstance().setScreen(new MarkdownScreen(Component.translatable("message.charta.how_to_play").append(" ").append(Component.translatable(gameId.toLanguageKey())), this, gameId.getNamespace()+".how_to_play_"+gameId.getPath()));
         }).bounds(5, 35, 20, 20).tooltip(Tooltip.create(Component.translatable("message.charta.how_to_play"))).build());
@@ -144,7 +149,7 @@ public abstract class GameScreen<G extends Game<G, M>, M extends AbstractCardMen
         Tooltip tooltip = this.areOptionsChanged ? new MultiLineTooltip(Component.translatable("message.charta.game_options"), Component.empty(), Component.translatable("message.charta.custom_options").withStyle(ChatFormatting.RED)) : Tooltip.create(Component.translatable("message.charta.game_options"));
         Component config = Component.literal("\uE8B8").withStyle(ChartaMod.SYMBOLS);
         this.optionsButton = this.addRenderableWidget(new Button.Builder(config, b -> {
-            ResourceLocation gameId = ModGameTypes.REGISTRY.getRegistry().getKey(this.menu.getGameType());
+            ResourceLocation gameId = Games.MOD_REGISTRY.getRegistry().getKey(this.menu.getGameType());
             assert gameId != null;
             Minecraft.getInstance().setScreen(new OptionsScreen<>(this, BlockPos.ZERO, this.menu.getGame(), gameId, this.menu.getGameType(), true));
         }).bounds(27, 35, 20, 20).tooltip(tooltip).build());

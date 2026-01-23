@@ -1,11 +1,11 @@
 package dev.lucaargolo.charta.client.render.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaModClient;
 import dev.lucaargolo.charta.client.compat.IrisCompat;
-import dev.lucaargolo.charta.game.Deck;
-import dev.lucaargolo.charta.item.DeckItem;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.game.api.card.Deck;
+import dev.lucaargolo.charta.common.item.DeckItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -40,17 +40,17 @@ public class DeckItemRenderer extends BlockEntityWithoutLevelRenderer {
         Deck deck = DeckItem.getDeck(stack);
 
         if(IrisCompat.isPresent()) {
-            ResourceLocation deckGlowTexture = deck != null ? deck.getDeckTexture(true) : ChartaMod.MISSING_CARD;
+            ResourceLocation deckGlowTexture = deck != null ? deck.getTexture(true) : ChartaMod.MISSING_CARD;
             RenderType glowRenderType = RenderType.entityTranslucentEmissive(deckGlowTexture);
             this.minecraft.getItemRenderer().renderQuadList(poseStack, buffer.getBuffer(glowRenderType), transformedQuads, stack, LightTexture.FULL_BRIGHT, packedOverlay);
         }
 
-        ResourceLocation deckTexture = deck != null ? deck.getDeckTexture(false) : ChartaMod.MISSING_CARD;
+        ResourceLocation deckTexture = deck != null ? deck.getTexture(false) : ChartaMod.MISSING_CARD;
         RenderType renderType = IrisCompat.isPresent() ? RenderType.entityTranslucent(deckTexture) : ChartaModClient.getRenderTypeManager().entityCard(deckTexture);
         this.minecraft.getItemRenderer().renderQuadList(poseStack, buffer.getBuffer(renderType), transformedQuads, stack, packedLight, packedOverlay);
 
         if(IrisCompat.isPresent()) {
-            ResourceLocation deckGlowTexture = deck != null ? deck.getDeckTexture(true) : ChartaMod.MISSING_CARD;
+            ResourceLocation deckGlowTexture = deck != null ? deck.getTexture(true) : ChartaMod.MISSING_CARD;
             RenderType glowRenderType = RenderType.entityTranslucentEmissive(deckGlowTexture);
             this.minecraft.getItemRenderer().renderQuadList(poseStack, buffer.getBuffer(glowRenderType), transformedQuads, stack, LightTexture.FULL_BRIGHT, packedOverlay);
         }

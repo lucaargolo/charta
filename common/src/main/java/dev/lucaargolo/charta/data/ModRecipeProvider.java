@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.charta.block.ModBlocks;
-import dev.lucaargolo.charta.item.ModItems;
+import dev.lucaargolo.charta.common.block.ModBlocks;
+import dev.lucaargolo.charta.common.item.ModItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;

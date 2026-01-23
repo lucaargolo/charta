@@ -13,7 +13,7 @@ public class REICompat implements REIClientPlugin {
         registry.registerDecider(new OverlayDecider() {
             @Override
             public <R extends Screen> boolean isHandingScreen(Class<R> screen) {
-                return screen.getCanonicalName().startsWith("dev.lucaargolo.charta.game");
+                return screen.getCanonicalName().startsWith("dev.lucaargolo.charta.common.game");
             }
 
             @Override

@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.data.image;
 
-import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.utils.CardImage;
-import dev.lucaargolo.charta.utils.CardImageUtils;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.utils.CardImage;
+import dev.lucaargolo.charta.common.utils.CardImageUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;

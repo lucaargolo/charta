@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.client;
 
-import dev.lucaargolo.charta.NeoForgeChartaMod;
-import dev.lucaargolo.charta.registry.ModItemRegistry;
-import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
+import dev.lucaargolo.charta.common.NeoForgeChartaMod;
+import dev.lucaargolo.charta.common.registry.ModItemRegistry;
+import dev.lucaargolo.charta.common.registry.minecraft.MinecraftEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;

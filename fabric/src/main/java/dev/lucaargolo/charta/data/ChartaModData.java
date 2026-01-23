@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.charta.block.ModBannerPatterns;
+import dev.lucaargolo.charta.common.block.ModBannerPatterns;
 import dev.lucaargolo.charta.data.image.CardImageProvider;
 import dev.lucaargolo.charta.data.image.DeckImageProvider;
 import dev.lucaargolo.charta.data.image.SuitImageProvider;

@@ -2,8 +2,8 @@ package dev.lucaargolo.charta.client.render.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
-import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaModClient;
+import dev.lucaargolo.charta.common.ChartaMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;

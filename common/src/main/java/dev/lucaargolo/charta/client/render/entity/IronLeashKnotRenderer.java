@@ -2,8 +2,8 @@ package dev.lucaargolo.charta.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.entity.IronLeashFenceKnotEntity;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.entity.IronLeashFenceKnotEntity;
 import net.minecraft.client.model.LeashKnotModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;

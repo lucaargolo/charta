@@ -1,11 +1,11 @@
 package dev.lucaargolo.charta.client.render.screen.widgets;
 
 import dev.lucaargolo.charta.client.render.screen.GameScreen;
-import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.Game;
-import dev.lucaargolo.charta.game.GameSlot;
-import dev.lucaargolo.charta.menu.AbstractCardMenu;
-import dev.lucaargolo.charta.menu.CardSlot;
+import dev.lucaargolo.charta.common.game.api.GameSlot;
+import dev.lucaargolo.charta.common.game.api.card.Card;
+import dev.lucaargolo.charta.common.game.api.game.Game;
+import dev.lucaargolo.charta.common.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.common.menu.CardSlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -160,7 +160,7 @@ public class CardSlotWidget<G extends Game<G, M>, M extends AbstractCardMenu<G, 
     public @NotNull ResourceLocation getCardTexture(@Nullable ResourceLocation cardId, boolean glow) {
         Card card = cardSlot.getSlot().getLast();
         if(card.flipped()) {
-            return parent.getDeck().getDeckTexture(glow);
+            return parent.getDeck().getTexture(glow);
         }else{
             return parent.getDeck().getCardTexture(card, glow);
         }

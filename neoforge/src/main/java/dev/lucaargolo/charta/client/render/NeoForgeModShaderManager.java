@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.client.render;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.lucaargolo.charta.NeoForgeChartaMod;
+import dev.lucaargolo.charta.common.NeoForgeChartaMod;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;

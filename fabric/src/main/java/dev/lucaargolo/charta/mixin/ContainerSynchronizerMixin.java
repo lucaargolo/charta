@@ -1,11 +1,11 @@
 package dev.lucaargolo.charta.mixin;
 
-import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.game.GameSlot;
-import dev.lucaargolo.charta.menu.AbstractCardMenu;
-import dev.lucaargolo.charta.network.UpdateCardContainerCarriedPayload;
-import dev.lucaargolo.charta.network.UpdateCardContainerSlotPayload;
-import dev.lucaargolo.charta.utils.CardContainerSynchronizerMixed;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.game.api.GameSlot;
+import dev.lucaargolo.charta.common.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.common.network.UpdateCardContainerCarriedPayload;
+import dev.lucaargolo.charta.common.network.UpdateCardContainerSlotPayload;
+import dev.lucaargolo.charta.common.utils.CardContainerSynchronizerMixed;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;

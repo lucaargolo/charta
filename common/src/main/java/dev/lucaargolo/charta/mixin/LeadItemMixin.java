@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.mixin;
 
-import dev.lucaargolo.charta.entity.IronLeashFenceKnotEntity;
+import dev.lucaargolo.charta.common.entity.IronLeashFenceKnotEntity;
 import dev.lucaargolo.charta.mixed.LeashableMixed;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;

@@ -3,13 +3,13 @@ package dev.lucaargolo.charta.client.render.block;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
 import dev.lucaargolo.charta.client.ChartaModClient;
 import dev.lucaargolo.charta.client.compat.IrisCompat;
-import dev.lucaargolo.charta.game.Card;
-import dev.lucaargolo.charta.game.Deck;
-import dev.lucaargolo.charta.game.GameSlot;
-import dev.lucaargolo.charta.utils.CardImage;
+import dev.lucaargolo.charta.common.block.entity.CardTableBlockEntity;
+import dev.lucaargolo.charta.common.game.api.GameSlot;
+import dev.lucaargolo.charta.common.game.api.card.Card;
+import dev.lucaargolo.charta.common.game.api.card.Deck;
+import dev.lucaargolo.charta.common.utils.CardImage;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -134,7 +134,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
         PoseStack.Pose entry = poseStack.last();
 
         if(IrisCompat.isPresent()) {
-            ResourceLocation glowTexture = card.flipped() ? deck.getDeckTexture(true) : deck.getCardTexture(card, true);
+            ResourceLocation glowTexture = card.flipped() ? deck.getTexture(true) : deck.getCardTexture(card, true);
             RenderType glowType = RenderType.entityTranslucentEmissive(glowTexture);
             VertexConsumer glowConsumer = bufferSource.getBuffer(glowType);
             glowConsumer.addVertex(entry.pose(), (x+CardImage.WIDTH)/160f, y/160f, 0).setColor(1f, 1f, 1f, 1f).setUv(1f, 1f).setOverlay(packedOverlay).setLight(LightTexture.FULL_BRIGHT).setNormal(entry, normal.x, normal.y, normal.z);
@@ -143,7 +143,7 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
             glowConsumer.addVertex(entry.pose(), x/160f, y/160f, 0).setColor(1f, 1f, 1f, 1f).setUv(0f, 1f).setOverlay(packedOverlay).setLight(LightTexture.FULL_BRIGHT).setNormal(entry, normal.x, normal.y, normal.z);
         }
 
-        ResourceLocation texture = card.flipped() ? deck.getDeckTexture(false) : deck.getCardTexture(card, false);
+        ResourceLocation texture = card.flipped() ? deck.getTexture(false) : deck.getCardTexture(card, false);
         RenderType type = IrisCompat.isPresent() ? RenderType.entityTranslucent(texture) : ChartaModClient.getRenderTypeManager().entityCard(texture);
         VertexConsumer consumer = bufferSource.getBuffer(type);
 

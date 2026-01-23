@@ -1,12 +1,15 @@
 package dev.lucaargolo.charta.client.render.screen;
 
-import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaModClient;
-import dev.lucaargolo.charta.game.*;
-import dev.lucaargolo.charta.menu.AbstractCardMenu;
-import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
-import dev.lucaargolo.charta.network.PlayerOptionsPayload;
-import dev.lucaargolo.charta.utils.CustomOptionTooltip;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.game.api.card.Deck;
+import dev.lucaargolo.charta.common.game.api.game.Game;
+import dev.lucaargolo.charta.common.game.api.game.GameOption;
+import dev.lucaargolo.charta.common.game.api.game.GameType;
+import dev.lucaargolo.charta.common.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.common.network.CardTableSelectGamePayload;
+import dev.lucaargolo.charta.common.network.PlayerOptionsPayload;
+import dev.lucaargolo.charta.common.utils.CustomOptionTooltip;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import net.minecraft.Util;
@@ -71,14 +74,14 @@ public class OptionsScreen<G extends Game<G, M>, M extends AbstractCardMenu<G, M
 
         if(!showcase) {
             this.resetButton = this.addRenderableWidget(Button.builder(Component.translatable("button.charta.reset"), b -> {
-                boolean reset = ModGameTypes.areOptionsChanged(gameType, game);
+                boolean reset = GameType.areOptionsChanged(gameType, game);
                 if(reset) {
                     G defaultGame = gameType.create(List.of(), Deck.EMPTY);
                     this.game.setRawOptions(defaultGame.getRawOptions());
                 }
                 this.updateButtons(false);
             }).bounds(width/2 - 108, height-25, 68, 20).tooltip(Tooltip.create(Component.translatable("message.charta.reset_options"))).build());
-            this.resetButton.active = ModGameTypes.areOptionsChanged(gameType, game);
+            this.resetButton.active = GameType.areOptionsChanged(gameType, game);
 
             this.saveButton = this.addRenderableWidget(Button.builder(Component.translatable("button.charta.save"), b -> {
                 this.updateButtons(true);

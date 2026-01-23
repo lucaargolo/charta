@@ -1,9 +1,9 @@
 package dev.lucaargolo.charta.mixin;
 
-import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.block.entity.CardTableBlockEntity;
-import dev.lucaargolo.charta.game.GameSlot;
-import dev.lucaargolo.charta.network.GameSlotCompletePayload;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.block.entity.CardTableBlockEntity;
+import dev.lucaargolo.charta.common.game.api.GameSlot;
+import dev.lucaargolo.charta.common.network.GameSlotCompletePayload;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerPlayer;

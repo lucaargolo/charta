@@ -1,0 +1,105 @@
+package dev.lucaargolo.charta.common.game.impl.solitaire;
+
+import dev.lucaargolo.charta.common.game.Games;
+import dev.lucaargolo.charta.common.game.api.GameSlot;
+import dev.lucaargolo.charta.common.game.api.game.GameType;
+import dev.lucaargolo.charta.common.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.common.menu.CardSlot;
+import dev.lucaargolo.charta.common.menu.ModMenuTypes;
+import dev.lucaargolo.charta.common.utils.CardImage;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
+
+public class SolitaireMenu extends AbstractCardMenu<SolitaireGame, SolitaireMenu> {
+
+    private int canRestore = 0;
+    private final ContainerData data = new ContainerData() {
+
+        @Override
+        public int get(int i) {
+            return switch (i) {
+                case 0 -> game.moves;
+                case 1 -> game.time;
+                case 2 -> game.canRestore() ? 1 : canRestore;
+                default -> 0;
+            };
+        }
+
+        @Override
+        public void set(int i, int value) {
+            switch (i) {
+                case 0 -> game.moves = value;
+                case 1 -> game.time = value;
+                case 2 -> canRestore = value;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+    };
+
+    public SolitaireMenu(int containerId, Inventory inventory, Definition definition) {
+        super(ModMenuTypes.SOLITAIRE.get(), containerId, inventory, definition);
+
+        //Fix carried cards being lost forever when the screen was closed :)
+        GameSlot playerHand = this.game.getPlayerHand(this.cardPlayer);
+        if(!playerHand.isEmpty()) {
+            this.getCarriedCards().addAll(playerHand);
+            this.game.getPlayerHand(this.cardPlayer).clear();
+            this.game.getCensoredHand(this.cardPlayer).clear();
+        }
+
+        //Stock Pile
+        addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(0), 5f, 5f));
+        //Waste Pile
+        addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(1), 5 + (CardImage.WIDTH * 1.5f + 5), 5f));
+
+        //Foundation Piles
+        for(int i = 0; i < 4; i++) {
+            int s = 2 + i;
+            addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(s), 5 + (CardImage.WIDTH * 1.5f + 5)*(3 + i), 5f));
+        }
+
+        //Tableau Piles
+        for(int i = 0; i < 7; i++) {
+            int s = 6 + i;
+            addCardSlot(new CardSlot<>(this.game, g -> g.getSlot(s), 5 + (CardImage.WIDTH * 1.5f + 5) * i, 5f + CardImage.HEIGHT * 1.5f + 5, CardSlot.Type.VERTICAL));
+        }
+
+        addDataSlots(data);
+
+    }
+
+    public int getMoves() {
+        return data.get(0);
+    }
+
+    public int getTime() {
+        return data.get(1);
+    }
+
+    public boolean canRestore() {
+        return canRestore > 0;
+    }
+
+    @Override
+    public GameType<SolitaireGame, SolitaireMenu> getGameType() {
+        return Games.SOLITAIRE.get();
+    }
+
+    @Override
+    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean stillValid(@NotNull Player player) {
+        return this.game != null && this.cardPlayer != null && !this.game.isGameOver();
+    }
+
+}

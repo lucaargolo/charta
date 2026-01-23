@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.lucaargolo.charta.ChartaMod;
+import dev.lucaargolo.charta.common.ChartaMod;
 import dev.lucaargolo.charta.data.fabric.FabricLikeDataOutput;
 import dev.lucaargolo.charta.data.fabric.FabricLikeModelProvider;
 import net.minecraft.core.registries.BuiltInRegistries;

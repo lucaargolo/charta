@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.data;
 
-import dev.lucaargolo.charta.block.ModBlocks;
+import dev.lucaargolo.charta.common.block.ModBlocks;
 import dev.lucaargolo.charta.data.builder.ModBlockLootBuilder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;

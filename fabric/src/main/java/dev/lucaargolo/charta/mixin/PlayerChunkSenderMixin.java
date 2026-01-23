@@ -1,7 +1,7 @@
 package dev.lucaargolo.charta.mixin;
 
-import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.FabricChartaMod;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.FabricChartaMod;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.PlayerChunkSender;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;

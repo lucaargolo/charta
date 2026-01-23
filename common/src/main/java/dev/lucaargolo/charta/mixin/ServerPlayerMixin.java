@@ -1,8 +1,12 @@
 package dev.lucaargolo.charta.mixin;
 
 import com.mojang.authlib.GameProfile;
-import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.game.*;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.game.api.CardPlayer;
+import dev.lucaargolo.charta.common.game.api.GamePlay;
+import dev.lucaargolo.charta.common.game.api.card.Card;
+import dev.lucaargolo.charta.common.game.api.card.Deck;
+import dev.lucaargolo.charta.common.game.api.game.Game;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -27,7 +31,7 @@ public abstract class ServerPlayerMixin extends Player implements LivingEntityMi
     @Unique
     private final LinkedList<Card> charta_hand = new LinkedList<>();
     @Unique
-    private CompletableFuture<CardPlay> charta_play = new CompletableFuture<>();
+    private CompletableFuture<GamePlay> charta_play = new CompletableFuture<>();
     @Unique
     private final CardPlayer charta_cardPlayer = new CardPlayer() {
 
@@ -37,12 +41,12 @@ public abstract class ServerPlayerMixin extends Player implements LivingEntityMi
         }
 
         @Override
-        public void play(CardPlay play) {
+        public void play(GamePlay play) {
             charta_play.complete(play);
         }
 
         @Override
-        public void afterPlay(Consumer<CardPlay> consumer) {
+        public void afterPlay(Consumer<GamePlay> consumer) {
             charta_play.thenAccept(play -> {
                 try{
                     consumer.accept(play);

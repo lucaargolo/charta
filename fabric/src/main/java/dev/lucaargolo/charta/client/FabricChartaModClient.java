@@ -1,8 +1,8 @@
 package dev.lucaargolo.charta.client;
 
-import dev.lucaargolo.charta.block.ModBlocks;
-import dev.lucaargolo.charta.registry.ModItemRegistry;
-import dev.lucaargolo.charta.registry.minecraft.MinecraftEntry;
+import dev.lucaargolo.charta.common.block.ModBlocks;
+import dev.lucaargolo.charta.common.registry.ModItemRegistry;
+import dev.lucaargolo.charta.common.registry.minecraft.MinecraftEntry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;

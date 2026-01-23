@@ -1,9 +1,9 @@
 package dev.lucaargolo.charta.client.compat;
 
-import dev.lucaargolo.charta.ChartaMod;
-import dev.lucaargolo.charta.game.crazyeights.CrazyEightsScreen;
-import dev.lucaargolo.charta.game.fun.FunScreen;
-import dev.lucaargolo.charta.game.solitaire.SolitaireScreen;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.game.impl.crazyeights.CrazyEightsScreen;
+import dev.lucaargolo.charta.common.game.impl.fun.FunScreen;
+import dev.lucaargolo.charta.common.game.impl.solitaire.SolitaireScreen;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.gui.handlers.IGuiProperties;

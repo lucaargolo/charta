@@ -2,17 +2,17 @@ package dev.lucaargolo.charta.client.render.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Either;
-import dev.lucaargolo.charta.ChartaMod;
 import dev.lucaargolo.charta.client.ChartaModClient;
-import dev.lucaargolo.charta.game.CardPlayer;
-import dev.lucaargolo.charta.game.Deck;
-import dev.lucaargolo.charta.game.GameType;
-import dev.lucaargolo.charta.game.ModGameTypes;
-import dev.lucaargolo.charta.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.common.ChartaMod;
+import dev.lucaargolo.charta.common.game.Games;
+import dev.lucaargolo.charta.common.game.api.CardPlayer;
+import dev.lucaargolo.charta.common.game.api.card.Deck;
+import dev.lucaargolo.charta.common.game.api.game.GameType;
+import dev.lucaargolo.charta.common.menu.AbstractCardMenu;
+import dev.lucaargolo.charta.common.network.CardTableSelectGamePayload;
+import dev.lucaargolo.charta.common.utils.ChartaGuiGraphics;
+import dev.lucaargolo.charta.common.utils.TickableWidget;
 import dev.lucaargolo.charta.mixed.LivingEntityMixed;
-import dev.lucaargolo.charta.network.CardTableSelectGamePayload;
-import dev.lucaargolo.charta.utils.ChartaGuiGraphics;
-import dev.lucaargolo.charta.utils.TickableWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -52,7 +52,7 @@ public class TableScreen extends Screen {
     protected void init() {
         super.init();
         this.widget = this.addRenderableWidget(new GameWidget<>(minecraft, width, height-60, 30));
-        ModGameTypes.REGISTRY.getRegistry().entrySet().forEach(entry -> {
+        Games.MOD_REGISTRY.getRegistry().entrySet().forEach(entry -> {
             this.widget.addEntry(new Game(entry.getKey().location(), entry.getValue()));
         });
     }
@@ -84,7 +84,7 @@ public class TableScreen extends Screen {
         return false;
     }
 
-    public class Game<G extends dev.lucaargolo.charta.game.Game<G, M>, M extends AbstractCardMenu<G, M>> extends Button implements TickableWidget {
+    public class Game<G extends dev.lucaargolo.charta.common.game.api.game.Game<G, M>, M extends AbstractCardMenu<G, M>> extends Button implements TickableWidget {
 
         private final ResourceLocation gameId;
         private final GameType<G, M> gameFactory;
@@ -117,9 +117,9 @@ public class TableScreen extends Screen {
                     cardPlayers.add(mixed.charta_getCardPlayer());
                 }
             }
-            Either<dev.lucaargolo.charta.game.Game<?, ?>, Component> either = this.game.playerPredicate(cardPlayers);
+            Either<dev.lucaargolo.charta.common.game.api.game.Game<?, ?>, Component> either = this.game.playerPredicate(cardPlayers);
 
-            boolean invalidDeck = !dev.lucaargolo.charta.game.Game.isValidDeck(this.game, deck);
+            boolean invalidDeck = !dev.lucaargolo.charta.common.game.api.game.Game.isValidDeck(this.game, deck);
             boolean notEnoughPlayers = players.length < this.game.getMinPlayers();
             boolean tooManyPlayers = players.length > this.game.getMaxPlayers();
             boolean invalidPlayers = either.right().isPresent();
@@ -182,7 +182,7 @@ public class TableScreen extends Screen {
 
     }
 
-    public class GameRow<G extends dev.lucaargolo.charta.game.Game<G, M>, M extends AbstractCardMenu<G, M>> extends ContainerObjectSelectionList.Entry<GameRow<G, M>> {
+    public class GameRow<G extends dev.lucaargolo.charta.common.game.api.game.Game<G, M>, M extends AbstractCardMenu<G, M>> extends ContainerObjectSelectionList.Entry<GameRow<G, M>> {
 
         protected List<Game<G, M>> games = new ArrayList<>();
         protected List<Button> plays = new ArrayList<>();
@@ -230,7 +230,7 @@ public class TableScreen extends Screen {
 
     }
 
-    public class GameWidget<G extends dev.lucaargolo.charta.game.Game<G, M>, M extends AbstractCardMenu<G, M>> extends ContainerObjectSelectionList<GameRow<G, M>> implements TickableWidget {
+    public class GameWidget<G extends dev.lucaargolo.charta.common.game.api.game.Game<G, M>, M extends AbstractCardMenu<G, M>> extends ContainerObjectSelectionList<GameRow<G, M>> implements TickableWidget {
 
         private final int amount;
 

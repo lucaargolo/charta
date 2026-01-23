@@ -1,6 +1,6 @@
 package dev.lucaargolo.charta.mixed;
 
-import dev.lucaargolo.charta.game.CardPlayer;
+import dev.lucaargolo.charta.common.game.api.CardPlayer;
 
 public interface LivingEntityMixed {
 
