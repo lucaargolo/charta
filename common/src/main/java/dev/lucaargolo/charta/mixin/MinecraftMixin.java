@@ -19,6 +19,7 @@ public class MinecraftMixin {
 
     @Inject(at = @At("TAIL"), method = "resizeDisplay")
     public void resizeDisplay(CallbackInfo ci) {
+        if (ChartaModClient.getInstance() == null) return;
         RenderTarget rendertarget = ChartaModClient.getShaderManager().getGlowRenderTarget();
         if(rendertarget != null)
             rendertarget.resize(this.window.getWidth(), this.window.getHeight(), Minecraft.ON_OSX);
