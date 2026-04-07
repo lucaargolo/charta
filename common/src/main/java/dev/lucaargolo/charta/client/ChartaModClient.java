@@ -85,6 +85,16 @@ public abstract class ChartaModClient {
 
     protected abstract <M extends AbstractContainerMenu, P extends Screen & MenuAccess<M>> void registerMenuScreen(MinecraftEntry<MenuType<M>> type, TriFunction<M, Inventory, Component, P> factory);
 
+    /**
+     * Public API for addon screen registration.
+     * Call from your client initializer after {@link ChartaModClient#getInstance()} is available.
+     */
+    public final <M extends AbstractContainerMenu, P extends Screen & MenuAccess<M>> void registerAddonMenuScreen(
+            MinecraftEntry<MenuType<M>> type,
+            TriFunction<M, Inventory, Component, P> factory) {
+        registerMenuScreen(type, factory);
+    }
+
     protected abstract <E extends Entity, P extends EntityRendererProvider<E>> void registerEntityRenderer(MinecraftEntry<EntityType<E>> type, P provider);
 
     protected abstract <E extends BlockEntity, P extends BlockEntityRendererProvider<E>> void registerBlockEntityRenderer(MinecraftEntry<BlockEntityType<E>> type, P provider);

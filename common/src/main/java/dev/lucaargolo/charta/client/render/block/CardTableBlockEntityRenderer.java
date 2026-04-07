@@ -127,8 +127,26 @@ public class CardTableBlockEntityRenderer implements BlockEntityRenderer<CardTab
             poseStack.translate(0.5 + blockEntity.centerOffset.x, 0.275 + blockEntity.centerOffset.y, 0.0);
             context.getItemRenderer().renderStatic(deckStack, ItemDisplayContext.GROUND, packedLight, packedOverlay, poseStack, bufferSource, blockEntity.getLevel(), 1);
         }
+        if (EXTRA_RENDERER != null) {
+            EXTRA_RENDERER.render(blockEntity, partialTick, poseStack, bufferSource, packedLight, packedOverlay);
+        }
         poseStack.popPose();
     }
+
+    /**
+     * Optional extra render hook for addons.
+     * Called after cards are rendered. Receives the same render arguments.
+     * Register from your client initializer:
+     * {@code CardTableBlockEntityRenderer.EXTRA_RENDERER = (be, pt, ps, buf, light, overlay) -> { ... };}
+     */
+    @FunctionalInterface
+    public interface ExtraRenderer {
+        void render(CardTableBlockEntity blockEntity, float partialTick,
+                    PoseStack poseStack, MultiBufferSource bufferSource,
+                    int packedLight, int packedOverlay);
+    }
+
+    public static ExtraRenderer EXTRA_RENDERER = null;
 
     public static void drawCard(Deck deck, Card card, int packedLight, int packedOverlay, PoseStack poseStack, MultiBufferSource bufferSource, float x, float y, Vector3f normal) {
         PoseStack.Pose entry = poseStack.last();

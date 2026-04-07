@@ -113,6 +113,10 @@ public abstract class AbstractCardMenu<G extends Game<G, M>, M extends AbstractC
         return deck;
     }
 
+    public BlockPos getBlockPos() {
+        return this.access.evaluate((level, pos) -> pos).orElse(null);
+    }
+
     public abstract GameType<G, M> getGameType();
 
     public G getGame() {
